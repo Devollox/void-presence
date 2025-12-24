@@ -31,6 +31,7 @@ Advanced Discord Rich Presence manager with customizable button pairs, text cycl
 6. Click `SAVE` button
 7. Your Discord Rich Presence is now active!
 
+> **⏱️ Initial Delay:** When you first start Void Presence, there's approximately a 25 second delay before the status appears in Discord. This is normal and only happens on startup. After that, status updates every 30 seconds.
 
 ## Configuration
 
