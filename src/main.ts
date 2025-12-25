@@ -36,6 +36,7 @@ function createWindow() {
 		height: 640,
 		icon: iconPath,
 		frame: false,
+		resizable: false,
 		titleBarStyle: 'hidden',
 		backgroundColor: '#000000',
 		webPreferences: {
