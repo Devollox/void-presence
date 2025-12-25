@@ -1,15 +1,13 @@
 # Void Presence
 
 <h1 align="center">
-  
 <div style="display: flex; gap: 10px; justify-content: center;">
   
-  <img width="450" height="493" alt="demo" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3BibHBvazVucDNiOHMyc2t3NG1mMHphcDY2eTNqamVocnA0aXhociZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
-  
-  ![2025-12-25 10-12-34 (online-video-cutter com) (1)](https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394)
+  <img width="450" height="493" alt="demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
+
+  <img width="450" height="493" alt="demo" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
   
 </div>
-
 </h1>
 
 
