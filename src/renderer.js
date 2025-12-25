@@ -356,7 +356,8 @@ function setupConfigPage() {
 	const saveBtn = document.getElementById('config-save-btn')
 	const list = document.getElementById('config-list')
 	const addBtn = document.getElementById('config-add-btn')
-	if (!nameInput || !saveBtn || !list || !addBtn) return
+	const exportBtn = document.getElementById('config-export-btn')
+	if (!nameInput || !saveBtn || !list || !addBtn || !exportBtn) return
 
 	function getConfigs() {
 		try {
@@ -487,6 +488,19 @@ function setupConfigPage() {
 		renderConfigs()
 	}
 
+	function downloadJson(data, filename) {
+		const json = JSON.stringify(data, null, 2)
+		const blob = new Blob([json], { type: 'application/json' })
+		const url = URL.createObjectURL(blob)
+		const a = document.createElement('a')
+		a.href = url
+		a.download = filename
+		document.body.appendChild(a)
+		a.click()
+		document.body.removeChild(a)
+		URL.revokeObjectURL(url)
+	}
+
 	saveBtn.addEventListener('click', e => {
 		e.preventDefault()
 		const name = nameInput.value.trim()
@@ -539,6 +553,21 @@ function setupConfigPage() {
 			}
 		}
 		reader.readAsText(file)
+	})
+
+	exportBtn.addEventListener('click', e => {
+		e.preventDefault()
+		const state = loadCurrentState()
+		const data = {
+			clientId: undefined,
+			cycles: state.cycles || [],
+			imageCycles: state.imageCycles || [],
+			buttonPairs: state.buttonPairs || [],
+		}
+		const name =
+			nameInput.value.trim() ||
+			`void-presence-${new Date().toISOString().slice(0, 10)}`
+		downloadJson(data, `${name}.json`)
 	})
 
 	renderConfigs()
