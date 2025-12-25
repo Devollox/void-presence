@@ -342,10 +342,7 @@ function startDiscordRich(
 		const cyclesConfig = await readCyclesConfig()
 		const imageCyclesConfig = await readImageCyclesConfig()
 
-		if (
-			!clientId ||
-			!cyclesConfig.entries.length
-		) {
+		if (!clientId || !cyclesConfig.entries.length) {
 			sendStatus('NO_CLIENT_ID')
 			return
 		}
@@ -369,16 +366,22 @@ function startDiscordRich(
 		const buttonPairs = buttonsConfig.pairs
 
 		const cycles = baseCycles.map((c, idx) => {
-			const pairIndex = idx % buttonPairs.length
-			const pair = buttonPairs[pairIndex]
 			const img = baseImageCycles[idx % baseImageCycles.length]
+
+			let buttons: { label: string; url: string }[] = []
+			if (buttonPairs.length > 0) {
+				const pairIndex = idx % buttonPairs.length
+				const pair = buttonPairs[pairIndex]
+				buttons = [
+					{ label: pair.label1, url: pair.url1 },
+					{ label: pair.label2, url: pair.url2 },
+				]
+			}
+
 			return {
 				details: c.details,
 				state: c.state,
-				buttons: [
-					{ label: pair.label1, url: pair.url1 },
-					{ label: pair.label2, url: pair.url2 },
-				],
+				buttons,
 				largeImage: img.largeImage,
 				largeText: img.largeText,
 				smallImage: img.smallImage,
@@ -394,20 +397,25 @@ function startDiscordRich(
 
 			const buttons = current.buttons
 
+			const activity: any = {
+				details: current.details,
+				state: current.state,
+				assets: {
+					large_image: current.largeImage || undefined,
+					large_text: current.largeText || undefined,
+					small_image: current.smallImage || undefined,
+					small_text: current.smallText || undefined,
+				},
+				timestamps,
+			}
+
+			if (current.buttons.length > 0) {
+				activity.buttons = current.buttons
+			}
+
 			localClient.request('SET_ACTIVITY', {
 				pid: process.pid,
-				activity: {
-					details: current.details,
-					state: current.state,
-					assets: {
-						large_image: current.largeImage || undefined,
-						large_text: current.largeText || undefined,
-						small_image: current.smallImage || undefined,
-						small_text: current.smallText || undefined,
-					},
-					timestamps,
-					buttons,
-				},
+				activity,
 			})
 
 			sendStatus('ACTIVE')
@@ -504,4 +512,3 @@ function startDiscordRich(
 
 export { readClientConfig }
 export default startDiscordRich
-

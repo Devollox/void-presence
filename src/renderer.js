@@ -502,7 +502,7 @@ function setupClientIdControls() {
 		const smallImage = first.smallImage
 		const smallText = first.smallText
 
-		if (!clientId || !cleanedPairs.length || !cleanedCycles.length) {
+		if (!clientId || !cleanedCycles.length) {
 			updateStatus('NO_CLIENT_ID')
 			return
 		}
@@ -593,4 +593,3 @@ window.addEventListener('DOMContentLoaded', () => {
 		})
 	}
 })
-
