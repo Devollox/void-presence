@@ -344,7 +344,6 @@ function startDiscordRich(
 
 		if (
 			!clientId ||
-			!buttonsConfig.pairs.length ||
 			!cyclesConfig.entries.length
 		) {
 			sendStatus('NO_CLIENT_ID')
@@ -505,3 +504,4 @@ function startDiscordRich(
 
 export { readClientConfig }
 export default startDiscordRich
+
