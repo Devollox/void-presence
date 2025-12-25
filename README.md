@@ -1,8 +1,18 @@
 # Void Presence
 
 <h1 align="center">
-<img width="474" height="635" alt="image" src="https://github.com/user-attachments/assets/88be5f0d-ce20-4c3e-b74c-007c7a5e8747" />
+  
+<div style="display: flex; gap: 10px; justify-content: center;">
+  
+  <img width="450" height="493" alt="demo" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3BibHBvazVucDNiOHMyc2t3NG1mMHphcDY2eTNqamVocnA0aXhociZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
+  
+  ![2025-12-25 10-12-34 (online-video-cutter com) (1)](https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394)
+  
+</div>
+
 </h1>
+
+
 
 Advanced Discord Rich Presence manager with customizable button pairs, text cycles, and image rotation. Status updates every 30 seconds with full control over your Discord activity display.
 
