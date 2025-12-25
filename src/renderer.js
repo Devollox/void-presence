@@ -325,23 +325,7 @@ function setupClientIdControls() {
 			},
 		]
 	}
-	if (!Array.isArray(buttonPairs) || !buttonPairs.length) {
-		buttonPairs = [
-			{
-				label1: 'Button 1',
-				url1: 'https://store.steampowered.com',
-				label2: 'Button 2',
-				url2: 'https://discord.com',
-			},
-			{
-				label1: 'Button 1.2',
-				url1: 'https://store.steampowered.com',
-				label2: 'Button 1.2',
-				url2: 'https://discord.com',
-			},
-		]
-	}
-
+	
 	if (!Array.isArray(cycles) || !cycles.length) {
 		cycles = [
 			{ details: 'Idling in the void', state: 'Just vibing' },
@@ -593,3 +577,4 @@ window.addEventListener('DOMContentLoaded', () => {
 		})
 	}
 })
+
