@@ -96,6 +96,26 @@ Get your Application ID from the [Discord Developer Portal](https://discord.com/
 - Drop the config onto the app (or load it via file picker) to instantly apply the same settings
 - Use this to move your Rich Presence configuration to another machine or user profile in seconds
 
+## Config presets
+
+Void Presence ships with ready‑to‑use Rich Presence presets so you can start in one click.
+
+### Yuuka – Blue Archive
+
+<details>
+  <summary><strong>Show Yuuka config details</strong></summary>
+
+Example used in the screenshot above is available as a JSON preset right in the repo.
+
+<img width="280" height="166" alt="Yuuka preview" src="https://github.com/user-attachments/assets/7509f87b-3f8f-4535-bd6f-3e3b873e0ee2" />
+
+- Config file: [`config/Yuuka.json`](config/Yuuka.json)
+- Game: Blue Archive – Hayase Yuuka
+- Use case: quick start with a themed Rich Presence profile  
+- How to use: drag and drop this `.json` file **directly onto the `+Config` area** to instantly load the Yuuka setup into Void Presence.
+
+</details>
+
 ## Usage
 
 1. **Set Client ID** – Enter your Discord Application ID  
