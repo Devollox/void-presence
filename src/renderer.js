@@ -318,7 +318,7 @@ function setupClientIdControls() {
 		imageCycles = [
 			{
 				largeImage:
-					'https://cdn.discordapp.com/app-icons/716185267152617485/9659188c924fe8958131eedc843d88dc.png?size=256',
+					'https://avatars.githubusercontent.com/u/122895078?v=4',
 				largeText: '',
 				smallImage: '',
 				smallText: '',
@@ -577,4 +577,5 @@ window.addEventListener('DOMContentLoaded', () => {
 		})
 	}
 })
+
 
