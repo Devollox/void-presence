@@ -1,3 +1,95 @@
+const logsViewList = document.getElementById('logs-view-list')
+const logsCounter = document.getElementById('logs-counter')
+const maxLogs = 120
+const navMain = document.getElementById('nav-main')
+const navLogs = document.getElementById('nav-logs')
+const navConfig = document.getElementById('nav-config')
+const views = document.querySelectorAll('.view')
+
+function setActiveView(viewName) {
+	views.forEach(v => {
+		const name = v.getAttribute('data-view')
+		v.setAttribute('data-active', name === viewName ? 'true' : 'false')
+	})
+	if (navMain) {
+		navMain.setAttribute('data-active', viewName === 'main' ? 'true' : 'false')
+	}
+	if (navLogs) {
+		navLogs.setAttribute('data-active', viewName === 'logs' ? 'true' : 'false')
+	}
+	if (navConfig) {
+		navConfig.setAttribute(
+			'data-active',
+			viewName === 'config' ? 'true' : 'false'
+		)
+	}
+}
+
+if (navMain) {
+	navMain.addEventListener('click', () => setActiveView('main'))
+}
+if (navLogs) {
+	navLogs.addEventListener('click', () => setActiveView('logs'))
+}
+if (navConfig) {
+	navConfig.addEventListener('click', () => setActiveView('config'))
+}
+
+function appendLog(entry) {
+	if (!logsViewList) return
+	const now = new Date()
+	const time =
+		String(now.getHours()).padStart(2, '0') +
+		':' +
+		String(now.getMinutes()).padStart(2, '0') +
+		':' +
+		String(now.getSeconds()).padStart(2, '0')
+	const level = (entry.level || entry.type || 'info').toLowerCase()
+	const rawText = entry.message || entry.text || entry.error || String(entry)
+	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
+	const isError = level === 'error' || isErrorText
+	const item = document.createElement('div')
+	item.className = 'log-item' + (isError ? ' log-error' : '')
+	const dot = document.createElement('div')
+	dot.className = 'log-level-dot'
+	const meta = document.createElement('div')
+	meta.className = 'log-item-meta'
+	meta.textContent = time + ' · ' + level.toUpperCase()
+	const msg = document.createElement('div')
+	msg.className = 'log-item-message'
+	rawText.split('\n').forEach(line => {
+		const lineEl = document.createElement('div')
+		lineEl.textContent = line
+		msg.appendChild(lineEl)
+	})
+	item.appendChild(dot)
+	item.appendChild(meta)
+	item.appendChild(msg)
+	logsViewList.insertBefore(item, logsViewList.firstChild)
+	while (logsViewList.children.length > maxLogs) {
+		logsViewList.removeChild(logsViewList.lastChild)
+	}
+	if (logsCounter) {
+		const count = logsViewList.children.length
+		logsCounter.textContent = count + ' entries'
+	}
+	if (navLogs) {
+		const first = logsViewList.firstChild
+		const firstIsError = first && first.classList.contains('log-error')
+		if (firstIsError) {
+			navLogs.classList.add('sidebar-nav-item-error')
+		} else {
+			navLogs.classList.remove('sidebar-nav-item-error')
+		}
+	}
+}
+
+if (window.electronAPI && window.electronAPI.onLogMessage) {
+	window.electronAPI.onLogMessage(entry => {
+		appendLog(entry)
+	})
+}
+
 function mapStatusToText(status) {
 	switch (status) {
 		case 'DISABLED':
@@ -28,7 +120,6 @@ function updateInfo(payload) {
 	const infoStatus = document.getElementById('info-status')
 	const metaObject = document.getElementById('meta-object')
 	const metaButtons = document.getElementById('meta-buttons')
-
 	if (
 		!title ||
 		!sub ||
@@ -41,7 +132,6 @@ function updateInfo(payload) {
 	) {
 		return
 	}
-
 	if (!payload) {
 		title.textContent = 'Idle'
 		sub.textContent = 'Waiting for Discord'
@@ -53,7 +143,6 @@ function updateInfo(payload) {
 		metaButtons.textContent = 'BUTTONS: —'
 		return
 	}
-
 	title.textContent = payload.details || 'Rich Presence'
 	sub.textContent = payload.state || ''
 	const buttonsText =
@@ -73,10 +162,10 @@ function updateStatus(status) {
 	const statusDot = document.querySelector('.status-dot')
 	const subLabel = document.getElementById('activity-sub')
 	const mapped = mapStatusToText(status)
-
+	const title = document.getElementById('activity-title')
+	if (title) title.textContent = mapped.chip
 	if (chip) chip.textContent = mapped.chip
 	if (subLabel) subLabel.textContent = mapped.sub
-
 	if (statusDot) {
 		if (status === 'ACTIVE') {
 			statusDot.style.background =
@@ -113,31 +202,25 @@ function createButtonPairRow(pair, index, onChange, onRemove) {
 	const row = document.createElement('div')
 	row.className = 'pair-row'
 	row.dataset.index = String(index)
-
+	row.draggable = true
 	const inputsWrap = document.createElement('div')
 	inputsWrap.className = 'pair-inputs'
-
 	const input1 = document.createElement('input')
 	input1.placeholder = 'Label #1'
 	input1.value = pair.label1 || ''
-
 	const input2 = document.createElement('input')
 	input2.placeholder = 'URL #1'
 	input2.value = pair.url1 || ''
-
 	const input3 = document.createElement('input')
 	input3.placeholder = 'Label #2'
 	input3.value = pair.label2 || ''
-
 	const input4 = document.createElement('input')
 	input4.placeholder = 'URL #2'
 	input4.value = pair.url2 || ''
-
 	const remove = document.createElement('button')
 	remove.className = 'remove-btn'
 	remove.type = 'button'
 	remove.textContent = '×'
-
 	function triggerChange() {
 		onChange({
 			label1: input1.value,
@@ -146,7 +229,6 @@ function createButtonPairRow(pair, index, onChange, onRemove) {
 			url2: input4.value,
 		})
 	}
-
 	input1.addEventListener('input', triggerChange)
 	input2.addEventListener('input', triggerChange)
 	input3.addEventListener('input', triggerChange)
@@ -168,30 +250,25 @@ function createCycleRow(entry, index, onChange, onRemove) {
 	const row = document.createElement('div')
 	row.className = 'cycle-row'
 	row.dataset.index = String(index)
-
+	row.draggable = true
 	const inputsWrap = document.createElement('div')
 	inputsWrap.className = 'cycle-inputs'
-
 	const input1 = document.createElement('input')
 	input1.placeholder = 'Details'
 	input1.value = entry.details || ''
-
 	const input2 = document.createElement('input')
 	input2.placeholder = 'State'
 	input2.value = entry.state || ''
-
 	const remove = document.createElement('button')
 	remove.className = 'remove-btn'
 	remove.type = 'button'
 	remove.textContent = '×'
-
 	function triggerChange() {
 		onChange({
 			details: input1.value,
 			state: input2.value,
 		})
 	}
-
 	input1.addEventListener('input', triggerChange)
 	input2.addEventListener('input', triggerChange)
 	remove.addEventListener('click', e => {
@@ -209,31 +286,25 @@ function createImageCycleRow(entry, index, onChange, onRemove) {
 	const row = document.createElement('div')
 	row.className = 'image-row'
 	row.dataset.index = String(index)
-
+	row.draggable = true
 	const wrap = document.createElement('div')
 	wrap.className = 'image-inputs'
-
 	const largeKey = document.createElement('input')
 	largeKey.placeholder = 'Large image key or URL'
 	largeKey.value = entry.largeImage || ''
-
 	const largeText = document.createElement('input')
 	largeText.placeholder = 'Large hover text'
 	largeText.value = entry.largeText || ''
-
 	const smallKey = document.createElement('input')
 	smallKey.placeholder = 'Small image key or URL'
 	smallKey.value = entry.smallImage || ''
-
 	const smallText = document.createElement('input')
 	smallText.placeholder = 'Small hover text'
 	smallText.value = entry.smallText || ''
-
 	const remove = document.createElement('button')
 	remove.className = 'remove-btn'
 	remove.type = 'button'
 	remove.textContent = '×'
-
 	function triggerChange() {
 		onChange({
 			largeImage: largeKey.value,
@@ -242,7 +313,6 @@ function createImageCycleRow(entry, index, onChange, onRemove) {
 			smallText: smallText.value,
 		})
 	}
-
 	largeKey.addEventListener('input', triggerChange)
 	largeText.addEventListener('input', triggerChange)
 	smallKey.addEventListener('input', triggerChange)
@@ -260,19 +330,229 @@ function createImageCycleRow(entry, index, onChange, onRemove) {
 	return row
 }
 
+function loadCurrentState() {
+	const clientId = localStorage.getItem('clientId') || ''
+	const buttonPairs =
+		JSON.parse(localStorage.getItem('buttonPairs') || '[]') || []
+	const cycles = JSON.parse(localStorage.getItem('cycles') || '[]') || []
+	const imageCycles =
+		JSON.parse(localStorage.getItem('imageCycles') || '[]') || []
+	return { clientId, buttonPairs, cycles, imageCycles }
+}
+
+function applyStateToUI(state) {
+	const clientInput = document.getElementById('client-id-input')
+	if (!clientInput) return
+	clientInput.value = state.clientId || ''
+	localStorage.setItem('clientId', state.clientId || '')
+	localStorage.setItem('buttonPairs', JSON.stringify(state.buttonPairs || []))
+	localStorage.setItem('cycles', JSON.stringify(state.cycles || []))
+	localStorage.setItem('imageCycles', JSON.stringify(state.imageCycles || []))
+	setupClientIdControls()
+}
+
+function setupConfigPage() {
+	const nameInput = document.getElementById('config-name-input')
+	const saveBtn = document.getElementById('config-save-btn')
+	const list = document.getElementById('config-list')
+	const addBtn = document.getElementById('config-add-btn')
+	if (!nameInput || !saveBtn || !list || !addBtn) return
+
+	function getConfigs() {
+		try {
+			const raw = localStorage.getItem('vpConfigs')
+			return raw ? JSON.parse(raw) : []
+		} catch {
+			return []
+		}
+	}
+
+	function setConfigs(configs) {
+		localStorage.setItem('vpConfigs', JSON.stringify(configs))
+	}
+
+	function renderConfigs() {
+		const configs = getConfigs()
+			.slice()
+			.sort((a, b) => {
+				const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0
+				const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0
+				return bd - ad
+			})
+
+		list.innerHTML = ''
+		configs.forEach(cfg => {
+			const state = cfg.state || {}
+			const firstCycle = (state.cycles && state.cycles[0]) || {}
+			const details = firstCycle.details || 'New cycle'
+			const activityState = firstCycle.state || 'In the void'
+			const firstImage = (state.imageCycles && state.imageCycles[0]) || {}
+			const largeImage =
+				firstImage.largeImage ||
+				'https://avatars.githubusercontent.com/u/122895078?v=4'
+
+			const card = document.createElement('div')
+			card.className = 'config-activity-card'
+
+			const header = document.createElement('div')
+			header.className = 'config-activity-header'
+
+			const headerMenu = document.createElement('button')
+			headerMenu.type = 'button'
+			headerMenu.className = 'config-activity-header-menu'
+			headerMenu.innerHTML = ''
+
+			header.appendChild(headerMenu)
+
+			const body = document.createElement('div')
+			body.className = 'config-activity-body'
+
+			const imgWrap = document.createElement('div')
+			imgWrap.className = 'config-activity-image'
+			const img = document.createElement('img')
+			img.src = largeImage
+			img.alt = 'app icon'
+			imgWrap.appendChild(img)
+
+			const detailsWrap = document.createElement('div')
+			detailsWrap.className = 'config-activity-details'
+
+			const title = document.createElement('div')
+			title.className = 'config-activity-title'
+			title.textContent = cfg.name || 'Unnamed profile'
+
+			const line1 = document.createElement('div')
+			line1.className = 'config-activity-line'
+			line1.textContent = details
+
+			const line2 = document.createElement('div')
+			line2.className = 'config-activity-line'
+			line2.textContent = activityState
+
+			const footer = document.createElement('div')
+			footer.className = 'config-activity-footer'
+			footer.textContent = '00:35'
+
+			detailsWrap.appendChild(title)
+			detailsWrap.appendChild(line1)
+			detailsWrap.appendChild(line2)
+			detailsWrap.appendChild(footer)
+
+			body.appendChild(imgWrap)
+			body.appendChild(detailsWrap)
+
+			const actions = document.createElement('div')
+			actions.className = 'config-activity-actions'
+
+			const loadBtn = document.createElement('button')
+			loadBtn.className = 'config-activity-btn'
+			loadBtn.textContent = 'load'
+
+			const delBtn = document.createElement('button')
+			delBtn.className = 'config-activity-btn danger'
+			delBtn.textContent = '✕'
+
+			loadBtn.addEventListener('click', e => {
+				e.preventDefault()
+				applyStateToUI(cfg.state)
+				nameInput.value = cfg.name || ''
+				setActiveView('main')
+			})
+			delBtn.addEventListener('click', e => {
+				e.preventDefault()
+				const filtered = getConfigs().filter(c => c.name !== cfg.name)
+				setConfigs(filtered)
+				renderConfigs()
+			})
+
+			actions.appendChild(loadBtn)
+			actions.appendChild(delBtn)
+
+			card.appendChild(header)
+			card.appendChild(body)
+			card.appendChild(actions)
+
+			list.appendChild(card)
+		})
+	}
+
+	function addConfigFromState(name, state) {
+		const configs = getConfigs().filter(c => c.name !== name)
+		configs.push({
+			name,
+			state,
+			createdAt: new Date().toISOString(),
+		})
+		setConfigs(configs)
+		renderConfigs()
+	}
+
+	saveBtn.addEventListener('click', e => {
+		e.preventDefault()
+		const name = nameInput.value.trim()
+		if (!name) return
+		const state = loadCurrentState()
+		addConfigFromState(name, state)
+	})
+
+	addBtn.addEventListener('click', e => {
+		e.preventDefault()
+		const state = loadCurrentState()
+		const name =
+			nameInput.value.trim() ||
+			`Profile ${new Date().toLocaleTimeString().slice(0, 5)}`
+		addConfigFromState(name, state)
+	})
+
+	addBtn.addEventListener('dragover', e => {
+		e.preventDefault()
+		e.dataTransfer.dropEffect = 'copy'
+	})
+
+	addBtn.addEventListener('drop', e => {
+		e.preventDefault()
+		const files = e.dataTransfer.files
+		if (!files || !files.length) return
+		const file = files[0]
+		const reader = new FileReader()
+		reader.onload = ev => {
+			try {
+				const text = String(ev.target.result || '')
+				const parsed = JSON.parse(text)
+				const state = {
+					clientId: localStorage.getItem('clientId') || '',
+					cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
+					imageCycles: Array.isArray(parsed.imageCycles)
+						? parsed.imageCycles
+						: [],
+					buttonPairs: Array.isArray(parsed.buttonPairs)
+						? parsed.buttonPairs
+						: [],
+				}
+				const baseName =
+					nameInput.value.trim() ||
+					file.name.replace(/\.[^.]+$/, '') ||
+					'Imported profile'
+				addConfigFromState(baseName, state)
+			} catch (err) {
+				console.error('Failed to import config', err)
+			}
+		}
+		reader.readAsText(file)
+	})
+
+	renderConfigs()
+}
+
 function setupClientIdControls() {
 	const clientInput = document.getElementById('client-id-input')
 	const saveBtn = document.getElementById('client-id-save')
-
 	const buttonsList = document.getElementById('buttons-list')
 	const addButtonPair = document.getElementById('add-button-pair')
-
 	const cyclesList = document.getElementById('cycles-list')
 	const addCycle = document.getElementById('add-cycle')
-
 	const imagesList = document.getElementById('images-list')
 	const addImage = document.getElementById('add-image')
-
 	if (
 		!clientInput ||
 		!saveBtn ||
@@ -284,48 +564,39 @@ function setupClientIdControls() {
 		!addImage
 	)
 		return
-
 	saveBtn.type = 'button'
-
 	clientInput.value = localStorage.getItem('clientId') || ''
-
 	let buttonPairs = []
 	let cycles = []
 	let imageCycles = []
-
 	try {
 		const rawPairs = localStorage.getItem('buttonPairs')
 		if (rawPairs) {
 			buttonPairs = JSON.parse(rawPairs)
 		}
 	} catch {}
-
 	try {
 		const rawCycles = localStorage.getItem('cycles')
 		if (rawCycles) {
 			cycles = JSON.parse(rawCycles)
 		}
 	} catch {}
-
 	try {
 		const rawImages = localStorage.getItem('imageCycles')
 		if (rawImages) {
 			imageCycles = JSON.parse(rawImages)
 		}
 	} catch {}
-
 	if (!Array.isArray(imageCycles) || !imageCycles.length) {
 		imageCycles = [
 			{
-				largeImage:
-					'https://avatars.githubusercontent.com/u/122895078?v=4',
+				largeImage: 'https://avatars.githubusercontent.com/u/122895078?v=4',
 				largeText: '',
 				smallImage: '',
 				smallText: '',
 			},
 		]
 	}
-	
 	if (!Array.isArray(cycles) || !cycles.length) {
 		cycles = [
 			{ details: 'Idling in the void', state: 'Just vibing' },
@@ -333,7 +604,6 @@ function setupClientIdControls() {
 			{ details: 'Listening to silence', state: 'Deep focus' },
 		]
 	}
-
 	if (!Array.isArray(imageCycles) || !imageCycles.length) {
 		imageCycles = [
 			{
@@ -343,6 +613,53 @@ function setupClientIdControls() {
 				smallText: localStorage.getItem('smallText') || '',
 			},
 		]
+	}
+
+	function attachDnD(container, items, renderFn) {
+		let dragIndex = null
+		container.addEventListener('dragstart', e => {
+			const row = e.target.closest('[data-index]')
+			if (!row) return
+			dragIndex = Number(row.dataset.index)
+			row.classList.add('dragging')
+		})
+		container.addEventListener('dragend', e => {
+			const row = e.target.closest('[data-index]')
+			if (row) row.classList.remove('dragging')
+			Array.from(container.children).forEach(ch => {
+				ch.classList.remove('drop-target-top', 'drop-target-bottom')
+			})
+			dragIndex = null
+		})
+		container.addEventListener('dragover', e => {
+			e.preventDefault()
+			const row = e.target.closest('[data-index]')
+			if (!row || dragIndex === null) return
+			Array.from(container.children).forEach(ch => {
+				ch.classList.remove('drop-target-top', 'drop-target-bottom')
+			})
+			const rect = row.getBoundingClientRect()
+			const offset = e.clientY - rect.top
+			if (offset < rect.height / 2) {
+				row.classList.add('drop-target-top')
+			} else {
+				row.classList.add('drop-target-bottom')
+			}
+		})
+		container.addEventListener('drop', e => {
+			e.preventDefault()
+			const row = e.target.closest('[data-index]')
+			if (!row || dragIndex === null) return
+			const targetIndex = Number(row.dataset.index)
+			const rect = row.getBoundingClientRect()
+			const offset = e.clientY - rect.top
+			let insertIndex = targetIndex
+			if (offset >= rect.height / 2) insertIndex = targetIndex + 1
+			const [moved] = items.splice(dragIndex, 1)
+			if (insertIndex > items.length) insertIndex = items.length
+			items.splice(insertIndex, 0, moved)
+			renderFn()
+		})
 	}
 
 	function renderButtonPairs() {
@@ -402,6 +719,9 @@ function setupClientIdControls() {
 	renderButtonPairs()
 	renderCycles()
 	renderImageCycles()
+	attachDnD(buttonsList, buttonPairs, renderButtonPairs)
+	attachDnD(cyclesList, cycles, renderCycles)
+	attachDnD(imagesList, imageCycles, renderImageCycles)
 
 	addButtonPair.addEventListener('click', e => {
 		e.preventDefault()
@@ -436,7 +756,6 @@ function setupClientIdControls() {
 
 	async function saveAll() {
 		const clientId = clientInput.value.trim()
-
 		const cleanedPairs = buttonPairs
 			.map(p => ({
 				label1: (p.label1 || '').trim(),
@@ -451,14 +770,12 @@ function setupClientIdControls() {
 					p.label2.length > 0 &&
 					p.url2.length > 0
 			)
-
 		const cleanedCycles = cycles
 			.map(c => ({
 				details: (c.details || '').trim(),
 				state: (c.state || '').trim(),
 			}))
 			.filter(c => c.details.length > 0 || c.state.length > 0)
-
 		const cleanedImageCycles = imageCycles
 			.map(c => ({
 				largeImage: (c.largeImage || '').trim(),
@@ -473,24 +790,20 @@ function setupClientIdControls() {
 					c.smallImage.length > 0 ||
 					c.smallText.length > 0
 			)
-
 		const first = cleanedImageCycles[0] || {
 			largeImage: '',
 			largeText: '',
 			smallImage: '',
 			smallText: '',
 		}
-
 		const largeImage = first.largeImage
 		const largeText = first.largeText
 		const smallImage = first.smallImage
 		const smallText = first.smallText
-
 		if (!clientId || !cleanedCycles.length) {
 			updateStatus('NO_CLIENT_ID')
 			return
 		}
-
 		localStorage.setItem('clientId', clientId)
 		localStorage.setItem('largeImage', largeImage)
 		localStorage.setItem('largeText', largeText)
@@ -499,7 +812,6 @@ function setupClientIdControls() {
 		localStorage.setItem('buttonPairs', JSON.stringify(cleanedPairs))
 		localStorage.setItem('cycles', JSON.stringify(cleanedCycles))
 		localStorage.setItem('imageCycles', JSON.stringify(cleanedImageCycles))
-
 		if (window.electronAPI && window.electronAPI.setClientId) {
 			await window.electronAPI.setClientId(clientId)
 		}
@@ -526,10 +838,8 @@ function setupClientIdControls() {
 function setupAutoLaunchToggle() {
 	const toggle = document.getElementById('auto-launch-toggle')
 	if (!toggle) return
-
 	const saved = localStorage.getItem('autoLaunch') === 'true'
 	toggle.dataset.on = saved ? 'true' : 'false'
-
 	toggle.addEventListener('click', () => {
 		const current = toggle.dataset.on === 'true'
 		const next = !current
@@ -544,13 +854,11 @@ function setupAutoLaunchToggle() {
 function setupWindowControls() {
 	const closeBtn = document.getElementById('window-close')
 	const minimizeBtn = document.getElementById('window-minimize')
-
 	if (closeBtn && window.electronAPI && window.electronAPI.windowClose) {
 		closeBtn.addEventListener('click', () => {
 			window.electronAPI.windowClose()
 		})
 	}
-
 	if (minimizeBtn && window.electronAPI && window.electronAPI.windowMinimize) {
 		minimizeBtn.addEventListener('click', () => {
 			window.electronAPI.windowMinimize()
@@ -563,9 +871,9 @@ window.addEventListener('DOMContentLoaded', () => {
 	setupClientIdControls()
 	setupAutoLaunchToggle()
 	setupWindowControls()
+	setupConfigPage()
 	updateInfo(null)
 	updateStatus('DISABLED')
-
 	if (window.electronAPI && window.electronAPI.onRpcUpdate) {
 		window.electronAPI.onRpcUpdate(payload => {
 			updateInfo(payload)
@@ -577,5 +885,3 @@ window.addEventListener('DOMContentLoaded', () => {
 		})
 	}
 })
-
-

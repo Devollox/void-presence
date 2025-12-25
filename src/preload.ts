@@ -27,4 +27,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('set-cycles', entries),
 	windowClose: () => ipcRenderer.invoke('window-close'),
 	windowMinimize: () => ipcRenderer.invoke('window-minimize'),
+	onLogMessage: (callback: (msg: string) => void) => {
+		ipcRenderer.on('log-message', (_event, msg) => callback(msg))
+	},
 })

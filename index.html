@@ -39,11 +39,10 @@
 				overflow: hidden;
 			}
 			.app {
-				width: 460px;
+				width: 640px;
 				height: 100%;
 				max-height: 640px;
 				margin: auto;
-				padding: 18px 20px 16px;
 				border-radius: 18px;
 				background: #050505;
 				box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 1);
@@ -55,9 +54,8 @@
 				height: 28px;
 				display: flex;
 				align-items: center;
-				justify-content: space-between;
+				justify-content: flex-end;
 				-webkit-app-region: drag;
-				margin: -8px -10px 6px;
 				padding: 4px 8px 0;
 				flex-shrink: 0;
 			}
@@ -82,46 +80,120 @@
 				background: #ffffff;
 				color: #000000;
 			}
+			.shell {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				min-height: 0;
+			}
+			.top-tabs {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 10px 14px 0;
+				gap: 10px;
+				flex-shrink: 0;
+			}
+			.brand-inline {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+			.brand-logo {
+				width: 26px;
+				height: 26px;
+				border-radius: 9px;
+				border: 1px solid var(--border);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 13px;
+				font-weight: 600;
+				letter-spacing: 0.12em;
+			}
+			.brand-text {
+				display: flex;
+				flex-direction: column;
+				gap: 1px;
+			}
+			.brand-main {
+				font-size: 11px;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+			}
+			.brand-sub {
+				font-size: 10px;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+			.tabs {
+				display: inline-flex;
+				background: rgba(255, 255, 255, 0.03);
+				border-radius: 999px;
+				padding: 2px;
+				border: 1px solid var(--border);
+			}
+			.tab-btn {
+				position: relative;
+				padding: 4px 12px;
+				border-radius: 999px;
+				border: 1px solid transparent;
+				font-size: 10px;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+				cursor: pointer;
+				color: var(--muted);
+				background: transparent;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				transition: background 0.12s ease, color 0.12s ease,
+					border-color 0.12s ease;
+			}
+			.tab-btn[data-active='true'] {
+				background: #050505;
+				color: var(--text);
+				border-color: rgba(255, 255, 255, 0.16);
+			}
+			.tab-indicator {
+				width: 6px;
+				height: 6px;
+				border-radius: 999px;
+				border: 1px solid rgba(255, 255, 255, 0.45);
+				background: transparent;
+			}
+			.tab-btn[data-active='true'] .tab-indicator {
+				background: #22c55e;
+				border-color: rgba(34, 197, 94, 0.9);
+			}
+			.tab-btn.sidebar-nav-item-error .tab-indicator {
+				background: #ef4444;
+				border-color: rgba(248, 113, 113, 0.9);
+			}
+			.main {
+				flex: 1;
+				padding: 10px 18px 14px 16px;
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+				min-height: 0;
+			}
+			.view {
+				display: none;
+				flex: 1;
+				min-height: 0;
+			}
+			.view[data-active='true'] {
+				display: flex;
+				flex-direction: column;
+			}
 			.top-bar {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
 				margin-bottom: 14px;
 				flex-shrink: 0;
-			}
-			.top-left {
-				display: flex;
-				align-items: center;
-				gap: 10px;
-			}
-			.logo-circle {
-				width: 30px;
-				height: 30px;
-				border-radius: 999px;
-				border: 1px solid var(--border);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 0.08em;
-			}
-			.brand-block {
-				display: flex;
-				flex-direction: column;
-				gap: 2px;
-			}
-			.brand-name {
-				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 0.12em;
-				text-transform: uppercase;
-			}
-			.brand-sub {
-				font-size: 11px;
-				text-transform: uppercase;
-				letter-spacing: 0.14em;
-				color: var(--muted);
 			}
 			.status-chip {
 				padding: 4px 10px 3px;
@@ -199,13 +271,6 @@
 				margin: 10px 0 8px;
 				border-top: 1px dashed rgba(255, 255, 255, 0.16);
 			}
-			.row-label {
-				font-size: 10px;
-				letter-spacing: 0.12em;
-				text-transform: uppercase;
-				color: var(--muted);
-				margin-bottom: 4px;
-			}
 			.client-row {
 				display: flex;
 				align-items: center;
@@ -242,31 +307,7 @@
 				text-transform: uppercase;
 				cursor: pointer;
 			}
-			.tag {
-				font-size: 9px;
-				text-transform: uppercase;
-				letter-spacing: 0.16em;
-				color: var(--muted);
-				margin-bottom: 4px;
-			}
-			.small-row {
-				display: flex;
-				gap: 6px;
-				margin-bottom: 6px;
-			}
-			.small-row input {
-				flex: 1;
-				background: #050505;
-				color: var(--text);
-				border-radius: 999px;
-				border: 1px solid var(--border);
-				padding: 3px 7px;
-				font-size: 10px;
-				letter-spacing: 0.08em;
-				outline: none;
-			}
 			.list-header {
-				margin-top: 20px;
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
@@ -290,7 +331,8 @@
 				cursor: pointer;
 			}
 			#buttons-list,
-			#cycles-list {
+			#cycles-list,
+			#images-list {
 				display: flex;
 				flex-direction: column;
 				gap: 4px;
@@ -301,6 +343,40 @@
 				display: flex;
 				align-items: flex-start;
 				gap: 4px;
+				cursor: grab;
+				border-radius: 10px;
+				padding: 2px 4px;
+				border: 1px solid transparent;
+				transition: background 0.12s ease-out, box-shadow 0.12s ease-out,
+					transform 0.08s ease-out, border-color 0.12s ease-out;
+			}
+			.pair-row:hover,
+			.cycle-row:hover,
+			.image-row:hover {
+				background: rgba(255, 255, 255, 0.03);
+				border-color: rgba(255, 255, 255, 0.12);
+			}
+			.pair-row.dragging,
+			.cycle-row.dragging,
+			.image-row.dragging {
+				cursor: grabbing;
+				background: rgba(59, 130, 246, 0.15);
+				border-color: rgba(59, 130, 246, 0.8);
+				box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+				transform: scale(1.01);
+			}
+			.pair-row.drop-target-top,
+			.cycle-row.drop-target-top,
+			.image-row.drop-target-top {
+				border-top: 1px dashed rgba(255, 255, 255, 0.6);
+			}
+			.pair-row.drop-target-bottom,
+			.cycle-row.drop-target-bottom,
+			.image-row.drop-target-bottom {
+				border-bottom: 1px dashed rgba(255, 255, 255, 0.6);
+			}
+			.cycle-inputs {
+				width: 100%;
 			}
 			.pair-row input,
 			.cycle-row input,
@@ -473,109 +549,407 @@
 			.content-scroll::-webkit-scrollbar-thumb:hover {
 				background: rgba(255, 255, 255, 0.3);
 			}
-			.cycle-inputs {
+			.logs-view-wrapper {
+				flex: 1;
+				min-height: 0;
+				border-radius: 14px;
+				border: 1px solid var(--border);
+				background: radial-gradient(circle at top, #090909 0, #050505 60%);
+				padding: 12px 12px 10px;
+				display: flex;
+				flex-direction: column;
+			}
+			.logs-view-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 8px;
+			}
+			.logs-view-title {
+				font-size: 11px;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+			.logs-view-counter {
+				font-size: 10px;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+			.logs-view-list {
+				flex: 1;
+				min-height: 0;
+				overflow-y: auto;
+				padding-right: 4px;
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+				font-size: 11px;
+			}
+			.logs-view-list::-webkit-scrollbar {
+				width: 6px;
+			}
+			.logs-view-list::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			.logs-view-list::-webkit-scrollbar-thumb {
+				background: rgba(255, 255, 255, 0.18);
+				border-radius: 999px;
+			}
+			.logs-view-list::-webkit-scrollbar-thumb:hover {
+				background: rgba(255, 255, 255, 0.3);
+			}
+			.log-item {
+				display: flex;
+				align-items: flex-start;
+				gap: 8px;
+				padding: 6px 8px;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.02);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.log-item.log-error {
+				border-color: rgba(248, 113, 113, 0.6);
+				background: rgba(248, 113, 113, 0.06);
+			}
+			.log-level-dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 999px;
+				flex-shrink: 0;
+				margin-top: 4px;
+				background: #22c55e;
+			}
+			.log-item.log-error .log-level-dot {
+				background: #ef4444;
+			}
+			.log-item-meta {
+				font-size: 10px;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: var(--muted);
+				margin-top: 2px;
+				white-space: nowrap;
+			}
+			.log-item-message {
+				font-size: 11px;
+				color: var(--text);
+				opacity: 0.9;
+				line-height: 1.4;
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+			}
+			.status-chip span {
+				text-transform: uppercase;
+			}
+			button:active {
+				transform: translateY(1px) scale(0.97);
+				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+			}
+
+			.config-activity-card {
+				margin-top: 8px;
+				padding: 8px 10px;
+				border-radius: 10px;
+				background: #050505;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+			}
+			.config-activity-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+			.config-activity-header-label {
+				font-size: 10px;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+			.config-activity-header-menu {
+				width: 20px;
+				height: 20px;
+				border-radius: 999px;
+				border: 1px solid transparent;
+				background: transparent;
+				color: var(--muted);
+				font-size: 14px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: default;
+			}
+			.config-activity-body {
+				display: flex;
+				gap: 10px;
+				margin-top: 2px;
+			}
+			.config-activity-image {
+				width: 60px;
+				height: 60px;
+				border-radius: 12px;
+				overflow: hidden;
+				flex-shrink: 0;
+				background: #020617;
+			}
+			.config-activity-image img {
 				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+			.config-activity-details {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+			}
+			.config-activity-title {
+				font-size: 13px;
+				font-weight: 500;
+				color: var(--text);
+			}
+			.config-activity-line {
+				font-size: 11px;
+				color: var(--muted);
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
+			.config-activity-footer {
+				margin-top: 4px;
+				font-size: 11px;
+				color: #4ade80;
+			}
+			.config-activity-actions {
+				margin-top: 4px;
+				display: flex;
+				gap: 6px;
+			}
+			.config-activity-btn {
+				padding: 1px 5px;
+				font-size: 10px;
+				border-radius: 999px;
+				border: 1px solid var(--border);
+				background: #050505;
+				color: var(--text);
+				text-transform: uppercase;
+				letter-spacing: 0.12em;
+				cursor: pointer;
+			}
+			.config-activity-btn.danger {
+				border-color: rgba(248, 113, 113, 0.7);
+				color: #fecaca;
+			}
+			.config-activity-btn:hover {
+				background: #ffffff;
+				color: #000000;
+			}
+			.config-activity-btn.danger:hover {
+				background: #fecaca;
+				color: #450a0a;
+			}
+			.meta-row {
+				display: flex;
+				gap: 10px;
+				font-size: 10px;
+				text-transform: uppercase;
+				letter-spacing: 0.16em;
+				color: var(--muted);
 			}
 		</style>
 	</head>
 	<body>
 		<div class="app">
 			<div class="titlebar">
-				<div class="titlebar-drag-region"></div>
 				<div class="titlebar-buttons">
 					<button id="window-minimize" class="titlebar-btn">–</button>
 					<button id="window-close" class="titlebar-btn">×</button>
 				</div>
 			</div>
 
-			<div class="top-bar">
-				<div class="top-left">
-					<div class="logo-circle">VP</div>
-					<div class="brand-block">
-						<div class="brand-name">VOID PRESENCE</div>
-						<div class="brand-sub">DISCORD STATUS</div>
-					</div>
-				</div>
-				<div class="status-chip">
-					<div class="status-dot"></div>
-					<span>ACTIVE SESSION</span>
-				</div>
-			</div>
-
-			<div class="content-scroll">
-				<div class="card">
-					<div class="card-header">
-						<div class="card-label">activity</div>
-						<div class="card-title-block">
-							<div class="card-title" id="activity-title">Idle</div>
-							<div class="card-label" id="activity-sub">
-								Waiting for Discord
-							</div>
+			<div class="shell">
+				<div class="top-tabs">
+					<div class="brand-inline">
+						<div class="brand-logo">VP</div>
+						<div class="brand-text">
+							<div class="brand-main">VOID</div>
+							<div class="brand-sub">PRESENCE</div>
 						</div>
 					</div>
-
-					<div class="divider"></div>
-
-					<div class="client-row">
-						<span>client id</span>
-						<input id="client-id-input" placeholder="Application ID" />
-						<button id="client-id-save">save</button>
-					</div>
-
-					<div class="list-header">
-						<div class="list-header-label">images</div>
-						<button id="add-image" class="add-btn">+ image</button>
-					</div>
-					<div id="images-list"></div>
-
-					<div class="list-header">
-						<div class="list-header-label">button pairs</div>
-						<button id="add-button-pair" class="add-btn">+ pair</button>
-					</div>
-					<div id="buttons-list"></div>
-
-					<div class="list-header" style="margin-top: 6px">
-						<div class="list-header-label">cycles</div>
-						<button id="add-cycle" class="add-btn">+ cycle</button>
-					</div>
-					<div id="cycles-list"></div>
-
-					<div class="auto-row">
-						<div class="auto-label">
-							<span>AUTO START</span>
-						</div>
-						<div id="auto-launch-toggle" class="auto-toggle" data-on="false">
-							<div class="auto-toggle-knob"></div>
-						</div>
-					</div>
-
-					<div class="button-row">
-						<button id="restart-discord" class="rpc-button">
-							<div class="rpc-button-icon">↻</div>
-							<span>RESTART PRESENCE</span>
+					<div class="tabs">
+						<button
+							class="tab-btn"
+							data-page="main"
+							data-active="true"
+							id="nav-main"
+						>
+							<div class="tab-indicator"></div>
+							<span>main</span>
+						</button>
+						<button
+							class="tab-btn"
+							data-page="logs"
+							data-active="false"
+							id="nav-logs"
+						>
+							<div class="tab-indicator"></div>
+							<span>logs</span>
+						</button>
+						<button
+							class="tab-btn"
+							data-page="config"
+							data-active="false"
+							id="nav-config"
+						>
+							<div class="tab-indicator"></div>
+							<span>config</span>
 						</button>
 					</div>
-
-					<div class="meta-row">
-						<span id="meta-object">OBJECT: —</span>
-						<span id="meta-buttons">BUTTONS: —</span>
-					</div>
 				</div>
 
-				<div class="payload">
-					<div class="payload-title">current payload</div>
-					<div class="payload-grid">
-						<div class="payload-label">Buttons</div>
-						<div class="payload-value" id="info-buttons">–</div>
-						<div class="payload-label">Object</div>
-						<div class="payload-value" id="info-object">–</div>
-						<div class="payload-label">State</div>
-						<div class="payload-value" id="info-details">–</div>
-					</div>
-					<div class="payload-status" id="info-status">
-						Waiting for first update…
-					</div>
-				</div>
+				<main class="main">
+					<section class="view" data-view="main" data-active="true">
+						<div class="top-bar">
+							<div class="status-chip">
+								<div class="status-dot"></div>
+								<span>ACTIVE SESSION</span>
+							</div>
+						</div>
+
+						<div class="content-scroll">
+							<div class="card">
+								<div class="card-header">
+									<div class="card-label">activity</div>
+									<div class="card-title-block">
+										<div class="card-title" id="activity-title">Idle</div>
+										<div class="card-label" id="activity-sub">
+											Waiting for Discord
+										</div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="client-row">
+									<span>client id</span>
+									<input id="client-id-input" placeholder="Application ID" />
+									<button id="client-id-save">save</button>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="list-header">
+									<div class="list-header-label">images</div>
+									<button id="add-image" class="add-btn">+ image</button>
+								</div>
+								<div id="images-list"></div>
+
+								<div class="divider"></div>
+
+								<div class="list-header">
+									<div class="list-header-label">button pairs</div>
+									<button id="add-button-pair" class="add-btn">+ pair</button>
+								</div>
+								<div id="buttons-list"></div>
+
+								<div class="divider"></div>
+
+								<div class="list-header" style="margin-top: 6px">
+									<div class="list-header-label">cycles</div>
+									<button id="add-cycle" class="add-btn">+ cycle</button>
+								</div>
+								<div id="cycles-list"></div>
+
+								<div class="divider"></div>
+
+								<div class="auto-row">
+									<div class="auto-label">
+										<span>AUTO START</span>
+									</div>
+									<div
+										id="auto-launch-toggle"
+										class="auto-toggle"
+										data-on="false"
+									>
+										<div class="auto-toggle-knob"></div>
+									</div>
+								</div>
+
+								<div class="button-row">
+									<button id="restart-discord" class="rpc-button">
+										<div class="rpc-button-icon">↻</div>
+										<span>RESTART PRESENCE</span>
+									</button>
+								</div>
+
+								<div class="meta-row">
+									<span id="meta-object">OBJECT: —</span>
+									<span id="meta-buttons">BUTTONS: —</span>
+								</div>
+							</div>
+
+							<div class="payload">
+								<div class="payload-title">current payload</div>
+								<div class="payload-grid">
+									<div class="payload-label">Buttons</div>
+									<div class="payload-value" id="info-buttons">–</div>
+									<div class="payload-label">Object</div>
+									<div class="payload-value" id="info-object">–</div>
+									<div class="payload-label">State</div>
+									<div class="payload-value" id="info-details">–</div>
+								</div>
+								<div class="payload-status" id="info-status">
+									Waiting for first update…
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<section class="view" data-view="logs" data-active="false">
+						<div class="logs-view-wrapper">
+							<div class="logs-view-header">
+								<div class="logs-view-title">logs</div>
+								<div class="logs-view-counter" id="logs-counter">0 entries</div>
+							</div>
+							<div id="logs-view-list" class="logs-view-list"></div>
+						</div>
+					</section>
+
+					<section
+						class="view content-scroll"
+						data-view="config"
+						data-active="false"
+					>
+						<div class="card">
+							<div class="card-header">
+								<div class="card-label">config</div>
+								<div class="card-title-block">
+									<div class="card-title">Profiles</div>
+									<div class="card-label">save / load presets</div>
+								</div>
+							</div>
+
+							<div class="divider"></div>
+
+							<div class="client-row">
+								<span>name</span>
+								<input id="config-name-input" placeholder="profile name" />
+								<button id="config-save-btn">save</button>
+							</div>
+
+							<div class="divider"></div>
+
+							<div class="list-header">
+								<div class="list-header-label">saved configs</div>
+								<button id="config-add-btn" class="add-btn">+ config</button>
+							</div>
+							<div id="config-list"></div>
+						</div>
+					</section>
+				</main>
 			</div>
 		</div>
 

@@ -187,11 +187,15 @@ async function readCyclesConfig(): Promise<CyclesConfig> {
 		const entries = Array.isArray(parsed.entries) ? parsed.entries : []
 		return {
 			entries: entries
-				.map(e => ({
-					details: (e.details || '').toString(),
-					state: (e.state || '').toString(),
-				}))
-				.filter(e => e.details.trim().length > 0 || e.state.trim().length > 0),
+				.map(e => {
+					const details = (e.details || '').toString().trim()
+					let state = (e.state || '').toString().trim()
+					if (state.length > 0 && state.length < 2) {
+						state = ''
+					}
+					return { details, state }
+				})
+				.filter(e => e.details.length > 0 || e.state.length >= 2),
 		}
 	} catch {
 		return { entries: [] }
@@ -272,7 +276,13 @@ export async function setCycles(entries: { details: string; state: string }[]) {
 			details: (e.details || '').trim(),
 			state: (e.state || '').trim(),
 		}))
-		.filter(e => e.details.length > 0 || e.state.length > 0)
+		.map(e => {
+			if (e.state.length > 0 && e.state.length < 2) {
+				e.state = ''
+			}
+			return e
+		})
+		.filter(e => e.details.length > 0 || e.state.length >= 2)
 	await writeCyclesConfig({ entries: cleaned })
 }
 
@@ -333,7 +343,8 @@ export function stopDiscordRich() {
 
 function startDiscordRich(
 	sendPayload: (payload: RpcPayload) => void,
-	sendStatus: (status: string) => void
+	sendStatus: (status: string) => void,
+	sendLog?: (message: string) => void
 ) {
 	async function startSession() {
 		const { clientId } = await readClientConfig()
@@ -344,6 +355,7 @@ function startDiscordRich(
 
 		if (!clientId || !cyclesConfig.entries.length) {
 			sendStatus('NO_CLIENT_ID')
+			if (sendLog) sendLog('No client ID or no cycles configured')
 			return
 		}
 
@@ -397,9 +409,14 @@ function startDiscordRich(
 
 			const buttons = current.buttons
 
+			const safeState =
+				typeof current.state === 'string' && current.state.trim().length >= 2
+					? current.state
+					: undefined
+
 			const activity: any = {
 				details: current.details,
-				state: current.state,
+				state: safeState,
 				assets: {
 					large_image: current.largeImage || undefined,
 					large_text: current.largeText || undefined,
@@ -413,10 +430,18 @@ function startDiscordRich(
 				activity.buttons = current.buttons
 			}
 
-			localClient.request('SET_ACTIVITY', {
-				pid: process.pid,
-				activity,
-			})
+			localClient
+				.request('SET_ACTIVITY', {
+					pid: process.pid,
+					activity,
+				})
+				.catch((e: any) => {
+					if (sendLog) {
+						sendLog(
+							'SET_ACTIVITY error: ' + (e?.message || JSON.stringify(e) || '')
+						)
+					}
+				})
 
 			sendStatus('ACTIVE')
 
@@ -429,8 +454,10 @@ function startDiscordRich(
 		}
 
 		sendStatus('CONNECTING RPC')
+		if (sendLog) sendLog('Connecting RPC with clientId ' + clientId)
 
 		localClient.on('ready', () => {
+			if (sendLog) sendLog('RPC ready')
 			pushActivity()
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
@@ -441,6 +468,7 @@ function startDiscordRich(
 		})
 
 		localClient.on('disconnected', () => {
+			if (sendLog) sendLog('RPC disconnected')
 			sendStatus('DISCONNECTED')
 			if (restartTimer) {
 				clearTimeout(restartTimer)
@@ -448,7 +476,8 @@ function startDiscordRich(
 			restartTimer = setTimeout(findAndRestartProcess, 3000)
 		})
 
-		localClient.on('error', () => {
+		localClient.on('error', (e: any) => {
+			if (sendLog) sendLog('RPC error: ' + (e?.message || String(e)))
 			sendStatus('DISCONNECTED')
 			if (restartTimer) {
 				clearTimeout(restartTimer)
@@ -457,7 +486,7 @@ function startDiscordRich(
 		})
 
 		localClient.login({ clientId }).catch((e: any) => {
-			console.error('rpc login error', e)
+			if (sendLog) sendLog('RPC login error: ' + (e?.message || String(e)))
 			sendStatus('DISCONNECTED')
 			if (restartTimer) {
 				clearTimeout(restartTimer)
@@ -469,7 +498,8 @@ function startDiscordRich(
 	function restartProcess() {
 		ps.lookup({ command: processName }, (err: any, resultList: any[]) => {
 			if (err) {
-				console.error(err)
+				if (sendLog)
+					sendLog('ps lookup error: ' + (err?.message || String(err)))
 				return
 			}
 			if (resultList.length <= 1) {
@@ -484,7 +514,8 @@ function startDiscordRich(
 	function findAndRestartProcess() {
 		ps.lookup({ command: processName }, (err: any, resultList: any[]) => {
 			if (err) {
-				console.error(err)
+				if (sendLog)
+					sendLog('ps lookup error: ' + (err?.message || String(err)))
 				sendStatus('DISCONNECTED')
 				return
 			}

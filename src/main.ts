@@ -24,11 +24,16 @@ function sendStatus(status: string) {
 	win.webContents.send('rpc-status', status)
 }
 
+function sendLog(message: string) {
+	const win = BrowserWindow.getAllWindows()[0]
+	if (!win || win.isDestroyed()) return
+	win.webContents.send('log-message', message)
+}
+
 function createWindow() {
 	mainWindow = new BrowserWindow({
 		width: 480,
 		height: 640,
-		resizable: false,
 		icon: iconPath,
 		frame: false,
 		titleBarStyle: 'hidden',
@@ -52,6 +57,9 @@ function createWindow() {
 		},
 		(status: string) => {
 			sendStatus(status)
+		},
+		(message: string) => {
+			sendLog(message)
 		}
 	)
 
@@ -96,6 +104,9 @@ function createTray() {
 						},
 						status => {
 							sendStatus(status)
+						},
+						message => {
+							sendLog(message)
 						}
 					)
 				}
@@ -160,6 +171,9 @@ ipcMain.handle('restart-discord-rich', async () => {
 		},
 		(status: string) => {
 			sendStatus(status)
+		},
+		(message: string) => {
+			sendLog(message)
 		}
 	)
 })
