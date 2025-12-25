@@ -13,7 +13,7 @@ function mapStatusToText(status) {
 		case 'DISCONNECTED':
 			return { chip: 'DISCONNECTED', sub: 'Lost connection to Discord' }
 		case 'NO_CLIENT_ID':
-			return { chip: 'NO CLIENT', sub: 'Set ID, buttons, cycles' }
+			return { chip: 'NO CLIENT', sub: 'Set ID, cycles' }
 		default:
 			return { chip: 'UNKNOWN', sub: status || '' }
 	}
@@ -593,3 +593,4 @@ window.addEventListener('DOMContentLoaded', () => {
 		})
 	}
 })
+
