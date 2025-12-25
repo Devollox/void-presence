@@ -114,7 +114,7 @@ function createTray() {
 	])
 
 	tray = new Tray(iconPath)
-	tray.setToolTip('Cosmic Rich Presence')
+	tray.setToolTip('Void Presence')
 	tray.setContextMenu(contextMenu)
 	tray.on('click', () => {
 		const win = BrowserWindow.getAllWindows()[0]
