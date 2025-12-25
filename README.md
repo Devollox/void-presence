@@ -41,6 +41,8 @@ Advanced Discord Rich Presence manager with customizable button pairs, text cycl
 
 > **⏱️ Initial Delay:** When you first start Void Presence, there's approximately a 25 second delay before the status appears in Discord. This is normal and only happens on startup. After that, status updates every 30 seconds.
 
+>⏱️ Idle disconnect: means that when the log shows idle followed by disconnect, it most likely indicates that Discord is restarting or reconnecting RPC rather than the app being broken. Seeing idle at startup is normal and just means the client is waiting for the first successful connection and presence update.
+
 ## Configuration
 
 ### Discord Application ID
