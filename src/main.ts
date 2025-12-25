@@ -67,7 +67,7 @@ function createWindow() {
 
 function createTray() {
 	const contextMenu = Menu.buildFromTemplate([
-		{ label: 'Cosmic Rich Presence', enabled: false },
+		{ label: 'Void Presence', enabled: false },
 		{ type: 'separator' },
 		{
 			label: 'Show Window',
