@@ -22,7 +22,7 @@
 		{
 			"largeImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
 			"largeText": "Hayase Yuuka",
-			"smallImage": "coin",
+			"smallImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
 			"smallText": "Millennium Treasurer"
 		},
 		{
@@ -47,3 +47,4 @@
 		}
 	]
 }
+
