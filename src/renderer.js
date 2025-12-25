@@ -387,10 +387,12 @@ function setupConfigPage() {
 			const firstCycle = (state.cycles && state.cycles[0]) || {}
 			const details = firstCycle.details || 'New cycle'
 			const activityState = firstCycle.state || 'In the void'
-			const firstImage = (state.imageCycles && state.imageCycles[0]) || {}
+			const firstImage =
+				(Array.isArray(state.imageCycles) && state.imageCycles[0]) || null
 			const largeImage =
-				firstImage.largeImage ||
-				'https://avatars.githubusercontent.com/u/122895078?v=4'
+				firstImage && firstImage.largeImage
+					? firstImage.largeImage
+					: 'about:blank'
 
 			const card = document.createElement('div')
 			card.className = 'config-activity-card'
@@ -605,16 +607,7 @@ function setupClientIdControls() {
 			imageCycles = JSON.parse(rawImages)
 		}
 	} catch {}
-	if (!Array.isArray(imageCycles) || !imageCycles.length) {
-		imageCycles = [
-			{
-				largeImage: 'https://avatars.githubusercontent.com/u/122895078?v=4',
-				largeText: '',
-				smallImage: '',
-				smallText: '',
-			},
-		]
-	}
+	if (!Array.isArray(buttonPairs)) buttonPairs = []
 	if (!Array.isArray(cycles) || !cycles.length) {
 		cycles = [
 			{ details: 'Idling in the void', state: 'Just vibing' },
@@ -622,16 +615,7 @@ function setupClientIdControls() {
 			{ details: 'Listening to silence', state: 'Deep focus' },
 		]
 	}
-	if (!Array.isArray(imageCycles) || !imageCycles.length) {
-		imageCycles = [
-			{
-				largeImage: localStorage.getItem('largeImage') || '',
-				largeText: localStorage.getItem('largeText') || '',
-				smallImage: localStorage.getItem('smallImage') || '',
-				smallText: localStorage.getItem('smallText') || '',
-			},
-		]
-	}
+	if (!Array.isArray(imageCycles)) imageCycles = []
 
 	function attachDnD(container, items, renderFn) {
 		let dragIndex = null
@@ -808,25 +792,11 @@ function setupClientIdControls() {
 					c.smallImage.length > 0 ||
 					c.smallText.length > 0
 			)
-		const first = cleanedImageCycles[0] || {
-			largeImage: '',
-			largeText: '',
-			smallImage: '',
-			smallText: '',
-		}
-		const largeImage = first.largeImage
-		const largeText = first.largeText
-		const smallImage = first.smallImage
-		const smallText = first.smallText
 		if (!clientId || !cleanedCycles.length) {
 			updateStatus('NO_CLIENT_ID')
 			return
 		}
 		localStorage.setItem('clientId', clientId)
-		localStorage.setItem('largeImage', largeImage)
-		localStorage.setItem('largeText', largeText)
-		localStorage.setItem('smallImage', smallImage)
-		localStorage.setItem('smallText', smallText)
 		localStorage.setItem('buttonPairs', JSON.stringify(cleanedPairs))
 		localStorage.setItem('cycles', JSON.stringify(cleanedCycles))
 		localStorage.setItem('imageCycles', JSON.stringify(cleanedImageCycles))
