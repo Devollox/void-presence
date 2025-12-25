@@ -395,16 +395,6 @@ function setupConfigPage() {
 			const card = document.createElement('div')
 			card.className = 'config-activity-card'
 
-			const header = document.createElement('div')
-			header.className = 'config-activity-header'
-
-			const headerMenu = document.createElement('button')
-			headerMenu.type = 'button'
-			headerMenu.className = 'config-activity-header-menu'
-			headerMenu.innerHTML = ''
-
-			header.appendChild(headerMenu)
-
 			const body = document.createElement('div')
 			body.className = 'config-activity-body'
 
@@ -469,7 +459,6 @@ function setupConfigPage() {
 			actions.appendChild(loadBtn)
 			actions.appendChild(delBtn)
 
-			card.appendChild(header)
 			card.appendChild(body)
 			card.appendChild(actions)
 
