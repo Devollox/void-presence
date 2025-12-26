@@ -2,6 +2,14 @@
 
 <img width="1080" height="874" alt="readme-img1" src="https://github.com/user-attachments/assets/4e44a6f9-f11a-46c2-9c64-947d8048ee86" />
 
+<h1 align="center">
+  <div style="display: flex; gap: 10px; justify-content: center;">
+    <img width="450" height="493" alt="demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
+    <img width="450" height="493" alt="demo" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
+  </div>
+</h1>
+
+
 ## Advanced Discord Rich Presence manager
 
 Advanced Discord Rich Presence manager with customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer. Status updates every 30 seconds with full control over your Discord activity display.
@@ -129,12 +137,4 @@ Example used in the screenshot above is available as a JSON preset right in the 
 Made with ❤️ by [Devollox](https://github.com/Devollox)
 
 ---
-
-<h1 align="center">
-  <div style="display: flex; gap: 10px; justify-content: center;">
-    <img width="450" height="493" alt="demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
-    <img width="450" height="493" alt="demo" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
-  </div>
-</h1>
-
 **Void Presence** – Control your Discord presence. Own your story.
