@@ -130,7 +130,6 @@ Example used in the screenshot above is available as a JSON preset right in the 
 - **Frontend** – Vanilla JavaScript, HTML5, CSS3  
 - **Backend** – Electron, Node.js  
 - **RPC** – discord-rpc library  
-- **Process Management** – ps-node  
 
 ## Author
 
