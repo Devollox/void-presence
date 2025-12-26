@@ -2,24 +2,6 @@
 
 <img width="1080" height="874" alt="readme-img1" src="https://github.com/user-attachments/assets/4e44a6f9-f11a-46c2-9c64-947d8048ee86" />
 
-<h1 align="center">
-  <div style="display: flex; gap: 10px; justify-content: center;">
-    <div>
-      <img width="475" height="206" src="https://github.com/user-attachments/assets/f102809f-7936-472f-b514-4ffa6025d1ae" />
-      
-  </div>
-</h1>
-
-> Drag & Drop:</b> Reorder and organize your presence profiles with a simple drag and drop.
-
-<h1 align="center">
-  <div style="display: flex; gap: 10px; justify-content: center;">
-      <img width="475" height="206" alt="3R2" src="https://github.com/user-attachments/assets/99eedea8-a464-4ce3-b9bd-f7a7f81cdb2c" />
-  </div>
-</h1>
-
-> Drag and drop a `.json` file **directly onto the `+Config` area** to instantly load an existing configuration.
-
 ## Advanced Discord Rich Presence manager
 
 Advanced Discord Rich Presence manager with customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer. Status updates every 30 seconds with full control over your Discord activity display.
