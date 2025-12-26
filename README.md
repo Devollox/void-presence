@@ -1,146 +1,157 @@
 # Void Presence
 
-<img width="1080" height="874" alt="readme-img1" src="https://github.com/user-attachments/assets/4e44a6f9-f11a-46c2-9c64-947d8048ee86" />
+<p align="center">
+  <img width="1080" height="874" alt="Void Presence preview" src="https://github.com/user-attachments/assets/4e44a6f9-f11a-46c2-9c64-947d8048ee86" />
+</p>
 
-<h1 align="center">
-  <div style="display: flex; gap: 10px; justify-content: center;">
-    <img width="450" height="493" alt="demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
-    <img width="450" height="493" alt="demo" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
-  </div>
-</h1>
+<p align="center">
+  <img width="450" height="493" alt="Void Presence demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
+  <img width="450" height="493" alt="Void Presence demo animated" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
+</p>
 
+> **Void Presence** – Advanced Discord Rich Presence manager with full control over your activity display.
 
-## Advanced Discord Rich Presence manager
+---
 
-Advanced Discord Rich Presence manager with customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer. Status updates every 30 seconds with full control over your Discord activity display.
+## Overview
+
+Void Presence is an advanced Discord Rich Presence manager with customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer between machines. Status updates every 30 seconds, giving you complete control over how your Discord activity looks.
+
+---
 
 ## Features
 
-- **Custom Button Pairs** – Create multiple button sets with labels and URLs
-- **Custom activity update(sec)** – Log your update in seconds
-- **Status Cycles** – Rotate between different status messages (details and state)
-- **Image Rotation** – Cycle through different large and small Discord images
-- **Drag & Drop Profiles** – Reorder and manage presence profiles with simple drag and drop
-- **Config Import** – Move your setup between machines or profiles by dropping in a config file
-- **Real-time Updates** – Status changes every 30 seconds automatically
-- **Discord Integration** – Seamless RPC connection with Discord
-- **Auto-launch** – Optional startup with system
-- **Auto Hide** – Toggles the auto-hide window at startup
-- **Minimalist UI** – Dark theme, clean interface with real-time preview
-- **System Tray** – Quick access from system tray, always running in background
+- **Custom button pairs** – Create multiple button sets with labels and URLs  
+- **Custom update interval** – Control how often activity is refreshed (in seconds)  
+- **Status cycles** – Rotate between different status messages (`details` and `state`)  
+- **Image rotation** – Cycle through multiple large and small Rich Presence images  
+- **Profiles with drag & drop** – Create, reorder, and switch between presence profiles  
+- **Config import / export** – Move your setup between machines via JSON config files  
+- **Real-time updates** – Activity refreshes every 30 seconds automatically  
+- **Discord RPC integration** – Uses Discord Rich Presence RPC API under the hood
+- **Auto-launch (optional)** – Start with the system  
+- **Auto-hide (optional)** – Start minimized to tray  
+- **Minimalist UI** – Dark, clean interface with real-time preview  
+- **System tray** – Quick access while running in the background  
+
+---
 
 ## Installation
 
-**Easy Setup:** Download the ZIP file from GitHub, extract it, run `Void Presence.exe`, and configure your Discord status in seconds.
+### Quick setup
 
-### Detailed Steps
+1. Click the **releases** button → **Download ZIP** - [Last Releases](https://github.com/Devollox/void-presence/releases)
+2. Extract the ZIP archive  
+3. Run `Void Presence.exe`  
+4. Enter your Discord **Application ID** (from the [Discord Developer Portal](https://discord.com/developers/applications))  
+5. Configure buttons, status cycles, images, and profiles  
+6. Click **Save** to start Rich Presence
 
-1. Click the green `Code` button → `Download ZIP`
-2. Extract the ZIP file
-3. Run `Void Presence.exe`
-4. Enter your Discord Application ID (get it from the [Discord Developer Portal](https://discord.com/developers/applications))
-5. Configure button pairs, status cycles, images, and profiles
-6. Click the `SAVE` button
-7. Your Discord Rich Presence is now active!
+> **⏱️ Initial delay** – On first launch, status may appear in Discord after ~25 seconds. This is normal and only happens on startup.  
 
-> **⏱️ Initial Delay:** When you first start Void Presence, there is an ~25 second delay before the status appears in Discord. This is normal and only happens on startup. After that, status updates every 30 seconds.
-
-> **⏱️ Idle disconnect:** When the log shows `idle` followed by `disconnect`, it usually means Discord is restarting or reconnecting RPC rather than the app being broken. Seeing `idle` at startup is normal and just means the client is waiting for the first successful connection and presence update.
+---
 
 ## Configuration
 
 ### Discord Application ID
 
-Get your Application ID from the [Discord Developer Portal](https://discord.com/developers/applications):
+1. Open the [Discord Developer Portal](https://discord.com/developers/applications)  
+2. Create a new application  
+3. Copy the **Application ID** from **General Information**  
+4. Paste it into the `CLIENT ID` field in Void Presence  
 
-1. Create a new application  
-2. Copy the Application ID from the **General Information** section  
-3. Paste it into the `CLIENT ID` field in Void Presence  
+### Button pairs
 
-### Button Pairs
+- Each pair contains two buttons with labels and URLs  
+- You can create multiple pairs and reuse them across profiles  
+- Buttons will appear on your Discord Rich Presence card
 
-- Create multiple button sets
-- Each pair consists of two buttons with labels and URLs
-- Buttons will appear on your Discord profile
+### Status cycles
 
-### Status Cycles
-
-- Add custom status messages
-- Each cycle includes `Details` and `State` fields
-- Messages rotate every 30 seconds
+- Add multiple status items with `Details` and `State`  
+- Items rotate every N seconds (default: 30)  
+- Great for showcasing what you are doing (gaming, coding, streaming, etc.)
 
 ### Images
 
-- **Large Image** – Main image displayed in Rich Presence
-- **Small Image** – Badge/overlay image
-- Use Discord asset keys or external image URLs
-- Add multiple image cycles for rotation
+- **Large image** – Main Rich Presence artwork  
+- **Small image** – Badge/overlay image  
+- Use Discord asset keys from your application or external URLs  
+- Add several images and enable rotation for more dynamic presence
 
-### Drag & Drop Profiles
+### Profiles (drag & drop)
 
-- Create multiple presence profiles for different scenarios (gaming, work, streaming, etc.)
-- Change the order of profiles using **drag and drop** in the list
-- Quickly switch between presets without rebuilding your configuration
+- Create separate profiles for gaming, work, streaming, etc.  
+- Reorder profiles with drag and drop to prioritize them  
+- Switch between presets without rebuilding configuration
 
-### Config Import / Export
+### Config import / export
 
-- Export your current setup to a config file
-- Drop the config onto the app (or load it via file picker) to instantly apply the same settings
-- Use this to move your Rich Presence configuration to another machine or user profile in seconds
+- Export your current setup to a JSON config  
+- Import by dropping the file onto the app or using the file picker  
+- Perfect for backup or sharing setups across machines or accounts
 
-## Config presets
+---
 
-Void Presence ships with ready‑to‑use Rich Presence presets so you can start in one click.
+## Preset: Yuuka – Blue Archive
 
-### Yuuka – Blue Archive
+Void Presence ships with a ready‑to‑use Rich Presence preset for **Yuuka (Blue Archive)**.
 
 <details>
-  <summary><strong>Show Yuuka config details</strong></summary>
+  <summary><strong>Show Yuuka preset details</strong></summary>
 
-Example used in the screenshot above is available as a JSON preset right in the repo.
+<p align="left">
+  <img width="280" height="166" alt="Yuuka preview" src="https://github.com/user-attachments/assets/7509f87b-3f8f-4535-bd6f-3e3b873e0ee2" />
+</p>
 
-<img width="280" height="166" alt="Yuuka preview" src="https://github.com/user-attachments/assets/7509f87b-3f8f-4535-bd6f-3e3b873e0ee2" />
-
-- Config file: [`config/Yuuka.json`](config/Yuuka.json)
-- Game: Blue Archive – Hayase Yuuka
+- Config file: [`config/Yuuka.json`](config/Yuuka.json)  
+- Game: Blue Archive – Hayase Yuuka  
 - Use case: quick start with a themed Rich Presence profile  
-- How to use: drag and drop this `.json` file **directly onto the `+Config` area** to instantly load the Yuuka setup into Void Presence.
-
+- How to use: drag and drop `Yuuka.json` **onto the `+Config` area** to instantly load the preset.
 </details>
+
+---
 
 ## Usage
 
-1. **Set Client ID** – Enter your Discord Application ID
-2. **Set the update activity** – Enter the time, how many seconds it will take to update the activity
-3. **Add Images** – Configure large and small images for rotation  
-4. **Add Buttons** – Create button pairs with labels and URLs  
-5. **Add Status Cycles** – Enter status messages to rotate  
-6. **Create Profiles** – Store different combinations of buttons/statuses/images as profiles  
-7. **Use Drag & Drop** – Drag profiles to reorder and prioritize them  
-8. **Config Import/Export** – Save and load configs to reuse or share your setup  
-9. **Auto Start** – Toggle automatic launch with system (optional)
-10. **Auto Hide** – Toggles the auto-hide window at startup
-11. **Save** – Click `Save` to apply all changes and start Rich Presence  
-12. **Restart** – Use the `Restart Presence` button to reload changes
-13. **Disable** – Use the `Stop Presence` to stop the activity
+1. Set **Client ID** – Enter your Discord Application ID  
+2. Set **update interval** – Choose how often to refresh activity (seconds)  
+3. Add **images** – Configure large and small image rotation  
+4. Add **buttons** – Create button pairs with labels and URLs  
+5. Add **status cycles** – Define messages to rotate  
+6. Create **profiles** – Combine buttons, statuses, and images into presets  
+7. Use **drag & drop** – Reorder profiles in the list  
+8. Use **config import/export** – Save or load JSON presets  
+9. Toggle **auto start** – Enable/disable on system startup  
+10. Toggle **auto hide** – Start minimized to tray  
+11. Click **Save** – Apply all changes and start Rich Presence  
+12. Click **Restart Presence** – Reload the current configuration  
+13. Click **Stop Presence** – Disable Rich Presence
 
-## Keyboard Shortcuts
+---
 
-- `Ctrl+,` – Show/hide window  
+## Keyboard shortcuts
+
+- `Ctrl+,` – Show / hide window  
 - `Ctrl+R` – Restart Rich Presence  
 - `Ctrl+Q` – Quit application  
 
-## Tech Stack
+---
+
+## Tech stack
 
 - **Frontend** – Vanilla JavaScript, HTML5, CSS3  
 - **Backend** – Electron, Node.js  
-- **RPC** – discord-rpc library  
+- **RPC** – `discord-rpc` library for Discord Rich Presence
+
+---
 
 ## Author
 
 Made with ❤️ by [Devollox](https://github.com/Devollox)
 
----
-**Void Presence** – Control your Discord presence. Own your story.
-<img width="128" height="128" alt="9qYPFdasdasdSA" src="https://github.com/user-attachments/assets/dcf4e656-cd2a-4674-bac6-5e888ea7c45d" />
+<p align="left">
+  <img width="128" height="128" alt="Void Presence icon" src="https://github.com/user-attachments/assets/dcf4e656-cd2a-4674-bac6-5e888ea7c45d" />
+</p>
 
+**Void Presence** – Control your Discord presence. Own your story.
