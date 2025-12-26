@@ -1,4 +1,4 @@
-# Void Presence
+<h1 align="center">Void Presence</h1> 
 
 <p align="center">
   <img width="1080" height="874" alt="Void Presence preview" src="https://github.com/user-attachments/assets/4e44a6f9-f11a-46c2-9c64-947d8048ee86" />
