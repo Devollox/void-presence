@@ -15,6 +15,7 @@
 				--muted: #9b9b9b;
 				--danger: #ff4b4b;
 				--border: rgba(255, 255, 255, 0.12);
+				--drop-border: rgba(94, 234, 212, 0.8);
 			}
 			* {
 				box-sizing: border-box;
@@ -49,6 +50,7 @@
 				display: flex;
 				flex-direction: column;
 				overflow: hidden;
+				position: relative;
 			}
 			.titlebar {
 				height: 28px;
@@ -311,6 +313,7 @@
 				justify-content: space-between;
 				align-items: center;
 				margin: 6px 0 4px;
+				gap: 6px;
 			}
 			.list-header-label {
 				font-size: 10px;
@@ -848,6 +851,95 @@
 				color: #6b6b6b;
 				font-style: italic;
 			}
+
+			#import-overlay {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.75);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				pointer-events: none;
+				opacity: 0;
+				transition: opacity 0.18s ease-out;
+				z-index: 40;
+			}
+			#import-overlay[data-open='true'] {
+				pointer-events: auto;
+				opacity: 1;
+			}
+			.import-modal {
+				width: 420px;
+				max-width: 90%;
+				background: #050505;
+				border-radius: 16px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				box-shadow: 0 22px 80px rgba(0, 0, 0, 0.85);
+				padding: 16px 18px 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.import-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 10px;
+			}
+			.import-title {
+				font-weight: 600;
+				font-size: 15px;
+			}
+			.import-subtitle {
+				font-size: 12px;
+				color: #a3a3a3;
+			}
+			#import-close-btn {
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				background: #090909;
+				color: #f5f5f5;
+				border-radius: 999px;
+				width: 24px;
+				height: 24px;
+				cursor: pointer;
+				font-size: 14px;
+				line-height: 1;
+			}
+			#import-close-btn:hover {
+				background: #ffffff;
+				color: #000000;
+			}
+			.import-body {
+				margin-top: 8px;
+				font-size: 12px;
+				color: #d4d4d4;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.import-input-row {
+				display: flex;
+				gap: 6px;
+				align-items: center;
+			}
+			#import-file-input {
+				flex: 1;
+				font-size: 11px;
+			}
+
+			#global-drop-overlay {
+				position: fixed;
+				inset: 0;
+				pointer-events: none;
+				border: 2px dashed transparent;
+				box-sizing: border-box;
+				z-index: 45;
+				transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+			}
+			#global-drop-overlay[data-active='true'] {
+				border-color: var(--drop-border);
+				box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+			}
 		</style>
 	</head>
 	<body>
@@ -927,7 +1019,13 @@
 									<input id="client-id-input" placeholder="Application ID" />
 									<button id="client-id-save">save</button>
 								</div>
-
+								<div class="client-row">
+									<span>update(sec)</span>
+									<input
+										id="update-interval-input"
+										placeholder="Update Activity (sec) Minimum 5 sec"
+									/>
+								</div>
 								<div class="divider"></div>
 
 								<div class="list-header">
@@ -1083,6 +1181,35 @@
 			</div>
 		</div>
 
+		<div id="import-overlay" data-open="false">
+			<div class="import-modal">
+				<div class="import-header">
+					<div>
+						<div class="import-title">Import profile</div>
+						<div class="import-subtitle">
+							Drop a JSON file anywhere or choose it here
+						</div>
+					</div>
+					<button id="import-close-btn">×</button>
+				</div>
+				<div class="import-body">
+					<div>Only buttonPairs, cycles and imageCycles will be imported.</div>
+					<div class="import-input-row">
+						<input
+							type="file"
+							id="import-file-input"
+							accept="application/json,.json"
+						/>
+					</div>
+					<div style="font-size: 11px; color: #9ca3af">
+						You can also drag and drop a .json file onto the window; dashed
+						border will appear when ready to drop.
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="global-drop-overlay" data-active="false"></div>
 		<script type="module" src="./src/renderer.js"></script>
 	</body>
 </html>

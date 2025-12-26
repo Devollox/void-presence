@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 import startDiscordRich, {
+	setActivityInterval,
 	setButtonsConfig,
 	setClientId,
 	setCycles,
@@ -287,6 +288,11 @@ ipcMain.handle('stop-discord-rich', async () => {
 	sendStatus('DISABLED')
 })
 
+ipcMain.handle('set-activity-interval', async (_event, sec: number) => {
+	await setActivityInterval(sec)
+	return true
+})
+
 app.on('before-quit', () => {
 	isQuitting = true
 })
@@ -294,7 +300,6 @@ app.on('before-quit', () => {
 app.whenReady().then(() => {
 	const initialSettings = loadSettings()
 	autoHideOnStart = !!initialSettings.autoHideOnStart
-
 	if (!autoHideOnStart) {
 		createWindow()
 	}

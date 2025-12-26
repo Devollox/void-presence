@@ -10,6 +10,7 @@ let client: any = null
 let cycleTimer: NodeJS.Timeout | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
+let activityIntervalMs: number = 30000
 
 export type RpcPayload = {
 	details: string
@@ -296,6 +297,18 @@ export async function setImageCyclesConfig(
 	await writeImageCyclesConfig({ cycles: cleaned })
 }
 
+export function setActivityInterval(sec: number) {
+	if (!Number.isFinite(sec) || sec < 5) {
+		activityIntervalMs = 5000
+	} else {
+		activityIntervalMs = sec * 1000
+	}
+	if (cycleTimer) {
+		clearInterval(cycleTimer)
+		cycleTimer = null
+	}
+}
+
 function createClient() {
 	if (client) {
 		try {
@@ -459,7 +472,7 @@ function startDiscordRich(
 			}
 			cycleTimer = setInterval(() => {
 				pushActivity()
-			}, 30000)
+			}, activityIntervalMs)
 		})
 
 		localClient.on('disconnected', () => {

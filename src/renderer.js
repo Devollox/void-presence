@@ -108,7 +108,7 @@ function mapStatusToText(status) {
 		case 'DISCONNECTED':
 			return { chip: 'DISCONNECTED', sub: 'Lost connection to Discord' }
 		case 'NO_CLIENT_ID':
-			return { chip: 'NO CLIENT', sub: 'Set ID, cycles' }
+			return { chip: 'NO CLIENT', sub: 'Set ID, cycles, update' }
 		default:
 			return { chip: 'UNKNOWN', sub: status || '' }
 	}
@@ -183,6 +183,18 @@ function updateStatus(status) {
 		} else {
 			statusDot.style.background =
 				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+		}
+	}
+}
+
+async function setupIntervalControl() {
+	const input = document.getElementById('update-interval-input')
+	if (!input) return
+	const saved = parseInt(localStorage.getItem('updateIntervalSec') || '30', 10)
+	if (!Number.isNaN(saved) && saved > 0) {
+		input.value = String(saved)
+		if (window.electronAPI && window.electronAPI.setActivityInterval) {
+			await window.electronAPI.setActivityInterval(saved)
 		}
 	}
 }
@@ -394,7 +406,14 @@ async function saveAllFromState(state) {
 				c.smallText.length > 0
 		)
 
-	if (!clientId || !cleanedCycles.length) {
+	const intervalSecRaw = Number(state.updateIntervalSec)
+
+	if (
+		!clientId ||
+		!cleanedCycles.length ||
+		!Number.isFinite(intervalSecRaw) ||
+		intervalSecRaw <= 0
+	) {
 		updateStatus('NO_CLIENT_ID')
 		return
 	}
@@ -403,6 +422,7 @@ async function saveAllFromState(state) {
 	localStorage.setItem('buttonPairs', JSON.stringify(cleanedPairs))
 	localStorage.setItem('cycles', JSON.stringify(cleanedCycles))
 	localStorage.setItem('imageCycles', JSON.stringify(cleanedImageCycles))
+	localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
 
 	if (window.electronAPI && window.electronAPI.setClientId) {
 		await window.electronAPI.setClientId(clientId)
@@ -415,6 +435,9 @@ async function saveAllFromState(state) {
 	}
 	if (window.electronAPI && window.electronAPI.setCycles) {
 		await window.electronAPI.setCycles(cleanedCycles)
+	}
+	if (window.electronAPI && window.electronAPI.setActivityInterval) {
+		await window.electronAPI.setActivityInterval(intervalSecRaw)
 	}
 	if (window.electronAPI && window.electronAPI.restartDiscordRich) {
 		await window.electronAPI.restartDiscordRich()
@@ -737,11 +760,16 @@ function setupClientIdControls() {
 	})
 
 	async function saveAll() {
+		const intervalInput = document.getElementById('update-interval-input')
+		const intervalSec = intervalInput
+			? parseInt(intervalInput.value.trim(), 10)
+			: NaN
 		const state = {
 			clientId: clientInput.value,
 			buttonPairs: ctx.buttonPairs,
 			cycles: ctx.cycles,
 			imageCycles: ctx.imageCycles,
+			updateIntervalSec: intervalSec,
 		}
 		await saveAllFromState(state)
 	}
@@ -773,10 +801,8 @@ function setupAutoLaunchToggle() {
 function setupAutoHideToggle() {
 	const toggle = document.getElementById('auto-hide-toggle')
 	if (!toggle) return
-
 	const saved = localStorage.getItem('autoHide') === 'true'
 	toggle.dataset.on = saved ? 'true' : 'false'
-
 	toggle.addEventListener('click', () => {
 		const current = toggle.dataset.on === 'true'
 		const next = !current
@@ -867,8 +893,9 @@ function importConfigFromFile(file) {
 					? parsed.buttonPairs
 					: [],
 			}
+			const nameInput = document.getElementById('config-name-input')
 			const baseName =
-				nameInput.value.trim() ||
+				(nameInput && nameInput.value.trim()) ||
 				file.name.replace(/\.[^.]+$/, '') ||
 				'Imported profile'
 			addConfigFromState(baseName, state)
@@ -880,6 +907,34 @@ function importConfigFromFile(file) {
 		}
 	}
 	reader.readAsText(file)
+}
+
+function setupImportOverlay() {
+	const importOverlay = document.getElementById('import-overlay')
+	const importCloseBtn = document.getElementById('import-close-btn')
+	const importFileInput = document.getElementById('import-file-input')
+	if (!importOverlay || !importCloseBtn || !importFileInput) return
+
+	function closeImport() {
+		importOverlay.dataset.open = 'false'
+		importFileInput.value = ''
+	}
+
+	importCloseBtn.addEventListener('click', e => {
+		e.preventDefault()
+		closeImport()
+	})
+
+	importOverlay.addEventListener('click', e => {
+		if (e.target === importOverlay) closeImport()
+	})
+
+	importFileInput.addEventListener('change', () => {
+		const file = importFileInput.files && importFileInput.files[0]
+		if (!file) return
+		importConfigFromFile(file)
+		closeImport()
+	})
 }
 
 function setupConfigPage() {
@@ -901,6 +956,19 @@ function setupConfigPage() {
 
 	function setConfigs(configs) {
 		localStorage.setItem('vpConfigs', JSON.stringify(configs))
+	}
+
+	function downloadJson(data, filename) {
+		const json = JSON.stringify(data, null, 2)
+		const blob = new Blob([json], { type: 'application/json' })
+		const url = URL.createObjectURL(blob)
+		const a = document.createElement('a')
+		a.href = url
+		a.download = filename
+		document.body.appendChild(a)
+		a.click()
+		document.body.removeChild(a)
+		URL.revokeObjectURL(url)
 	}
 
 	function renderConfigs() {
@@ -975,6 +1043,10 @@ function setupConfigPage() {
 			detailsBtn.className = 'config-activity-btn'
 			detailsBtn.textContent = 'details'
 
+			const exportBtnCfg = document.createElement('button')
+			exportBtnCfg.className = 'config-activity-btn'
+			exportBtnCfg.textContent = 'export'
+
 			const delBtn = document.createElement('button')
 			delBtn.className = 'config-activity-btn danger'
 			delBtn.textContent = '✕'
@@ -985,6 +1057,10 @@ function setupConfigPage() {
 				if (!ctx) return
 				const st = {
 					clientId: state.clientId || localStorage.getItem('clientId') || '',
+					updateIntervalSec:
+						state.updateIntervalSec ||
+						localStorage.getItem('updateIntervalSec') ||
+						'',
 					buttonPairs: Array.isArray(state.buttonPairs)
 						? state.buttonPairs
 						: [],
@@ -995,13 +1071,27 @@ function setupConfigPage() {
 				}
 				applyStateToUIAndLists(st, ctx)
 				await saveAllFromState(st)
-				nameInput.value = cfg.name || ''
+				nameInput.value = ''
+
 				setActiveView('main')
 			})
 
 			detailsBtn.addEventListener('click', e => {
 				e.preventDefault()
 				openConfigDetails(cfg)
+			})
+
+			exportBtnCfg.addEventListener('click', e => {
+				e.preventDefault()
+				const data = {
+					clientId: undefined,
+					cycles: (state.cycles && state.cycles.slice()) || [],
+					imageCycles: (state.imageCycles && state.imageCycles.slice()) || [],
+					buttonPairs: (state.buttonPairs && state.buttonPairs.slice()) || [],
+				}
+				const name =
+					cfg.name || `void-presence-${new Date().toISOString().slice(0, 10)}`
+				downloadJson(data, `${name}.json`)
 			})
 
 			delBtn.addEventListener('click', e => {
@@ -1013,6 +1103,7 @@ function setupConfigPage() {
 
 			actions.appendChild(loadBtn)
 			actions.appendChild(detailsBtn)
+			actions.appendChild(exportBtnCfg)
 			actions.appendChild(delBtn)
 
 			card.appendChild(body)
@@ -1033,18 +1124,7 @@ function setupConfigPage() {
 		renderConfigs()
 	}
 
-	function downloadJson(data, filename) {
-		const json = JSON.stringify(data, null, 2)
-		const blob = new Blob([json], { type: 'application/json' })
-		const url = URL.createObjectURL(blob)
-		const a = document.createElement('a')
-		a.href = url
-		a.download = filename
-		document.body.appendChild(a)
-		a.click()
-		document.body.removeChild(a)
-		URL.revokeObjectURL(url)
-	}
+	window.addConfigFromState = addConfigFromState
 
 	saveBtn.addEventListener('click', async e => {
 		e.preventDefault()
@@ -1058,52 +1138,10 @@ function setupConfigPage() {
 
 	addBtn.addEventListener('click', async e => {
 		e.preventDefault()
-		const state = loadCurrentState()
-		const name =
-			nameInput.value.trim() ||
-			`Profile ${new Date().toLocaleTimeString().slice(0, 5)}`
-		addConfigFromState(name, state)
-		await saveAllFromState(state)
-	})
-
-	addBtn.addEventListener('dragover', e => {
-		e.preventDefault()
-		e.dataTransfer.dropEffect = 'copy'
-	})
-
-	addBtn.addEventListener('drop', e => {
-		e.preventDefault()
-		const files = e.dataTransfer.files
-		if (!files || !files.length) return
-		const file = files[0]
-		const reader = new FileReader()
-		reader.onload = async ev => {
-			try {
-				const text = String(ev.target.result || '')
-				const parsed = JSON.parse(text)
-				const state = {
-					clientId: localStorage.getItem('clientId') || '',
-					cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
-					imageCycles: Array.isArray(parsed.imageCycles)
-						? parsed.imageCycles
-						: [],
-					buttonPairs: Array.isArray(parsed.buttonPairs)
-						? parsed.buttonPairs
-						: [],
-				}
-				const baseName =
-					nameInput.value.trim() ||
-					file.name.replace(/\.[^.]+$/, '') ||
-					'Imported profile'
-				addConfigFromState(baseName, state)
-				const ctx = window.__voidPresenceCtx
-				if (ctx) applyStateToUIAndLists(state, ctx)
-				await saveAllFromState(state)
-			} catch (err) {
-				console.error('Failed to import config', err)
-			}
+		const importOverlay = document.getElementById('import-overlay')
+		if (importOverlay) {
+			importOverlay.dataset.open = 'true'
 		}
-		reader.readAsText(file)
 	})
 
 	exportBtn.addEventListener('click', e => {
@@ -1124,6 +1162,64 @@ function setupConfigPage() {
 	renderConfigs()
 }
 
+function setupGlobalDrop() {
+	const overlay = document.getElementById('global-drop-overlay')
+	const app = document.querySelector('.app')
+	if (!overlay || !app) return
+	let dragDepth = 0
+
+	function showOverlay() {
+		overlay.dataset.active = 'true'
+	}
+	function hideOverlay() {
+		overlay.dataset.active = 'false'
+	}
+
+	document.addEventListener('dragenter', e => {
+		const items = e.dataTransfer && e.dataTransfer.items
+		if (!items || !items.length) return
+		const hasFile = Array.from(items).some(
+			it => it.kind === 'file' || it.type === 'Files'
+		)
+		if (!hasFile) return
+		dragDepth += 1
+		showOverlay()
+		e.preventDefault()
+	})
+
+	document.addEventListener('dragover', e => {
+		const items = e.dataTransfer && e.dataTransfer.items
+		if (!items || !items.length) return
+		const hasFile = Array.from(items).some(
+			it => it.kind === 'file' || it.type === 'Files'
+		)
+		if (!hasFile) return
+		e.preventDefault()
+		e.dataTransfer.dropEffect = 'copy'
+	})
+
+	document.addEventListener('dragleave', e => {
+		if (!app.contains(e.relatedTarget)) {
+			dragDepth -= 1
+			if (dragDepth <= 0) {
+				dragDepth = 0
+				hideOverlay()
+			}
+		}
+	})
+
+	document.addEventListener('drop', e => {
+		const files = e.dataTransfer && e.dataTransfer.files
+		dragDepth = 0
+		hideOverlay()
+		if (!files || !files.length) return
+		e.preventDefault()
+		const file = files[0]
+		if (!file) return
+		importConfigFromFile(file)
+	})
+}
+
 window.addEventListener('DOMContentLoaded', () => {
 	setupRestartButton()
 	setupClientIdControls()
@@ -1133,6 +1229,9 @@ window.addEventListener('DOMContentLoaded', () => {
 	setupConfigDetailsOverlay()
 	setupConfigPage()
 	setupStopButton()
+	setupIntervalControl()
+	setupImportOverlay()
+	setupGlobalDrop()
 	updateInfo(null)
 	updateStatus('CONNECTING RPC')
 	if (window.electronAPI && window.electronAPI.onRpcUpdate) {
