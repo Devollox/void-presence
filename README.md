@@ -17,6 +17,7 @@ Advanced Discord Rich Presence manager with customizable button pairs, text cycl
 ## Features
 
 - **Custom Button Pairs** – Create multiple button sets with labels and URLs
+- **Custom activity update(sec)** – Log your update in seconds
 - **Status Cycles** – Rotate between different status messages (details and state)
 - **Image Rotation** – Cycle through different large and small Discord images
 - **Drag & Drop Profiles** – Reorder and manage presence profiles with simple drag and drop
@@ -24,6 +25,7 @@ Advanced Discord Rich Presence manager with customizable button pairs, text cycl
 - **Real-time Updates** – Status changes every 30 seconds automatically
 - **Discord Integration** – Seamless RPC connection with Discord
 - **Auto-launch** – Optional startup with system
+- **Auto Hide** – Toggles the auto-hide window at startup
 - **Minimalist UI** – Dark theme, clean interface with real-time preview
 - **System Tray** – Quick access from system tray, always running in background
 
@@ -108,16 +110,19 @@ Example used in the screenshot above is available as a JSON preset right in the 
 
 ## Usage
 
-1. **Set Client ID** – Enter your Discord Application ID  
-2. **Add Images** – Configure large and small images for rotation  
-3. **Add Buttons** – Create button pairs with labels and URLs  
-4. **Add Status Cycles** – Enter status messages to rotate  
-5. **Create Profiles** – Store different combinations of buttons/statuses/images as profiles  
-6. **Use Drag & Drop** – Drag profiles to reorder and prioritize them  
-7. **Config Import/Export** – Save and load configs to reuse or share your setup  
-8. **Auto Start** – Toggle automatic launch with system (optional)  
-9. **Save** – Click `Save` to apply all changes and start Rich Presence  
-10. **Restart** – Use the `Restart Presence` button to reload changes  
+1. **Set Client ID** – Enter your Discord Application ID
+2. **Set the update activity* – Enter the time, how many seconds it will take to update the activity
+3. **Add Images** – Configure large and small images for rotation  
+4. **Add Buttons** – Create button pairs with labels and URLs  
+5. **Add Status Cycles** – Enter status messages to rotate  
+6. **Create Profiles** – Store different combinations of buttons/statuses/images as profiles  
+7. **Use Drag & Drop** – Drag profiles to reorder and prioritize them  
+8. **Config Import/Export** – Save and load configs to reuse or share your setup  
+9. **Auto Start** – Toggle automatic launch with system (optional)
+10. **Auto Hide** – Toggles the auto-hide window at startup
+11. **Save** – Click `Save` to apply all changes and start Rich Presence  
+12. **Restart** – Use the `Restart Presence` button to reload changes
+13. **Disable** – Use the `Stop Presence` to stop the activity
 
 ## Keyboard Shortcuts
 
