@@ -1,0 +1,49 @@
+{
+	"clientId": "war-time-budget",
+	"cycles": [
+		{
+			"details": "War budget",
+			"state": "Every currency unit between front and home"
+		},
+		{
+			"details": "Cost of war",
+			"state": "Destroyed GDP and burned investments"
+		},
+		{
+			"details": "Civilians and soldiers",
+			"state": "Pay with their lives for others' decisions"
+		},
+		{
+			"details": "After the war",
+			"state": "Debt, inflation, and lost years"
+		}
+	],
+	"imageCycles": [
+		{
+			"largeImage": "https://i.pinimg.com/736x/96/05/da/9605dada6459f9762c1ba845b575327a.jpg",
+			"largeText": "War is expenses",
+			"smallImage": "https://i.pinimg.com/736x/96/05/da/9605dada6459f9762c1ba845b575327a.jpg",
+			"smallText": "And human losses"
+		},
+		{
+			"largeImage": "https://i.pinimg.com/736x/96/05/da/9605dada6459f9762c1ba845b575327a.jpg",
+			"largeText": "Economy in ruins",
+			"smallImage": "https://i.pinimg.com/736x/96/05/da/9605dada6459f9762c1ba845b575327a.jpg",
+			"smallText": "Inflation, debt, destruction"
+		},
+		{
+			"largeImage": "https://i.pinimg.com/736x/96/05/da/9605dada6459f9762c1ba845b575327a.jpg",
+			"largeText": "No glory in this",
+			"smallImage": "https://i.pinimg.com/736x/96/05/da/9605dada6459f9762c1ba845b575327a.jpg",
+			"smallText": "Only losses"
+		}
+	],
+	"buttonPairs": [
+		{
+			"label1": "Economics of war",
+			"url1": "https://insight.kellogg.northwestern.edu/article/the-economic-price-we-pay-for-war",
+			"label2": "Real cost of conflict",
+			"url2": "https://www.dezerv.in/blog/economics-of-war-the-real-cost-of-conflict/"
+		}
+	]
+}

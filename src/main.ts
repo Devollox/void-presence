@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
+import * as fs from 'fs'
 import * as path from 'path'
 import startDiscordRich, {
 	setButtonsConfig,
@@ -10,6 +11,8 @@ import startDiscordRich, {
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
+let autoHideOnStart = false
+let isQuitting = false
 
 function getAssetPath(...segments: string[]) {
 	const appPath = app.isPackaged ? app.getAppPath() : process.cwd()
@@ -17,6 +20,28 @@ function getAssetPath(...segments: string[]) {
 }
 
 const iconPath = getAssetPath('public', 'favicons', 'dark-fav.png')
+const settingsPath = path.join(app.getPath('userData'), 'settings.json')
+
+function loadSettings(): { autoHideOnStart?: boolean } {
+	try {
+		const raw = fs.readFileSync(settingsPath, 'utf-8')
+		return JSON.parse(raw)
+	} catch {
+		return {}
+	}
+}
+
+function saveSettings(data: { autoHideOnStart?: boolean }) {
+	try {
+		fs.writeFileSync(settingsPath, JSON.stringify(data, null, 2), 'utf-8')
+	} catch {}
+}
+
+function setAutoHide(enabled: boolean) {
+	autoHideOnStart = !!enabled
+	const current = loadSettings()
+	saveSettings({ ...current, autoHideOnStart })
+}
 
 function sendStatus(status: string) {
 	const win = BrowserWindow.getAllWindows()[0]
@@ -31,6 +56,8 @@ function sendLog(message: string) {
 }
 
 function createWindow() {
+	const shouldShow = !autoHideOnStart
+
 	mainWindow = new BrowserWindow({
 		width: 480,
 		height: 640,
@@ -39,6 +66,7 @@ function createWindow() {
 		resizable: false,
 		titleBarStyle: 'hidden',
 		backgroundColor: '#000000',
+		show: false,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -49,7 +77,14 @@ function createWindow() {
 	mainWindow.setMenuBarVisibility(false)
 	mainWindow.loadFile('index.html')
 
-	sendStatus('DISABLED')
+	if (shouldShow) {
+		mainWindow.once('ready-to-show', () => {
+			if (!mainWindow || mainWindow.isDestroyed()) return
+			mainWindow.show()
+		})
+	}
+
+	sendStatus('RESTARTING')
 
 	startDiscordRich(
 		(payload: any) => {
@@ -64,14 +99,28 @@ function createWindow() {
 		}
 	)
 
-	mainWindow.on('close', ev => {
+	mainWindow.on('minimize', (ev: { preventDefault: () => void }) => {
 		ev.preventDefault()
-		BrowserWindow.getAllWindows().forEach(w => {
-			if (!w.isMinimized()) {
-				w.hide()
-			}
-		})
+		mainWindow?.hide()
 	})
+
+	mainWindow.on('close', ev => {
+		if (!isQuitting) {
+			ev.preventDefault()
+			mainWindow?.hide()
+			return
+		}
+	})
+}
+
+function showOrCreateWindow() {
+	if (!mainWindow || mainWindow.isDestroyed()) {
+		createWindow()
+		return
+	}
+	if (mainWindow.isMinimized()) mainWindow.restore()
+	mainWindow.show()
+	mainWindow.focus()
 }
 
 function createTray() {
@@ -82,12 +131,7 @@ function createTray() {
 			label: 'Show Window',
 			accelerator: 'CmdOrCtrl+,',
 			click: () => {
-				const win = BrowserWindow.getAllWindows()[0]
-				if (win) {
-					if (win.isMinimized()) win.restore()
-					win.show()
-					win.focus()
-				}
+				showOrCreateWindow()
 			},
 		},
 		{
@@ -118,6 +162,7 @@ function createTray() {
 			label: 'Quit',
 			accelerator: 'CmdOrCtrl+Q',
 			click: () => {
+				isQuitting = true
 				BrowserWindow.getAllWindows().forEach(w => w.destroy())
 				stopDiscordRich()
 				app.quit()
@@ -129,36 +174,20 @@ function createTray() {
 	tray.setToolTip('Void Presence')
 	tray.setContextMenu(contextMenu)
 	tray.on('click', () => {
-		const win = BrowserWindow.getAllWindows()[0]
-		if (win) {
-			if (win.isMinimized()) win.restore()
-			win.show()
-			win.focus()
-		}
+		showOrCreateWindow()
 	})
 	tray.on('double-click', () => {
-		const win = BrowserWindow.getAllWindows()[0]
-		if (win) {
-			if (win.isMinimized()) win.restore()
-			win.show()
-			win.focus()
-		}
+		showOrCreateWindow()
 	})
 }
 
-app.whenReady().then(() => {
-	createWindow()
-	createTray()
-})
-
-app.on('activate', () => {
-	const window = BrowserWindow.getAllWindows()[0]
-	if (window) {
-		window.show()
-	} else {
-		createWindow()
-	}
-})
+function setAutoLaunch(enabled: boolean) {
+	app.setLoginItemSettings({
+		openAtLogin: enabled,
+		path: app.getPath('exe'),
+		args: [],
+	})
+}
 
 ipcMain.handle('restart-discord-rich', async () => {
 	const win = BrowserWindow.getAllWindows()[0]
@@ -224,17 +253,19 @@ ipcMain.handle(
 	}
 )
 
-function setAutoLaunch(enabled: boolean) {
-	app.setLoginItemSettings({
-		openAtLogin: enabled,
-		path: app.getPath('exe'),
-		args: [],
-	})
-}
-
 ipcMain.handle('set-auto-launch', async (_event, enabled: boolean) => {
 	setAutoLaunch(enabled)
 	return true
+})
+
+ipcMain.handle('set-auto-hide', async (_event, enabled: boolean) => {
+	setAutoHide(enabled)
+	return true
+})
+
+ipcMain.handle('get-auto-hide', async () => {
+	const s = loadSettings()
+	return !!s.autoHideOnStart
 })
 
 ipcMain.handle('window-close', () => {
@@ -248,5 +279,38 @@ ipcMain.handle('window-minimize', () => {
 	const win = BrowserWindow.getAllWindows()[0]
 	if (win && !win.isDestroyed()) {
 		win.minimize()
+	}
+})
+
+ipcMain.handle('stop-discord-rich', async () => {
+	stopDiscordRich()
+	sendStatus('DISABLED')
+})
+
+app.on('before-quit', () => {
+	isQuitting = true
+})
+
+app.whenReady().then(() => {
+	const initialSettings = loadSettings()
+	autoHideOnStart = !!initialSettings.autoHideOnStart
+
+	if (!autoHideOnStart) {
+		createWindow()
+	}
+	createTray()
+})
+
+app.on('activate', () => {
+	if (!mainWindow || mainWindow.isDestroyed()) {
+		createWindow()
+	} else {
+		mainWindow.show()
+	}
+})
+
+app.on('window-all-closed', () => {
+	if (process.platform !== 'darwin') {
+		app.quit()
 	}
 })

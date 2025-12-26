@@ -107,9 +107,8 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: 13px;
+				font-size: 15px;
 				font-weight: 600;
-				letter-spacing: 0.12em;
 			}
 			.brand-text {
 				display: flex;
@@ -403,6 +402,13 @@
 				font-size: 11px;
 				align-self: flex-start;
 				margin-top: 6px;
+				transition: background-color 0.12s ease, border-color 0.12s ease,
+					transform 0.1s ease;
+			}
+			.remove-btn:hover {
+				background-color: #111827;
+				border-color: #f97373;
+				transform: translateY(-1px) scale(1.05);
 			}
 			.auto-row {
 				display: flex;
@@ -659,30 +665,6 @@
 				flex-direction: column;
 				gap: 6px;
 			}
-			.config-activity-header {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-			}
-			.config-activity-header-label {
-				font-size: 10px;
-				letter-spacing: 0.14em;
-				text-transform: uppercase;
-				color: var(--muted);
-			}
-			.config-activity-header-menu {
-				width: 20px;
-				height: 20px;
-				border-radius: 999px;
-				border: 1px solid transparent;
-				background: transparent;
-				color: var(--muted);
-				font-size: 14px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				cursor: default;
-			}
 			.config-activity-body {
 				display: flex;
 				gap: 10px;
@@ -718,11 +700,6 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 			}
-			.config-activity-footer {
-				margin-top: 4px;
-				font-size: 11px;
-				color: #4ade80;
-			}
 			.config-activity-actions {
 				margin-top: 4px;
 				display: flex;
@@ -738,26 +715,138 @@
 				text-transform: uppercase;
 				letter-spacing: 0.12em;
 				cursor: pointer;
-			}
-			.config-activity-btn.danger {
-				border-color: rgba(248, 113, 113, 0.7);
-				color: #fecaca;
+				transition: background-color 0.15s ease, transform 0.12s ease,
+					box-shadow 0.12s ease;
 			}
 			.config-activity-btn:hover {
+				transform: translateY(-1px) scale(1.02);
+				box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+			}
+			.danger:hover {
+				background-color: #111827;
+				border-color: #f97373;
+				transform: translateY(-1px) scale(1.05);
+			}
+
+			#config-details-overlay {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.75);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				pointer-events: none;
+				opacity: 0;
+				transition: opacity 0.18s ease-out;
+				z-index: 50;
+			}
+			#config-details-overlay[data-open='true'] {
+				pointer-events: auto;
+				opacity: 1;
+			}
+			.config-details-modal {
+				width: 440px;
+				max-height: 520px;
+				background: #050505;
+				border-radius: 16px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				box-shadow: 0 22px 80px rgba(0, 0, 0, 0.9);
+				padding: 16px 18px 18px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.config-details-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 12px;
+			}
+			.config-details-title {
+				font-weight: 600;
+				font-size: 15px;
+			}
+			.config-details-subtitle {
+				font-size: 12px;
+				color: #a3a3a3;
+			}
+			#config-details-close {
+				border: 1px solid rgba(255, 255, 255, 0.18);
+				background: #090909;
+				color: #f5f5f5;
+				border-radius: 999px;
+				width: 24px;
+				height: 24px;
+				cursor: pointer;
+				font-size: 14px;
+				line-height: 1;
+			}
+			#config-details-close:hover {
 				background: #ffffff;
 				color: #000000;
 			}
-			.config-activity-btn.danger:hover {
-				background: #fecaca;
-				color: #450a0a;
-			}
-			.meta-row {
+			.config-details-sections {
+				flex: 1;
+				overflow: auto;
+				padding-right: 4px;
 				display: flex;
+				flex-direction: column;
 				gap: 10px;
-				font-size: 10px;
+			}
+			.config-details-section h3 {
+				font-size: 12px;
 				text-transform: uppercase;
-				letter-spacing: 0.16em;
-				color: var(--muted);
+				letter-spacing: 0.06em;
+				color: #a3a3a3;
+				margin-bottom: 6px;
+			}
+			.config-details-list {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+			}
+			.config-details-item {
+				padding: 8px 9px;
+				border-radius: 10px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				display: block;
+			}
+			.config-details-item-main {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+			}
+			.config-details-item-label {
+				font-size: 12px;
+				font-weight: 500;
+			}
+			.config-details-item-sub {
+				font-size: 11px;
+				color: #a3a3a3;
+			}
+			.config-details-item-meta {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+				font-size: 10px;
+				color: #a3a3a3;
+				margin-top: 5px;
+			}
+			.config-details-pill a {
+				text-decoration: none;
+				color: white;
+			}
+			.config-details-pill {
+				display: inline-block;
+				padding: 2px 6px;
+				border-radius: 999px;
+				border: 1px solid rgba(255, 255, 255, 0.13);
+				font-size: 10px;
+			}
+			.config-details-empty {
+				font-size: 11px;
+				color: #6b6b6b;
+				font-style: italic;
 			}
 		</style>
 	</head>
@@ -876,12 +965,26 @@
 									>
 										<div class="auto-toggle-knob"></div>
 									</div>
+									<div class="auto-label">
+										<span>AUTO HIDE</span>
+									</div>
+									<div
+										id="auto-hide-toggle"
+										class="auto-toggle"
+										data-on="false"
+									>
+										<div class="auto-toggle-knob"></div>
+									</div>
 								</div>
 
 								<div class="button-row">
 									<button id="restart-discord" class="rpc-button">
 										<div class="rpc-button-icon">↻</div>
 										<span>RESTART PRESENCE</span>
+									</button>
+									<button id="stop-discord" class="rpc-button">
+										<div class="rpc-button-icon">■</div>
+										<span>STOP PRESENCE</span>
 									</button>
 								</div>
 
@@ -951,6 +1054,32 @@
 						</div>
 					</section>
 				</main>
+			</div>
+		</div>
+
+		<div id="config-details-overlay" data-open="false">
+			<div class="config-details-modal">
+				<div class="config-details-header">
+					<div>
+						<div class="config-details-title" id="config-details-name"></div>
+						<div class="config-details-subtitle">Profile configuration</div>
+					</div>
+					<button id="config-details-close">×</button>
+				</div>
+				<div class="config-details-sections content-scroll">
+					<section class="config-details-section">
+						<h3>Cycles</h3>
+						<div class="config-details-list" id="config-details-cycles"></div>
+					</section>
+					<section class="config-details-section">
+						<h3>Images</h3>
+						<div class="config-details-list" id="config-details-images"></div>
+					</section>
+					<section class="config-details-section">
+						<h3>Buttons</h3>
+						<div class="config-details-list" id="config-details-buttons"></div>
+					</section>
+				</div>
 			</div>
 		</div>
 

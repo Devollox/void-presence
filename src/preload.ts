@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('electronAPI', {
 	restartDiscordRich: () => ipcRenderer.invoke('restart-discord-rich'),
+	stopDiscordRich: () => ipcRenderer.invoke('stop-discord-rich'),
 	onRpcUpdate: (callback: (payload: any) => void) => {
 		ipcRenderer.on('rpc-update', (_event, payload) => callback(payload))
 	},
@@ -30,4 +31,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	onLogMessage: (callback: (msg: string) => void) => {
 		ipcRenderer.on('log-message', (_event, msg) => callback(msg))
 	},
+	setAutoHide: (value: boolean) => ipcRenderer.invoke('set-auto-hide', value),
+	getAutoHide: () => ipcRenderer.invoke('get-auto-hide'),
 })

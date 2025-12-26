@@ -1,8 +1,8 @@
+import { exec } from 'child_process'
 import { app } from 'electron'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 const rpc = require('discord-rpc')
-const ps = require('ps-node')
 
 const processName = 'Discord.exe'
 
@@ -32,8 +32,8 @@ type LinksConfig = {
 type ButtonPair = {
 	label1: string
 	url1: string
-	label2: string
-	url2: string
+	label2?: string
+	url2?: string
 }
 
 type ButtonsConfig = {
@@ -148,6 +148,21 @@ async function writeLinksConfig(config: LinksConfig) {
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
 }
 
+function normalizeButtonPair(p: any): ButtonPair | null {
+	const label1 = (p.label1 || '').toString().trim()
+	const url1 = (p.url1 || '').toString().trim()
+	const label2 = (p.label2 || '').toString().trim()
+	const url2 = (p.url2 || '').toString().trim()
+
+	const has1 = label1.length > 0 && url1.length > 0
+	const has2 = label2.length > 0 && url2.length > 0
+
+	if (!has1 && !has2) return null
+	if (has1 && !has2) return { label1, url1 }
+	if (!has1 && has2) return { label1: label2, url1: url2 }
+	return { label1, url1, label2, url2 }
+}
+
 async function readButtonsConfig(): Promise<ButtonsConfig> {
 	const configPath = getButtonsConfigPath()
 	try {
@@ -155,19 +170,8 @@ async function readButtonsConfig(): Promise<ButtonsConfig> {
 		const parsed = JSON.parse(raw) as Partial<ButtonsConfig>
 		const pairs = Array.isArray(parsed.pairs) ? parsed.pairs : []
 		const cleaned = pairs
-			.map(p => ({
-				label1: (p.label1 || '').toString().trim(),
-				url1: (p.url1 || '').toString().trim(),
-				label2: (p.label2 || '').toString().trim(),
-				url2: (p.url2 || '').toString().trim(),
-			}))
-			.filter(
-				p =>
-					p.label1.length > 0 &&
-					p.url1.length > 0 &&
-					p.label2.length > 0 &&
-					p.url2.length > 0
-			)
+			.map(normalizeButtonPair)
+			.filter((p): p is ButtonPair => !!p)
 		return { pairs: cleaned }
 	} catch {
 		return { pairs: [] }
@@ -254,19 +258,8 @@ export async function setLinksConfig(
 
 export async function setButtonsConfig(pairs: ButtonPair[]) {
 	const cleaned = pairs
-		.map(p => ({
-			label1: (p.label1 || '').trim(),
-			url1: (p.url1 || '').trim(),
-			label2: (p.label2 || '').trim(),
-			url2: (p.url2 || '').trim(),
-		}))
-		.filter(
-			p =>
-				p.label1.length > 0 &&
-				p.url1.length > 0 &&
-				p.label2.length > 0 &&
-				p.url2.length > 0
-		)
+		.map(normalizeButtonPair)
+		.filter((p): p is ButtonPair => !!p)
 	await writeButtonsConfig({ pairs: cleaned })
 }
 
@@ -380,14 +373,16 @@ function startDiscordRich(
 		const cycles = baseCycles.map((c, idx) => {
 			const img = baseImageCycles[idx % baseImageCycles.length]
 
-			let buttons: { label: string; url: string }[] = []
+			const buttons: { label: string; url: string }[] = []
 			if (buttonPairs.length > 0) {
 				const pairIndex = idx % buttonPairs.length
 				const pair = buttonPairs[pairIndex]
-				buttons = [
-					{ label: pair.label1, url: pair.url1 },
-					{ label: pair.label2, url: pair.url2 },
-				]
+				if (pair.label1 && pair.url1) {
+					buttons.push({ label: pair.label1, url: pair.url1 })
+				}
+				if (pair.label2 && pair.url2) {
+					buttons.push({ label: pair.label2, url: pair.url2 })
+				}
 			}
 
 			return {
@@ -495,14 +490,21 @@ function startDiscordRich(
 		})
 	}
 
+	function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
+		exec('tasklist', (err, stdout) => {
+			if (err) return cb(err, false)
+			const found = stdout.toLowerCase().includes(processName.toLowerCase())
+			cb(null, found)
+		})
+	}
+
 	function restartProcess() {
-		ps.lookup({ command: processName }, (err: any, resultList: any[]) => {
+		checkDiscordRunning((err, isRunning) => {
 			if (err) {
-				if (sendLog)
-					sendLog('ps lookup error: ' + (err?.message || String(err)))
+				if (sendLog) sendLog('tasklist error: ' + (err?.message || String(err)))
 				return
 			}
-			if (resultList.length <= 1) {
+			if (!isRunning) {
 				sendStatus('SEARCHING DISCORD')
 				findAndRestartProcess()
 			} else {
@@ -512,19 +514,18 @@ function startDiscordRich(
 	}
 
 	function findAndRestartProcess() {
-		ps.lookup({ command: processName }, (err: any, resultList: any[]) => {
+		checkDiscordRunning((err, isRunning) => {
 			if (err) {
-				if (sendLog)
-					sendLog('ps lookup error: ' + (err?.message || String(err)))
+				if (sendLog) sendLog('tasklist error: ' + (err?.message || String(err)))
 				sendStatus('DISCONNECTED')
 				return
 			}
-			if (resultList.length === 0) {
+			if (!isRunning) {
 				sendStatus('SEARCHING DISCORD')
 				if (restartTimer) {
 					clearTimeout(restartTimer)
 				}
-				restartTimer = setTimeout(findAndRestartProcess, 5000)
+				restartTimer = setTimeout(findAndRestartProcess, 3000)
 			} else {
 				if (restartTimer) {
 					clearTimeout(restartTimer)

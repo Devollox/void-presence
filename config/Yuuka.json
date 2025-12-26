@@ -1,49 +1,38 @@
 {
-	"clientId": "yuuka-blue-archive",
-	"cycles": [
-		{
-			"details": "Millennium Science School",
-			"state": "Treasurer of Seminar"
-		},
-		{
-			"details": "Budget management in progress",
-			"state": "Every credit accounted for"
-		},
-		{
-			"details": "Hayase Yuuka",
-			"state": "Millennium's math genius"
-		},
-		{
-			"details": "After-school budgeting session",
-			"state": "Please keep receipts"
-		}
-	],
-	"imageCycles": [
-		{
-			"largeImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
-			"largeText": "Hayase Yuuka",
-			"smallImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
-			"smallText": "Millennium Treasurer"
-		},
-		{
-			"largeImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
-			"largeText": "Budget management mode",
-			"smallImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
-			"smallText": "Every yen in place"
-		},
-		{
-			"largeImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
-			"largeText": "Blue Archive",
-			"smallImage": "https://i.pinimg.com/736x/04/08/45/040845837b558d018de59e0ff34c44fb.jpg",
-			"smallText": "Millennium Science School"
-		}
-	],
-	"buttonPairs": [
-		{
-			"label1": "Blue Archive (Global)",
-			"url1": "https://bluearchive.nexon.com",
-			"label2": "Yuuka Wiki",
-			"url2": "https://bluearchive.fandom.com/wiki/Hayase_Yuuka"
-		}
-	]
+  "cycles": [
+    {
+      "details": "Millennium Science School",
+      "state": "Treasurer of Seminar"
+    },
+    {
+      "details": "Budget management in progress",
+      "state": "Every credit accounted for"
+    },
+    {
+      "details": "Hayase Yuuka",
+      "state": "Millennium's math genius"
+    },
+    {
+      "details": "After-school budgeting session",
+      "state": "Please keep receipts"
+    }
+  ],
+  "imageCycles": [
+    {
+      "largeImage": "https://media.tenor.com/i4tPmtMXMjQAAAAM/yuuka.gif",
+      "largeText": "Budget management mode",
+      "smallImage": "",
+      "smallText": ""
+    }
+  ],
+  "buttonPairs": [
+    {
+      "label1": "Blue Archive (Global)",
+      "url1": "https://bluearchive.nexon.com"
+    },
+    {
+      "label1": "Yuuka Wiki",
+      "url1": "https://bluearchive.fandom.com/wiki/Hayase_Yuuka"
+    }
+  ]
 }

@@ -95,7 +95,10 @@ function mapStatusToText(status) {
 		case 'DISABLED':
 			return { chip: 'IDLE', sub: 'Waiting to start' }
 		case 'SEARCHING DISCORD':
-			return { chip: 'SEARCHING', sub: 'Looking for Discord process' }
+			return {
+				chip: 'SEARCHING DISCORD PROCESS',
+				sub: 'Looking for Discord process',
+			}
 		case 'CONNECTING RPC':
 			return { chip: 'CONNECTING', sub: 'Attaching Rich Presence' }
 		case 'ACTIVE':
@@ -162,8 +165,6 @@ function updateStatus(status) {
 	const statusDot = document.querySelector('.status-dot')
 	const subLabel = document.getElementById('activity-sub')
 	const mapped = mapStatusToText(status)
-	const title = document.getElementById('activity-title')
-	if (title) title.textContent = mapped.chip
 	if (chip) chip.textContent = mapped.chip
 	if (subLabel) subLabel.textContent = mapped.sub
 	if (statusDot) {
@@ -340,7 +341,87 @@ function loadCurrentState() {
 	return { clientId, buttonPairs, cycles, imageCycles }
 }
 
-function applyStateToUI(state) {
+async function saveAllFromState(state) {
+	const clientId = (state.clientId || '').trim()
+	const buttonPairs = Array.isArray(state.buttonPairs) ? state.buttonPairs : []
+	const cycles = Array.isArray(state.cycles) ? state.cycles : []
+	const imageCycles = Array.isArray(state.imageCycles) ? state.imageCycles : []
+
+	const cleanedPairs = buttonPairs
+		.map(p => {
+			const label1 = (p.label1 || '').trim()
+			const url1 = (p.url1 || '').trim()
+			const label2 = (p.label2 || '').trim()
+			const url2 = (p.url2 || '').trim()
+			const has1 = label1 && url1
+			const has2 = label2 && url2
+			return {
+				label1: has1 ? label1 : '',
+				url1: has1 ? url1 : '',
+				label2: has2 ? label2 : '',
+				url2: has2 ? url2 : '',
+			}
+		})
+		.filter(p => (p.label1 && p.url1) || (p.label2 && p.url2))
+		.map(p => {
+			const res = { label1: p.label1, url1: p.url1 }
+			if (p.label2 && p.url2) {
+				res.label2 = p.label2
+				res.url2 = p.url2
+			}
+			return res
+		})
+
+	const cleanedCycles = cycles
+		.map(c => ({
+			details: (c.details || '').trim(),
+			state: (c.state || '').trim(),
+		}))
+		.filter(c => c.details.length > 0 || c.state.length > 0)
+
+	const cleanedImageCycles = imageCycles
+		.map(c => ({
+			largeImage: (c.largeImage || '').trim(),
+			largeText: (c.largeText || '').trim(),
+			smallImage: (c.smallImage || '').trim(),
+			smallText: (c.smallText || '').trim(),
+		}))
+		.filter(
+			c =>
+				c.largeImage.length > 0 ||
+				c.largeText.length > 0 ||
+				c.smallImage.length > 0 ||
+				c.smallText.length > 0
+		)
+
+	if (!clientId || !cleanedCycles.length) {
+		updateStatus('NO_CLIENT_ID')
+		return
+	}
+
+	localStorage.setItem('clientId', clientId)
+	localStorage.setItem('buttonPairs', JSON.stringify(cleanedPairs))
+	localStorage.setItem('cycles', JSON.stringify(cleanedCycles))
+	localStorage.setItem('imageCycles', JSON.stringify(cleanedImageCycles))
+
+	if (window.electronAPI && window.electronAPI.setClientId) {
+		await window.electronAPI.setClientId(clientId)
+	}
+	if (window.electronAPI && window.electronAPI.setImageCycles) {
+		await window.electronAPI.setImageCycles(cleanedImageCycles)
+	}
+	if (window.electronAPI && window.electronAPI.setButtons) {
+		await window.electronAPI.setButtons(cleanedPairs)
+	}
+	if (window.electronAPI && window.electronAPI.setCycles) {
+		await window.electronAPI.setCycles(cleanedCycles)
+	}
+	if (window.electronAPI && window.electronAPI.restartDiscordRich) {
+		await window.electronAPI.restartDiscordRich()
+	}
+}
+
+function applyStateToUIAndLists(state, ctx) {
 	const clientInput = document.getElementById('client-id-input')
 	if (!clientInput) return
 	clientInput.value = state.clientId || ''
@@ -348,7 +429,457 @@ function applyStateToUI(state) {
 	localStorage.setItem('buttonPairs', JSON.stringify(state.buttonPairs || []))
 	localStorage.setItem('cycles', JSON.stringify(state.cycles || []))
 	localStorage.setItem('imageCycles', JSON.stringify(state.imageCycles || []))
-	setupClientIdControls()
+	ctx.buttonPairs = Array.isArray(state.buttonPairs) ? state.buttonPairs : []
+	ctx.cycles = Array.isArray(state.cycles) ? state.cycles : []
+	ctx.imageCycles = Array.isArray(state.imageCycles) ? state.imageCycles : []
+	ctx.renderButtonPairs()
+	ctx.renderCycles()
+	ctx.renderImageCycles()
+}
+
+function renderList(listEl, items, type) {
+	listEl.innerHTML = ''
+	if (!items || !items.length) {
+		const empty = document.createElement('div')
+		empty.className = 'config-details-empty'
+		empty.textContent =
+			type === 'cycles'
+				? 'No cycles saved'
+				: type === 'images'
+				? 'No image configuration'
+				: 'No buttons configured'
+		listEl.appendChild(empty)
+		return
+	}
+
+	items.forEach((item, idx) => {
+		const row = document.createElement('div')
+		row.className = 'config-details-item'
+		const main = document.createElement('div')
+		main.className = 'config-details-item-main'
+		const meta = document.createElement('div')
+		meta.className = 'config-details-item-meta'
+
+		if (type === 'cycles') {
+			const label = document.createElement('div')
+			label.className = 'config-details-item-label'
+			label.textContent = item.details || 'No details'
+			const sub = document.createElement('div')
+			sub.className = 'config-details-item-sub'
+			sub.textContent = item.state || 'No state'
+			main.appendChild(label)
+			main.appendChild(sub)
+			const pill = document.createElement('div')
+			pill.className = 'config-details-pill'
+			pill.textContent = `#${idx + 1}`
+			meta.appendChild(pill)
+		} else if (type === 'images') {
+			const label = document.createElement('div')
+			label.className = 'config-details-item-label'
+			label.textContent = item.largeText || item.largeImage || 'Large image'
+			const largeUrlPill = document.createElement('div')
+			largeUrlPill.className = 'config-details-pill'
+			const largeLink = document.createElement('a')
+			largeLink.href = item.largeImage || '#'
+			largeLink.textContent = item.largeImage || 'no large url'
+			largeLink.target = '_blank'
+			largeUrlPill.appendChild(largeLink)
+			main.appendChild(label)
+			main.appendChild(largeUrlPill)
+			const sub = document.createElement('div')
+			sub.className = 'config-details-item-sub'
+			sub.textContent = item.smallText || item.smallImage || 'Small image'
+			const smallUrlPill = document.createElement('div')
+			smallUrlPill.className = 'config-details-pill'
+			const smallLink = document.createElement('a')
+			smallLink.href = item.smallImage || '#'
+			smallLink.textContent = item.smallImage || 'no'
+			if (smallLink.textContent !== 'no') {
+				smallLink.target = '_blank'
+				smallUrlPill.appendChild(smallLink)
+				meta.appendChild(sub)
+				meta.appendChild(smallUrlPill)
+			}
+		} else if (type === 'buttons') {
+			const mainLabel = document.createElement('div')
+			mainLabel.className = 'config-details-item-label'
+			mainLabel.textContent = item.label1 || 'Button 1'
+			const mainUrlPill = document.createElement('div')
+			mainUrlPill.className = 'config-details-pill'
+			const mainLink = document.createElement('a')
+			mainLink.href = item.url1 || '#'
+			mainLink.textContent = item.url1 || 'no url 1'
+			if (mainLink.textContent !== 'no url 1') {
+				mainLink.target = '_blank'
+				mainUrlPill.appendChild(mainLink)
+				main.appendChild(mainLabel)
+				main.appendChild(mainUrlPill)
+			}
+			const metaLabel = document.createElement('div')
+			metaLabel.className = 'config-details-item-label'
+			metaLabel.textContent = item.label2 || 'Button 2'
+			const metaUrlPill = document.createElement('div')
+			metaUrlPill.className = 'config-details-pill'
+			const metaLink = document.createElement('a')
+			metaLink.href = item.url2 || '#'
+			metaLink.textContent = item.url2 || 'no url 2'
+			if (metaLink.textContent !== 'no url 2') {
+				metaLink.target = '_blank'
+				metaUrlPill.appendChild(metaLink)
+				main.appendChild(metaLabel)
+				main.appendChild(metaUrlPill)
+			}
+		}
+
+		row.appendChild(main)
+		row.appendChild(meta)
+		listEl.appendChild(row)
+	})
+}
+
+function setupClientIdControls() {
+	const clientInput = document.getElementById('client-id-input')
+	const saveBtn = document.getElementById('client-id-save')
+	const buttonsList = document.getElementById('buttons-list')
+	const addButtonPair = document.getElementById('add-button-pair')
+	const cyclesList = document.getElementById('cycles-list')
+	const addCycle = document.getElementById('add-cycle')
+	const imagesList = document.getElementById('images-list')
+	const addImage = document.getElementById('add-image')
+	if (
+		!clientInput ||
+		!saveBtn ||
+		!buttonsList ||
+		!addButtonPair ||
+		!cyclesList ||
+		!addCycle ||
+		!imagesList ||
+		!addImage
+	)
+		return
+	saveBtn.type = 'button'
+	clientInput.value = localStorage.getItem('clientId') || ''
+	const ctx = {
+		buttonPairs: [],
+		cycles: [],
+		imageCycles: [],
+		renderButtonPairs: null,
+		renderCycles: null,
+		renderImageCycles: null,
+	}
+	try {
+		const rawPairs = localStorage.getItem('buttonPairs')
+		if (rawPairs) ctx.buttonPairs = JSON.parse(rawPairs)
+	} catch {}
+	try {
+		const rawCycles = localStorage.getItem('cycles')
+		if (rawCycles) ctx.cycles = JSON.parse(rawCycles)
+	} catch {}
+	try {
+		const rawImages = localStorage.getItem('imageCycles')
+		if (rawImages) ctx.imageCycles = JSON.parse(rawImages)
+	} catch {}
+	if (!Array.isArray(ctx.buttonPairs)) ctx.buttonPairs = []
+	if (!Array.isArray(ctx.cycles) || !ctx.cycles.length) {
+		ctx.cycles = [
+			{ details: 'Idling in the void', state: 'Just vibing' },
+			{ details: 'Counting stars', state: 'Lost in space' },
+			{ details: 'Listening to silence', state: 'Deep focus' },
+		]
+	}
+	if (!Array.isArray(ctx.imageCycles)) ctx.imageCycles = []
+
+	function attachDnD(container, items, renderFn) {
+		let dragIndex = null
+		container.addEventListener('dragstart', e => {
+			const target = e.target
+			const isInput =
+				target instanceof HTMLInputElement ||
+				target instanceof HTMLTextAreaElement
+			if (isInput || window.getSelection()?.toString()) {
+				e.preventDefault()
+				return
+			}
+			const row = target.closest('[data-index]')
+			if (!row) return
+			dragIndex = Number(row.dataset.index)
+			row.classList.add('dragging')
+		})
+		container.addEventListener('dragend', e => {
+			const row = e.target.closest('[data-index]')
+			if (row) row.classList.remove('dragging')
+			Array.from(container.children).forEach(ch => {
+				ch.classList.remove('drop-target-top', 'drop-target-bottom')
+			})
+			dragIndex = null
+		})
+		container.addEventListener('dragover', e => {
+			e.preventDefault()
+			const row = e.target.closest('[data-index]')
+			if (!row || dragIndex === null) return
+			Array.from(container.children).forEach(ch => {
+				ch.classList.remove('drop-target-top', 'drop-target-bottom')
+			})
+			const rect = row.getBoundingClientRect()
+			const offset = e.clientY - rect.top
+			if (offset < rect.height / 2) {
+				row.classList.add('drop-target-top')
+			} else {
+				row.classList.add('drop-target-bottom')
+			}
+		})
+		container.addEventListener('drop', e => {
+			e.preventDefault()
+			const row = e.target.closest('[data-index]')
+			if (!row || dragIndex === null) return
+			const targetIndex = Number(row.dataset.index)
+			const rect = row.getBoundingClientRect()
+			const offset = e.clientY - rect.top
+			let insertIndex = targetIndex
+			if (offset >= rect.height / 2) insertIndex = targetIndex + 1
+			const [moved] = items.splice(dragIndex, 1)
+			if (insertIndex > items.length) insertIndex = items.length
+			items.splice(insertIndex, 0, moved)
+			renderFn()
+		})
+	}
+
+	ctx.renderButtonPairs = function () {
+		buttonsList.innerHTML = ''
+		ctx.buttonPairs.forEach((pair, idx) => {
+			const row = createButtonPairRow(
+				pair,
+				idx,
+				updated => {
+					ctx.buttonPairs[idx] = updated
+				},
+				() => {
+					ctx.buttonPairs.splice(idx, 1)
+					ctx.renderButtonPairs()
+				}
+			)
+			buttonsList.appendChild(row)
+		})
+	}
+
+	ctx.renderCycles = function () {
+		cyclesList.innerHTML = ''
+		ctx.cycles.forEach((entry, idx) => {
+			const row = createCycleRow(
+				entry,
+				idx,
+				updated => {
+					ctx.cycles[idx] = updated
+				},
+				() => {
+					ctx.cycles.splice(idx, 1)
+					ctx.renderCycles()
+				}
+			)
+			cyclesList.appendChild(row)
+		})
+	}
+
+	ctx.renderImageCycles = function () {
+		imagesList.innerHTML = ''
+		ctx.imageCycles.forEach((entry, idx) => {
+			const row = createImageCycleRow(
+				entry,
+				idx,
+				updated => {
+					ctx.imageCycles[idx] = updated
+				},
+				() => {
+					ctx.imageCycles.splice(idx, 1)
+					ctx.renderImageCycles()
+				}
+			)
+			imagesList.appendChild(row)
+		})
+	}
+
+	ctx.renderButtonPairs()
+	ctx.renderCycles()
+	ctx.renderImageCycles()
+	attachDnD(buttonsList, ctx.buttonPairs, ctx.renderButtonPairs)
+	attachDnD(cyclesList, ctx.cycles, ctx.renderCycles)
+	attachDnD(imagesList, ctx.imageCycles, ctx.renderImageCycles)
+
+	addButtonPair.addEventListener('click', e => {
+		e.preventDefault()
+		ctx.buttonPairs.push({
+			label1: 'Button 1',
+			url1: '',
+			label2: 'Button 2',
+			url2: '',
+		})
+		ctx.renderButtonPairs()
+	})
+
+	addCycle.addEventListener('click', e => {
+		e.preventDefault()
+		ctx.cycles.push({
+			details: 'New cycle',
+			state: '',
+		})
+		ctx.renderCycles()
+	})
+
+	addImage.addEventListener('click', e => {
+		e.preventDefault()
+		ctx.imageCycles.push({
+			largeImage: '',
+			largeText: '',
+			smallImage: '',
+			smallText: '',
+		})
+		ctx.renderImageCycles()
+	})
+
+	async function saveAll() {
+		const state = {
+			clientId: clientInput.value,
+			buttonPairs: ctx.buttonPairs,
+			cycles: ctx.cycles,
+			imageCycles: ctx.imageCycles,
+		}
+		await saveAllFromState(state)
+	}
+
+	saveBtn.addEventListener('click', e => {
+		e.preventDefault()
+		saveAll()
+	})
+
+	window.__voidPresenceCtx = ctx
+}
+
+function setupAutoLaunchToggle() {
+	const toggle = document.getElementById('auto-launch-toggle')
+	if (!toggle) return
+	const saved = localStorage.getItem('autoLaunch') === 'true'
+	toggle.dataset.on = saved ? 'true' : 'false'
+	toggle.addEventListener('click', () => {
+		const current = toggle.dataset.on === 'true'
+		const next = !current
+		toggle.dataset.on = next ? 'true' : 'false'
+		localStorage.setItem('autoLaunch', String(next))
+		if (window.electronAPI && window.electronAPI.setAutoLaunch) {
+			window.electronAPI.setAutoLaunch(next)
+		}
+	})
+}
+
+function setupAutoHideToggle() {
+	const toggle = document.getElementById('auto-hide-toggle')
+	if (!toggle) return
+
+	const saved = localStorage.getItem('autoHide') === 'true'
+	toggle.dataset.on = saved ? 'true' : 'false'
+
+	toggle.addEventListener('click', () => {
+		const current = toggle.dataset.on === 'true'
+		const next = !current
+		toggle.dataset.on = next ? 'true' : 'false'
+		localStorage.setItem('autoHide', String(next))
+		if (window.electronAPI && window.electronAPI.setAutoHide) {
+			window.electronAPI.setAutoHide(next)
+		}
+	})
+}
+
+function setupStopButton() {
+	const btn = document.getElementById('stop-discord')
+	if (!btn) return
+	btn.addEventListener('click', e => {
+		e.preventDefault()
+		if (window.electronAPI && window.electronAPI.stopDiscordRich) {
+			updateStatus('DISABLED')
+			updateInfo(null)
+			window.electronAPI.stopDiscordRich()
+		}
+	})
+}
+
+function setupWindowControls() {
+	const closeBtn = document.getElementById('window-close')
+	const minimizeBtn = document.getElementById('window-minimize')
+	if (closeBtn && window.electronAPI && window.electronAPI.windowClose) {
+		closeBtn.addEventListener('click', () => {
+			window.electronAPI.windowClose()
+		})
+	}
+	if (minimizeBtn && window.electronAPI && window.electronAPI.windowMinimize) {
+		minimizeBtn.addEventListener('click', () => {
+			window.electronAPI.windowMinimize()
+		})
+	}
+}
+
+function setupConfigDetailsOverlay() {
+	const overlay = document.getElementById('config-details-overlay')
+	const closeBtn = document.getElementById('config-details-close')
+	if (!overlay || !closeBtn) return
+	function close() {
+		overlay.dataset.open = 'false'
+	}
+	closeBtn.addEventListener('click', e => {
+		e.preventDefault()
+		close()
+	})
+	overlay.addEventListener('click', e => {
+		if (e.target === overlay) {
+			close()
+		}
+	})
+}
+
+function openConfigDetails(cfg) {
+	const overlay = document.getElementById('config-details-overlay')
+	const nameEl = document.getElementById('config-details-name')
+	const cyclesEl = document.getElementById('config-details-cycles')
+	const imagesEl = document.getElementById('config-details-images')
+	const buttonsEl = document.getElementById('config-details-buttons')
+	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl) {
+		return
+	}
+	const state = cfg.state || {}
+	nameEl.textContent = cfg.name || 'Unnamed profile'
+	renderList(cyclesEl, state.cycles || [], 'cycles')
+	renderList(imagesEl, state.imageCycles || [], 'images')
+	renderList(buttonsEl, state.buttonPairs || [], 'buttons')
+	overlay.dataset.open = 'true'
+}
+
+function importConfigFromFile(file) {
+	const reader = new FileReader()
+	reader.onload = async ev => {
+		try {
+			const text = String(ev.target.result || '')
+			const parsed = JSON.parse(text)
+			const state = {
+				clientId: localStorage.getItem('clientId') || '',
+				cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
+				imageCycles: Array.isArray(parsed.imageCycles)
+					? parsed.imageCycles
+					: [],
+				buttonPairs: Array.isArray(parsed.buttonPairs)
+					? parsed.buttonPairs
+					: [],
+			}
+			const baseName =
+				nameInput.value.trim() ||
+				file.name.replace(/\.[^.]+$/, '') ||
+				'Imported profile'
+			addConfigFromState(baseName, state)
+			const ctx = window.__voidPresenceCtx
+			if (ctx) applyStateToUIAndLists(state, ctx)
+			await saveAllFromState(state)
+		} catch (err) {
+			console.error('Failed to import config', err)
+		}
+	}
+	reader.readAsText(file)
 }
 
 function setupConfigPage() {
@@ -424,7 +955,6 @@ function setupConfigPage() {
 
 			const footer = document.createElement('div')
 			footer.className = 'config-activity-footer'
-			footer.textContent = '00:35'
 
 			detailsWrap.appendChild(title)
 			detailsWrap.appendChild(line1)
@@ -441,16 +971,39 @@ function setupConfigPage() {
 			loadBtn.className = 'config-activity-btn'
 			loadBtn.textContent = 'load'
 
+			const detailsBtn = document.createElement('button')
+			detailsBtn.className = 'config-activity-btn'
+			detailsBtn.textContent = 'details'
+
 			const delBtn = document.createElement('button')
 			delBtn.className = 'config-activity-btn danger'
 			delBtn.textContent = '✕'
 
-			loadBtn.addEventListener('click', e => {
+			loadBtn.addEventListener('click', async e => {
 				e.preventDefault()
-				applyStateToUI(cfg.state)
+				const ctx = window.__voidPresenceCtx
+				if (!ctx) return
+				const st = {
+					clientId: state.clientId || localStorage.getItem('clientId') || '',
+					buttonPairs: Array.isArray(state.buttonPairs)
+						? state.buttonPairs
+						: [],
+					cycles: Array.isArray(state.cycles) ? state.cycles : [],
+					imageCycles: Array.isArray(state.imageCycles)
+						? state.imageCycles
+						: [],
+				}
+				applyStateToUIAndLists(st, ctx)
+				await saveAllFromState(st)
 				nameInput.value = cfg.name || ''
 				setActiveView('main')
 			})
+
+			detailsBtn.addEventListener('click', e => {
+				e.preventDefault()
+				openConfigDetails(cfg)
+			})
+
 			delBtn.addEventListener('click', e => {
 				e.preventDefault()
 				const filtered = getConfigs().filter(c => c.name !== cfg.name)
@@ -459,6 +1012,7 @@ function setupConfigPage() {
 			})
 
 			actions.appendChild(loadBtn)
+			actions.appendChild(detailsBtn)
 			actions.appendChild(delBtn)
 
 			card.appendChild(body)
@@ -492,21 +1046,24 @@ function setupConfigPage() {
 		URL.revokeObjectURL(url)
 	}
 
-	saveBtn.addEventListener('click', e => {
+	saveBtn.addEventListener('click', async e => {
 		e.preventDefault()
 		const name = nameInput.value.trim()
 		if (!name) return
 		const state = loadCurrentState()
 		addConfigFromState(name, state)
+		await saveAllFromState(state)
+		nameInput.value = ''
 	})
 
-	addBtn.addEventListener('click', e => {
+	addBtn.addEventListener('click', async e => {
 		e.preventDefault()
 		const state = loadCurrentState()
 		const name =
 			nameInput.value.trim() ||
 			`Profile ${new Date().toLocaleTimeString().slice(0, 5)}`
 		addConfigFromState(name, state)
+		await saveAllFromState(state)
 	})
 
 	addBtn.addEventListener('dragover', e => {
@@ -520,7 +1077,7 @@ function setupConfigPage() {
 		if (!files || !files.length) return
 		const file = files[0]
 		const reader = new FileReader()
-		reader.onload = ev => {
+		reader.onload = async ev => {
 			try {
 				const text = String(ev.target.result || '')
 				const parsed = JSON.parse(text)
@@ -539,6 +1096,9 @@ function setupConfigPage() {
 					file.name.replace(/\.[^.]+$/, '') ||
 					'Imported profile'
 				addConfigFromState(baseName, state)
+				const ctx = window.__voidPresenceCtx
+				if (ctx) applyStateToUIAndLists(state, ctx)
+				await saveAllFromState(state)
 			} catch (err) {
 				console.error('Failed to import config', err)
 			}
@@ -564,304 +1124,17 @@ function setupConfigPage() {
 	renderConfigs()
 }
 
-function setupClientIdControls() {
-	const clientInput = document.getElementById('client-id-input')
-	const saveBtn = document.getElementById('client-id-save')
-	const buttonsList = document.getElementById('buttons-list')
-	const addButtonPair = document.getElementById('add-button-pair')
-	const cyclesList = document.getElementById('cycles-list')
-	const addCycle = document.getElementById('add-cycle')
-	const imagesList = document.getElementById('images-list')
-	const addImage = document.getElementById('add-image')
-	if (
-		!clientInput ||
-		!saveBtn ||
-		!buttonsList ||
-		!addButtonPair ||
-		!cyclesList ||
-		!addCycle ||
-		!imagesList ||
-		!addImage
-	)
-		return
-	saveBtn.type = 'button'
-	clientInput.value = localStorage.getItem('clientId') || ''
-	let buttonPairs = []
-	let cycles = []
-	let imageCycles = []
-	try {
-		const rawPairs = localStorage.getItem('buttonPairs')
-		if (rawPairs) {
-			buttonPairs = JSON.parse(rawPairs)
-		}
-	} catch {}
-	try {
-		const rawCycles = localStorage.getItem('cycles')
-		if (rawCycles) {
-			cycles = JSON.parse(rawCycles)
-		}
-	} catch {}
-	try {
-		const rawImages = localStorage.getItem('imageCycles')
-		if (rawImages) {
-			imageCycles = JSON.parse(rawImages)
-		}
-	} catch {}
-	if (!Array.isArray(buttonPairs)) buttonPairs = []
-	if (!Array.isArray(cycles) || !cycles.length) {
-		cycles = [
-			{ details: 'Idling in the void', state: 'Just vibing' },
-			{ details: 'Counting stars', state: 'Lost in space' },
-			{ details: 'Listening to silence', state: 'Deep focus' },
-		]
-	}
-	if (!Array.isArray(imageCycles)) imageCycles = []
-
-	function attachDnD(container, items, renderFn) {
-		let dragIndex = null
-		container.addEventListener('dragstart', e => {
-			const row = e.target.closest('[data-index]')
-			if (!row) return
-			dragIndex = Number(row.dataset.index)
-			row.classList.add('dragging')
-		})
-		container.addEventListener('dragend', e => {
-			const row = e.target.closest('[data-index]')
-			if (row) row.classList.remove('dragging')
-			Array.from(container.children).forEach(ch => {
-				ch.classList.remove('drop-target-top', 'drop-target-bottom')
-			})
-			dragIndex = null
-		})
-		container.addEventListener('dragover', e => {
-			e.preventDefault()
-			const row = e.target.closest('[data-index]')
-			if (!row || dragIndex === null) return
-			Array.from(container.children).forEach(ch => {
-				ch.classList.remove('drop-target-top', 'drop-target-bottom')
-			})
-			const rect = row.getBoundingClientRect()
-			const offset = e.clientY - rect.top
-			if (offset < rect.height / 2) {
-				row.classList.add('drop-target-top')
-			} else {
-				row.classList.add('drop-target-bottom')
-			}
-		})
-		container.addEventListener('drop', e => {
-			e.preventDefault()
-			const row = e.target.closest('[data-index]')
-			if (!row || dragIndex === null) return
-			const targetIndex = Number(row.dataset.index)
-			const rect = row.getBoundingClientRect()
-			const offset = e.clientY - rect.top
-			let insertIndex = targetIndex
-			if (offset >= rect.height / 2) insertIndex = targetIndex + 1
-			const [moved] = items.splice(dragIndex, 1)
-			if (insertIndex > items.length) insertIndex = items.length
-			items.splice(insertIndex, 0, moved)
-			renderFn()
-		})
-	}
-
-	function renderButtonPairs() {
-		buttonsList.innerHTML = ''
-		buttonPairs.forEach((pair, idx) => {
-			const row = createButtonPairRow(
-				pair,
-				idx,
-				updated => {
-					buttonPairs[idx] = updated
-				},
-				() => {
-					buttonPairs.splice(idx, 1)
-					renderButtonPairs()
-				}
-			)
-			buttonsList.appendChild(row)
-		})
-	}
-
-	function renderCycles() {
-		cyclesList.innerHTML = ''
-		cycles.forEach((entry, idx) => {
-			const row = createCycleRow(
-				entry,
-				idx,
-				updated => {
-					cycles[idx] = updated
-				},
-				() => {
-					cycles.splice(idx, 1)
-					renderCycles()
-				}
-			)
-			cyclesList.appendChild(row)
-		})
-	}
-
-	function renderImageCycles() {
-		imagesList.innerHTML = ''
-		imageCycles.forEach((entry, idx) => {
-			const row = createImageCycleRow(
-				entry,
-				idx,
-				updated => {
-					imageCycles[idx] = updated
-				},
-				() => {
-					imageCycles.splice(idx, 1)
-					renderImageCycles()
-				}
-			)
-			imagesList.appendChild(row)
-		})
-	}
-
-	renderButtonPairs()
-	renderCycles()
-	renderImageCycles()
-	attachDnD(buttonsList, buttonPairs, renderButtonPairs)
-	attachDnD(cyclesList, cycles, renderCycles)
-	attachDnD(imagesList, imageCycles, renderImageCycles)
-
-	addButtonPair.addEventListener('click', e => {
-		e.preventDefault()
-		buttonPairs.push({
-			label1: 'Button 1',
-			url1: '',
-			label2: 'Button 2',
-			url2: '',
-		})
-		renderButtonPairs()
-	})
-
-	addCycle.addEventListener('click', e => {
-		e.preventDefault()
-		cycles.push({
-			details: 'New cycle',
-			state: '',
-		})
-		renderCycles()
-	})
-
-	addImage.addEventListener('click', e => {
-		e.preventDefault()
-		imageCycles.push({
-			largeImage: '',
-			largeText: '',
-			smallImage: '',
-			smallText: '',
-		})
-		renderImageCycles()
-	})
-
-	async function saveAll() {
-		const clientId = clientInput.value.trim()
-		const cleanedPairs = buttonPairs
-			.map(p => ({
-				label1: (p.label1 || '').trim(),
-				url1: (p.url1 || '').trim(),
-				label2: (p.label2 || '').trim(),
-				url2: (p.url2 || '').trim(),
-			}))
-			.filter(
-				p =>
-					p.label1.length > 0 &&
-					p.url1.length > 0 &&
-					p.label2.length > 0 &&
-					p.url2.length > 0
-			)
-		const cleanedCycles = cycles
-			.map(c => ({
-				details: (c.details || '').trim(),
-				state: (c.state || '').trim(),
-			}))
-			.filter(c => c.details.length > 0 || c.state.length > 0)
-		const cleanedImageCycles = imageCycles
-			.map(c => ({
-				largeImage: (c.largeImage || '').trim(),
-				largeText: (c.largeText || '').trim(),
-				smallImage: (c.smallImage || '').trim(),
-				smallText: (c.smallText || '').trim(),
-			}))
-			.filter(
-				c =>
-					c.largeImage.length > 0 ||
-					c.largeText.length > 0 ||
-					c.smallImage.length > 0 ||
-					c.smallText.length > 0
-			)
-		if (!clientId || !cleanedCycles.length) {
-			updateStatus('NO_CLIENT_ID')
-			return
-		}
-		localStorage.setItem('clientId', clientId)
-		localStorage.setItem('buttonPairs', JSON.stringify(cleanedPairs))
-		localStorage.setItem('cycles', JSON.stringify(cleanedCycles))
-		localStorage.setItem('imageCycles', JSON.stringify(cleanedImageCycles))
-		if (window.electronAPI && window.electronAPI.setClientId) {
-			await window.electronAPI.setClientId(clientId)
-		}
-		if (window.electronAPI && window.electronAPI.setImageCycles) {
-			await window.electronAPI.setImageCycles(cleanedImageCycles)
-		}
-		if (window.electronAPI && window.electronAPI.setButtons) {
-			await window.electronAPI.setButtons(cleanedPairs)
-		}
-		if (window.electronAPI && window.electronAPI.setCycles) {
-			await window.electronAPI.setCycles(cleanedCycles)
-		}
-		if (window.electronAPI && window.electronAPI.restartDiscordRich) {
-			await window.electronAPI.restartDiscordRich()
-		}
-	}
-
-	saveBtn.addEventListener('click', e => {
-		e.preventDefault()
-		saveAll()
-	})
-}
-
-function setupAutoLaunchToggle() {
-	const toggle = document.getElementById('auto-launch-toggle')
-	if (!toggle) return
-	const saved = localStorage.getItem('autoLaunch') === 'true'
-	toggle.dataset.on = saved ? 'true' : 'false'
-	toggle.addEventListener('click', () => {
-		const current = toggle.dataset.on === 'true'
-		const next = !current
-		toggle.dataset.on = next ? 'true' : 'false'
-		localStorage.setItem('autoLaunch', String(next))
-		if (window.electronAPI && window.electronAPI.setAutoLaunch) {
-			window.electronAPI.setAutoLaunch(next)
-		}
-	})
-}
-
-function setupWindowControls() {
-	const closeBtn = document.getElementById('window-close')
-	const minimizeBtn = document.getElementById('window-minimize')
-	if (closeBtn && window.electronAPI && window.electronAPI.windowClose) {
-		closeBtn.addEventListener('click', () => {
-			window.electronAPI.windowClose()
-		})
-	}
-	if (minimizeBtn && window.electronAPI && window.electronAPI.windowMinimize) {
-		minimizeBtn.addEventListener('click', () => {
-			window.electronAPI.windowMinimize()
-		})
-	}
-}
-
 window.addEventListener('DOMContentLoaded', () => {
 	setupRestartButton()
 	setupClientIdControls()
 	setupAutoLaunchToggle()
+	setupAutoHideToggle()
 	setupWindowControls()
+	setupConfigDetailsOverlay()
 	setupConfigPage()
+	setupStopButton()
 	updateInfo(null)
-	updateStatus('DISABLED')
+	updateStatus('CONNECTING RPC')
 	if (window.electronAPI && window.electronAPI.onRpcUpdate) {
 		window.electronAPI.onRpcUpdate(payload => {
 			updateInfo(payload)
