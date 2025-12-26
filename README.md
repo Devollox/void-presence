@@ -142,5 +142,5 @@ Made with ❤️ by [Devollox](https://github.com/Devollox)
 
 ---
 **Void Presence** – Control your Discord presence. Own your story.
-<img width="512" height="512" alt="9qYPвфывфFSA" src="https://github.com/user-attachments/assets/19bce808-4b53-4102-888d-6f3e7811eefe" />
+<img width="32" height="32" alt="9qYPFdasdasdSA" src="https://github.com/user-attachments/assets/dcf4e656-cd2a-4674-bac6-5e888ea7c45d" />
 
