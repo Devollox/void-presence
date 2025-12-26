@@ -100,11 +100,6 @@ function createWindow() {
 		}
 	)
 
-	mainWindow.on('minimize', (ev: { preventDefault: () => void }) => {
-		ev.preventDefault()
-		mainWindow?.hide()
-	})
-
 	mainWindow.on('close', ev => {
 		if (!isQuitting) {
 			ev.preventDefault()

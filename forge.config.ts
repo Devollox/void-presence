@@ -5,7 +5,7 @@ import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import type { ForgeConfig } from '@electron-forge/shared-types'
 
-const ICON_BASE = './public/favicons/favicons'
+const ICON_BASE = './public/favicons/favicon'
 
 const config: ForgeConfig = {
 	packagerConfig: {
@@ -15,8 +15,8 @@ const config: ForgeConfig = {
 	makers: [
 		new MakerSquirrel({
 			name: 'richpresences',
-			setupIcon: `./public/favicons/favicons.ico`,
-			iconUrl: 'https://example.com/favicons.ico',
+			setupIcon: `./public/favicons/favicon.ico`,
+			iconUrl: 'https://example.com/favicon.ico',
 		}),
 		new MakerZIP({}, ['darwin', 'win32']),
 		new MakerRpm({
