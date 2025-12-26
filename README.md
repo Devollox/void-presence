@@ -151,7 +151,7 @@ Void Presence ships with a ready‑to‑use Rich Presence preset for **Yuuka (Bl
 Made with ❤️ by [Devollox](https://github.com/Devollox)
 
 <p align="left">
-  <img width="128" height="128" alt="Void Presence icon" src="https://github.com/user-attachments/assets/dcf4e656-cd2a-4674-bac6-5e888ea7c45d" />
+  <img width="128" height="128" alt="выфвфы" src="https://github.com/user-attachments/assets/f5c3c406-552b-412e-a2a9-3ff0fdddf400" />
 </p>
 
 **Void Presence** – Control your Discord presence. Own your story.
