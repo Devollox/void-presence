@@ -111,7 +111,7 @@ Example used in the screenshot above is available as a JSON preset right in the 
 ## Usage
 
 1. **Set Client ID** – Enter your Discord Application ID
-2. **Set the update activity* – Enter the time, how many seconds it will take to update the activity
+2. **Set the update activity** – Enter the time, how many seconds it will take to update the activity
 3. **Add Images** – Configure large and small images for rotation  
 4. **Add Buttons** – Create button pairs with labels and URLs  
 5. **Add Status Cycles** – Enter status messages to rotate  
