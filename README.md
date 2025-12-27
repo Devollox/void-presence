@@ -68,7 +68,7 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 
 ### Status cycles
 
-- Add multiple status items with `Details` and `State`  
+- Add multiple status items with `Details`, `State`, `Image` and `Button`
 - Items rotate every N seconds (default: 30)  
 - Great for showcasing what you are doing (gaming, coding, streaming, etc.)
 
