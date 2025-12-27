@@ -879,12 +879,12 @@ function openConfigDetails(cfg) {
 
 function importConfigFromFile(file) {
 	const reader = new FileReader()
-	reader.onload = async ev => {
+	reader.onload = ev => {
 		try {
 			const text = String(ev.target.result || '')
 			const parsed = JSON.parse(text)
 			const state = {
-				clientId: localStorage.getItem('clientId') || '',
+				clientId: undefined,
 				cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
 				imageCycles: Array.isArray(parsed.imageCycles)
 					? parsed.imageCycles
@@ -899,9 +899,6 @@ function importConfigFromFile(file) {
 				file.name.replace(/\.[^.]+$/, '') ||
 				'Imported profile'
 			addConfigFromState(baseName, state)
-			const ctx = window.__voidPresenceCtx
-			if (ctx) applyStateToUIAndLists(state, ctx)
-			await saveAllFromState(state)
 		} catch (err) {
 			console.error('Failed to import config', err)
 		}
