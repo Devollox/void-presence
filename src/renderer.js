@@ -731,9 +731,9 @@ function setupClientIdControls() {
 	addButtonPair.addEventListener('click', e => {
 		e.preventDefault()
 		ctx.buttonPairs.push({
-			label1: 'Button 1',
+			label1: '',
 			url1: '',
-			label2: 'Button 2',
+			label2: '',
 			url2: '',
 		})
 		ctx.renderButtonPairs()
@@ -742,7 +742,7 @@ function setupClientIdControls() {
 	addCycle.addEventListener('click', e => {
 		e.preventDefault()
 		ctx.cycles.push({
-			details: 'New cycle',
+			details: '',
 			state: '',
 		})
 		ctx.renderCycles()
