@@ -86,91 +86,63 @@
   "buttonPairs": [
     {
       "label1": "PGC 54559 · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=15.2873414815&de=21.585525&zoom=13"
-    },
-    {
-      "label1": "PGC 54559 · SIMBAD",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=USNOA2%201050-07455174%20(PGC%2054559)"
+      "url1": "https://server1.sky-map.org/starview?ra=15.2873414815&de=21.585525&zoom=13",
+      "label2": "PGC 54559 · SIMBAD",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=USNOA2%201050-07455174%20(PGC%2054559)"
     },
     {
       "label1": "Stephan's Quintet · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=22.5993&de=33.9567&zoom=11"
-    },
-    {
-      "label1": "Stephan's Quintet · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Stephan%27s%20Quintet"
+      "url1": "https://server1.sky-map.org/starview?ra=22.5993&de=33.9567&zoom=11",
+      "label2": "Stephan's Quintet · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Stephan%27s%20Quintet"
     },
     {
       "label1": "NGC 7317 · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=22.5977&de=33.9453&zoom=11"
-    },
-    {
-      "label1": "NGC 7317 · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207317"
+      "url1": "https://server1.sky-map.org/starview?ra=22.5977&de=33.9453&zoom=11",
+      "label2": "NGC 7317 · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207317"
     },
     {
       "label1": "NGC 7318A · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=22.5986&de=33.9661&zoom=11"
-    },
-    {
-      "label1": "NGC 7318A · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207318A"
+      "url1": "https://server1.sky-map.org/starview?ra=22.5986&de=33.9661&zoom=11",
+      "label2": "NGC 7318A · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207318A"
     },
     {
       "label1": "NGC 7318B · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=22.5987&de=33.9667&zoom=11"
-    },
-    {
-      "label1": "NGC 7318B · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207318B"
-    },
-    {
-      "label1": "NGC 7319 · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=22.6003&de=33.9765&zoom=11"
-    },
-    {
-      "label1": "NGC 7319 · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207319"
+      "url1": "https://server1.sky-map.org/starview?ra=22.5987&de=33.9667&zoom=11",
+      "label2": "NGC 7318B · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207318B"
     },
     {
       "label1": "M60 · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=12.7278055555&de=11.552222222&zoom=10"
-    },
-    {
-      "label1": "M60 · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=M60"
+      "url1": "https://server1.sky-map.org/starview?ra=12.7278055555&de=11.552222222&zoom=10",
+      "label2": "M60 · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=M60"
     },
     {
       "label1": "NGC 7320 · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=22.6003&de=33.9484&zoom=11"
-    },
-    {
-      "label1": "NGC 7320 · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207320"
+      "url1": "https://server1.sky-map.org/starview?ra=22.6003&de=33.9484&zoom=11",
+      "label2": "NGC 7320 · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207320"
     },
     {
       "label1": "NGC 5128 · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=13.4243&de=-43.0192&zoom=10"
-    },
-    {
-      "label1": "NGC 5128 · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%205128"
+      "url1": "https://server1.sky-map.org/starview?ra=13.4243&de=-43.0192&zoom=10",
+      "label2": "NGC 5128 · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%205128"
     },
     {
       "label1": "LMC · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=5.3929&de=-69.7561&zoom=6"
-    },
-    {
-      "label1": "LMC · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Large%20Magellanic%20Cloud"
+      "url1": "https://server1.sky-map.org/starview?ra=5.3929&de=-69.7561&zoom=6",
+      "label2": "LMC · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Large%20Magellanic%20Cloud"
     },
     {
       "label1": "Betelgeuse · Sky view",
-      "url1": "https://server1.sky-map.org/starview?ra=5.971&de=7.407&zoom=9"
-    },
-    {
-      "label1": "Betelgeuse · Info",
-      "url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Betelgeuse"
+      "url1": "https://server1.sky-map.org/starview?ra=5.971&de=7.407&zoom=9",
+      "label2": "Betelgeuse · Info",
+      "url2": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Betelgeuse"
     }
   ]
 }
