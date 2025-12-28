@@ -1,0 +1,184 @@
+{
+	"cycles": [
+		{
+			"details": "PGC 54559 · Ring galaxy",
+			"state": "Rare ring of young, blue stars"
+		},
+		{
+			"details": "Stephan's Quintet · Galaxy group",
+			"state": "Violent interactions and shock waves"
+		},
+		{
+			"details": "NGC 7317 · Elliptical galaxy",
+			"state": "Member of Stephan's Quintet in Pegasus"
+		},
+		{
+			"details": "NGC 7318A & 7318B",
+			"state": "Barred spiral colliding with an elliptical companion"
+		},
+		{
+			"details": "NGC 7319 · Active nucleus",
+			"state": "Barred spiral with energetic galactic core"
+		},
+		{
+			"details": "M60 · Virgo cluster",
+			"state": "Bright elliptical ~57 million light-years away"
+		},
+		{
+			"details": "NGC 7320 · Foreground spiral",
+			"state": "Closer galaxy projected onto Stephan’s Quintet"
+		},
+		{
+			"details": "NGC 5128 (Centaurus A)",
+			"state": "Radio galaxy with a dark dust lane"
+		},
+		{
+			"details": "Large Magellanic Cloud (LMC)",
+			"state": "Most massive satellite of the Milky Way"
+		},
+		{
+			"details": "Betelgeuse · α Ori",
+			"state": "Red supergiant in Orion, bright in the night sky"
+		}
+	],
+	"imageCycles": [
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "PGC 54559 · 600 million light-years away",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "Stephan's Quintet · Galaxy group in Pegasus",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "NGC 7318A/B · Interacting galaxies",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "M60 · Elliptical in Virgo",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "NGC 7320 · Foreground spiral galaxy",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "Centaurus A · Striking dust lane",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "Large Magellanic Cloud · Satellite galaxy",
+			"smallImage": "",
+			"smallText": ""
+		},
+		{
+			"largeImage": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGE0ZXVvY3QwbmkyN2Vkbmg3ZHo1OXZkcW13OXU4aHphaWpvbndiNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkKzNQjwPy7GvxZbfe/giphy.gif",
+			"largeText": "Betelgeuse · Red supergiant star",
+			"smallImage": "",
+			"smallText": ""
+		}
+	],
+	"buttonPairs": [
+		{
+			"label1": "PGC 54559 · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=15.2873414815&de=21.585525&zoom=13"
+		},
+		{
+			"label1": "PGC 54559 · SIMBAD",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=USNOA2%201050-07455174%20(PGC%2054559)"
+		},
+		{
+			"label1": "Stephan's Quintet · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=22.5993&de=33.9567&zoom=11"
+		},
+		{
+			"label1": "Stephan's Quintet · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Stephan%27s%20Quintet"
+		},
+		{
+			"label1": "NGC 7317 · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=22.5977&de=33.9453&zoom=11"
+		},
+		{
+			"label1": "NGC 7317 · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207317"
+		},
+		{
+			"label1": "NGC 7318A · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=22.5986&de=33.9661&zoom=11"
+		},
+		{
+			"label1": "NGC 7318A · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207318A"
+		},
+		{
+			"label1": "NGC 7318B · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=22.5987&de=33.9667&zoom=11"
+		},
+		{
+			"label1": "NGC 7318B · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207318B"
+		},
+		{
+			"label1": "NGC 7319 · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=22.6003&de=33.9765&zoom=11"
+		},
+		{
+			"label1": "NGC 7319 · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207319"
+		},
+		{
+			"label1": "M60 · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=12.7278055555&de=11.552222222&zoom=10"
+		},
+		{
+			"label1": "M60 · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=M60"
+		},
+		{
+			"label1": "NGC 7320 · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=22.6003&de=33.9484&zoom=11"
+		},
+		{
+			"label1": "NGC 7320 · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%207320"
+		},
+		{
+			"label1": "NGC 5128 · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=13.4243&de=-43.0192&zoom=10"
+		},
+		{
+			"label1": "NGC 5128 · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=NGC%205128"
+		},
+		{
+			"label1": "LMC · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=5.3929&de=-69.7561&zoom=6"
+		},
+		{
+			"label1": "LMC · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Large%20Magellanic%20Cloud"
+		},
+		{
+			"label1": "Betelgeuse · Sky view",
+			"url1": "https://server1.sky-map.org/starview?ra=5.971&de=7.407&zoom=9"
+		},
+		{
+			"label1": "Betelgeuse · Info",
+			"url1": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Betelgeuse"
+		}
+	]
+}
