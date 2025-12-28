@@ -1,6 +1,5 @@
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { MakerRpm } from '@electron-forge/maker-rpm'
-import { MakerSquirrel } from '@electron-forge/maker-squirrel'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import type { ForgeConfig } from '@electron-forge/shared-types'
@@ -13,11 +12,6 @@ const config: ForgeConfig = {
 	},
 	rebuildConfig: {},
 	makers: [
-		new MakerSquirrel({
-			name: 'richpresences',
-			setupIcon: `./public/favicons/favicon.ico`,
-			iconUrl: 'https://example.com/favicon.ico',
-		}),
 		new MakerZIP({}, ['darwin', 'win32']),
 		new MakerRpm({
 			options: {
@@ -29,6 +23,22 @@ const config: ForgeConfig = {
 				icon: `${ICON_BASE}.ico`,
 			},
 		}),
+		{
+			name: '@electron-addons/electron-forge-maker-nsis',
+			config: {
+				build: {
+					win: {
+						target: ['nsis'],
+						icon: './public/favicons/favicon.ico',
+					},
+					nsis: {
+						installerIcon: './public/favicons/favicon.ico',
+						uninstallerIcon: './public/favicons/favicon.ico',
+						installerHeaderIcon: './public/favicons/favicon.ico',
+					},
+				},
+			},
+		},
 	],
 	plugins: [
 		new VitePlugin({
