@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv'
 import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -10,7 +9,20 @@ import startDiscordRich, {
 	setImageCyclesConfig,
 	stopDiscordRich,
 } from './discord'
-dotenv.config()
+
+const ENV_DATA =
+	'RklyZWJBU0VfREJfVVJMPWh0dHBzOi8vZGV2b2xsb2RiLWRlZmF1bHQtcnRkYi5ldXJvcGUtd2VzdDEuZmlyZWJhc2VkYXRhYmFzZS5hcHA='
+
+function decodeEnv() {
+	const decoded = Buffer.from(ENV_DATA, 'base64').toString()
+	const lines = decoded.split('\n')
+	lines.forEach(line => {
+		const [key, ...valueParts] = line.split('=')
+		if (key) process.env[key.trim()] = valueParts.join('=').trim()
+	})
+}
+
+decodeEnv()
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
