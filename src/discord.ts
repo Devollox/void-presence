@@ -375,7 +375,7 @@ function startDiscordRich(
 							smallImage: links.smallImage || null,
 							smallText: links.smallText || null,
 						},
-				  ]
+					]
 
 		const localClient = createClient()
 		const timestamps = { start: Date.now() }
@@ -543,7 +543,7 @@ function startDiscordRich(
 				if (restartTimer) {
 					clearTimeout(restartTimer)
 				}
-				restartTimer = setTimeout(startSession, 25000)
+				restartTimer = setTimeout(startSession, 15000)
 				if (restartInterval) {
 					clearInterval(restartInterval)
 				}

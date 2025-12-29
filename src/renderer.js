@@ -48,10 +48,21 @@ function appendLog(entry) {
 	const rawText = entry.message || entry.text || entry.error || String(entry)
 	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
 	const isError = level === 'error' || isErrorText
+	const isSuccess = level === 'success'
 	const item = document.createElement('div')
-	item.className = 'log-item' + (isError ? ' log-error' : '')
+	item.className = 'log-item'
+	if (isError) {
+		item.classList.add('log-error')
+	} else if (isSuccess) {
+		item.classList.add('log-success')
+	}
 	const dot = document.createElement('div')
 	dot.className = 'log-level-dot'
+	if (isError) {
+		dot.classList.add('dot-error')
+	} else if (isSuccess) {
+		dot.classList.add('dot-success')
+	}
 	const meta = document.createElement('div')
 	meta.className = 'log-item-meta'
 	meta.textContent = time + ' · ' + level.toUpperCase()
@@ -76,10 +87,17 @@ function appendLog(entry) {
 	if (navLogs) {
 		const first = logsViewList.firstChild
 		const firstIsError = first && first.classList.contains('log-error')
+		const firstIsSuccess = first && first.classList.contains('log-success')
+
+		navLogs.classList.remove(
+			'sidebar-nav-item-error',
+			'sidebar-nav-item-success'
+		)
+
 		if (firstIsError) {
 			navLogs.classList.add('sidebar-nav-item-error')
-		} else {
-			navLogs.classList.remove('sidebar-nav-item-error')
+		} else if (firstIsSuccess) {
+			navLogs.classList.add('sidebar-nav-item-success')
 		}
 	}
 }
@@ -469,8 +487,8 @@ function renderList(listEl, items, type) {
 			type === 'cycles'
 				? 'No cycles saved'
 				: type === 'images'
-				? 'No image configuration'
-				: 'No buttons configured'
+					? 'No image configuration'
+					: 'No buttons configured'
 		listEl.appendChild(empty)
 		return
 	}
@@ -1217,6 +1235,81 @@ function setupGlobalDrop() {
 	})
 }
 
+function setupCloudUpload() {
+	const uploadBtn = document.getElementById('cloud-upload-btn')
+	if (!uploadBtn) return
+
+	function saveAuthorToLocalStorage() {
+		const authorInput = document.getElementById('config-author-input')
+		if (authorInput) localStorage.setItem('configAuthor', authorInput.value)
+	}
+
+	function loadInputsFromLocalStorage() {
+		const nameInput = document.getElementById('config-name-input')
+		const authorInput = document.getElementById('config-author-input')
+		const savedAuthor = localStorage.getItem('configAuthor') || ''
+		if (nameInput) nameInput.value = ''
+		if (authorInput) authorInput.value = savedAuthor
+	}
+
+	const nameInput = document.getElementById('config-name-input')
+	const authorInput = document.getElementById('config-author-input')
+
+	if (authorInput) {
+		authorInput.addEventListener('input', saveAuthorToLocalStorage)
+	}
+
+	uploadBtn.addEventListener('click', async e => {
+		e.preventDefault()
+		const nameInput = document.getElementById('config-name-input')
+		const authorInput = document.getElementById('config-author-input')
+		const ctx = window.__voidPresenceCtx
+
+		if (!nameInput?.value.trim() || !authorInput?.value.trim() || !ctx) {
+			appendLog({
+				message: 'Enter config name, author and save first',
+				level: 'error',
+			})
+			return
+		}
+
+		try {
+			uploadBtn.disabled = true
+			uploadBtn.innerHTML =
+				'<div class="rpc-button-icon">☁️</div><span>Uploading...</span>'
+
+			const state = loadCurrentState()
+			const config = {
+				title: nameInput.value.trim(),
+				author: authorInput.value.trim(),
+				description: `Uploaded ${new Date().toLocaleDateString()}`,
+				configData: state,
+			}
+
+			const result = await window.electronAPI.uploadConfig(config)
+
+			appendLog({
+				message: `Config "${config.title}" uploaded!`,
+				level: 'success',
+			})
+
+			nameInput.value = ''
+			localStorage.setItem('configAuthor', config.author)
+		} catch (err) {
+			appendLog({
+				message: `Upload failed: ${err.message}`,
+				level: 'error',
+			})
+		} finally {
+			uploadBtn.disabled = false
+			uploadBtn.innerHTML =
+				'<div class="rpc-button-icon">☁️</div><span>Upload Current</span>'
+		}
+	})
+
+	loadInputsFromLocalStorage()
+}
+
 window.addEventListener('DOMContentLoaded', () => {
 	setupRestartButton()
 	setupClientIdControls()
@@ -1229,6 +1322,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	setupIntervalControl()
 	setupImportOverlay()
 	setupGlobalDrop()
+	setupCloudUpload()
 	updateInfo(null)
 	updateStatus('CONNECTING RPC')
 	if (window.electronAPI && window.electronAPI.onRpcUpdate) {

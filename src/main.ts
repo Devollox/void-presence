@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv'
 import { app, BrowserWindow, ipcMain, Menu, Tray } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -9,6 +10,7 @@ import startDiscordRich, {
 	setImageCyclesConfig,
 	stopDiscordRich,
 } from './discord'
+dotenv.config()
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -204,6 +206,11 @@ ipcMain.handle('restart-discord-rich', async () => {
 	)
 })
 
+ipcMain.handle('stop-discord-rich', async () => {
+	stopDiscordRich()
+	sendStatus('DISABLED')
+})
+
 ipcMain.handle('set-client-id', async (_event, clientId: string) => {
 	await setClientId(clientId)
 	return true
@@ -278,14 +285,36 @@ ipcMain.handle('window-minimize', () => {
 	}
 })
 
-ipcMain.handle('stop-discord-rich', async () => {
-	stopDiscordRich()
-	sendStatus('DISABLED')
-})
-
 ipcMain.handle('set-activity-interval', async (_event, sec: number) => {
 	await setActivityInterval(sec)
 	return true
+})
+
+ipcMain.handle('upload-config', async (event, config) => {
+	try {
+		const response = await fetch(
+			`${process.env.FIREBASE_DB_URL}/configs.json`,
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					title: config.title,
+					author: config.author,
+					description: config.description,
+					configData: config.configData,
+					downloads: 0,
+					uploadedAt: Date.now(),
+				}),
+			}
+		)
+
+		if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+		const result = await response.json()
+		return Object.keys(result)[0] || 'unknown'
+	} catch (error) {
+		throw error
+	}
 })
 
 app.on('before-quit', () => {

@@ -35,4 +35,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	getAutoHide: () => ipcRenderer.invoke('get-auto-hide'),
 	setActivityInterval: (sec: number) =>
 		ipcRenderer.invoke('set-activity-interval', sec),
+	uploadConfig: async (config: any) => {
+		return ipcRenderer.invoke('upload-config', config)
+	},
 })

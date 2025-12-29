@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8" />
@@ -28,7 +28,11 @@
 				height: 100%;
 			}
 			body {
-				font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+				font-family:
+					system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
 					sans-serif;
 				background: radial-gradient(circle at top, #151515 0, #000000 55%);
 				color: var(--text);
@@ -46,7 +50,9 @@
 				margin: auto;
 				border-radius: 18px;
 				background: #050505;
-				box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 1);
+				box-shadow:
+					0 30px 80px rgba(0, 0, 0, 0.9),
+					0 0 0 1px rgba(0, 0, 0, 1);
 				display: flex;
 				flex-direction: column;
 				overflow: hidden;
@@ -149,7 +155,9 @@
 				display: flex;
 				align-items: center;
 				gap: 6px;
-				transition: background 0.12s ease, color 0.12s ease,
+				transition:
+					background 0.12s ease,
+					color 0.12s ease,
 					border-color 0.12s ease;
 			}
 			.tab-btn[data-active='true'] {
@@ -171,6 +179,11 @@
 			.tab-btn.sidebar-nav-item-error .tab-indicator {
 				background: #ef4444;
 				border-color: rgba(248, 113, 113, 0.9);
+			}
+			.tab-btn.sidebar-nav-item-success .tab-indicator {
+				background: #22c55e;
+				border-color: rgba(34, 197, 94, 0.9);
+				box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
 			}
 			.main {
 				flex: 1;
@@ -349,8 +362,11 @@
 				border-radius: 10px;
 				padding: 2px 4px;
 				border: 1px solid transparent;
-				transition: background 0.12s ease-out, box-shadow 0.12s ease-out,
-					transform 0.08s ease-out, border-color 0.12s ease-out;
+				transition:
+					background 0.12s ease-out,
+					box-shadow 0.12s ease-out,
+					transform 0.08s ease-out,
+					border-color 0.12s ease-out;
 			}
 			.pair-row:hover,
 			.cycle-row:hover,
@@ -405,7 +421,9 @@
 				font-size: 11px;
 				align-self: flex-start;
 				margin-top: 6px;
-				transition: background-color 0.12s ease, border-color 0.12s ease,
+				transition:
+					background-color 0.12s ease,
+					border-color 0.12s ease,
 					transform 0.1s ease;
 			}
 			.remove-btn:hover {
@@ -437,7 +455,9 @@
 				border: 1px solid var(--border);
 				background: #050505;
 				cursor: pointer;
-				transition: background 0.15s ease-out, border-color 0.15s ease-out;
+				transition:
+					background 0.15s ease-out,
+					border-color 0.15s ease-out;
 			}
 			.auto-toggle-knob {
 				position: absolute;
@@ -477,8 +497,11 @@
 				justify-content: center;
 				gap: 6px;
 				cursor: pointer;
-				transition: background 0.09s ease-out, color 0.09s ease-out,
-					transform 0.08s ease-out, box-shadow 0.08s ease-out;
+				transition:
+					background 0.09s ease-out,
+					color 0.09s ease-out,
+					transform 0.08s ease-out,
+					box-shadow 0.08s ease-out;
 			}
 			.rpc-button:hover {
 				background: #ffffff;
@@ -718,7 +741,9 @@
 				text-transform: uppercase;
 				letter-spacing: 0.12em;
 				cursor: pointer;
-				transition: background-color 0.15s ease, transform 0.12s ease,
+				transition:
+					background-color 0.15s ease,
+					transform 0.12s ease,
 					box-shadow 0.12s ease;
 			}
 			.config-activity-btn:hover {
@@ -934,11 +959,20 @@
 				border: 2px dashed transparent;
 				box-sizing: border-box;
 				z-index: 45;
-				transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+				transition:
+					border-color 0.12s ease-out,
+					box-shadow 0.12s ease-out;
 			}
 			#global-drop-overlay[data-active='true'] {
 				border-color: var(--drop-border);
 				box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+			}
+			.log-level-dot.dot-error {
+				background: radial-gradient(circle, #ef4444 0%, #dc2626 50%, #000 100%);
+			}
+
+			.log-level-dot.dot-success {
+				background: radial-gradient(circle, #22c55e 0%, #16a34a 50%, #000 100%);
 			}
 		</style>
 	</head>
@@ -1139,8 +1173,13 @@
 
 							<div class="client-row">
 								<span>name</span>
-								<input id="config-name-input" placeholder="profile name" />
+								<input id="config-name-input" placeholder="config name" />
 								<button id="config-save-btn">save</button>
+							</div>
+
+							<div class="client-row">
+								<span>author</span>
+								<input id="config-author-input" placeholder="author config" />
 							</div>
 
 							<div class="divider"></div>
@@ -1151,6 +1190,27 @@
 								<button id="config-add-btn" class="add-btn">+ config</button>
 							</div>
 							<div id="config-list"></div>
+
+							<div class="list-header">
+								<div class="list-header-label">Cloud Sync</div>
+							</div>
+							<div
+								class="cloud-actions"
+								style="display: flex; gap: 8px; margin-bottom: 12px"
+							>
+								<button
+									id="cloud-upload-btn"
+									class="rpc-button"
+									style="flex: 1"
+								>
+									<div class="rpc-button-icon">☁️</div>
+									<span>Upload Current</span>
+								</button>
+							</div>
+							<div
+								id="cloud-configs-list"
+								style="max-height: 200px; overflow-y: auto"
+							></div>
 						</div>
 					</section>
 				</main>
