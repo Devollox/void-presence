@@ -1279,11 +1279,17 @@ function setupCloudUpload() {
 				'<div class="rpc-button-icon">☁️</div><span>Uploading...</span>'
 
 			const state = loadCurrentState()
+
+			const safeState = JSON.parse(
+				JSON.stringify(state, (key, value) =>
+					key === 'clientId' ? undefined : value
+				)
+			)
+
 			const config = {
 				title: nameInput.value.trim(),
 				author: authorInput.value.trim(),
-				description: `Uploaded ${new Date().toLocaleDateString()}`,
-				configData: state,
+				configData: safeState,
 			}
 
 			const result = await window.electronAPI.uploadConfig(config)
