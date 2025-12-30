@@ -10,9 +10,6 @@ import startDiscordRich, {
 	stopDiscordRich,
 } from './discord'
 
-const ENV_DATA =
-	'RklyZWJBU0VfREJfVVJMPWh0dHBzOi8vZGV2b2xsb2RiLWRlZmF1bHQtcnRkYi5ldXJvcGUtd2VzdDEuZmlyZWJhc2VkYXRhYmFzZS5hcHA='
-
 function decodeEnv() {
 	const decoded = Buffer.from(ENV_DATA, 'base64').toString()
 	const lines = decoded.split('\n')
