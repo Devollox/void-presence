@@ -7,7 +7,7 @@ export default defineConfig({
 		outDir: 'build/renderer',
 		rollupOptions: {
 			input: {
-				renderer: resolve(__dirname, 'src/renderer.ts'),
+				renderer: resolve(__dirname, 'src/renderer/index.ts'),
 			},
 			output: {
 				entryFileNames: 'renderer.js',

@@ -16,6 +16,6 @@
 		"src",
 		"firebase.ts",
 		"vite.*.config.ts",
-		"src/void-presence-env.d.ts"
+		"src/types/void-presence-env.d.ts"
 	]
 }
