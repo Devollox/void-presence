@@ -134,7 +134,7 @@ You can **browse, search, and download community configs here**:
 
 ## Tech stack
 
-- **Frontend** – Vanilla JavaScript, HTML5, CSS3  
+- **Frontend** – TypeScript, HTML5, CSS3  
 - **Backend** – Electron, Node.js  
 - **RPC** – `discord-rpc` library for Discord Rich Presence
 
