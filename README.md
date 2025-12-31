@@ -93,22 +93,12 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 
 ---
 
-## Preset: Yuuka – Blue Archive
+## Presets & Community Configs
 
-Void Presence ships with a ready‑to‑use Rich Presence preset for **Yuuka (Blue Archive)**.
+Void Presence ships with ready‑to‑use Rich Presence presets and supports importing custom configurations.
 
-<details>
-  <summary><strong>Show Yuuka preset details</strong></summary>
-
-<p align="left">
-  <img width="280" height="166" alt="Yuuka preview" src="https://github.com/user-attachments/assets/7509f87b-3f8f-4535-bd6f-3e3b873e0ee2" />
-</p>
-
-- Config file: [`config/Yuuka.json`](config/Yuuka.json)  
-- Game: Blue Archive – Hayase Yuuka  
-- Use case: quick start with a themed Rich Presence profile  
-- How to use: drag and drop `Yuuka.json` **onto the `+Config` area** to instantly load the preset.
-</details>
+You can **browse, search, and download community configs here**:  
+👉 [**https://www.voidpresence.site/configs**](https://www.voidpresence.site/configs)
 
 ---
 
