@@ -1,7 +1,7 @@
 import { Menu, Tray, app } from 'electron'
 import * as path from 'path'
 import startDiscordRich, { stopDiscordRich } from '../discord'
-import { sendLog, sendStatus } from './logging'
+import { sendStatus } from './logging'
 import { getMainWindow } from './window'
 
 let tray: Tray | null = null
@@ -43,18 +43,10 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 				if (!win || win.isDestroyed()) return
 				sendStatus('RESTARTING')
 				stopDiscordRich()
-				startDiscordRich(
-					payload => {
-						if (win.isDestroyed()) return
-						win.webContents.send('rpc-update', payload)
-					},
-					status => {
-						sendStatus(status)
-					},
-					message => {
-						sendLog(message)
-					}
-				)
+				startDiscordRich(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
 			},
 		},
 		{ type: 'separator' },

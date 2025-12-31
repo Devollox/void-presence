@@ -8,7 +8,7 @@ import startDiscordRich, {
 	stopDiscordRich,
 } from '../discord'
 import { UploadConfigPayload, uploadConfigToCloud } from './cloud'
-import { sendLog, sendStatus } from './logging'
+import { sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
 
 let autoHideOnStart = false
@@ -33,18 +33,10 @@ export function initIpc() {
 		sendStatus('RESTARTING')
 		stopDiscordRich()
 
-		startDiscordRich(
-			payload => {
-				if (win.isDestroyed()) return
-				win.webContents.send('rpc-update', payload)
-			},
-			status => {
-				sendStatus(status)
-			},
-			message => {
-				sendLog(message)
-			}
-		)
+		startDiscordRich(payload => {
+			if (win.isDestroyed()) return
+			win.webContents.send('rpc-update', payload)
+		})
 	})
 
 	ipcMain.handle('stop-discord-rich', async () => {

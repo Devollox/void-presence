@@ -16,13 +16,14 @@ export async function checkForUpdates() {
 
 		if (latest !== current) {
 			sendLog(
-				`Warning: new version available ${latestTag} (you have v${current}).`,
+				`Warning: new version available ${latestTag} (you have v${current})`,
 				'warn'
 			)
 		} else {
 			sendLog(`Void Presence v${current} (up to date)`)
 		}
 	} catch (e: any) {
+		console.error('checkForUpdates error', e)
 		sendLog(`Update check failed: ${e?.message || String(e)}`)
 	}
 }

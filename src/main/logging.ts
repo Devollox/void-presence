@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
 
-export type LogLevel = 'info' | 'warn' | 'error'
+export type LogLevel = 'info' | 'warn' | 'error' | 'success'
 
 export function sendStatus(status: string) {
 	const win = BrowserWindow.getAllWindows()[0]

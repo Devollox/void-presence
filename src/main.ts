@@ -1,7 +1,7 @@
 import { app } from 'electron'
+import { setupAutoUpdater } from './main/autoupdater'
 import { decodeEnv } from './main/cloud'
 import { getAutoHide, initIpc } from './main/ipc'
-import { sendLog } from './main/logging'
 import { loadSettings } from './main/settings'
 import { createTray } from './main/tray'
 import { checkForUpdates } from './main/updates'
@@ -20,8 +20,10 @@ app.whenReady().then(() => {
 	const initialSettings = loadSettings()
 	const autoHideOnStart = !!initialSettings.autoHideOnStart
 
+	let win: Electron.BrowserWindow | null = null
+
 	if (!autoHideOnStart) {
-		createMainWindow(autoHideOnStart, () => isQuitting)
+		win = createMainWindow(autoHideOnStart, () => isQuitting)
 	}
 
 	createTray(
@@ -31,8 +33,21 @@ app.whenReady().then(() => {
 		}
 	)
 
-	sendLog(`Void Presence v${app.getVersion()}`)
-	checkForUpdates()
+	const runVersionCheck = () => {
+		checkForUpdates()
+	}
+
+	if (win) {
+		win.webContents.once('did-finish-load', () => {
+			runVersionCheck()
+		})
+	} else {
+		runVersionCheck()
+	}
+
+	if (app.isPackaged) {
+		setupAutoUpdater()
+	}
 })
 
 app.on('activate', () => {
