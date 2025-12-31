@@ -1,15 +1,21 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
-		"module": "commonjs",
+		"module": "ESNext",
+		"moduleResolution": "node",
 		"allowJs": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"noImplicitAny": true,
+		"resolveJsonModule": true,
 		"sourceMap": true,
 		"baseUrl": ".",
-		"outDir": "dist",
-		"moduleResolution": "node",
-		"resolveJsonModule": true
-	}
+		"outDir": "dist"
+	},
+	"include": [
+		"src",
+		"firebase.ts",
+		"vite.*.config.ts",
+		"src/void-presence-env.d.ts"
+	]
 }

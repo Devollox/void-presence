@@ -90,6 +90,7 @@ function createWindow() {
 	})
 
 	mainWindow.setMenuBarVisibility(false)
+
 	mainWindow.loadFile('index.html')
 
 	if (shouldShow) {
@@ -302,7 +303,7 @@ ipcMain.handle('set-activity-interval', async (_event, sec: number) => {
 	return true
 })
 
-ipcMain.handle('upload-config', async (event, config) => {
+ipcMain.handle('upload-config', async (_event, config) => {
 	try {
 		const response = await fetch(
 			`${process.env.FIREBASE_DB_URL}/configs.json`,
