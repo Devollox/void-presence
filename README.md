@@ -101,7 +101,7 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 Void Presence ships with ready‑to‑use Rich Presence presets and supports importing custom configurations.
 
 You can **browse, search, and download community configs here**:  
-👉 [**https://www.voidpresence.site/configs**](https://www.voidpresence.site/configs)
+[+ Configs](https://www.voidpresence.site/configs)
 
 ---
 
@@ -137,6 +137,26 @@ You can **browse, search, and download community configs here**:
 - **Frontend** – Vanilla JavaScript, HTML5, CSS3  
 - **Backend** – Electron, Node.js  
 - **RPC** – `discord-rpc` library for Discord Rich Presence
+
+---
+
+## Security & data
+
+Void Presence uploads only **Rich Presence configuration data** when you use cloud features or share configs on the website.
+
+What can be stored in the cloud:
+
+- **Config data** – button pairs, status cycles, image cycles and related settings (`configData`, `buttonPairs`, `cycles`, `imageCycles`)  
+- **Metadata** – config title, description, upload timestamp, download counter (`title`, `description`, `uploadedAt`, `downloads`)  
+- **Author name** – your display name or handle shown as the config author (`author`, for example `Devollox`)
+
+What is **not** stored:
+
+- No Discord tokens, passwords or OAuth keys  
+- No personal messages or Discord account data  
+- No system files or arbitrary local data
+
+Configs are used only to render Rich Presence and to let you share presets between machines or with other users through the Void Presence website.
 
 ---
 
