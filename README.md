@@ -92,6 +92,7 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 - Export your current setup to a JSON config  
 - Import by dropping the file onto the app or using the file picker  
 - Perfect for backup or sharing setups across machines or accounts
+- Upload your profiles to the cloud and restore them on any machine with your Void Presence ID.
 
 ---
 
@@ -119,6 +120,7 @@ You can **browse, search, and download community configs here**:
 11. Click **Save** – Apply all changes and start Rich Presence  
 12. Click **Restart Presence** – Reload the current configuration  
 13. Click **Stop Presence** – Disable Rich Presence
+14. Click **Upload Current** – Send the active config to the Void Presence website
 
 ---
 
