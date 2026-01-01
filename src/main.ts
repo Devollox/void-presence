@@ -1,5 +1,4 @@
 import { app } from 'electron'
-import { setupAutoUpdater } from './main/autoupdater'
 import { decodeEnv } from './main/cloud'
 import { getAutoHide, initIpc } from './main/ipc'
 import { loadSettings } from './main/settings'
@@ -43,10 +42,6 @@ app.whenReady().then(() => {
 		})
 	} else {
 		runVersionCheck()
-	}
-
-	if (app.isPackaged) {
-		setupAutoUpdater()
 	}
 })
 

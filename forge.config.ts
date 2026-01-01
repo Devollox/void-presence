@@ -29,17 +29,13 @@ const config: ForgeConfig = {
 				build: {
 					win: {
 						target: ['nsis'],
-						icon: './public/favicons/favicon.ico',
+						icon: './public/favicons/favicon256.ico',
 					},
 					nsis: {
-						installerIcon: './public/favicons/favicon.ico',
-						uninstallerIcon: './public/favicons/favicon.ico',
-						installerHeaderIcon: './public/favicons/favicon.ico',
+						installerIcon: './public/favicons/favicon256.ico',
+						uninstallerIcon: './public/favicons/favicon256.ico',
+						installerHeaderIcon: './public/favicons/favicon256.ico',
 					},
-				},
-				updater: {
-					url: 'https://raw.githubusercontent.com/Devollox/void-presence/main/updates',
-					channel: 'latest',
 				},
 			},
 		},
