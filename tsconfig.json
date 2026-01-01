@@ -12,10 +12,5 @@
 		"baseUrl": ".",
 		"outDir": "dist"
 	},
-	"include": [
-		"src",
-		"firebase.ts",
-		"vite.*.config.ts",
-		"src/types/void-presence-env.d.ts"
-	]
+	"include": ["src", "vite.*.config.ts", "src/types/void-presence-env.d.ts"]
 }

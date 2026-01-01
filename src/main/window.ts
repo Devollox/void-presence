@@ -39,7 +39,7 @@ export function createMainWindow(
 	})
 
 	mainWindow.setMenuBarVisibility(false)
-	mainWindow.loadFile('index.html')
+	mainWindow.loadFile('src/renderer/index.html')
 
 	if (shouldShow) {
 		mainWindow.once('ready-to-show', () => {
