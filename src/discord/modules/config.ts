@@ -8,7 +8,6 @@ import {
 	CyclesConfig,
 	ImageCycle,
 	ImageCyclesConfig,
-	LinksConfig,
 } from './types'
 
 function getConfigPath(name: string) {
@@ -18,10 +17,6 @@ function getConfigPath(name: string) {
 
 function getClientConfigPath() {
 	return getConfigPath('client-config.json')
-}
-
-function getLinksConfigPath() {
-	return getConfigPath('links-config.json')
 }
 
 function getButtonsConfigPath() {
@@ -54,48 +49,6 @@ export async function readClientConfig(): Promise<ClientConfig> {
 
 export async function writeClientConfig(config: ClientConfig) {
 	const configPath = getClientConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
-}
-
-export async function readLinksConfig(): Promise<LinksConfig> {
-	const configPath = getLinksConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<LinksConfig>
-		return {
-			largeImage:
-				typeof parsed.largeImage === 'string' &&
-				parsed.largeImage.trim().length > 0
-					? parsed.largeImage.trim()
-					: null,
-			largeText:
-				typeof parsed.largeText === 'string' &&
-				parsed.largeText.trim().length > 0
-					? parsed.largeText.trim()
-					: null,
-			smallImage:
-				typeof parsed.smallImage === 'string' &&
-				parsed.smallImage.trim().length > 0
-					? parsed.smallImage.trim()
-					: null,
-			smallText:
-				typeof parsed.smallText === 'string' &&
-				parsed.smallText.trim().length > 0
-					? parsed.smallText.trim()
-					: null,
-		}
-	} catch {
-		return {
-			largeImage: null,
-			largeText: null,
-			smallImage: null,
-			smallText: null,
-		}
-	}
-}
-
-export async function writeLinksConfig(config: LinksConfig) {
-	const configPath = getLinksConfigPath()
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
 }
 
@@ -190,21 +143,6 @@ export async function setClientId(clientId: string) {
 	const cfg = await readClientConfig()
 	cfg.clientId = clientId.trim() || null
 	await writeClientConfig(cfg)
-}
-
-export async function setLinksConfig(
-	largeImage: string,
-	largeText: string,
-	smallImage: string,
-	smallText: string
-) {
-	const cfg: LinksConfig = {
-		largeImage: largeImage.trim() || null,
-		largeText: largeText.trim() || null,
-		smallImage: smallImage.trim() || null,
-		smallText: smallText.trim() || null,
-	}
-	await writeLinksConfig(cfg)
 }
 
 export async function setButtonsConfig(pairs: ButtonPair[]) {

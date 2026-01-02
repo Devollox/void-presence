@@ -6,7 +6,6 @@ import {
 	readClientConfig,
 	readCyclesConfig,
 	readImageCyclesConfig,
-	readLinksConfig,
 } from './config'
 import { ImageCycle, RpcPayload } from './types'
 
@@ -81,7 +80,6 @@ export default function startDiscordRich(
 ) {
 	async function startSession() {
 		const { clientId } = await readClientConfig()
-		const links = await readLinksConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
 		const imageCyclesConfig = await readImageCyclesConfig()
@@ -97,10 +95,10 @@ export default function startDiscordRich(
 				? imageCyclesConfig.cycles
 				: [
 						{
-							largeImage: links.largeImage || null,
-							largeText: links.largeText || null,
-							smallImage: links.smallImage || null,
-							smallText: links.smallText || null,
+							largeImage: null,
+							largeText: null,
+							smallImage: null,
+							smallText: null,
 						},
 					]
 

@@ -4,7 +4,6 @@ export {
 	setClientId,
 	setCycles,
 	setImageCyclesConfig,
-	setLinksConfig,
 } from './modules/config'
 
 export { setActivityInterval, stopDiscordRich } from './modules/rpc'
