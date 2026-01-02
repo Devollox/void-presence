@@ -26,22 +26,26 @@ app.whenReady().then(() => {
 	}
 
 	createTray(
-		() => createMainWindow(getAutoHide(), () => isQuitting),
+		() => {
+			const win = createMainWindow(getAutoHide(), () => isQuitting)
+
+			win.webContents.once('did-finish-load', () => {
+				checkForUpdates()
+			})
+
+			return win
+		},
 		() => {
 			isQuitting = true
 		}
 	)
 
-	const runVersionCheck = () => {
-		checkForUpdates()
-	}
-
 	if (win) {
 		win.webContents.once('did-finish-load', () => {
-			runVersionCheck()
+			checkForUpdates()
 		})
 	} else {
-		runVersionCheck()
+		checkForUpdates()
 	}
 })
 
