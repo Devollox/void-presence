@@ -853,6 +853,10 @@ button:active {
 	border-radius: 999px;
 	border: 1px solid rgba(255, 255, 255, 0.13);
 	font-size: 10px;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .config-details-empty {
 	font-size: 11px;
