@@ -83,7 +83,9 @@ export interface ElectronAPI {
 	windowMinimize?: () => void
 	uploadConfig?: (config: {
 		title: string
-		author: string
+		authorId: string
+		authorName: string
+		description: string
 		configData: FullState
 	}) => Promise<unknown>
 }
