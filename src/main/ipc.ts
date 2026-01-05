@@ -7,7 +7,7 @@ import startDiscordRich, {
 	setImageCyclesConfig,
 	stopDiscordRich,
 } from '../discord'
-import { UploadConfigPayload, uploadConfigToCloud } from './cloud'
+import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import { sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
 
@@ -94,6 +94,18 @@ export function initIpc() {
 		return true
 	})
 
+	ipcMain.handle(
+		'cloud:uploadConfig',
+		async (_event, payload: UploadConfigPayload) => {
+			const user = await fetchAuthor(payload.authorId)
+			if (!user || !user.name) {
+				throw new Error('Author not found')
+			}
+			const authorName = user.name
+			return uploadConfigToCloud({ ...payload, authorName })
+		}
+	)
+
 	ipcMain.handle('set-auto-launch', async (_event, enabled: boolean) => {
 		setAutoLaunch(enabled)
 		return true
@@ -125,11 +137,4 @@ export function initIpc() {
 			win.minimize()
 		}
 	})
-
-	ipcMain.handle(
-		'upload-config',
-		async (_event, config: UploadConfigPayload) => {
-			return uploadConfigToCloud(config)
-		}
-	)
 }
