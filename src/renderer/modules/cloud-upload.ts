@@ -43,15 +43,16 @@ export function setupCloudUpload(): void {
 		const authorInput = document.getElementById(
 			'config-author-input'
 		) as HTMLInputElement | null
-		const ctx = window.__voidPresenceCtx
 
-		if (!nameInput?.value.trim() || !authorInput?.value.trim() || !ctx) {
+		if (!nameInput?.value.trim() || !authorInput?.value.trim()) {
 			appendLog({
-				message: 'Enter config name, author and save first',
+				message: 'Enter config name and author ID first',
 				level: 'error',
 			})
 			return
 		}
+
+		const authorId = authorInput.value.trim()
 
 		try {
 			uploadBtn.disabled = true
@@ -68,7 +69,8 @@ export function setupCloudUpload(): void {
 
 			const config = {
 				title: nameInput.value.trim(),
-				author: authorInput.value.trim(),
+				authorId,
+				authorName: '',
 				description: `Uploaded ${new Date().toLocaleDateString()}`,
 				configData: safeState,
 			}
@@ -77,8 +79,7 @@ export function setupCloudUpload(): void {
 				throw new Error('Cloud upload is not available')
 			}
 
-			const result = await window.electronAPI.uploadConfig(config)
-			void result
+			await window.electronAPI.uploadConfig(config)
 
 			appendLog({
 				message: `Config "${config.title}" uploaded!`,
@@ -86,7 +87,7 @@ export function setupCloudUpload(): void {
 			})
 
 			nameInput.value = ''
-			localStorage.setItem('configAuthor', config.author)
+			localStorage.setItem('configAuthor', authorId)
 		} catch (err: any) {
 			appendLog({
 				message: `Upload failed: ${err?.message ?? String(err)}`,
