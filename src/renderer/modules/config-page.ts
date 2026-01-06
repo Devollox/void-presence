@@ -12,7 +12,7 @@ import {
 	StoredConfig,
 	VoidPresenceCtx,
 } from './types'
-import { setActiveView } from './views'
+import { appendLog, setActiveView } from './views'
 
 function getConfigs(): StoredConfig[] {
 	try {
@@ -218,6 +218,10 @@ function createImageCycleRow(
 	return row
 }
 
+function deepCloneState(state: FullState): FullState {
+	return JSON.parse(JSON.stringify(state)) as FullState
+}
+
 export function setupConfigPage(): void {
 	const nameInput = document.getElementById(
 		'config-name-input'
@@ -307,6 +311,10 @@ export function setupConfigPage(): void {
 			loadBtn.className = 'config-activity-btn'
 			loadBtn.textContent = 'load'
 
+			const uploadCloudBtn = document.createElement('button')
+			uploadCloudBtn.className = 'config-activity-btn'
+			uploadCloudBtn.textContent = 'upload'
+
 			const detailsBtn = document.createElement('button')
 			detailsBtn.className = 'config-activity-btn'
 			detailsBtn.textContent = 'details'
@@ -321,9 +329,9 @@ export function setupConfigPage(): void {
 
 			loadBtn.addEventListener('click', async e => {
 				e.preventDefault()
-				const ctx = window.__voidPresenceCtx
+				const ctx = (window as any).__voidPresenceCtx
 				if (!ctx) return
-				const st: FullState = {
+				const base: FullState = {
 					clientId: state.clientId || localStorage.getItem('clientId') || '',
 					updateIntervalSec:
 						state.updateIntervalSec ||
@@ -337,11 +345,83 @@ export function setupConfigPage(): void {
 						? state.imageCycles
 						: [],
 				}
+				const st = deepCloneState(base)
 				applyStateToUIAndLists(st, ctx)
 				await saveAllFromState(st)
 				nameInput.value = ''
-
 				setActiveView('main')
+			})
+
+			uploadCloudBtn.addEventListener('click', async e => {
+				e.preventDefault()
+
+				const authorInput = document.getElementById(
+					'config-author-input'
+				) as HTMLInputElement | null
+
+				if (!authorInput?.value.trim()) {
+					appendLog({
+						message: 'Enter author ID first',
+						level: 'error',
+					})
+					return
+				}
+
+				const authorId = authorInput.value.trim()
+
+				if (!window.electronAPI?.uploadConfig) {
+					appendLog({
+						message: 'Cloud upload is not available',
+						level: 'error',
+					})
+					return
+				}
+
+				const stateFromConfig: FullState = {
+					clientId: cfg.state?.clientId ?? '',
+					updateIntervalSec: cfg.state?.updateIntervalSec ?? '',
+					buttonPairs: Array.isArray(cfg.state?.buttonPairs)
+						? cfg.state!.buttonPairs
+						: [],
+					cycles: Array.isArray(cfg.state?.cycles) ? cfg.state!.cycles : [],
+					imageCycles: Array.isArray(cfg.state?.imageCycles)
+						? cfg.state!.imageCycles
+						: [],
+				}
+
+				try {
+					uploadCloudBtn.disabled = true
+					uploadCloudBtn.innerHTML = 'uploading...'
+
+					const safeState = JSON.parse(
+						JSON.stringify(stateFromConfig, (key, value) =>
+							key === 'clientId' ? undefined : value
+						)
+					) as FullState
+
+					const config = {
+						title: cfg.name || 'Unnamed profile',
+						authorId,
+						authorName: '',
+						description: `Uploaded ${new Date().toLocaleDateString()}`,
+						configData: safeState,
+					}
+
+					await window.electronAPI.uploadConfig(config)
+
+					appendLog({
+						message: `Config "${config.title}" uploaded!`,
+						level: 'success',
+					})
+				} catch (err: any) {
+					appendLog({
+						message: `Upload failed: ${err?.message ?? String(err)}`,
+						level: 'error',
+					})
+				} finally {
+					uploadCloudBtn.disabled = false
+					uploadCloudBtn.innerHTML = 'upload'
+				}
 			})
 
 			detailsBtn.addEventListener('click', e => {
@@ -364,12 +444,16 @@ export function setupConfigPage(): void {
 
 			delBtn.addEventListener('click', e => {
 				e.preventDefault()
-				const filtered = getConfigs().filter(c => c.name !== cfg.name)
-				setConfigs(filtered)
+				const configs = getConfigs()
+				const index = configs.findIndex(c => c.createdAt === cfg.createdAt)
+				if (index === -1) return
+				configs.splice(index, 1)
+				setConfigs(configs)
 				renderConfigs()
 			})
 
 			actions.appendChild(loadBtn)
+			actions.appendChild(uploadCloudBtn)
 			actions.appendChild(detailsBtn)
 			actions.appendChild(exportBtnCfg)
 			actions.appendChild(delBtn)
@@ -382,17 +466,17 @@ export function setupConfigPage(): void {
 	}
 
 	function addConfigFromState(name: string, state: FullState): void {
-		const configs = getConfigs().filter(c => c.name !== name)
+		const configs = getConfigs()
 		configs.push({
 			name,
-			state,
+			state: deepCloneState(state),
 			createdAt: new Date().toISOString(),
 		})
 		setConfigs(configs)
 		renderConfigs()
 	}
 
-	window.addConfigFromState = addConfigFromState
+	;(window as any).addConfigFromState = addConfigFromState
 
 	saveBtn.addEventListener('click', async e => {
 		e.preventDefault()
@@ -701,6 +785,5 @@ export function setupClientIdControls(): void {
 		e.preventDefault()
 		void saveAll()
 	})
-
-	window.__voidPresenceCtx = ctx
+	;(window as any).__voidPresenceCtx = ctx
 }
