@@ -91,8 +91,8 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 
 - Export your current setup to a JSON config  
 - Import by dropping the file onto the app or using the file picker  
-- Perfect for backup or sharing setups across machines or accounts
-- Upload your profiles to the cloud and restore them on any machine with your Void Presence ID.
+- Perfect for backup or sharing setups across machines or accounts  
+- Upload your profiles to the cloud and restore them on any machine using your **Author ID** from the Void Presence profile page: [+ Author ID](https://www.voidpresence.site/profile)  
 
 ---
 
