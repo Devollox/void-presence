@@ -19,11 +19,7 @@ app.whenReady().then(() => {
 	const initialSettings = loadSettings()
 	const autoHideOnStart = !!initialSettings.autoHideOnStart
 
-	let win: Electron.BrowserWindow | null = null
-
-	if (!autoHideOnStart) {
-		win = createMainWindow(autoHideOnStart, () => isQuitting)
-	}
+	const win = createMainWindow(autoHideOnStart, () => isQuitting)
 
 	createTray(
 		() => {
