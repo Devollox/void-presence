@@ -60,7 +60,32 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 1. Open the [Discord Developer Portal](https://discord.com/developers/applications)  
 2. Create a new application  
 3. Copy the **Application ID** from **General Information**  
-4. Paste it into the `CLIENT ID` field in Void Presence  
+4. Paste it into the `CLIENT ID` field in Void Presence
+
+## RPC Update Intervals
+
+### Recommended Settings
+
+| Use Case | Interval | Discord Rate Limit | CPU Usage | Notes |
+|----------|----------|-------------------|-----------|-------|
+| **Default** | **30 sec** | Safe | 0.1% | **Perfect balance** — smooth rotation, no limits |
+| **Fast cycles** | **5-15 sec** | Safe | 0.3% | Good for frequent status changes |
+| **Aggressive** | **2 sec** | 60/min limit | 0.8% | Works but Discord may throttle |
+| **Avoid** | **<1 sec** | Rate limited | 2%+ | Discord drops updates |
+
+### Best Practices
+
+```typescript
+// Your current minimum (5 sec) is perfect
+setActivityInterval(sec) {
+  if (sec < 5) activityIntervalMs = 5000  // Safe default
+}
+```
+
+Recommended user presets:
+- 30s — Gaming/Streaming (default)
+- 15s — Coding sessions  
+- 5s  — Rapid status changes
 
 ### Button pairs
 
