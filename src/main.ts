@@ -18,8 +18,9 @@ app.on('before-quit', () => {
 app.whenReady().then(() => {
 	const initialSettings = loadSettings()
 	const autoHideOnStart = !!initialSettings.autoHideOnStart
+	let win: Electron.BrowserWindow | null = null
 
-	const win = createMainWindow(autoHideOnStart, () => isQuitting)
+	win = createMainWindow(autoHideOnStart, () => isQuitting)
 
 	createTray(
 		() => {

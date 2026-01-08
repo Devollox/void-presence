@@ -12,6 +12,9 @@ const navLogs = document.getElementById('nav-logs') as HTMLElement | null
 const navConfig = document.getElementById('nav-config') as HTMLElement | null
 const views = document.querySelectorAll<HTMLElement>('.view')
 
+let activityStartMs: number | null = null
+let uptimeTimer: number | null = null
+
 export function setActiveView(viewName: ViewName): void {
 	views.forEach(v => {
 		const name = v.getAttribute('data-view')
@@ -71,7 +74,7 @@ export function appendLog(entry: LogEntry | string): void {
 	} else if (isSuccess) {
 		item.classList.add('log-success')
 	} else if (isWarn) {
-  	item.classList.add('log-warn')
+		item.classList.add('log-warn')
 	}
 
 	const dot = document.createElement('div')
@@ -81,7 +84,7 @@ export function appendLog(entry: LogEntry | string): void {
 	} else if (isSuccess) {
 		dot.classList.add('dot-success')
 	} else if (isWarn) {
-  	dot.classList.add('dot-warn')
+		dot.classList.add('dot-warn')
 	}
 
 	const meta = document.createElement('div')
@@ -111,36 +114,35 @@ export function appendLog(entry: LogEntry | string): void {
 	}
 
 	if (navLogs) {
-  const first = logsViewList.firstChild as HTMLElement | null
-  const firstIsError = first && first.classList.contains('log-error')
-  const firstIsSuccess = first && first.classList.contains('log-success')
-  const firstIsWarn = first && first.classList.contains('log-warn')
+		const first = logsViewList.firstChild as HTMLElement | null
+		const firstIsError = first && first.classList.contains('log-error')
+		const firstIsSuccess = first && first.classList.contains('log-success')
+		const firstIsWarn = first && first.classList.contains('log-warn')
 
-  navLogs.classList.remove(
-    'sidebar-nav-item-error',
-    'sidebar-nav-item-success',
-    'sidebar-nav-item-warn'
-  )
+		navLogs.classList.remove(
+			'sidebar-nav-item-error',
+			'sidebar-nav-item-success',
+			'sidebar-nav-item-warn'
+		)
 
-  let highlightClass: string | null = null
+		let highlightClass: string | null = null
 
-  if (firstIsError) {
-    highlightClass = 'sidebar-nav-item-error'
-  } else if (firstIsSuccess) {
-    highlightClass = 'sidebar-nav-item-success'
-  } else if (firstIsWarn) {
-    highlightClass = 'sidebar-nav-item-warn'
-  }
+		if (firstIsError) {
+			highlightClass = 'sidebar-nav-item-error'
+		} else if (firstIsSuccess) {
+			highlightClass = 'sidebar-nav-item-success'
+		} else if (firstIsWarn) {
+			highlightClass = 'sidebar-nav-item-warn'
+		}
 
-  if (highlightClass) {
-    navLogs.classList.add(highlightClass)
+		if (highlightClass) {
+			navLogs.classList.add(highlightClass)
 
-    setTimeout(() => {
-      navLogs.classList.remove(highlightClass as string)
-    }, 5000)
-  }
-}
-
+			setTimeout(() => {
+				navLogs.classList.remove(highlightClass as string)
+			}, 5000)
+		}
+	}
 }
 
 if (window.electronAPI?.onLogMessage) {
@@ -173,6 +175,51 @@ function mapStatusToText(status: string): { chip: string; sub: string } {
 	}
 }
 
+function formatDuration(ms: number): string {
+	const totalSeconds = Math.floor(ms / 1000)
+	const hours = Math.floor(totalSeconds / 3600)
+	const minutes = Math.floor((totalSeconds % 3600) / 60)
+	const seconds = totalSeconds % 60
+
+	const h = hours.toString().padStart(2, '0')
+	const m = minutes.toString().padStart(2, '0')
+	const s = seconds.toString().padStart(2, '0')
+
+	return `${h}:${m}:${s}`
+}
+
+function startUptimeTimer() {
+	const infoUptime = document.getElementById(
+		'info-uptime'
+	) as HTMLElement | null
+	if (!infoUptime) return
+
+	if (uptimeTimer) {
+		window.clearInterval(uptimeTimer)
+		uptimeTimer = null
+	}
+
+	uptimeTimer = window.setInterval(() => {
+		if (!activityStartMs) {
+			infoUptime.textContent = '–'
+			return
+		}
+		const diffMs = Date.now() - activityStartMs
+		infoUptime.textContent = formatDuration(diffMs)
+	}, 1000)
+}
+
+function stopUptimeTimer() {
+	const infoUptime = document.getElementById(
+		'info-uptime'
+	) as HTMLElement | null
+	if (uptimeTimer) {
+		window.clearInterval(uptimeTimer)
+		uptimeTimer = null
+	}
+	if (infoUptime) infoUptime.textContent = '–'
+}
+
 export function updateInfo(payload: RichPresencePayload | null): void {
 	const title = document.getElementById('activity-title') as HTMLElement | null
 	const sub = document.getElementById('activity-sub') as HTMLElement | null
@@ -193,6 +240,9 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	) as HTMLElement | null
 	const metaButtons = document.getElementById(
 		'meta-buttons'
+	) as HTMLElement | null
+	const infoUptime = document.getElementById(
+		'info-uptime'
 	) as HTMLElement | null
 
 	if (
@@ -217,6 +267,9 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		infoStatus.textContent = 'No active rich presence'
 		metaObject.textContent = 'OBJECT: —'
 		metaButtons.textContent = 'BUTTONS: —'
+		if (infoUptime) infoUptime.textContent = '–'
+		activityStartMs = null
+		stopUptimeTimer()
 		return
 	}
 
@@ -225,7 +278,7 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 
 	const buttonsText =
 		payload.buttons && payload.buttons.length
-			? payload.buttons.map(b => b.label).join(' -  ')
+			? payload.buttons.map(b => b.label).join(' -  ')
 			: 'None'
 
 	infoButtons.textContent = buttonsText
@@ -234,6 +287,11 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	infoStatus.textContent = 'Active'
 	metaObject.textContent = `OBJECT: ${payload.details || '—'}`
 	metaButtons.textContent = `BUTTONS: ${buttonsText}`
+
+	if (!activityStartMs) {
+		activityStartMs = Date.now()
+	}
+	startUptimeTimer()
 }
 
 export function updateStatus(status: string): void {
@@ -262,5 +320,10 @@ export function updateStatus(status: string): void {
 			statusDot.style.background =
 				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		}
+	}
+
+	if (status !== 'ACTIVE') {
+		activityStartMs = null
+		stopUptimeTimer()
 	}
 }
