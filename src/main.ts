@@ -23,12 +23,10 @@ app.whenReady().then(() => {
 
 	createTray(
 		() => {
-			const win = createMainWindow(getAutoHide(), () => isQuitting)
-
-			win.webContents.once('did-finish-load', () => {
-				checkForUpdates()
-			})
-
+			if (win && !win.isDestroyed()) {
+				win.show()
+				win.focus()
+			}
 			return win
 		},
 		() => {
