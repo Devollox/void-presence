@@ -14,6 +14,12 @@ import {
 } from './types'
 import { appendLog, setActiveView } from './views'
 
+type StoredRecentApp = {
+	id: string
+	name: string
+	lastUsedAt: string
+}
+
 function getConfigs(): StoredConfig[] {
 	try {
 		const raw = localStorage.getItem('vpConfigs')
@@ -25,6 +31,53 @@ function getConfigs(): StoredConfig[] {
 
 function setConfigs(configs: StoredConfig[]): void {
 	localStorage.setItem('vpConfigs', JSON.stringify(configs))
+}
+
+function getRecentApps(): StoredRecentApp[] {
+	try {
+		const raw = localStorage.getItem('vpRecentApps')
+		return raw ? (JSON.parse(raw) as StoredRecentApp[]) : []
+	} catch {
+		return []
+	}
+}
+
+function setRecentApps(items: StoredRecentApp[]): void {
+	localStorage.setItem('vpRecentApps', JSON.stringify(items))
+}
+
+function upsertRecentApp(id: string, name: string): void {
+	const cleanId = id.trim()
+	if (!cleanId) return
+	const cleanName = name.trim() || 'Unnamed app'
+	const items = getRecentApps()
+	const exists = items.some(x => x.id === cleanId)
+	if (exists) {
+		setRecentApps(items)
+		return
+	}
+	const now = new Date().toISOString()
+	items.push({ id: cleanId, name: cleanName, lastUsedAt: now })
+	const sorted = items
+		.slice()
+		.sort(
+			(a, b) =>
+				new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime(),
+		)
+	setRecentApps(sorted.slice(0, 10))
+}
+
+function updateRecentName(id: string, name: string): void {
+	const items = getRecentApps()
+	const idx = items.findIndex(x => x.id === id)
+	if (idx === -1) return
+	items[idx] = { ...items[idx], name: name.trim() || 'Unnamed app' }
+	setRecentApps(items)
+}
+
+function removeRecentApp(id: string): void {
+	const items = getRecentApps().filter(x => x.id !== id)
+	setRecentApps(items)
 }
 
 function downloadJson(data: unknown, filename: string): void {
@@ -44,7 +97,7 @@ function createButtonPairRow(
 	pair: ButtonPair,
 	index: number,
 	onChange: (pair: ButtonPair) => void,
-	onRemove: () => void
+	onRemove: () => void,
 ): HTMLDivElement {
 	const row = document.createElement('div')
 	row.className = 'pair-row'
@@ -55,7 +108,7 @@ function createButtonPairRow(
 	inputsWrap.className = 'pair-inputs'
 
 	const input1 = document.createElement('input')
-	input1.placeholder = 'Label #1'
+	input1.placeholder = 'Button Name #1'
 	input1.value = pair.label1 || ''
 
 	const input2 = document.createElement('input')
@@ -63,7 +116,7 @@ function createButtonPairRow(
 	input2.value = pair.url1 || ''
 
 	const input3 = document.createElement('input')
-	input3.placeholder = 'Label #2'
+	input3.placeholder = 'Button Name #2'
 	input3.value = pair.label2 || ''
 
 	const input4 = document.createElement('input')
@@ -108,7 +161,7 @@ function createCycleRow(
 	entry: CycleEntry,
 	index: number,
 	onChange: (entry: CycleEntry) => void,
-	onRemove: () => void
+	onRemove: () => void,
 ): HTMLDivElement {
 	const row = document.createElement('div')
 	row.className = 'cycle-row'
@@ -158,7 +211,7 @@ function createImageCycleRow(
 	entry: ImageCycleEntry,
 	index: number,
 	onChange: (entry: ImageCycleEntry) => void,
-	onRemove: () => void
+	onRemove: () => void,
 ): HTMLDivElement {
 	const row = document.createElement('div')
 	row.className = 'image-row'
@@ -169,7 +222,7 @@ function createImageCycleRow(
 	wrap.className = 'image-inputs'
 
 	const largeKey = document.createElement('input')
-	largeKey.placeholder = 'Large image key or URL'
+	largeKey.placeholder = 'Large image URL(.png/.jpeg/.gif and etc)'
 	largeKey.value = entry.largeImage || ''
 
 	const largeText = document.createElement('input')
@@ -177,7 +230,7 @@ function createImageCycleRow(
 	largeText.value = entry.largeText || ''
 
 	const smallKey = document.createElement('input')
-	smallKey.placeholder = 'Small image key or URL'
+	smallKey.placeholder = 'Small image URL(.png/.jpeg/.gif and etc)'
 	smallKey.value = entry.smallImage || ''
 
 	const smallText = document.createElement('input')
@@ -224,18 +277,19 @@ function deepCloneState(state: FullState): FullState {
 
 export function setupConfigPage(): void {
 	const nameInput = document.getElementById(
-		'config-name-input'
+		'config-name-input',
 	) as HTMLInputElement | null
 	const saveBtn = document.getElementById(
-		'config-save-btn'
+		'config-save-btn',
 	) as HTMLButtonElement | null
 	const list = document.getElementById('config-list') as HTMLElement | null
 	const addBtn = document.getElementById(
-		'config-add-btn'
+		'config-add-btn',
 	) as HTMLButtonElement | null
 	const exportBtn = document.getElementById(
-		'config-export-btn'
+		'config-export-btn',
 	) as HTMLButtonElement | null
+
 	if (!nameInput || !saveBtn || !list || !addBtn || !exportBtn) return
 
 	function renderConfigs(): void {
@@ -356,7 +410,7 @@ export function setupConfigPage(): void {
 				e.preventDefault()
 
 				const authorInput = document.getElementById(
-					'config-author-input'
+					'config-author-input',
 				) as HTMLInputElement | null
 
 				if (!authorInput?.value.trim()) {
@@ -395,8 +449,8 @@ export function setupConfigPage(): void {
 
 					const safeState = JSON.parse(
 						JSON.stringify(stateFromConfig, (key, value) =>
-							key === 'clientId' ? undefined : value
-						)
+							key === 'clientId' ? undefined : value,
+						),
 					) as FullState
 
 					const config = {
@@ -491,7 +545,7 @@ export function setupConfigPage(): void {
 	addBtn.addEventListener('click', e => {
 		e.preventDefault()
 		const importOverlay = document.getElementById(
-			'import-overlay'
+			'import-overlay',
 		) as HTMLElement | null
 		if (importOverlay) {
 			importOverlay.dataset.open = 'true'
@@ -518,29 +572,32 @@ export function setupConfigPage(): void {
 
 export function setupClientIdControls(): void {
 	const clientInput = document.getElementById(
-		'client-id-input'
+		'client-id-input',
 	) as HTMLInputElement | null
 	const saveBtn = document.getElementById(
-		'client-id-save'
+		'client-id-save',
 	) as HTMLButtonElement | null
 	const buttonsList = document.getElementById(
-		'buttons-list'
+		'buttons-list',
 	) as HTMLElement | null
 	const addButtonPair = document.getElementById(
-		'add-button-pair'
+		'add-button-pair',
 	) as HTMLButtonElement | null
 	const cyclesList = document.getElementById(
-		'cycles-list'
+		'cycles-list',
 	) as HTMLElement | null
 	const addCycle = document.getElementById(
-		'add-cycle'
+		'add-cycle',
 	) as HTMLButtonElement | null
 	const imagesList = document.getElementById(
-		'images-list'
+		'images-list',
 	) as HTMLElement | null
 	const addImage = document.getElementById(
-		'add-image'
+		'add-image',
 	) as HTMLButtonElement | null
+	const recentList = document.getElementById(
+		'recent-list',
+	) as HTMLElement | null
 
 	if (
 		!clientInput ||
@@ -550,7 +607,8 @@ export function setupClientIdControls(): void {
 		!cyclesList ||
 		!addCycle ||
 		!imagesList ||
-		!addImage
+		!addImage ||
+		!recentList
 	) {
 		return
 	}
@@ -595,7 +653,7 @@ export function setupClientIdControls(): void {
 	function attachDnD<T>(
 		container: HTMLElement,
 		items: T[],
-		renderFn: () => void
+		renderFn: () => void,
 	): void {
 		let dragIndex: number | null = null
 
@@ -624,7 +682,7 @@ export function setupClientIdControls(): void {
 			Array.from(container.children).forEach(ch => {
 				;(ch as HTMLElement).classList.remove(
 					'drop-target-top',
-					'drop-target-bottom'
+					'drop-target-bottom',
 				)
 			})
 			dragIndex = null
@@ -638,7 +696,7 @@ export function setupClientIdControls(): void {
 			Array.from(container.children).forEach(ch => {
 				;(ch as HTMLElement).classList.remove(
 					'drop-target-top',
-					'drop-target-bottom'
+					'drop-target-bottom',
 				)
 			})
 			const rect = row.getBoundingClientRect()
@@ -680,7 +738,7 @@ export function setupClientIdControls(): void {
 				() => {
 					ctx.buttonPairs.splice(idx, 1)
 					ctx.renderButtonPairs()
-				}
+				},
 			)
 			buttonsList.appendChild(row)
 		})
@@ -699,7 +757,7 @@ export function setupClientIdControls(): void {
 				() => {
 					ctx.cycles.splice(idx, 1)
 					ctx.renderCycles()
-				}
+				},
 			)
 			cyclesList.appendChild(row)
 		})
@@ -718,7 +776,7 @@ export function setupClientIdControls(): void {
 				() => {
 					ctx.imageCycles.splice(idx, 1)
 					ctx.renderImageCycles()
-				}
+				},
 			)
 			imagesList.appendChild(row)
 		})
@@ -764,9 +822,65 @@ export function setupClientIdControls(): void {
 		ctx.renderImageCycles()
 	})
 
+	function renderRecentApps(): void {
+		const items = getRecentApps()
+		recentList.innerHTML = ''
+		if (!items.length) return
+		items.forEach(item => {
+			const row = document.createElement('div')
+			row.className = 'cycle-row'
+			row.dataset.id = item.id
+
+			const inputsWrap = document.createElement('div')
+			inputsWrap.className = 'cycle-inputs'
+
+			const nameInput = document.createElement('input')
+			nameInput.placeholder = 'App name'
+			nameInput.value = item.name
+
+			const idText = document.createElement('input')
+			idText.value = item.id
+			idText.readOnly = true
+			idText.className = 'cycle-row input'
+
+			const remove = document.createElement('button')
+			remove.className = 'remove-btn'
+			remove.type = 'button'
+			remove.textContent = '×'
+
+			nameInput.addEventListener('input', () => {
+				updateRecentName(item.id, nameInput.value)
+			})
+
+			row.addEventListener('click', async e => {
+				const target = e.target as HTMLElement
+				if (target.tagName === 'BUTTON') return
+				clientInput.value = item.id
+				localStorage.setItem('clientId', item.id)
+				try {
+					if (navigator.clipboard && navigator.clipboard.writeText) {
+						await navigator.clipboard.writeText(item.id)
+					}
+				} catch {}
+			})
+
+			remove.addEventListener('click', e => {
+				e.preventDefault()
+				removeRecentApp(item.id)
+				renderRecentApps()
+			})
+
+			row.appendChild(remove)
+			inputsWrap.appendChild(nameInput)
+			inputsWrap.appendChild(idText)
+			row.appendChild(inputsWrap)
+			recentList.appendChild(row)
+		})
+	}
+
 	async function saveAll(): Promise<void> {
 		const intervalInput = document.getElementById(
-			'update-interval-input'
+			'update-interval-input',
 		) as HTMLInputElement | null
 		const intervalSec = intervalInput
 			? parseInt(intervalInput.value.trim(), 10)
@@ -779,11 +893,19 @@ export function setupClientIdControls(): void {
 			updateIntervalSec: intervalSec,
 		}
 		await saveAllFromState(state)
+		localStorage.setItem('clientId', state.clientId || '')
+		upsertRecentApp(state.clientId || '', '')
+		renderRecentApps()
 	}
 
 	saveBtn.addEventListener('click', e => {
 		e.preventDefault()
 		void saveAll()
 	})
+
+	clientInput.addEventListener('input', () => {
+		localStorage.setItem('clientId', clientInput.value)
+	})
 	;(window as any).__voidPresenceCtx = ctx
+	renderRecentApps()
 }

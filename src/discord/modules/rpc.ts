@@ -76,7 +76,7 @@ function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
 }
 
 export default function startDiscordRich(
-	sendPayload: (payload: RpcPayload) => void
+	sendPayload: (payload: RpcPayload) => void,
 ) {
 	async function startSession() {
 		const { clientId } = await readClientConfig()
@@ -172,7 +172,7 @@ export default function startDiscordRich(
 					if (sendLog) {
 						sendLog(
 							'SET_ACTIVITY error: ' + (e?.message || JSON.stringify(e) || ''),
-							'error'
+							'error',
 						)
 					}
 				})

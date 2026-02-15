@@ -85,7 +85,6 @@
 								<div class="client-row">
 									<span>client id</span>
 									<input id="client-id-input" placeholder="Application ID" />
-									<button id="client-id-save">save</button>
 								</div>
 								<div class="client-row">
 									<span>update(sec)</span>
@@ -93,6 +92,12 @@
 										id="update-interval-input"
 										placeholder="Update Activity (sec) Minimum 5 sec"
 									/>
+								</div>
+
+								<div class="button-row">
+									<button id="client-id-save" class="rpc-button">
+										<span>SAVE and Restart RPC</span>
+									</button>
 								</div>
 								<div class="divider"></div>
 
@@ -220,6 +225,11 @@
 									placeholder="you can get an Author ID if you log in to the website"
 								/>
 							</div>
+							<div class="list-header">
+								<div class="list-header-label">recent apps</div>
+							</div>
+							<div id="recent-list"></div>
+
 							<div class="list-header">
 								<div class="list-header-label">Cloud Sync</div>
 							</div>
