@@ -5,7 +5,7 @@ export async function checkForUpdates() {
 	try {
 		const res = await fetch(
 			'https://api.github.com/repos/Devollox/void-presence/releases/latest',
-			{ headers: { Accept: 'application/vnd.github+json' } }
+			{ headers: { Accept: 'application/vnd.github+json' } },
 		)
 		if (!res.ok) return
 
@@ -16,8 +16,8 @@ export async function checkForUpdates() {
 
 		if (latest !== current) {
 			sendLog(
-				`Warning: new version available ${latestTag} (you have v${current})`,
-				'warn'
+				`New version available ${latestTag} (you have v${current})`,
+				'warn',
 			)
 		} else {
 			sendLog(`Void Presence v${current} (up to date)`)

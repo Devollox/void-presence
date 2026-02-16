@@ -4,23 +4,23 @@ import { appendLog } from './views'
 
 export function setupCloudUpload(): void {
 	const uploadBtn = document.getElementById(
-		'cloud-upload-btn'
+		'cloud-upload-btn',
 	) as HTMLButtonElement | null
 	if (!uploadBtn) return
 
 	function saveAuthorToLocalStorage(): void {
 		const authorInput = document.getElementById(
-			'config-author-input'
+			'config-author-input',
 		) as HTMLInputElement | null
 		if (authorInput) localStorage.setItem('configAuthor', authorInput.value)
 	}
 
 	function loadInputsFromLocalStorage(): void {
 		const nameInput = document.getElementById(
-			'config-name-input'
+			'config-name-input',
 		) as HTMLInputElement | null
 		const authorInput = document.getElementById(
-			'config-author-input'
+			'config-author-input',
 		) as HTMLInputElement | null
 		const savedAuthor = localStorage.getItem('configAuthor') || ''
 		if (nameInput) nameInput.value = ''
@@ -28,7 +28,7 @@ export function setupCloudUpload(): void {
 	}
 
 	const authorInput = document.getElementById(
-		'config-author-input'
+		'config-author-input',
 	) as HTMLInputElement | null
 
 	if (authorInput) {
@@ -38,10 +38,10 @@ export function setupCloudUpload(): void {
 	uploadBtn.addEventListener('click', async e => {
 		e.preventDefault()
 		const nameInput = document.getElementById(
-			'config-name-input'
+			'config-name-input',
 		) as HTMLInputElement | null
 		const authorInput = document.getElementById(
-			'config-author-input'
+			'config-author-input',
 		) as HTMLInputElement | null
 
 		if (!nameInput?.value.trim() || !authorInput?.value.trim()) {
@@ -63,8 +63,8 @@ export function setupCloudUpload(): void {
 
 			const safeState = JSON.parse(
 				JSON.stringify(state, (key, value) =>
-					key === 'clientId' ? undefined : value
-				)
+					key === 'clientId' ? undefined : value,
+				),
 			) as FullState
 
 			const config = {

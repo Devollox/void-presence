@@ -1,10 +1,10 @@
 import { LogEntry, RichPresencePayload, ViewName } from './types'
 
 const logsViewList = document.getElementById(
-	'logs-view-list'
+	'logs-view-list',
 ) as HTMLElement | null
 const logsCounter = document.getElementById(
-	'logs-counter'
+	'logs-counter',
 ) as HTMLElement | null
 const maxLogs = 120
 const navMain = document.getElementById('nav-main') as HTMLElement | null
@@ -29,7 +29,7 @@ export function setActiveView(viewName: ViewName): void {
 	if (navConfig) {
 		navConfig.setAttribute(
 			'data-active',
-			viewName === 'config' ? 'true' : 'false'
+			viewName === 'config' ? 'true' : 'false',
 		)
 	}
 }
@@ -46,6 +46,7 @@ if (navConfig) {
 
 export function appendLog(entry: LogEntry | string): void {
 	if (!logsViewList) return
+
 	const now = new Date()
 	const time =
 		String(now.getHours()).padStart(2, '0') +
@@ -77,7 +78,7 @@ export function appendLog(entry: LogEntry | string): void {
 		item.classList.add('log-warn')
 	}
 
-	const dot = document.createElement('div')
+	const dot = document.createElement('span')
 	dot.className = 'log-level-dot'
 	if (isError) {
 		dot.classList.add('dot-error')
@@ -87,9 +88,7 @@ export function appendLog(entry: LogEntry | string): void {
 		dot.classList.add('dot-warn')
 	}
 
-	const meta = document.createElement('div')
-	meta.className = 'log-item-meta'
-	meta.textContent = time + ' · ' + level.toUpperCase()
+	const body = document.createElement('div')
 
 	const msg = document.createElement('div')
 	msg.className = 'log-item-message'
@@ -99,9 +98,16 @@ export function appendLog(entry: LogEntry | string): void {
 		msg.appendChild(lineEl)
 	})
 
+	const meta = document.createElement('div')
+	meta.className = 'log-item-meta'
+	meta.textContent = `${level.toUpperCase()} · ${time}`
+
+	body.appendChild(msg)
+	body.appendChild(meta)
+
 	item.appendChild(dot)
-	item.appendChild(meta)
-	item.appendChild(msg)
+	item.appendChild(body)
+
 	logsViewList.insertBefore(item, logsViewList.firstChild)
 
 	while (logsViewList.children.length > maxLogs) {
@@ -122,7 +128,7 @@ export function appendLog(entry: LogEntry | string): void {
 		navLogs.classList.remove(
 			'sidebar-nav-item-error',
 			'sidebar-nav-item-success',
-			'sidebar-nav-item-warn'
+			'sidebar-nav-item-warn',
 		)
 
 		let highlightClass: string | null = null
@@ -137,7 +143,6 @@ export function appendLog(entry: LogEntry | string): void {
 
 		if (highlightClass) {
 			navLogs.classList.add(highlightClass)
-
 			setTimeout(() => {
 				navLogs.classList.remove(highlightClass as string)
 			}, 5000)
@@ -190,7 +195,7 @@ function formatDuration(ms: number): string {
 
 function startUptimeTimer() {
 	const infoUptime = document.getElementById(
-		'info-uptime'
+		'info-uptime',
 	) as HTMLElement | null
 	if (!infoUptime) return
 
@@ -211,7 +216,7 @@ function startUptimeTimer() {
 
 function stopUptimeTimer() {
 	const infoUptime = document.getElementById(
-		'info-uptime'
+		'info-uptime',
 	) as HTMLElement | null
 	if (uptimeTimer) {
 		window.clearInterval(uptimeTimer)
@@ -224,25 +229,25 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	const title = document.getElementById('activity-title') as HTMLElement | null
 	const sub = document.getElementById('activity-sub') as HTMLElement | null
 	const infoButtons = document.getElementById(
-		'info-buttons'
+		'info-buttons',
 	) as HTMLElement | null
 	const infoObject = document.getElementById(
-		'info-object'
+		'info-object',
 	) as HTMLElement | null
 	const infoDetails = document.getElementById(
-		'info-details'
+		'info-details',
 	) as HTMLElement | null
 	const infoStatus = document.getElementById(
-		'info-status'
+		'info-status',
 	) as HTMLElement | null
 	const metaObject = document.getElementById(
-		'meta-object'
+		'meta-object',
 	) as HTMLElement | null
 	const metaButtons = document.getElementById(
-		'meta-buttons'
+		'meta-buttons',
 	) as HTMLElement | null
 	const infoUptime = document.getElementById(
-		'info-uptime'
+		'info-uptime',
 	) as HTMLElement | null
 
 	if (

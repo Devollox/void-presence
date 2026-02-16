@@ -20,7 +20,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 			largeText: string
 			smallImage: string
 			smallText: string
-		}[]
+		}[],
 	) => ipcRenderer.invoke('set-image-cycles', cycles),
 	setButtons: (
 		pairs: {
@@ -28,7 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 			url1: string
 			label2: string
 			url2: string
-		}[]
+		}[],
 	) => ipcRenderer.invoke('set-buttons', pairs),
 	setCycles: (entries: { details: string; state: string }[]) =>
 		ipcRenderer.invoke('set-cycles', entries),

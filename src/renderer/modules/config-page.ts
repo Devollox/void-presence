@@ -292,6 +292,50 @@ export function setupConfigPage(): void {
 
 	if (!nameInput || !saveBtn || !list || !addBtn || !exportBtn) return
 
+	function openUploadConfirm(cfg: StoredConfig, onConfirm: () => void) {
+		const overlay = document.getElementById(
+			'upload-confirm-overlay',
+		) as HTMLElement | null
+		if (!overlay) return
+
+		const closeBtn = document.getElementById(
+			'upload-confirm-close',
+		) as HTMLButtonElement | null
+		const okBtn = document.getElementById(
+			'upload-confirm-ok',
+		) as HTMLButtonElement | null
+		const info = document.getElementById(
+			'upload-confirm-profile-info',
+		) as HTMLElement | null
+
+		if (!closeBtn || !okBtn || !info) return
+
+		info.textContent = cfg.name || 'Unnamed profile'
+		overlay.dataset.open = 'true'
+
+		const close = () => {
+			overlay.dataset.open = 'false'
+			okBtn.removeEventListener('click', okHandler)
+			closeBtn.removeEventListener('click', close)
+			overlay.removeEventListener('click', overlayHandler)
+		}
+
+		const okHandler = () => {
+			close()
+			onConfirm()
+		}
+
+		const overlayHandler = (e: MouseEvent) => {
+			if (e.target === overlay) {
+				close()
+			}
+		}
+
+		okBtn.addEventListener('click', okHandler)
+		closeBtn.addEventListener('click', close)
+		overlay.addEventListener('click', overlayHandler)
+	}
+
 	function renderConfigs(): void {
 		const configs = getConfigs()
 			.slice()
@@ -406,76 +450,78 @@ export function setupConfigPage(): void {
 				setActiveView('main')
 			})
 
-			uploadCloudBtn.addEventListener('click', async e => {
+			uploadCloudBtn.addEventListener('click', e => {
 				e.preventDefault()
 
-				const authorInput = document.getElementById(
-					'config-author-input',
-				) as HTMLInputElement | null
+				openUploadConfirm(cfg, async () => {
+					const authorInput = document.getElementById(
+						'config-author-input',
+					) as HTMLInputElement | null
 
-				if (!authorInput?.value.trim()) {
-					appendLog({
-						message: 'Enter author ID first',
-						level: 'error',
-					})
-					return
-				}
-
-				const authorId = authorInput.value.trim()
-
-				if (!window.electronAPI?.uploadConfig) {
-					appendLog({
-						message: 'Cloud upload is not available',
-						level: 'error',
-					})
-					return
-				}
-
-				const stateFromConfig: FullState = {
-					clientId: cfg.state?.clientId ?? '',
-					updateIntervalSec: cfg.state?.updateIntervalSec ?? '',
-					buttonPairs: Array.isArray(cfg.state?.buttonPairs)
-						? cfg.state!.buttonPairs
-						: [],
-					cycles: Array.isArray(cfg.state?.cycles) ? cfg.state!.cycles : [],
-					imageCycles: Array.isArray(cfg.state?.imageCycles)
-						? cfg.state!.imageCycles
-						: [],
-				}
-
-				try {
-					uploadCloudBtn.disabled = true
-					uploadCloudBtn.innerHTML = 'uploading...'
-
-					const safeState = JSON.parse(
-						JSON.stringify(stateFromConfig, (key, value) =>
-							key === 'clientId' ? undefined : value,
-						),
-					) as FullState
-
-					const config = {
-						title: cfg.name || 'Unnamed profile',
-						authorId,
-						authorName: '',
-						description: `Uploaded ${new Date().toLocaleDateString()}`,
-						configData: safeState,
+					if (!authorInput?.value.trim()) {
+						appendLog({
+							message: 'Enter author ID first',
+							level: 'error',
+						})
+						return
 					}
 
-					await window.electronAPI.uploadConfig(config)
+					const authorId = authorInput.value.trim()
 
-					appendLog({
-						message: `Config "${config.title}" uploaded!`,
-						level: 'success',
-					})
-				} catch (err: any) {
-					appendLog({
-						message: `Upload failed: ${err?.message ?? String(err)}`,
-						level: 'error',
-					})
-				} finally {
-					uploadCloudBtn.disabled = false
-					uploadCloudBtn.innerHTML = 'upload'
-				}
+					if (!window.electronAPI?.uploadConfig) {
+						appendLog({
+							message: 'Cloud upload is not available',
+							level: 'error',
+						})
+						return
+					}
+
+					const stateFromConfig: FullState = {
+						clientId: cfg.state?.clientId ?? '',
+						updateIntervalSec: cfg.state?.updateIntervalSec ?? '',
+						buttonPairs: Array.isArray(cfg.state?.buttonPairs)
+							? cfg.state!.buttonPairs
+							: [],
+						cycles: Array.isArray(cfg.state?.cycles) ? cfg.state!.cycles : [],
+						imageCycles: Array.isArray(cfg.state?.imageCycles)
+							? cfg.state!.imageCycles
+							: [],
+					}
+
+					try {
+						uploadCloudBtn.disabled = true
+						uploadCloudBtn.innerHTML = 'uploading...'
+
+						const safeState = JSON.parse(
+							JSON.stringify(stateFromConfig, (key, value) =>
+								key === 'clientId' ? undefined : value,
+							),
+						) as FullState
+
+						const config = {
+							title: cfg.name || 'Unnamed profile',
+							authorId,
+							authorName: '',
+							description: `Uploaded ${new Date().toLocaleDateString()}`,
+							configData: safeState,
+						}
+
+						await window.electronAPI.uploadConfig(config)
+
+						appendLog({
+							message: `Config "${config.title}" uploaded!`,
+							level: 'success',
+						})
+					} catch (err: any) {
+						appendLog({
+							message: `Upload failed: ${err?.message ?? String(err)}`,
+							level: 'error',
+						})
+					} finally {
+						uploadCloudBtn.disabled = false
+						uploadCloudBtn.innerHTML = 'upload'
+					}
+				})
 			})
 
 			detailsBtn.addEventListener('click', e => {
@@ -822,10 +868,26 @@ export function setupClientIdControls(): void {
 		ctx.renderImageCycles()
 	})
 
+	const copyToastId = 'vp-copy-toast'
+	function showCopyToast(): void {
+		let toast = document.getElementById(copyToastId) as HTMLDivElement | null
+		if (!toast) {
+			toast = document.createElement('div')
+			toast.id = copyToastId
+			toast.className = 'copy-toast'
+			toast.textContent = 'Client ID copied'
+			document.body.appendChild(toast)
+		}
+		toast.dataset.visible = 'true'
+		window.setTimeout(() => {
+			toast && (toast.dataset.visible = 'false')
+		}, 2000)
+	}
 	function renderRecentApps(): void {
 		const items = getRecentApps()
 		recentList.innerHTML = ''
 		if (!items.length) return
+
 		items.forEach(item => {
 			const row = document.createElement('div')
 			row.className = 'cycle-row'
@@ -841,7 +903,7 @@ export function setupClientIdControls(): void {
 			const idText = document.createElement('input')
 			idText.value = item.id
 			idText.readOnly = true
-			idText.className = 'cycle-row input'
+			idText.className = 'cycle-row input id-click'
 
 			const remove = document.createElement('button')
 			remove.className = 'remove-btn'
@@ -854,12 +916,30 @@ export function setupClientIdControls(): void {
 
 			row.addEventListener('click', async e => {
 				const target = e.target as HTMLElement
-				if (target.tagName === 'BUTTON') return
+
+				if (
+					target.tagName === 'BUTTON' ||
+					target.closest('button') === remove
+				) {
+					return
+				}
+
+				if (target === nameInput || target.closest('input') === nameInput) {
+					return
+				}
+
+				const inInputsWrap = !!target.closest('.cycle-inputs')
+				if (!inInputsWrap) {
+					return
+				}
+
 				clientInput.value = item.id
 				localStorage.setItem('clientId', item.id)
+
 				try {
 					if (navigator.clipboard && navigator.clipboard.writeText) {
 						await navigator.clipboard.writeText(item.id)
+						showCopyToast()
 					}
 				} catch {}
 			})

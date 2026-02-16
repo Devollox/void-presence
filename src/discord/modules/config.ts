@@ -174,7 +174,7 @@ export async function setImageCyclesConfig(
 		largeText: string
 		smallImage: string
 		smallText: string
-	}[]
+	}[],
 ) {
 	const cleaned: ImageCycle[] = cycles.map(c => ({
 		largeImage: c.largeImage.trim() || null,

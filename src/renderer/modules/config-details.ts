@@ -3,7 +3,7 @@ import { StoredConfig } from './types'
 function renderList(
 	listEl: HTMLElement,
 	items: any[],
-	type: 'cycles' | 'images' | 'buttons'
+	type: 'cycles' | 'images' | 'buttons',
 ): void {
 	listEl.innerHTML = ''
 	if (!items || !items.length) {
@@ -118,19 +118,19 @@ function renderList(
 
 export function openConfigDetails(cfg: StoredConfig): void {
 	const overlay = document.getElementById(
-		'config-details-overlay'
+		'config-details-overlay',
 	) as HTMLElement | null
 	const nameEl = document.getElementById(
-		'config-details-name'
+		'config-details-name',
 	) as HTMLElement | null
 	const cyclesEl = document.getElementById(
-		'config-details-cycles'
+		'config-details-cycles',
 	) as HTMLElement | null
 	const imagesEl = document.getElementById(
-		'config-details-images'
+		'config-details-images',
 	) as HTMLElement | null
 	const buttonsEl = document.getElementById(
-		'config-details-buttons'
+		'config-details-buttons',
 	) as HTMLElement | null
 	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl) {
 		return
@@ -145,10 +145,10 @@ export function openConfigDetails(cfg: StoredConfig): void {
 
 export function setupConfigDetailsOverlay(): void {
 	const overlay = document.getElementById(
-		'config-details-overlay'
+		'config-details-overlay',
 	) as HTMLElement | null
 	const closeBtn = document.getElementById(
-		'config-details-close'
+		'config-details-close',
 	) as HTMLButtonElement | null
 	if (!overlay || !closeBtn) return
 

@@ -58,11 +58,11 @@ export function initIpc() {
 				largeText: string
 				smallImage: string
 				smallText: string
-			}[]
+			}[],
 		) => {
 			await setImageCyclesConfig(cycles)
 			return true
-		}
+		},
 	)
 
 	ipcMain.handle(
@@ -74,11 +74,11 @@ export function initIpc() {
 				url1: string
 				label2: string
 				url2: string
-			}[]
+			}[],
 		) => {
 			await setButtonsConfig(pairs)
 			return true
-		}
+		},
 	)
 
 	ipcMain.handle(
@@ -86,7 +86,7 @@ export function initIpc() {
 		async (_event, entries: { details: string; state: string }[]) => {
 			await setCycles(entries)
 			return true
-		}
+		},
 	)
 
 	ipcMain.handle('set-activity-interval', async (_event, sec: number) => {
@@ -103,7 +103,7 @@ export function initIpc() {
 			}
 			const authorName = user.name
 			return uploadConfigToCloud({ ...payload, authorName })
-		}
+		},
 	)
 
 	ipcMain.handle('set-auto-launch', async (_event, enabled: boolean) => {
