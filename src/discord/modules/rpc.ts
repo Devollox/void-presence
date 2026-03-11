@@ -111,6 +111,9 @@ export default function startDiscordRich(
 		if (timestampConfig.mode === 'persist') {
 			persistOffsetSecBase = timestampConfig.persistOffsetSec ?? 0
 			persistSessionStart = Date.now()
+		} else {
+			persistOffsetSecBase = 0
+			persistSessionStart = 0
 		}
 
 		function getTimestampsForActivity() {
