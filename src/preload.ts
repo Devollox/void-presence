@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { PartyConfig } from './discord/modules/types'
 import { UploadConfigPayload } from './main/cloud'
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -43,4 +44,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('set-activity-interval', sec),
 	uploadConfig: (config: UploadConfigPayload) =>
 		ipcRenderer.invoke('cloud:uploadConfig', config),
+	setPartySize: (sizeCurrent: number, sizeMax: number) =>
+		ipcRenderer.invoke('set-party-size', { sizeCurrent, sizeMax }),
+	setPartyConfig: (config: PartyConfig) =>
+		ipcRenderer.invoke('set-party-config', config),
+	setTimestampConfig: (cfg: {
+		mode: 'now' | 'range' | 'persist'
+		rangeMin: number | null
+		rangeMax: number | null
+	}) => ipcRenderer.invoke('set-timestamp-config', cfg),
+	resetPersistTimestamp: () => ipcRenderer.invoke('reset-persist-timestamp'),
 })

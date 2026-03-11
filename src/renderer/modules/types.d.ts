@@ -42,12 +42,18 @@ export interface ImageCycleEntry {
 	smallText: string
 }
 
+export type TimestampMode = 'now' | 'range' | 'persist'
+
 export interface FullState {
 	clientId?: string
 	updateIntervalSec?: number | string
 	buttonPairs?: ButtonPair[]
 	cycles?: CycleEntry[]
 	imageCycles?: ImageCycleEntry[]
+	party?: PartyCycleEntry[]
+	timestampMode?: TimestampMode
+	timestampRangeMin?: number | string
+	timestampRangeMax?: number | string
 }
 
 export interface StoredConfig {
@@ -56,16 +62,40 @@ export interface StoredConfig {
 	createdAt?: string
 }
 
+export interface PartyCycleEntry {
+	sizeCurrent: any
+	sizeMax: any
+	skip?: boolean
+}
+
+export interface PartyConfig {
+	entries: PartyCycleEntry[]
+}
+
 export interface VoidPresenceCtx {
+	party?: PartyCycleEntry[]
 	buttonPairs: ButtonPair[]
 	cycles: CycleEntry[]
 	imageCycles: ImageCycleEntry[]
 	renderButtonPairs: () => void
 	renderCycles: () => void
 	renderImageCycles: () => void
+	renderPartyCycles: () => void
 }
 
 export interface ElectronAPI {
+	resetPersistTimestamp(): unknown
+	setTimestampConfig(arg0: {
+		mode: TimestampMode
+		rangeMin: number
+		rangeMax: number
+	}): unknown
+	setPartyConfig?: (config: PartyConfig) => Promise<void>
+	setPartySize?: (
+		sizeCurrent: number,
+		sizeMax: number,
+	) => Promise<unknown> | unknown
+	setPartySize(sizeCurrent: number, sizeMax: number): unknown
 	onLogMessage?: (handler: (entry: LogEntry) => void) => void
 	onRpcUpdate?: (handler: (payload: RichPresencePayload) => void) => void
 	onRpcStatus?: (handler: (status: string) => void) => void

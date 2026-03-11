@@ -8,6 +8,9 @@ import {
 	CyclesConfig,
 	ImageCycle,
 	ImageCyclesConfig,
+	PartyConfig,
+	PartyCycleEntry,
+	TimestampConfig,
 } from './types'
 
 function getConfigPath(name: string) {
@@ -31,6 +34,14 @@ function getImageCyclesConfigPath() {
 	return getConfigPath('image-cycles.json')
 }
 
+function getPartyConfigPath() {
+	return getConfigPath('party-config.json')
+}
+
+function getTimestampConfigPath() {
+	return getConfigPath('timestamp-config.json')
+}
+
 export async function readClientConfig(): Promise<ClientConfig> {
 	const configPath = getClientConfigPath()
 	try {
@@ -52,19 +63,16 @@ export async function writeClientConfig(config: ClientConfig) {
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
 }
 
-function normalizeButtonPair(p: any): ButtonPair | null {
-	const label1 = (p.label1 || '').toString().trim()
-	const url1 = (p.url1 || '').toString().trim()
-	const label2 = (p.label2 || '').toString().trim()
-	const url2 = (p.url2 || '').toString().trim()
-
-	const has1 = label1.length > 0 && url1.length > 0
-	const has2 = label2.length > 0 && url2.length > 0
-
-	if (!has1 && !has2) return null
-	if (has1 && !has2) return { label1, url1 }
-	if (!has1 && has2) return { label1: label2, url1: url2 }
-	return { label1, url1, label2, url2 }
+function normalizeButtonPairLoose(p: any): ButtonPair {
+	return {
+		label1: typeof p.label1 === 'string' ? p.label1 : '',
+		url1: typeof p.url1 === 'string' ? p.url1 : '',
+		label2:
+			typeof p.label2 === 'string' && p.label2.length > 0
+				? p.label2
+				: undefined,
+		url2: typeof p.url2 === 'string' && p.url2.length > 0 ? p.url2 : undefined,
+	}
 }
 
 export async function readButtonsConfig(): Promise<ButtonsConfig> {
@@ -73,10 +81,9 @@ export async function readButtonsConfig(): Promise<ButtonsConfig> {
 		const raw = await fs.readFile(configPath, 'utf-8')
 		const parsed = JSON.parse(raw) as Partial<ButtonsConfig>
 		const pairs = Array.isArray(parsed.pairs) ? parsed.pairs : []
-		const cleaned = pairs
-			.map(normalizeButtonPair)
-			.filter((p): p is ButtonPair => !!p)
-		return { pairs: cleaned }
+		return {
+			pairs: pairs.map(normalizeButtonPairLoose),
+		}
 	} catch {
 		return { pairs: [] }
 	}
@@ -94,16 +101,10 @@ export async function readCyclesConfig(): Promise<CyclesConfig> {
 		const parsed = JSON.parse(raw) as Partial<CyclesConfig>
 		const entries = Array.isArray(parsed.entries) ? parsed.entries : []
 		return {
-			entries: entries
-				.map(e => {
-					const details = (e.details || '').toString().trim()
-					let state = (e.state || '').toString().trim()
-					if (state.length > 0 && state.length < 2) {
-						state = ''
-					}
-					return { details, state }
-				})
-				.filter(e => e.details.length > 0 || e.state.length >= 2),
+			entries: entries.map(e => ({
+				details: (e as any).details?.toString() ?? '',
+				state: (e as any).state?.toString() ?? '',
+			})),
 		}
 	} catch {
 		return { entries: [] }
@@ -123,10 +124,22 @@ export async function readImageCyclesConfig(): Promise<ImageCyclesConfig> {
 		const arr = Array.isArray(parsed.cycles) ? parsed.cycles : []
 		return {
 			cycles: arr.map(c => ({
-				largeImage: c.largeImage?.toString().trim() || null,
-				largeText: c.largeText?.toString().trim() || null,
-				smallImage: c.smallImage?.toString().trim() || null,
-				smallText: c.smallText?.toString().trim() || null,
+				largeImage:
+					(c as any).largeImage === null || (c as any).largeImage === undefined
+						? null
+						: (c as any).largeImage.toString(),
+				largeText:
+					(c as any).largeText === null || (c as any).largeText === undefined
+						? null
+						: (c as any).largeText.toString(),
+				smallImage:
+					(c as any).smallImage === null || (c as any).smallImage === undefined
+						? null
+						: (c as any).smallImage.toString(),
+				smallText:
+					(c as any).smallText === null || (c as any).smallText === undefined
+						? null
+						: (c as any).smallText.toString(),
 			})),
 		}
 	} catch {
@@ -139,6 +152,65 @@ export async function writeImageCyclesConfig(config: ImageCyclesConfig) {
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
 }
 
+export async function readPartyConfig(): Promise<PartyConfig | null> {
+	const configPath = getPartyConfigPath()
+	try {
+		const raw = await fs.readFile(configPath, 'utf-8')
+		const parsed = JSON.parse(raw) as any
+		const entriesRaw = Array.isArray(parsed.entries) ? parsed.entries : []
+		const entries: PartyCycleEntry[] = entriesRaw.map((p: any) => ({
+			sizeCurrent:
+				p?.sizeCurrent === null || p?.sizeCurrent === undefined
+					? null
+					: Number(p.sizeCurrent),
+			sizeMax:
+				p?.sizeMax === null || p?.sizeMax === undefined
+					? null
+					: Number(p.sizeMax),
+		}))
+		return { entries }
+	} catch {
+		return null
+	}
+}
+
+export async function writePartyConfig(config: PartyConfig | null) {
+	const configPath = getPartyConfigPath()
+	if (!config || !Array.isArray(config.entries)) {
+		try {
+			await fs.unlink(configPath)
+		} catch {}
+		return
+	}
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+}
+
+export async function readTimestampConfig(): Promise<TimestampConfig> {
+	const configPath = getTimestampConfigPath()
+	try {
+		const raw = await fs.readFile(configPath, 'utf-8')
+		const parsed = JSON.parse(raw) as Partial<TimestampConfig>
+		const mode =
+			parsed.mode === 'range' || parsed.mode === 'persist' ? parsed.mode : 'now'
+		const min =
+			typeof parsed.rangeMin === 'number' && Number.isFinite(parsed.rangeMin)
+				? parsed.rangeMin
+				: null
+		const max =
+			typeof parsed.rangeMax === 'number' && Number.isFinite(parsed.rangeMax)
+				? parsed.rangeMax
+				: null
+		return { mode, rangeMin: min, rangeMax: max }
+	} catch {
+		return { mode: 'now', rangeMin: null, rangeMax: null }
+	}
+}
+
+export async function writeTimestampConfig(config: TimestampConfig) {
+	const configPath = getTimestampConfigPath()
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+}
+
 export async function setClientId(clientId: string) {
 	const cfg = await readClientConfig()
 	cfg.clientId = clientId.trim() || null
@@ -146,41 +218,78 @@ export async function setClientId(clientId: string) {
 }
 
 export async function setButtonsConfig(pairs: ButtonPair[]) {
-	const cleaned = pairs
-		.map(normalizeButtonPair)
-		.filter((p): p is ButtonPair => !!p)
+	const cleaned: ButtonPair[] = (Array.isArray(pairs) ? pairs : []).map(p => ({
+		label1: (p.label1 ?? '').toString(),
+		url1: (p.url1 ?? '').toString(),
+		label2: p.label2 ?? undefined,
+		url2: p.url2 ?? undefined,
+	}))
 	await writeButtonsConfig({ pairs: cleaned })
 }
 
 export async function setCycles(entries: { details: string; state: string }[]) {
-	const cleaned = entries
-		.map(e => ({
-			details: (e.details || '').trim(),
-			state: (e.state || '').trim(),
-		}))
-		.map(e => {
-			if (e.state.length > 0 && e.state.length < 2) {
-				e.state = ''
-			}
-			return e
-		})
-		.filter(e => e.details.length > 0 || e.state.length >= 2)
+	const cleaned = (Array.isArray(entries) ? entries : []).map(e => ({
+		details: (e.details ?? '').toString(),
+		state: (e.state ?? '').toString(),
+	}))
 	await writeCyclesConfig({ entries: cleaned })
 }
 
 export async function setImageCyclesConfig(
 	cycles: {
-		largeImage: string
-		largeText: string
-		smallImage: string
-		smallText: string
+		largeImage: string | null
+		largeText: string | null
+		smallImage: string | null
+		smallText: string | null
 	}[],
 ) {
-	const cleaned: ImageCycle[] = cycles.map(c => ({
-		largeImage: c.largeImage.trim() || null,
-		largeText: c.largeText.trim() || null,
-		smallImage: c.smallImage.trim() || null,
-		smallText: c.smallText.trim() || null,
-	}))
+	const cleaned: ImageCycle[] = (Array.isArray(cycles) ? cycles : []).map(
+		c => ({
+			largeImage:
+				c.largeImage === null || c.largeImage === undefined
+					? null
+					: c.largeImage.toString(),
+			largeText:
+				c.largeText === null || c.largeText === undefined
+					? null
+					: c.largeText.toString(),
+			smallImage:
+				c.smallImage === null || c.smallImage === undefined
+					? null
+					: c.smallImage.toString(),
+			smallText:
+				c.smallText === null || c.smallText === undefined
+					? null
+					: c.smallText.toString(),
+		}),
+	)
 	await writeImageCyclesConfig({ cycles: cleaned })
+}
+
+export async function setPartyConfig(config: PartyConfig) {
+	const entriesRaw = Array.isArray(config.entries) ? config.entries : []
+	const cleaned: PartyCycleEntry[] = entriesRaw.map(p => ({
+		sizeCurrent:
+			p.sizeCurrent === null || p.sizeCurrent === undefined
+				? null
+				: Number(p.sizeCurrent),
+		sizeMax:
+			p.sizeMax === null || p.sizeMax === undefined ? null : Number(p.sizeMax),
+	}))
+	const finalCfg: PartyConfig = { entries: cleaned }
+	await writePartyConfig(finalCfg)
+}
+
+export async function setTimestampConfig(config: TimestampConfig) {
+	const mode =
+		config.mode === 'range' || config.mode === 'persist' ? config.mode : 'now'
+	const min =
+		config.rangeMin != null && Number.isFinite(config.rangeMin)
+			? Number(config.rangeMin)
+			: null
+	const max =
+		config.rangeMax != null && Number.isFinite(config.rangeMax)
+			? Number(config.rangeMax)
+			: null
+	await writeTimestampConfig({ mode, rangeMin: min, rangeMax: max })
 }

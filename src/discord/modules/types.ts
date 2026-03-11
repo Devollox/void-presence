@@ -46,3 +46,19 @@ export type ImageCycle = {
 export type ImageCyclesConfig = {
 	cycles: ImageCycle[]
 }
+
+export interface PartyCycleEntry {
+	sizeCurrent: number | null
+	sizeMax: number | null
+}
+
+export interface PartyConfig {
+	entries: PartyCycleEntry[]
+}
+export type TimestampMode = 'now' | 'range' | 'persist'
+
+export interface TimestampConfig {
+	mode: TimestampMode
+	rangeMin: number | null
+	rangeMax: number | null
+}

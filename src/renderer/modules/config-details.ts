@@ -3,7 +3,7 @@ import { StoredConfig } from './types'
 function renderList(
 	listEl: HTMLElement,
 	items: any[],
-	type: 'cycles' | 'images' | 'buttons',
+	type: 'cycles' | 'images' | 'buttons' | 'party',
 ): void {
 	listEl.innerHTML = ''
 	if (!items || !items.length) {
@@ -14,7 +14,9 @@ function renderList(
 				? 'No cycles saved'
 				: type === 'images'
 					? 'No image configuration'
-					: 'No buttons configured'
+					: type === 'buttons'
+						? 'No buttons configured'
+						: 'No party configured'
 		listEl.appendChild(empty)
 		return
 	}
@@ -108,6 +110,24 @@ function renderList(
 				main.appendChild(metaLabel)
 				main.appendChild(metaUrlPill)
 			}
+		} else if (type === 'party') {
+			const label = document.createElement('div')
+			label.className = 'config-details-item-label'
+			label.textContent = 'Party size'
+
+			const sub = document.createElement('div')
+			sub.className = 'config-details-item-sub'
+			sub.textContent = `Current: ${item.sizeCurrent ?? '-'} | Max: ${
+				item.sizeMax ?? '-'
+			}`
+
+			main.appendChild(label)
+			main.appendChild(sub)
+
+			const pill = document.createElement('div')
+			pill.className = 'config-details-pill'
+			pill.textContent = `#${idx + 1}`
+			meta.appendChild(pill)
 		}
 
 		row.appendChild(main)
@@ -132,14 +152,22 @@ export function openConfigDetails(cfg: StoredConfig): void {
 	const buttonsEl = document.getElementById(
 		'config-details-buttons',
 	) as HTMLElement | null
-	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl) {
+	const partyEl = document.getElementById(
+		'config-details-party',
+	) as HTMLElement | null
+
+	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl || !partyEl) {
 		return
 	}
+
 	const state = cfg.state || {}
+
 	nameEl.textContent = cfg.name || 'Unnamed profile'
 	renderList(cyclesEl, state.cycles || [], 'cycles')
 	renderList(imagesEl, state.imageCycles || [], 'images')
 	renderList(buttonsEl, state.buttonPairs || [], 'buttons')
+	renderList(partyEl, Array.isArray(state.party) ? state.party : [], 'party')
+
 	overlay.dataset.open = 'true'
 }
 

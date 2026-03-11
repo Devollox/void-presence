@@ -1,3 +1,4 @@
+import { PartyCycleEntry } from 'src/discord/modules/types'
 import { openConfigDetails } from './config-details'
 import {
 	applyStateToUIAndLists,
@@ -10,6 +11,7 @@ import {
 	FullState,
 	ImageCycleEntry,
 	StoredConfig,
+	TimestampMode,
 	VoidPresenceCtx,
 } from './types'
 import { appendLog, setActiveView } from './views'
@@ -116,11 +118,11 @@ function createButtonPairRow(
 	input2.value = pair.url1 || ''
 
 	const input3 = document.createElement('input')
-	input3.placeholder = 'Button Name #2'
+	input3.placeholder = 'Button Name #2 (optional)'
 	input3.value = pair.label2 || ''
 
 	const input4 = document.createElement('input')
-	input4.placeholder = 'URL #2'
+	input4.placeholder = 'URL #2 (optional)'
 	input4.value = pair.url2 || ''
 
 	const remove = document.createElement('button')
@@ -207,6 +209,55 @@ function createCycleRow(
 	return row
 }
 
+function createPartyRow(
+	party: PartyCycleEntry,
+	index: number,
+	onChange: (party: PartyCycleEntry) => void,
+	onRemove: () => void,
+): HTMLDivElement {
+	const row = document.createElement('div')
+	row.className = 'party-row'
+	row.dataset.index = String(index)
+	row.draggable = true
+
+	const wrap = document.createElement('div')
+	wrap.className = 'party-inputs'
+
+	const currentInput = document.createElement('input')
+	currentInput.placeholder = 'Current party size'
+	currentInput.value = party.sizeCurrent?.toString() ?? ''
+
+	const maxInput = document.createElement('input')
+	maxInput.placeholder = 'Max party size'
+	maxInput.value = party.sizeMax?.toString() ?? ''
+
+	const remove = document.createElement('button')
+	remove.className = 'remove-btn'
+	remove.textContent = '×'
+
+	const updateParty = () => {
+		onChange({
+			sizeCurrent: currentInput.value,
+			sizeMax: maxInput.value,
+		} as any)
+	}
+
+	currentInput.addEventListener('input', updateParty)
+	maxInput.addEventListener('input', updateParty)
+
+	remove.addEventListener('click', e => {
+		e.preventDefault()
+		onRemove()
+	})
+
+	row.appendChild(remove)
+	wrap.appendChild(currentInput)
+	wrap.appendChild(maxInput)
+	row.appendChild(wrap)
+
+	return row
+}
+
 function createImageCycleRow(
 	entry: ImageCycleEntry,
 	index: number,
@@ -230,11 +281,11 @@ function createImageCycleRow(
 	largeText.value = entry.largeText || ''
 
 	const smallKey = document.createElement('input')
-	smallKey.placeholder = 'Small image URL(.png/.jpeg/.gif and etc)'
+	smallKey.placeholder = 'Small image URL(.png/.jpeg/.gif and etc) (optional)'
 	smallKey.value = entry.smallImage || ''
 
 	const smallText = document.createElement('input')
-	smallText.placeholder = 'Small hover text'
+	smallText.placeholder = 'Small hover text (optional)'
 	smallText.value = entry.smallText || ''
 
 	const remove = document.createElement('button')
@@ -442,7 +493,9 @@ export function setupConfigPage(): void {
 					imageCycles: Array.isArray(state.imageCycles)
 						? state.imageCycles
 						: [],
+					party: Array.isArray(state.party) ? state.party : [],
 				}
+
 				const st = deepCloneState(base)
 				applyStateToUIAndLists(st, ctx)
 				await saveAllFromState(st)
@@ -486,6 +539,7 @@ export function setupConfigPage(): void {
 						imageCycles: Array.isArray(cfg.state?.imageCycles)
 							? cfg.state!.imageCycles
 							: [],
+						party: Array.isArray(state.party) ? state.party : [],
 					}
 
 					try {
@@ -536,6 +590,7 @@ export function setupConfigPage(): void {
 					cycles: (state.cycles && state.cycles.slice()) || [],
 					imageCycles: (state.imageCycles && state.imageCycles.slice()) || [],
 					buttonPairs: (state.buttonPairs && state.buttonPairs.slice()) || [],
+					party: Array.isArray(state.party) ? state.party.slice() : undefined,
 				}
 				const name =
 					cfg.name || `void-presence-${new Date().toISOString().slice(0, 10)}`
@@ -606,6 +661,7 @@ export function setupConfigPage(): void {
 			cycles: state.cycles || [],
 			imageCycles: state.imageCycles || [],
 			buttonPairs: state.buttonPairs || [],
+			party: state.party || [],
 		}
 		const name =
 			nameInput.value.trim() ||
@@ -645,6 +701,89 @@ export function setupClientIdControls(): void {
 		'recent-list',
 	) as HTMLElement | null
 
+	const partyList = document.getElementById('party-list') as HTMLElement | null
+	const addParty = document.getElementById(
+		'add-party',
+	) as HTMLButtonElement | null
+	const modeNow = document.getElementById(
+		'timestamp-mode-now',
+	) as HTMLButtonElement | null
+	const modeRange = document.getElementById(
+		'timestamp-mode-range',
+	) as HTMLButtonElement | null
+	const modePersist = document.getElementById(
+		'timestamp-mode-persist',
+	) as HTMLButtonElement | null
+	const rangeMinInput = document.getElementById(
+		'timestamp-range-min',
+	) as HTMLInputElement | null
+	const rangeMaxInput = document.getElementById(
+		'timestamp-range-max',
+	) as HTMLInputElement | null
+	const persistResetBtn = document.getElementById(
+		'timestamp-persist-reset',
+	) as HTMLButtonElement | null
+	const rangeRows = document.querySelectorAll<HTMLElement>(
+		'.timestamp-range-row',
+	)
+	const persistRow = document.querySelector<HTMLElement>(
+		'.timestamp-persist-row',
+	)
+
+	const storedMode =
+		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
+	const storedMin = localStorage.getItem('timestampRangeMin') || ''
+	const storedMax = localStorage.getItem('timestampRangeMax') || ''
+
+	if (rangeMinInput) rangeMinInput.value = storedMin
+	if (rangeMaxInput) rangeMaxInput.value = storedMax
+
+	function setMode(m: TimestampMode) {
+		if (modeNow) modeNow.dataset.active = m === 'now' ? 'true' : 'false'
+		if (modeRange) modeRange.dataset.active = m === 'range' ? 'true' : 'false'
+		if (modePersist)
+			modePersist.dataset.active = m === 'persist' ? 'true' : 'false'
+		rangeRows.forEach(row => {
+			row.dataset.visible = m === 'range' ? 'true' : 'false'
+		})
+		if (persistRow) {
+			persistRow.dataset.visible = m === 'persist' ? 'true' : 'false'
+		}
+		localStorage.setItem('timestampMode', m)
+	}
+
+	setMode(storedMode)
+
+	modeNow?.addEventListener('click', e => {
+		e.preventDefault()
+		setMode('now')
+	})
+
+	modeRange?.addEventListener('click', e => {
+		e.preventDefault()
+		setMode('range')
+	})
+
+	modePersist?.addEventListener('click', e => {
+		e.preventDefault()
+		setMode('persist')
+	})
+
+	rangeMinInput?.addEventListener('input', () => {
+		localStorage.setItem('timestampRangeMin', rangeMinInput.value)
+	})
+
+	rangeMaxInput?.addEventListener('input', () => {
+		localStorage.setItem('timestampRangeMax', rangeMaxInput.value)
+	})
+
+	persistResetBtn?.addEventListener('click', e => {
+		e.preventDefault()
+		if (window.electronAPI?.resetPersistTimestamp) {
+			window.electronAPI.resetPersistTimestamp()
+		}
+	})
+
 	if (
 		!clientInput ||
 		!saveBtn ||
@@ -666,9 +805,11 @@ export function setupClientIdControls(): void {
 		buttonPairs: [],
 		cycles: [],
 		imageCycles: [],
+		party: [],
 		renderButtonPairs: () => {},
 		renderCycles: () => {},
 		renderImageCycles: () => {},
+		renderPartyCycles: () => {},
 	}
 
 	try {
@@ -684,6 +825,11 @@ export function setupClientIdControls(): void {
 	try {
 		const rawImages = localStorage.getItem('imageCycles')
 		if (rawImages) ctx.imageCycles = JSON.parse(rawImages) as ImageCycleEntry[]
+	} catch {}
+
+	try {
+		const rawParty = localStorage.getItem('party')
+		if (rawParty) ctx.party = JSON.parse(rawParty) as PartyCycleEntry[]
 	} catch {}
 
 	if (!Array.isArray(ctx.buttonPairs)) ctx.buttonPairs = []
@@ -828,10 +974,54 @@ export function setupClientIdControls(): void {
 		})
 	}
 
+	ctx.renderPartyCycles = function renderPartyCycles(): void {
+		if (!partyList) return
+		partyList.innerHTML = ''
+
+		ctx.party.forEach((partyEntry, idx) => {
+			const row = createPartyRow(
+				partyEntry,
+				idx,
+				updated => {
+					ctx.party[idx] = updated
+					localStorage.setItem('party', JSON.stringify(ctx.party))
+				},
+				() => {
+					ctx.party.splice(idx, 1)
+
+					if (!ctx.party.length) {
+						localStorage.removeItem('party')
+					} else {
+						localStorage.setItem('party', JSON.stringify(ctx.party))
+					}
+
+					ctx.renderPartyCycles()
+				},
+			)
+			partyList.appendChild(row)
+		})
+	}
+
+	try {
+		const rawParty = localStorage.getItem('party')
+		if (rawParty) ctx.party = JSON.parse(rawParty) as PartyCycleEntry[]
+	} catch {}
+
+	if (!Array.isArray(ctx.party)) ctx.party = []
+
+	addParty?.addEventListener('click', e => {
+		e.preventDefault()
+		ctx.party.push({ sizeCurrent: '', sizeMax: '' })
+		localStorage.setItem('party', JSON.stringify(ctx.party))
+		ctx.renderPartyCycles()
+	})
+
+	ctx.renderPartyCycles()
 	ctx.renderButtonPairs()
 	ctx.renderCycles()
 	ctx.renderImageCycles()
 
+	if (partyList) attachDnD(partyList, ctx.party, ctx.renderPartyCycles)
 	if (buttonsList)
 		attachDnD(buttonsList, ctx.buttonPairs, ctx.renderButtonPairs)
 	if (cyclesList) attachDnD(cyclesList, ctx.cycles, ctx.renderCycles)
@@ -971,7 +1161,15 @@ export function setupClientIdControls(): void {
 			cycles: ctx.cycles,
 			imageCycles: ctx.imageCycles,
 			updateIntervalSec: intervalSec,
+			party: ctx.party,
+			timestampMode:
+				(localStorage.getItem('timestampMode') as TimestampMode) || 'now',
+			timestampRangeMin: localStorage.getItem('timestampRangeMin') || '',
+			timestampRangeMax: localStorage.getItem('timestampRangeMax') || '',
 		}
+
+		const partyRaw = localStorage.getItem('party')
+		if (partyRaw) state.party = JSON.parse(partyRaw)
 		await saveAllFromState(state)
 		localStorage.setItem('clientId', state.clientId || '')
 		upsertRecentApp(state.clientId || '', '')

@@ -94,11 +94,82 @@
 									/>
 								</div>
 
+								<div class="client-row">
+									<span>timestamp</span>
+									<div class="timestamp-mode-wrap">
+										<button
+											type="button"
+											class="timestamp-mode-btn"
+											data-mode="now"
+											data-active="true"
+											id="timestamp-mode-now"
+										>
+											now
+										</button>
+										<button
+											type="button"
+											class="timestamp-mode-btn"
+											data-mode="range"
+											data-active="false"
+											id="timestamp-mode-range"
+										>
+											range
+										</button>
+										<button
+											type="button"
+											class="timestamp-mode-btn"
+											data-mode="persist"
+											data-active="false"
+											id="timestamp-mode-persist"
+										>
+											persist
+										</button>
+									</div>
+								</div>
+
+								<div
+									class="client-row timestamp-range-row"
+									data-visible="false"
+								>
+									<span>range(min)</span>
+									<input
+										id="timestamp-range-min"
+										placeholder="Seconds ago (min)"
+									/>
+								</div>
+
+								<div
+									class="client-row timestamp-range-row"
+									data-visible="false"
+								>
+									<span>range(max)</span>
+									<input
+										id="timestamp-range-max"
+										placeholder="Seconds ago (max)"
+									/>
+								</div>
+
+								<div
+									class="client-row timestamp-persist-row"
+									data-visible="false"
+								>
+									<span>persist</span>
+									<button
+										id="timestamp-persist-reset"
+										class="timestamp-reset-btn"
+									>
+										reset saved timestamp
+									</button>
+								</div>
 								<div class="button-row">
 									<button id="client-id-save" class="rpc-button">
 										<span>SAVE and RESTART PRESENCE</span>
 									</button>
 								</div>
+								<p class="hint-text">
+									Blank fields and empty lines are saved, but in Discord they
+									are not displayed.
+								</p>
 								<div class="divider"></div>
 
 								<div class="list-header" style="margin-top: 6px">
@@ -124,6 +195,15 @@
 									<button id="add-button-pair" class="add-btn">+ pair</button>
 								</div>
 								<div id="buttons-list"></div>
+
+								<div class="divider"></div>
+
+								<div class="list-header">
+									<div class="list-header-label">party size</div>
+									<button id="add-party" class="add-btn">+ party</button>
+								</div>
+
+								<div id="party-list"></div>
 
 								<div class="divider"></div>
 
@@ -287,6 +367,10 @@
 					<section class="config-details-section">
 						<h3>Buttons</h3>
 						<div class="config-details-list" id="config-details-buttons"></div>
+					</section>
+					<section class="config-details-section">
+						<h3>Party</h3>
+						<div class="config-details-list" id="config-details-party"></div>
 					</section>
 				</div>
 			</div>

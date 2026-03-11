@@ -6,6 +6,7 @@ export function importConfigFromFile(file: File): void {
 		try {
 			const text = String(ev.target?.result || '')
 			const parsed = JSON.parse(text) as FullState
+
 			const state: FullState = {
 				clientId: undefined,
 				cycles: Array.isArray(parsed.cycles) ? parsed.cycles : [],
@@ -15,16 +16,20 @@ export function importConfigFromFile(file: File): void {
 				buttonPairs: Array.isArray(parsed.buttonPairs)
 					? parsed.buttonPairs
 					: [],
+				party: Array.isArray(parsed.party) ? parsed.party : undefined,
 			}
+
 			const nameInput = document.getElementById(
-				'config-name-input'
+				'config-name-input',
 			) as HTMLInputElement | null
+
 			const baseName =
 				(nameInput && nameInput.value.trim()) ||
 				file.name.replace(/\.[^.]+$/, '') ||
 				'Imported profile'
-			if (window.addConfigFromState) {
-				window.addConfigFromState(baseName, state)
+
+			if ((window as any).addConfigFromState) {
+				;(window as any).addConfigFromState(baseName, state)
 			}
 		} catch (err) {
 			console.error('Failed to import config', err)
@@ -35,13 +40,13 @@ export function importConfigFromFile(file: File): void {
 
 export function setupImportOverlay(): void {
 	const importOverlay = document.getElementById(
-		'import-overlay'
+		'import-overlay',
 	) as HTMLElement | null
 	const importCloseBtn = document.getElementById(
-		'import-close-btn'
+		'import-close-btn',
 	) as HTMLButtonElement | null
 	const importFileInput = document.getElementById(
-		'import-file-input'
+		'import-file-input',
 	) as HTMLInputElement | null
 	if (!importOverlay || !importCloseBtn || !importFileInput) return
 

@@ -5,8 +5,6 @@ import type {
 	ImageCycleEntry,
 } from '../renderer'
 
-export { }
-
 declare global {
 	interface Window {
 		electronAPI?: {
@@ -32,9 +30,11 @@ declare global {
 			buttonPairs: ButtonPair[]
 			cycles: CycleEntry[]
 			imageCycles: ImageCycleEntry[]
+			partyCycles: PartyCycle[]
 			renderButtonPairs: () => void
 			renderCycles: () => void
 			renderImageCycles: () => void
+			renderPartyCycles: () => void
 		}
 
 		addConfigFromState?: (name: string, state: FullState) => void

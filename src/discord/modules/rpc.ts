@@ -6,8 +6,21 @@ import {
 	readClientConfig,
 	readCyclesConfig,
 	readImageCyclesConfig,
+	readPartyConfig,
+	readTimestampConfig,
 } from './config'
-import { ImageCycle, RpcPayload } from './types'
+import {
+	ImageCycle,
+	PartyCycleEntry,
+	RpcPayload,
+	TimestampConfig,
+} from './types'
+
+let persistTimestamp: number | null = null
+
+export function resetPersistTimestampValue() {
+	persistTimestamp = null
+}
 
 const processName = 'Discord.exe'
 
@@ -83,11 +96,42 @@ export default function startDiscordRich(
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
 		const imageCyclesConfig = await readImageCyclesConfig()
+		const partyConfig = await readPartyConfig()
 
 		if (!clientId || !cyclesConfig.entries.length) {
 			sendStatus('NO_CLIENT_ID')
 			if (sendLog) sendLog('No client ID or no cycles configured', 'warn')
 			return
+		}
+
+		const timestampConfig: TimestampConfig = await readTimestampConfig()
+		if (timestampConfig.mode === 'persist' && persistTimestamp == null) {
+			persistTimestamp = Date.now()
+		}
+
+		function getTimestampsForActivity() {
+			if (timestampConfig.mode === 'now') {
+				return { start: Date.now() }
+			}
+			if (timestampConfig.mode === 'range') {
+				const min = timestampConfig.rangeMin ?? 0
+				const max = timestampConfig.rangeMax ?? 0
+				const low = Math.max(0, Math.min(min, max))
+				const high = Math.max(low, Math.max(min, max))
+				const delta =
+					high > low
+						? low * 1000 + Math.random() * (high - low) * 1000
+						: low * 1000
+				const start = Date.now() - delta
+				return { start }
+			}
+			if (timestampConfig.mode === 'persist') {
+				if (persistTimestamp == null) {
+					persistTimestamp = Date.now()
+				}
+				return { start: persistTimestamp }
+			}
+			return { start: Date.now() }
 		}
 
 		const baseImageCycles: ImageCycle[] =
@@ -103,30 +147,18 @@ export default function startDiscordRich(
 					]
 
 		const localClient = createClient()
-		const timestamps = { start: Date.now() }
+		const timestamps = getTimestampsForActivity()
 
 		const baseCycles = cyclesConfig.entries
-		const buttonPairs = buttonsConfig.pairs
+		const buttonPairs = Array.isArray(buttonsConfig.pairs)
+			? buttonsConfig.pairs
+			: []
 
 		const cycles = baseCycles.map((c, idx) => {
 			const img = baseImageCycles[idx % baseImageCycles.length]
-
-			const buttons: { label: string; url: string }[] = []
-			if (buttonPairs.length > 0) {
-				const pairIndex = idx % buttonPairs.length
-				const pair = buttonPairs[pairIndex]
-				if (pair.label1 && pair.url1) {
-					buttons.push({ label: pair.label1, url: pair.url1 })
-				}
-				if (pair.label2 && pair.url2) {
-					buttons.push({ label: pair.label2, url: pair.url2 })
-				}
-			}
-
 			return {
 				details: c.details,
 				state: c.state,
-				buttons,
 				largeImage: img.largeImage,
 				largeText: img.largeText,
 				smallImage: img.smallImage,
@@ -134,17 +166,52 @@ export default function startDiscordRich(
 			}
 		})
 
-		let index = 0
+		let cycleIndex = 0
+		let partyIndex = 0
+		let buttonIndex = 0
+
+		function getNextParty(): PartyCycleEntry | null {
+			if (!partyConfig || !Array.isArray(partyConfig.entries)) return null
+			if (!partyConfig.entries.length) return null
+			const entry = partyConfig.entries[partyIndex % partyConfig.entries.length]
+			partyIndex = (partyIndex + 1) % partyConfig.entries.length
+			return entry
+		}
+
+		function getNextButtons(): { label: string; url: string }[] {
+			if (!buttonPairs.length) return []
+			const pair = buttonPairs[buttonIndex % buttonPairs.length]
+			buttonIndex = (buttonIndex + 1) % buttonPairs.length
+
+			const res: { label: string; url: string }[] = []
+			if (pair.label1 && pair.url1) {
+				res.push({ label: pair.label1, url: pair.url1 })
+			}
+			if (pair.label2 && pair.url2) {
+				res.push({ label: pair.label2, url: pair.url2 })
+			}
+			return res
+		}
 
 		function pushActivity() {
-			const current = cycles[index]
-			index = (index + 1) % cycles.length
+			const current = cycles[cycleIndex]
+			cycleIndex = (cycleIndex + 1) % cycles.length
 
-			const buttons = current.buttons
+			const buttons = getNextButtons()
+			const partyEntry = getNextParty()
 
 			const safeState =
 				typeof current.state === 'string' && current.state.trim().length >= 2
 					? current.state
+					: undefined
+
+			const party =
+				partyEntry &&
+				Number.isFinite(partyEntry.sizeCurrent) &&
+				Number.isFinite(partyEntry.sizeMax) &&
+				partyEntry.sizeCurrent! > 0 &&
+				partyEntry.sizeMax! >= partyEntry.sizeCurrent!
+					? { size: [partyEntry.sizeCurrent!, partyEntry.sizeMax!] }
 					: undefined
 
 			const activity: any = {
@@ -159,8 +226,12 @@ export default function startDiscordRich(
 				timestamps,
 			}
 
-			if (current.buttons.length > 0) {
-				activity.buttons = current.buttons
+			if (party) {
+				activity.party = party
+			}
+
+			if (buttons.length > 0) {
+				activity.buttons = buttons
 			}
 
 			localClient

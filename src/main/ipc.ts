@@ -1,10 +1,14 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
+import { PartyConfig } from 'src/discord/modules/types'
 import startDiscordRich, {
+	resetPersistTimestampValue,
 	setActivityInterval,
 	setButtonsConfig,
 	setClientId,
 	setCycles,
 	setImageCyclesConfig,
+	setPartyConfig,
+	setTimestampConfig,
 	stopDiscordRich,
 } from '../discord'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
@@ -29,10 +33,8 @@ export function initIpc() {
 	ipcMain.handle('restart-discord-rich', async () => {
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win || win.isDestroyed()) return
-
 		sendStatus('RESTARTING')
 		stopDiscordRich()
-
 		startDiscordRich(payload => {
 			if (win.isDestroyed()) return
 			win.webContents.send('rpc-update', payload)
@@ -64,6 +66,10 @@ export function initIpc() {
 			return true
 		},
 	)
+
+	ipcMain.handle('set-party-config', async (_event, cfg: PartyConfig) => {
+		await setPartyConfig(cfg)
+	})
 
 	ipcMain.handle(
 		'set-buttons',
@@ -122,6 +128,16 @@ export function initIpc() {
 		const s = loadSettings()
 		autoHideOnStart = !!s.autoHideOnStart
 		return autoHideOnStart
+	})
+
+	ipcMain.handle('set-timestamp-config', async (_event, cfg) => {
+		await setTimestampConfig(cfg)
+		return true
+	})
+
+	ipcMain.handle('reset-persist-timestamp', async () => {
+		resetPersistTimestampValue()
+		return true
 	})
 
 	ipcMain.handle('window-close', () => {

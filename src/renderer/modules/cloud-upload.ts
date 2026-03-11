@@ -75,11 +75,11 @@ export function setupCloudUpload(): void {
 				configData: safeState,
 			}
 
-			if (!window.electronAPI?.uploadConfig) {
+			if (!(window as any).electronAPI?.uploadConfig) {
 				throw new Error('Cloud upload is not available')
 			}
 
-			await window.electronAPI.uploadConfig(config)
+			await (window as any).electronAPI.uploadConfig(config)
 
 			appendLog({
 				message: `Config "${config.title}" uploaded!`,
