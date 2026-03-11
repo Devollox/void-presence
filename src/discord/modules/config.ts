@@ -200,9 +200,14 @@ export async function readTimestampConfig(): Promise<TimestampConfig> {
 			typeof parsed.rangeMax === 'number' && Number.isFinite(parsed.rangeMax)
 				? parsed.rangeMax
 				: null
-		return { mode, rangeMin: min, rangeMax: max }
+		const persistOffsetSec =
+			typeof parsed.persistOffsetSec === 'number' &&
+			Number.isFinite(parsed.persistOffsetSec)
+				? parsed.persistOffsetSec
+				: 0
+		return { mode, rangeMin: min, rangeMax: max, persistOffsetSec }
 	} catch {
-		return { mode: 'now', rangeMin: null, rangeMax: null }
+		return { mode: 'now', rangeMin: null, rangeMax: null, persistOffsetSec: 0 }
 	}
 }
 
@@ -291,5 +296,14 @@ export async function setTimestampConfig(config: TimestampConfig) {
 		config.rangeMax != null && Number.isFinite(config.rangeMax)
 			? Number(config.rangeMax)
 			: null
-	await writeTimestampConfig({ mode, rangeMin: min, rangeMax: max })
+	const persistOffsetSec =
+		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
+			? Number(config.persistOffsetSec)
+			: 0
+	await writeTimestampConfig({
+		mode,
+		rangeMin: min,
+		rangeMax: max,
+		persistOffsetSec,
+	})
 }

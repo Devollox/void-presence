@@ -8,6 +8,7 @@ import {
 	readImageCyclesConfig,
 	readPartyConfig,
 	readTimestampConfig,
+	setTimestampConfig,
 } from './config'
 import {
 	ImageCycle,
@@ -16,10 +17,12 @@ import {
 	TimestampConfig,
 } from './types'
 
-let persistTimestamp: number | null = null
+let persistSessionStart = 0
+let persistOffsetSecBase = 0
 
 export function resetPersistTimestampValue() {
-	persistTimestamp = null
+	persistSessionStart = 0
+	persistOffsetSecBase = 0
 }
 
 const processName = 'Discord.exe'
@@ -105,8 +108,9 @@ export default function startDiscordRich(
 		}
 
 		const timestampConfig: TimestampConfig = await readTimestampConfig()
-		if (timestampConfig.mode === 'persist' && persistTimestamp == null) {
-			persistTimestamp = Date.now()
+		if (timestampConfig.mode === 'persist') {
+			persistOffsetSecBase = timestampConfig.persistOffsetSec ?? 0
+			persistSessionStart = Date.now()
 		}
 
 		function getTimestampsForActivity() {
@@ -126,12 +130,20 @@ export default function startDiscordRich(
 				return { start }
 			}
 			if (timestampConfig.mode === 'persist') {
-				if (persistTimestamp == null) {
-					persistTimestamp = Date.now()
-				}
-				return { start: persistTimestamp }
+				const elapsedMs = Date.now() - persistSessionStart
+				const totalOffsetMs = persistOffsetSecBase * 1000 + elapsedMs
+				const start = Date.now() - totalOffsetMs
+				return { start }
 			}
 			return { start: Date.now() }
+		}
+
+		async function updatePersistOffsetIfNeeded() {
+			if (timestampConfig.mode !== 'persist') return
+			const elapsedMs = Date.now() - persistSessionStart
+			const totalOffsetSec = (persistOffsetSecBase * 1000 + elapsedMs) / 1000
+			timestampConfig.persistOffsetSec = Math.floor(totalOffsetSec)
+			await setTimestampConfig(timestampConfig)
 		}
 
 		const baseImageCycles: ImageCycle[] =
@@ -147,7 +159,6 @@ export default function startDiscordRich(
 					]
 
 		const localClient = createClient()
-		const timestamps = getTimestampsForActivity()
 
 		const baseCycles = cyclesConfig.entries
 		const buttonPairs = Array.isArray(buttonsConfig.pairs)
@@ -193,7 +204,7 @@ export default function startDiscordRich(
 			return res
 		}
 
-		function pushActivity() {
+		async function pushActivity() {
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
@@ -213,6 +224,8 @@ export default function startDiscordRich(
 				partyEntry.sizeMax! >= partyEntry.sizeCurrent!
 					? { size: [partyEntry.sizeCurrent!, partyEntry.sizeMax!] }
 					: undefined
+
+			const timestamps = getTimestampsForActivity()
 
 			const activity: any = {
 				details: current.details,
@@ -248,6 +261,8 @@ export default function startDiscordRich(
 					}
 				})
 
+			await updatePersistOffsetIfNeeded()
+
 			sendStatus('ACTIVE')
 
 			sendPayload({
@@ -263,12 +278,12 @@ export default function startDiscordRich(
 
 		localClient.on('ready', () => {
 			if (sendLog) sendLog('RPC ready', 'success')
-			pushActivity()
+			void pushActivity()
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
 			}
 			cycleTimer = setInterval(() => {
-				pushActivity()
+				void pushActivity()
 			}, activityIntervalMs)
 		})
 

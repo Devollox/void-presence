@@ -18,7 +18,7 @@ const iconPath = getAssetPath('public', 'favicons', 'dark-fav.png')
 
 export function createMainWindow(
 	autoHideOnStart: boolean,
-	isQuitting: () => boolean
+	isQuitting: () => boolean,
 ) {
 	const shouldShow = !autoHideOnStart
 

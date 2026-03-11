@@ -1,5 +1,4 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import { PartyConfig } from 'src/discord/modules/types'
 import startDiscordRich, {
 	resetPersistTimestampValue,
 	setActivityInterval,
@@ -11,6 +10,8 @@ import startDiscordRich, {
 	setTimestampConfig,
 	stopDiscordRich,
 } from '../discord'
+import { readTimestampConfig } from '../discord/modules/config'
+import { PartyConfig } from '../discord/modules/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import { sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
@@ -48,6 +49,14 @@ export function initIpc() {
 
 	ipcMain.handle('set-client-id', async (_event, clientId: string) => {
 		await setClientId(clientId)
+		return true
+	})
+
+	ipcMain.handle('reset-persist-timestamp', async () => {
+		resetPersistTimestampValue()
+		const cfg = await readTimestampConfig()
+		cfg.persistOffsetSec = 0
+		await setTimestampConfig(cfg)
 		return true
 	})
 
@@ -132,11 +141,6 @@ export function initIpc() {
 
 	ipcMain.handle('set-timestamp-config', async (_event, cfg) => {
 		await setTimestampConfig(cfg)
-		return true
-	})
-
-	ipcMain.handle('reset-persist-timestamp', async () => {
-		resetPersistTimestampValue()
 		return true
 	})
 

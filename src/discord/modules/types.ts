@@ -55,10 +55,12 @@ export interface PartyCycleEntry {
 export interface PartyConfig {
 	entries: PartyCycleEntry[]
 }
+
 export type TimestampMode = 'now' | 'range' | 'persist'
 
 export interface TimestampConfig {
 	mode: TimestampMode
 	rangeMin: number | null
 	rangeMax: number | null
+	persistOffsetSec?: number | null
 }
