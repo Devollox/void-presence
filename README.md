@@ -9,6 +9,7 @@
 <p align="center">
   <img width="450" height="493" alt="Void Presence demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
   <img width="450" height="493" alt="Void Presence demo animated" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
+  <img width="314" height="166" alt="image" src="https://github.com/user-attachments/assets/0b33c5b4-a2d6-411a-b895-e4d309b51c8a" />
 </p>
 
 > **Void Presence** – Advanced Discord Rich Presence manager with full control over your activity display.
