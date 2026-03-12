@@ -64,3 +64,25 @@ export interface TimestampConfig {
 	rangeMax: number | null
 	persistOffsetSec?: number | null
 }
+
+export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
+
+export interface ActivityTypeConfig {
+	type: ActivityType
+}
+
+export type NowMode = 'plain' | 'progress' | 'cycles'
+
+export interface TimeCycleEntry {
+	label: string
+	seconds: number
+}
+
+export interface TimestampConfig {
+	mode: TimestampMode
+	rangeMin: number | null
+	rangeMax: number | null
+	persistOffsetSec?: number | null
+	nowMode?: NowMode
+	timeCycles?: TimeCycleEntry[]
+}

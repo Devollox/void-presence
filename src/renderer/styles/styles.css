@@ -1434,3 +1434,10 @@ button:active {
 	border-color: #ffffff;
 	transform: translateY(-0.5px);
 }
+
+.now-mode-row[data-visible='false'],
+.time-cycles-divider[data-visible='false'],
+.time-cycles-header[data-visible='false'],
+.time-cycles-list[data-visible='false'] {
+	display: none;
+}

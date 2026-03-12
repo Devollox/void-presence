@@ -2,7 +2,7 @@ import { updateInfo, updateStatus } from './views'
 
 export function setupAutoLaunchToggle(): void {
 	const toggle = document.getElementById(
-		'auto-launch-toggle'
+		'auto-launch-toggle',
 	) as HTMLElement | null
 	if (!toggle) return
 	const saved = localStorage.getItem('autoLaunch') === 'true'
@@ -20,7 +20,7 @@ export function setupAutoLaunchToggle(): void {
 
 export function setupAutoHideToggle(): void {
 	const toggle = document.getElementById(
-		'auto-hide-toggle'
+		'auto-hide-toggle',
 	) as HTMLElement | null
 	if (!toggle) return
 	const saved = localStorage.getItem('autoHide') === 'true'
@@ -38,7 +38,7 @@ export function setupAutoHideToggle(): void {
 
 export function setupStopButton(): void {
 	const btn = document.getElementById(
-		'stop-discord'
+		'stop-discord',
 	) as HTMLButtonElement | null
 	if (!btn) return
 	btn.addEventListener('click', e => {
@@ -53,13 +53,15 @@ export function setupStopButton(): void {
 
 export function setupRestartButton(): void {
 	const btn = document.getElementById(
-		'restart-discord'
+		'restart-discord',
 	) as HTMLButtonElement | null
 	if (!btn) return
 	btn.addEventListener('click', e => {
 		e.preventDefault()
 		if (window.electronAPI?.restartDiscordRich) {
-			updateStatus('RESTARTING')
+			setTimeout(() => {
+				updateStatus('RESTARTING')
+			}, 500)
 			window.electronAPI.restartDiscordRich()
 		}
 	})

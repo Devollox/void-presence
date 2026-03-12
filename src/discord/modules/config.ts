@@ -2,12 +2,14 @@ import { app } from 'electron'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import {
+	ActivityTypeConfig,
 	ButtonPair,
 	ButtonsConfig,
 	ClientConfig,
 	CyclesConfig,
 	ImageCycle,
 	ImageCyclesConfig,
+	NowMode,
 	PartyConfig,
 	PartyCycleEntry,
 	TimestampConfig,
@@ -40,6 +42,10 @@ function getPartyConfigPath() {
 
 function getTimestampConfigPath() {
 	return getConfigPath('timestamp-config.json')
+}
+
+function getActivityTypeConfigPath() {
+	return getConfigPath('activity-type.json')
 }
 
 export async function readClientConfig(): Promise<ClientConfig> {
@@ -190,8 +196,7 @@ export async function readTimestampConfig(): Promise<TimestampConfig> {
 	try {
 		const raw = await fs.readFile(configPath, 'utf-8')
 		const parsed = JSON.parse(raw) as Partial<TimestampConfig>
-		const mode =
-			parsed.mode === 'range' || parsed.mode === 'persist' ? parsed.mode : 'now'
+		const mode = parsed.mode || 'now'
 		const min =
 			typeof parsed.rangeMin === 'number' && Number.isFinite(parsed.rangeMin)
 				? parsed.rangeMin
@@ -205,15 +210,57 @@ export async function readTimestampConfig(): Promise<TimestampConfig> {
 			Number.isFinite(parsed.persistOffsetSec)
 				? parsed.persistOffsetSec
 				: 0
-		return { mode, rangeMin: min, rangeMax: max, persistOffsetSec }
+		const nowMode = (parsed.nowMode as NowMode) || 'plain'
+		const timeCycles = Array.isArray(parsed.timeCycles) ? parsed.timeCycles : []
+		return {
+			mode,
+			rangeMin: min,
+			rangeMax: max,
+			persistOffsetSec,
+			nowMode,
+			timeCycles,
+		}
 	} catch {
-		return { mode: 'now', rangeMin: null, rangeMax: null, persistOffsetSec: 0 }
+		return {
+			mode: 'now',
+			rangeMin: null,
+			rangeMax: null,
+			persistOffsetSec: 0,
+			nowMode: 'plain',
+			timeCycles: [],
+		}
 	}
 }
 
 export async function writeTimestampConfig(config: TimestampConfig) {
 	const configPath = getTimestampConfigPath()
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+}
+
+export async function readActivityTypeConfig(): Promise<ActivityTypeConfig> {
+	const configPath = getActivityTypeConfigPath()
+	try {
+		const raw = await fs.readFile(configPath, 'utf-8')
+		const parsed = JSON.parse(raw) as Partial<ActivityTypeConfig>
+		const type = parsed.type || 'playing'
+		return { type }
+	} catch {
+		return { type: 'playing' }
+	}
+}
+
+export async function writeActivityTypeConfig(config: ActivityTypeConfig) {
+	const configPath = getActivityTypeConfigPath()
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+}
+
+export async function setActivityType(type: ActivityTypeConfig['type']) {
+	const safeType =
+		type === 'watching' || type === 'listening' || type === 'competing'
+			? type
+			: 'playing'
+
+	await writeActivityTypeConfig({ type: safeType })
 }
 
 export async function setClientId(clientId: string) {
@@ -286,8 +333,7 @@ export async function setPartyConfig(config: PartyConfig) {
 }
 
 export async function setTimestampConfig(config: TimestampConfig) {
-	const mode =
-		config.mode === 'range' || config.mode === 'persist' ? config.mode : 'now'
+	const mode = config.mode || 'now'
 	const min =
 		config.rangeMin != null && Number.isFinite(config.rangeMin)
 			? Number(config.rangeMin)
@@ -300,10 +346,14 @@ export async function setTimestampConfig(config: TimestampConfig) {
 		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
 			? Number(config.persistOffsetSec)
 			: 0
+	const nowMode = config.nowMode || 'plain'
+	const timeCycles = Array.isArray(config.timeCycles) ? config.timeCycles : []
 	await writeTimestampConfig({
 		mode,
 		rangeMin: min,
 		rangeMax: max,
 		persistOffsetSec,
+		nowMode,
+		timeCycles,
 	})
 }

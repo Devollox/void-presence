@@ -19,8 +19,15 @@
       {
         "ignore": [
           "-webkit-app-region",
-          "-moz-appearance"
+          "-moz-appearance",
+          "backdrop-filter"
         ]
+      }
+    ],
+    "axe/name-role-value": [
+      "default",
+      {
+        "button-name": "off"
       }
     ]
   }

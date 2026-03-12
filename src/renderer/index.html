@@ -95,6 +95,40 @@
 								</div>
 
 								<div class="client-row">
+									<span>activity</span>
+									<div class="timestamp-mode-wrap" id="activity-type-modes">
+										<button
+											id="activity-type-playing"
+											class="timestamp-mode-btn"
+											data-active="true"
+										>
+											play
+										</button>
+										<button
+											id="activity-type-watching"
+											class="timestamp-mode-btn"
+											data-active="false"
+										>
+											watching
+										</button>
+										<button
+											id="activity-type-listening"
+											class="timestamp-mode-btn"
+											data-active="false"
+										>
+											listening
+										</button>
+										<button
+											id="activity-type-competing"
+											class="timestamp-mode-btn"
+											data-active="false"
+										>
+											competing
+										</button>
+									</div>
+								</div>
+
+								<div class="client-row">
 									<span>timestamp</span>
 									<div class="timestamp-mode-wrap">
 										<button
@@ -161,6 +195,57 @@
 										reset saved timestamp
 									</button>
 								</div>
+
+								<div class="client-row now-mode-row" data-visible="true">
+									<span>now mode</span>
+									<div class="timestamp-mode-wrap">
+										<button
+											type="button"
+											class="timestamp-mode-btn"
+											id="now-mode-plain"
+											data-active="true"
+										>
+											plain
+										</button>
+										<button
+											type="button"
+											class="timestamp-mode-btn"
+											id="now-mode-progress"
+											data-active="false"
+										>
+											progress
+										</button>
+										<button
+											type="button"
+											class="timestamp-mode-btn"
+											id="now-mode-cycles"
+											data-active="false"
+										>
+											cycles
+										</button>
+									</div>
+								</div>
+
+								<div
+									class="divider time-cycles-divider"
+									data-visible="false"
+								></div>
+
+								<div
+									class="list-header time-cycles-header"
+									data-visible="false"
+								>
+									<div class="list-header-label">time cycles</div>
+									<button id="add-time" class="add-btn">+ time</button>
+								</div>
+								<div
+									id="time-list"
+									class="time-cycles-list"
+									data-visible="false"
+								></div>
+
+								<div class="divider"></div>
+
 								<div class="button-row">
 									<button id="client-id-save" class="rpc-button">
 										<span>SAVE and RESTART PRESENCE</span>

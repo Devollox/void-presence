@@ -44,22 +44,13 @@ export interface ImageCycleEntry {
 
 export type TimestampMode = 'now' | 'range' | 'persist'
 
-export interface FullState {
-	clientId?: string
-	updateIntervalSec?: number | string
-	buttonPairs?: ButtonPair[]
-	cycles?: CycleEntry[]
-	imageCycles?: ImageCycleEntry[]
-	party?: PartyCycleEntry[]
-	timestampMode?: TimestampMode
-	timestampRangeMin?: number | string
-	timestampRangeMax?: number | string
-}
+export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
 
-export interface StoredConfig {
-	name: string
-	state: FullState
-	createdAt?: string
+export type NowMode = 'plain' | 'progress' | 'cycles'
+
+export interface TimeCycleEntry {
+	label: string
+	seconds: number | string
 }
 
 export interface PartyCycleEntry {
@@ -72,18 +63,43 @@ export interface PartyConfig {
 	entries: PartyCycleEntry[]
 }
 
+export interface FullState {
+	clientId?: string
+	updateIntervalSec?: number | string
+	buttonPairs?: ButtonPair[]
+	cycles?: CycleEntry[]
+	imageCycles?: ImageCycleEntry[]
+	party?: PartyCycleEntry[]
+	timestampMode?: TimestampMode
+	timestampRangeMin?: number | string
+	timestampRangeMax?: number | string
+	activityType?: ActivityType
+	nowMode?: NowMode
+	timeCycles?: TimeCycleEntry[]
+}
+
+export interface StoredConfig {
+	name: string
+	state: FullState
+	createdAt?: string
+}
+
 export interface VoidPresenceCtx {
 	party?: PartyCycleEntry[]
 	buttonPairs: ButtonPair[]
 	cycles: CycleEntry[]
 	imageCycles: ImageCycleEntry[]
+	timeCycles?: TimeCycleEntry[]
 	renderButtonPairs: () => void
 	renderCycles: () => void
 	renderImageCycles: () => void
 	renderPartyCycles: () => void
+	renderTimeCycles?: () => void
 }
 
 export interface ElectronAPI {
+	invoke: any
+	setActivityType(activityType: string): unknown
 	resetPersistTimestamp(): unknown
 	setTimestampConfig(arg0: {
 		mode: TimestampMode

@@ -10,7 +10,8 @@ import startDiscordRich, {
 	setTimestampConfig,
 	stopDiscordRich,
 } from '../discord'
-import { readTimestampConfig } from '../discord/modules/config'
+
+import { readTimestampConfig, setActivityType } from '../discord/modules/config'
 import { PartyConfig } from '../discord/modules/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import { sendStatus } from './logging'
@@ -57,6 +58,11 @@ export function initIpc() {
 		const cfg = await readTimestampConfig()
 		cfg.persistOffsetSec = 0
 		await setTimestampConfig(cfg)
+		return true
+	})
+
+	ipcMain.handle('set-activity-type', async (_event, type: string) => {
+		await setActivityType(type as any)
 		return true
 	})
 

@@ -54,4 +54,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		rangeMax: number | null
 	}) => ipcRenderer.invoke('set-timestamp-config', cfg),
 	resetPersistTimestamp: () => ipcRenderer.invoke('reset-persist-timestamp'),
+	setActivityType: (type: string) =>
+		ipcRenderer.invoke('set-activity-type', type),
 })

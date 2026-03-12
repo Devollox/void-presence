@@ -1,7 +1,11 @@
 import { setupCloudUpload } from './modules/cloud-upload'
 import { setupConfigDetailsOverlay } from './modules/config-details'
 import { setupImportOverlay } from './modules/config-import'
-import { setupClientIdControls, setupConfigPage } from './modules/config-page'
+import {
+	setupActivityTypeControls,
+	setupClientIdControls,
+	setupConfigPage,
+} from './modules/config-page'
 import { setupGlobalDrop } from './modules/global-drop'
 import { setupIntervalControl } from './modules/state'
 import {
@@ -19,6 +23,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	setupAutoLaunchToggle()
 	setupAutoHideToggle()
 	setupWindowControls()
+	setupActivityTypeControls()
 	setupConfigDetailsOverlay()
 	setupConfigPage()
 	setupStopButton()

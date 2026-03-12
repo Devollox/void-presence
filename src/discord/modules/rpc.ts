@@ -2,6 +2,7 @@ import { exec } from 'child_process'
 import rpc from 'discord-rpc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
+	readActivityTypeConfig,
 	readButtonsConfig,
 	readClientConfig,
 	readCyclesConfig,
@@ -11,7 +12,9 @@ import {
 	setTimestampConfig,
 } from './config'
 import {
+	ActivityType,
 	ImageCycle,
+	NowMode,
 	PartyCycleEntry,
 	RpcPayload,
 	TimestampConfig,
@@ -41,6 +44,7 @@ export function setActivityInterval(sec: number) {
 	}
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
+		clearTimeout(cycleTimer as any)
 		cycleTimer = null
 	}
 }
@@ -62,6 +66,7 @@ function createClient() {
 export function stopDiscordRich() {
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
+		clearTimeout(cycleTimer as any)
 		cycleTimer = null
 	}
 	if (restartTimer) {
@@ -108,6 +113,12 @@ export default function startDiscordRich(
 		}
 
 		const timestampConfig: TimestampConfig = await readTimestampConfig()
+		const mode = timestampConfig.mode
+		const nowMode: NowMode = timestampConfig.nowMode
+		const timeCycles = Array.isArray(timestampConfig.timeCycles)
+			? timestampConfig.timeCycles
+			: []
+
 		if (timestampConfig.mode === 'persist') {
 			persistOffsetSecBase = timestampConfig.persistOffsetSec ?? 0
 			persistSessionStart = Date.now()
@@ -116,11 +127,90 @@ export default function startDiscordRich(
 			persistSessionStart = 0
 		}
 
-		function getTimestampsForActivity() {
-			if (timestampConfig.mode === 'now') {
-				return { start: Date.now() }
+		const activityTypeCfg = await readActivityTypeConfig()
+		const activityType: ActivityType = activityTypeCfg.type
+
+		const plainTimestamps = { start: Date.now() }
+
+		let timeCycleIndex = 0
+
+		function getNextTimeCycle() {
+			if (!timeCycles.length) return null
+			const cycle = timeCycles[timeCycleIndex % timeCycles.length]
+			timeCycleIndex = (timeCycleIndex + 1) % timeCycles.length
+			return cycle
+		}
+
+		function getTimestampsForPlain() {
+			return plainTimestamps
+		}
+
+		function getTimestampsForProgress() {
+			const start = Date.now()
+			const base = Number.isFinite(activityIntervalMs)
+				? activityIntervalMs
+				: 30000
+			const end = start + base
+			return { start, end }
+		}
+
+		function getTimestampsForCycles(
+			cycle: { label: string; seconds: string } | null,
+		) {
+			if (!cycle) {
+				const start = Date.now()
+				return { start }
 			}
-			if (timestampConfig.mode === 'range') {
+
+			const labelSec = Number(cycle.label)
+			const secondsSec = Number(cycle.seconds)
+
+			if (
+				!Number.isFinite(labelSec) ||
+				!Number.isFinite(secondsSec) ||
+				secondsSec < 0
+			) {
+				const start = Date.now()
+				return { start }
+			}
+
+			const now = Date.now()
+			const startMs = now - labelSec * 1000
+			if (secondsSec === 0) {
+				return { start: startMs }
+			}
+			const endMs = startMs + secondsSec * 1000
+			return { start: startMs, end: endMs }
+		}
+
+		function getDelayForCycles(
+			cycle: { label: string; seconds: string } | null,
+		) {
+			if (!cycle) return activityIntervalMs
+			const secondsSec = Number(cycle.seconds)
+			if (!Number.isFinite(secondsSec) || secondsSec < 0)
+				return activityIntervalMs
+			return secondsSec * 1000
+		}
+
+		function getTimestampsForActivity(
+			modeLocal: typeof mode,
+			nowModeLocal: NowMode,
+			cycleForNow: { label: string; seconds: string } | null,
+		) {
+			if (modeLocal === 'now') {
+				if (nowModeLocal === 'plain') {
+					return getTimestampsForPlain()
+				}
+				if (nowModeLocal === 'progress') {
+					return getTimestampsForProgress()
+				}
+				if (nowModeLocal === 'cycles') {
+					return getTimestampsForCycles(cycleForNow)
+				}
+				return getTimestampsForPlain()
+			}
+			if (modeLocal === 'range') {
 				const min = timestampConfig.rangeMin ?? 0
 				const max = timestampConfig.rangeMax ?? 0
 				const low = Math.max(0, Math.min(min, max))
@@ -132,13 +222,13 @@ export default function startDiscordRich(
 				const start = Date.now() - delta
 				return { start }
 			}
-			if (timestampConfig.mode === 'persist') {
+			if (modeLocal === 'persist') {
 				const elapsedMs = Date.now() - persistSessionStart
 				const totalOffsetMs = persistOffsetSecBase * 1000 + elapsedMs
 				const start = Date.now() - totalOffsetMs
 				return { start }
 			}
-			return { start: Date.now() }
+			return getTimestampsForPlain()
 		}
 
 		async function updatePersistOffsetIfNeeded() {
@@ -228,7 +318,15 @@ export default function startDiscordRich(
 					? { size: [partyEntry.sizeCurrent!, partyEntry.sizeMax!] }
 					: undefined
 
-			const timestamps = getTimestampsForActivity()
+			let cycleForNow: any | null = null
+			let nextDelayMs: number | null = null
+
+			if (mode === 'now' && nowMode === 'cycles') {
+				cycleForNow = getNextTimeCycle()
+				nextDelayMs = getDelayForCycles(cycleForNow)
+			}
+
+			const timestamps = getTimestampsForActivity(mode, nowMode, cycleForNow)
 
 			const activity: any = {
 				details: current.details,
@@ -240,6 +338,14 @@ export default function startDiscordRich(
 					small_text: current.smallText || undefined,
 				},
 				timestamps,
+				type:
+					activityType === 'watching'
+						? 3
+						: activityType === 'listening'
+							? 2
+							: activityType === 'competing'
+								? 5
+								: 0,
 			}
 
 			if (party) {
@@ -274,6 +380,26 @@ export default function startDiscordRich(
 				coordinates: '',
 				buttons,
 			})
+
+			if (mode === 'now' && nowMode === 'cycles') {
+				const delay = nextDelayMs != null ? nextDelayMs : activityIntervalMs
+				if (cycleTimer) {
+					clearTimeout(cycleTimer)
+					cycleTimer = null
+				}
+				cycleTimer = setTimeout(() => {
+					void pushActivity()
+				}, delay)
+			} else if (mode === 'now' && nowMode === 'progress') {
+				const nextMs = activityIntervalMs
+				if (cycleTimer) {
+					clearTimeout(cycleTimer)
+					cycleTimer = null
+				}
+				cycleTimer = setTimeout(() => {
+					void pushActivity()
+				}, nextMs)
+			}
 		}
 
 		sendStatus('CONNECTING RPC')
@@ -281,13 +407,29 @@ export default function startDiscordRich(
 
 		localClient.on('ready', () => {
 			if (sendLog) sendLog('RPC ready', 'success')
-			void pushActivity()
+
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
+				clearTimeout(cycleTimer as any)
+				cycleTimer = null
 			}
-			cycleTimer = setInterval(() => {
+
+			if (mode === 'now' && nowMode === 'plain') {
 				void pushActivity()
-			}, activityIntervalMs)
+				cycleTimer = setInterval(() => {
+					void pushActivity()
+				}, activityIntervalMs)
+			} else if (
+				mode === 'now' &&
+				(nowMode === 'progress' || nowMode === 'cycles')
+			) {
+				void pushActivity()
+			} else {
+				void pushActivity()
+				cycleTimer = setInterval(() => {
+					void pushActivity()
+				}, activityIntervalMs)
+			}
 		})
 
 		localClient.on('disconnected', () => {
@@ -296,6 +438,7 @@ export default function startDiscordRich(
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
+				clearTimeout(cycleTimer as any)
 				cycleTimer = null
 			}
 
@@ -311,6 +454,7 @@ export default function startDiscordRich(
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
+				clearTimeout(cycleTimer as any)
 				cycleTimer = null
 			}
 

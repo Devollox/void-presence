@@ -6,11 +6,14 @@ import {
 	saveAllFromState,
 } from './state'
 import {
+	ActivityType,
 	ButtonPair,
 	CycleEntry,
 	FullState,
 	ImageCycleEntry,
+	NowMode,
 	StoredConfig,
+	TimeCycleEntry,
 	TimestampMode,
 	VoidPresenceCtx,
 } from './types'
@@ -204,6 +207,59 @@ function createCycleRow(
 	row.appendChild(remove)
 	inputsWrap.appendChild(input1)
 	inputsWrap.appendChild(input2)
+	row.appendChild(inputsWrap)
+
+	return row
+}
+
+function createTimeRow(
+	entry: TimeCycleEntry,
+	index: number,
+	onChange: (entry: TimeCycleEntry) => void,
+	onRemove: () => void,
+): HTMLDivElement {
+	const row = document.createElement('div')
+	row.className = 'cycle-row'
+	row.dataset.index = String(index)
+	row.draggable = true
+
+	const inputsWrap = document.createElement('div')
+	inputsWrap.className = 'cycle-inputs'
+
+	const nameInput = document.createElement('input')
+	nameInput.placeholder = 'Label (optional)'
+	nameInput.value = entry.label || ''
+
+	const secInput = document.createElement('input')
+	secInput.placeholder = 'Duration (sec)'
+	secInput.value =
+		typeof entry.seconds === 'number'
+			? String(entry.seconds)
+			: (entry.seconds as string) || ''
+
+	const remove = document.createElement('button')
+	remove.className = 'remove-btn'
+	remove.type = 'button'
+	remove.textContent = '×'
+
+	function triggerChange(): void {
+		onChange({
+			label: nameInput.value,
+			seconds: secInput.value,
+		})
+	}
+
+	nameInput.addEventListener('input', triggerChange)
+	secInput.addEventListener('input', triggerChange)
+
+	remove.addEventListener('click', e => {
+		e.preventDefault()
+		onRemove()
+	})
+
+	row.appendChild(remove)
+	inputsWrap.appendChild(nameInput)
+	inputsWrap.appendChild(secInput)
 	row.appendChild(inputsWrap)
 
 	return row
@@ -480,6 +536,7 @@ export function setupConfigPage(): void {
 				e.preventDefault()
 				const ctx = (window as any).__voidPresenceCtx
 				if (!ctx) return
+
 				const base: FullState = {
 					clientId: state.clientId || localStorage.getItem('clientId') || '',
 					updateIntervalSec:
@@ -494,6 +551,27 @@ export function setupConfigPage(): void {
 						? state.imageCycles
 						: [],
 					party: Array.isArray(state.party) ? state.party : [],
+					timeCycles: Array.isArray(state.timeCycles) ? state.timeCycles : [],
+					timestampMode:
+						state.timestampMode ??
+						(localStorage.getItem('timestampMode') as TimestampMode | null) ??
+						'now',
+					timestampRangeMin:
+						state.timestampRangeMin ??
+						localStorage.getItem('timestampRangeMin') ??
+						'',
+					timestampRangeMax:
+						state.timestampRangeMax ??
+						localStorage.getItem('timestampRangeMax') ??
+						'',
+					nowMode:
+						state.nowMode ??
+						(localStorage.getItem('nowMode') as NowMode | null) ??
+						'plain',
+					activityType:
+						state.activityType ??
+						(localStorage.getItem('activityType') as ActivityType | null) ??
+						'playing',
 				}
 
 				const st = deepCloneState(base)
@@ -539,7 +617,10 @@ export function setupConfigPage(): void {
 						imageCycles: Array.isArray(cfg.state?.imageCycles)
 							? cfg.state!.imageCycles
 							: [],
-						party: Array.isArray(state.party) ? state.party : [],
+						party: Array.isArray(cfg.state?.party) ? cfg.state!.party : [],
+						timeCycles: Array.isArray(cfg.state?.timeCycles)
+							? cfg.state!.timeCycles
+							: [],
 					}
 
 					try {
@@ -591,7 +672,17 @@ export function setupConfigPage(): void {
 					imageCycles: (state.imageCycles && state.imageCycles.slice()) || [],
 					buttonPairs: (state.buttonPairs && state.buttonPairs.slice()) || [],
 					party: Array.isArray(state.party) ? state.party.slice() : undefined,
+					timeCycles: Array.isArray(state.timeCycles)
+						? state.timeCycles.slice()
+						: [],
+					timestampMode: state.timestampMode,
+					timestampRangeMin: state.timestampRangeMin,
+					timestampRangeMax: state.timestampRangeMax,
+					activityType: state.activityType,
+					nowMode: state.nowMode,
+					updateIntervalSec: state.updateIntervalSec,
 				}
+
 				const name =
 					cfg.name || `void-presence-${new Date().toISOString().slice(0, 10)}`
 				downloadJson(data, `${name}.json`)
@@ -639,7 +730,6 @@ export function setupConfigPage(): void {
 		if (!name) return
 		const state = loadCurrentState()
 		addConfigFromState(name, state)
-		await saveAllFromState(state)
 		nameInput.value = ''
 	})
 
@@ -662,6 +752,7 @@ export function setupConfigPage(): void {
 			imageCycles: state.imageCycles || [],
 			buttonPairs: state.buttonPairs || [],
 			party: state.party || [],
+			timeCycles: state.timeCycles || [],
 		}
 		const name =
 			nameInput.value.trim() ||
@@ -705,6 +796,7 @@ export function setupClientIdControls(): void {
 	const addParty = document.getElementById(
 		'add-party',
 	) as HTMLButtonElement | null
+
 	const modeNow = document.getElementById(
 		'timestamp-mode-now',
 	) as HTMLButtonElement | null
@@ -714,6 +806,7 @@ export function setupClientIdControls(): void {
 	const modePersist = document.getElementById(
 		'timestamp-mode-persist',
 	) as HTMLButtonElement | null
+
 	const rangeMinInput = document.getElementById(
 		'timestamp-range-min',
 	) as HTMLInputElement | null
@@ -723,6 +816,7 @@ export function setupClientIdControls(): void {
 	const persistResetBtn = document.getElementById(
 		'timestamp-persist-reset',
 	) as HTMLButtonElement | null
+
 	const rangeRows = document.querySelectorAll<HTMLElement>(
 		'.timestamp-range-row',
 	)
@@ -730,59 +824,34 @@ export function setupClientIdControls(): void {
 		'.timestamp-persist-row',
 	)
 
+	const timeList = document.getElementById('time-list') as HTMLElement | null
+	const addTime = document.getElementById(
+		'add-time',
+	) as HTMLButtonElement | null
+
+	const nowPlain = document.getElementById(
+		'now-mode-plain',
+	) as HTMLButtonElement | null
+	const nowProgress = document.getElementById(
+		'now-mode-progress',
+	) as HTMLButtonElement | null
+	const nowCycles = document.getElementById(
+		'now-mode-cycles',
+	) as HTMLButtonElement | null
+
+	const nowModeRow = document.querySelector<HTMLElement>('.now-mode-row')
+	const timeDivider = document.querySelector<HTMLElement>(
+		'.time-cycles-divider',
+	)
+	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
+
 	const storedMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
 	const storedMin = localStorage.getItem('timestampRangeMin') || ''
 	const storedMax = localStorage.getItem('timestampRangeMax') || ''
 
-	if (rangeMinInput) rangeMinInput.value = storedMin
-	if (rangeMaxInput) rangeMaxInput.value = storedMax
-
-	function setMode(m: TimestampMode) {
-		if (modeNow) modeNow.dataset.active = m === 'now' ? 'true' : 'false'
-		if (modeRange) modeRange.dataset.active = m === 'range' ? 'true' : 'false'
-		if (modePersist)
-			modePersist.dataset.active = m === 'persist' ? 'true' : 'false'
-		rangeRows.forEach(row => {
-			row.dataset.visible = m === 'range' ? 'true' : 'false'
-		})
-		if (persistRow) {
-			persistRow.dataset.visible = m === 'persist' ? 'true' : 'false'
-		}
-		localStorage.setItem('timestampMode', m)
-	}
-
-	setMode(storedMode)
-
-	modeNow?.addEventListener('click', e => {
-		e.preventDefault()
-		setMode('now')
-	})
-
-	modeRange?.addEventListener('click', e => {
-		e.preventDefault()
-		setMode('range')
-	})
-
-	modePersist?.addEventListener('click', e => {
-		e.preventDefault()
-		setMode('persist')
-	})
-
-	rangeMinInput?.addEventListener('input', () => {
-		localStorage.setItem('timestampRangeMin', rangeMinInput.value)
-	})
-
-	rangeMaxInput?.addEventListener('input', () => {
-		localStorage.setItem('timestampRangeMax', rangeMaxInput.value)
-	})
-
-	persistResetBtn?.addEventListener('click', e => {
-		e.preventDefault()
-		if (window.electronAPI?.resetPersistTimestamp) {
-			window.electronAPI.resetPersistTimestamp()
-		}
-	})
+	const storedNowMode =
+		(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
 
 	if (
 		!clientInput ||
@@ -806,11 +875,20 @@ export function setupClientIdControls(): void {
 		cycles: [],
 		imageCycles: [],
 		party: [],
+		timeCycles: [],
 		renderButtonPairs: () => {},
 		renderCycles: () => {},
 		renderImageCycles: () => {},
 		renderPartyCycles: () => {},
+		renderTimeCycles: () => {},
 	}
+
+	try {
+		const rawTime = localStorage.getItem('timeCycles')
+		if (rawTime) ctx.timeCycles = JSON.parse(rawTime) as TimeCycleEntry[]
+	} catch {}
+
+	if (!Array.isArray(ctx.timeCycles)) ctx.timeCycles = []
 
 	try {
 		const rawPairs = localStorage.getItem('buttonPairs')
@@ -841,6 +919,104 @@ export function setupClientIdControls(): void {
 		]
 	}
 	if (!Array.isArray(ctx.imageCycles)) ctx.imageCycles = []
+	if (!Array.isArray(ctx.party)) ctx.party = []
+
+	function setNowMode(m: NowMode) {
+		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
+		if (nowProgress)
+			nowProgress.dataset.active = m === 'progress' ? 'true' : 'false'
+		if (nowCycles) nowCycles.dataset.active = m === 'cycles' ? 'true' : 'false'
+
+		localStorage.setItem('nowMode', m)
+
+		const mode: TimestampMode =
+			(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
+		const isNow = mode === 'now'
+		const showTime = isNow && m === 'cycles'
+
+		if (nowModeRow) nowModeRow.dataset.visible = isNow ? 'true' : 'false'
+		if (timeDivider) timeDivider.dataset.visible = showTime ? 'true' : 'false'
+		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
+		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
+	}
+
+	function setMode(m: TimestampMode) {
+		if (modeNow) modeNow.dataset.active = m === 'now' ? 'true' : 'false'
+		if (modeRange) modeRange.dataset.active = m === 'range' ? 'true' : 'false'
+		if (modePersist)
+			modePersist.dataset.active = m === 'persist' ? 'true' : 'false'
+
+		rangeRows.forEach(row => {
+			row.dataset.visible = m === 'range' ? 'true' : 'false'
+		})
+		if (persistRow) {
+			persistRow.dataset.visible = m === 'persist' ? 'true' : 'false'
+		}
+
+		const isNow = m === 'now'
+		if (nowModeRow) nowModeRow.dataset.visible = isNow ? 'true' : 'false'
+
+		const nowMode: NowMode =
+			(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+		const showTime = isNow && nowMode === 'cycles'
+
+		if (timeDivider) timeDivider.dataset.visible = showTime ? 'true' : 'false'
+		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
+		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
+
+		localStorage.setItem('timestampMode', m)
+	}
+
+	setNowMode(storedNowMode)
+	setMode(storedMode)
+
+	modeNow?.addEventListener('click', e => {
+		e.preventDefault()
+		setMode('now')
+	})
+
+	modeRange?.addEventListener('click', e => {
+		e.preventDefault()
+		setMode('range')
+	})
+
+	modePersist?.addEventListener('click', e => {
+		e.preventDefault()
+		setMode('persist')
+	})
+
+	nowPlain?.addEventListener('click', e => {
+		e.preventDefault()
+		setNowMode('plain')
+	})
+
+	nowProgress?.addEventListener('click', e => {
+		e.preventDefault()
+		setNowMode('progress')
+	})
+
+	nowCycles?.addEventListener('click', e => {
+		e.preventDefault()
+		setNowMode('cycles')
+	})
+
+	if (rangeMinInput) rangeMinInput.value = storedMin
+	if (rangeMaxInput) rangeMaxInput.value = storedMax
+
+	rangeMinInput?.addEventListener('input', () => {
+		localStorage.setItem('timestampRangeMin', rangeMinInput.value)
+	})
+
+	rangeMaxInput?.addEventListener('input', () => {
+		localStorage.setItem('timestampRangeMax', rangeMaxInput.value)
+	})
+
+	persistResetBtn?.addEventListener('click', e => {
+		e.preventDefault()
+		if (window.electronAPI?.resetPersistTimestamp) {
+			window.electronAPI.resetPersistTimestamp()
+		}
+	})
 
 	function attachDnD<T>(
 		container: HTMLElement,
@@ -914,6 +1090,32 @@ export function setupClientIdControls(): void {
 			if (insertIndex > items.length) insertIndex = items.length
 			items.splice(insertIndex, 0, moved)
 			renderFn()
+		})
+	}
+
+	ctx.renderTimeCycles = function renderTimeCycles(): void {
+		if (!timeList) return
+		timeList.innerHTML = ''
+
+		ctx.timeCycles!.forEach((entry, idx) => {
+			const row = createTimeRow(
+				entry,
+				idx,
+				updated => {
+					ctx.timeCycles![idx] = updated
+					localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
+				},
+				() => {
+					ctx.timeCycles!.splice(idx, 1)
+					if (!ctx.timeCycles!.length) {
+						localStorage.removeItem('timeCycles')
+					} else {
+						localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
+					}
+					ctx.renderTimeCycles!()
+				},
+			)
+			timeList!.appendChild(row)
 		})
 	}
 
@@ -1002,12 +1204,12 @@ export function setupClientIdControls(): void {
 		})
 	}
 
-	try {
-		const rawParty = localStorage.getItem('party')
-		if (rawParty) ctx.party = JSON.parse(rawParty) as PartyCycleEntry[]
-	} catch {}
-
-	if (!Array.isArray(ctx.party)) ctx.party = []
+	addTime?.addEventListener('click', e => {
+		e.preventDefault()
+		ctx.timeCycles!.push({ label: '', seconds: '' })
+		localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
+		ctx.renderTimeCycles!()
+	})
 
 	addParty?.addEventListener('click', e => {
 		e.preventDefault()
@@ -1020,12 +1222,15 @@ export function setupClientIdControls(): void {
 	ctx.renderButtonPairs()
 	ctx.renderCycles()
 	ctx.renderImageCycles()
+	ctx.renderTimeCycles()
 
 	if (partyList) attachDnD(partyList, ctx.party, ctx.renderPartyCycles)
 	if (buttonsList)
 		attachDnD(buttonsList, ctx.buttonPairs, ctx.renderButtonPairs)
 	if (cyclesList) attachDnD(cyclesList, ctx.cycles, ctx.renderCycles)
 	if (imagesList) attachDnD(imagesList, ctx.imageCycles, ctx.renderImageCycles)
+	if (timeList && ctx.timeCycles)
+		attachDnD(timeList, ctx.timeCycles, ctx.renderTimeCycles!)
 
 	addButtonPair.addEventListener('click', e => {
 		e.preventDefault()
@@ -1073,6 +1278,7 @@ export function setupClientIdControls(): void {
 			toast && (toast.dataset.visible = 'false')
 		}, 2000)
 	}
+
 	function renderRecentApps(): void {
 		const items = getRecentApps()
 		recentList.innerHTML = ''
@@ -1123,9 +1329,6 @@ export function setupClientIdControls(): void {
 					return
 				}
 
-				clientInput.value = item.id
-				localStorage.setItem('clientId', item.id)
-
 				try {
 					if (navigator.clipboard && navigator.clipboard.writeText) {
 						await navigator.clipboard.writeText(item.id)
@@ -1155,6 +1358,11 @@ export function setupClientIdControls(): void {
 		const intervalSec = intervalInput
 			? parseInt(intervalInput.value.trim(), 10)
 			: NaN
+		const activityType =
+			(localStorage.getItem('activityType') as ActivityType | null) || 'playing'
+		const nowMode: NowMode =
+			(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+
 		const state: FullState = {
 			clientId: clientInput.value,
 			buttonPairs: ctx.buttonPairs,
@@ -1166,24 +1374,86 @@ export function setupClientIdControls(): void {
 				(localStorage.getItem('timestampMode') as TimestampMode) || 'now',
 			timestampRangeMin: localStorage.getItem('timestampRangeMin') || '',
 			timestampRangeMax: localStorage.getItem('timestampRangeMax') || '',
+			activityType,
+			nowMode,
+			timeCycles: ctx.timeCycles,
 		}
 
-		const partyRaw = localStorage.getItem('party')
-		if (partyRaw) state.party = JSON.parse(partyRaw)
-		await saveAllFromState(state)
-		localStorage.setItem('clientId', state.clientId || '')
-		upsertRecentApp(state.clientId || '', '')
-		renderRecentApps()
+		try {
+			await saveAllFromState(state)
+			upsertRecentApp(
+				clientInput.value || '',
+				document.title || 'Void Presence App',
+			)
+			renderRecentApps()
+			appendLog({
+				message: 'Settings saved and presence restarted',
+				level: 'success',
+			})
+		} catch (err: any) {
+			appendLog({
+				message: `Failed to save settings: ${err?.message ?? String(err)}`,
+				level: 'error',
+			})
+		}
 	}
 
-	saveBtn.addEventListener('click', e => {
+	saveBtn.addEventListener('click', async e => {
 		e.preventDefault()
-		void saveAll()
-	})
-
-	clientInput.addEventListener('input', () => {
-		localStorage.setItem('clientId', clientInput.value)
+		await saveAll()
 	})
 	;(window as any).__voidPresenceCtx = ctx
 	renderRecentApps()
+}
+
+type ActivityTypeLocal = 'playing' | 'watching' | 'listening' | 'competing'
+
+export function setupActivityTypeControls(): void {
+	const activityButtons = [
+		{
+			type: 'playing' as ActivityTypeLocal,
+			el: document.getElementById('activity-type-playing'),
+		},
+		{
+			type: 'watching' as ActivityTypeLocal,
+			el: document.getElementById('activity-type-watching'),
+		},
+		{
+			type: 'listening' as ActivityTypeLocal,
+			el: document.getElementById('activity-type-listening'),
+		},
+		{
+			type: 'competing' as ActivityTypeLocal,
+			el: document.getElementById('activity-type-competing'),
+		},
+	]
+
+	function applyActivity(type: ActivityTypeLocal) {
+		activityButtons.forEach(btn => {
+			if (!btn.el) return
+			btn.el.dataset.active = btn.type === type ? 'true' : 'false'
+		})
+	}
+
+	const stored: ActivityTypeLocal =
+		(localStorage.getItem('activityType') as ActivityTypeLocal | null) ||
+		'playing'
+
+	applyActivity(stored)
+
+	activityButtons.forEach(btn => {
+		btn.el?.addEventListener('click', e => {
+			e.preventDefault()
+			const type = btn.type
+
+			localStorage.setItem('activityType', type)
+			applyActivity(type)
+
+			if (window.electronAPI?.invoke) {
+				window.electronAPI.invoke('set-activity-type', type)
+			} else if ((window as any).electronAPI?.setActivityType) {
+				;(window as any).electronAPI.setActivityType(type)
+			}
+		})
+	})
 }

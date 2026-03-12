@@ -17,6 +17,13 @@ export function importConfigFromFile(file: File): void {
 					? parsed.buttonPairs
 					: [],
 				party: Array.isArray(parsed.party) ? parsed.party : undefined,
+				timeCycles: Array.isArray(parsed.timeCycles) ? parsed.timeCycles : [],
+				timestampMode: parsed.timestampMode,
+				timestampRangeMin: parsed.timestampRangeMin,
+				timestampRangeMax: parsed.timestampRangeMax,
+				activityType: parsed.activityType,
+				nowMode: parsed.nowMode,
+				updateIntervalSec: parsed.updateIntervalSec,
 			}
 
 			const nameInput = document.getElementById(
