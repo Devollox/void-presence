@@ -1,11 +1,8 @@
 import { setupCloudUpload } from './modules/cloud-upload'
+import { setupActivityTypeControls } from './modules/config-activity'
 import { setupConfigDetailsOverlay } from './modules/config-details'
 import { setupImportOverlay } from './modules/config-import'
-import {
-	setupActivityTypeControls,
-	setupClientIdControls,
-	setupConfigPage,
-} from './modules/config-page'
+import { setupClientIdControls, setupConfigPage } from './modules/config-page'
 import { setupGlobalDrop } from './modules/global-drop'
 import { setupIntervalControl } from './modules/state'
 import {

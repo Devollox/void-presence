@@ -1,5 +1,20 @@
 import { PartyCycleEntry } from 'src/discord/modules/types'
 import { openConfigDetails } from './config-details'
+import { attachDnD } from './config-dnd'
+import { renderRecentApps } from './config-recent'
+import {
+	createButtonPairRow,
+	createCycleRow,
+	createImageCycleRow,
+	createPartyRow,
+	createTimeRow,
+} from './config-rows'
+import {
+	deepCloneState,
+	getConfigs,
+	setConfigs,
+	upsertRecentApp,
+} from './config-storage'
 import {
 	applyStateToUIAndLists,
 	loadCurrentState,
@@ -19,72 +34,6 @@ import {
 } from './types'
 import { appendLog, setActiveView } from './views'
 
-type StoredRecentApp = {
-	id: string
-	name: string
-	lastUsedAt: string
-}
-
-function getConfigs(): StoredConfig[] {
-	try {
-		const raw = localStorage.getItem('vpConfigs')
-		return raw ? (JSON.parse(raw) as StoredConfig[]) : []
-	} catch {
-		return []
-	}
-}
-
-function setConfigs(configs: StoredConfig[]): void {
-	localStorage.setItem('vpConfigs', JSON.stringify(configs))
-}
-
-function getRecentApps(): StoredRecentApp[] {
-	try {
-		const raw = localStorage.getItem('vpRecentApps')
-		return raw ? (JSON.parse(raw) as StoredRecentApp[]) : []
-	} catch {
-		return []
-	}
-}
-
-function setRecentApps(items: StoredRecentApp[]): void {
-	localStorage.setItem('vpRecentApps', JSON.stringify(items))
-}
-
-function upsertRecentApp(id: string, name: string): void {
-	const cleanId = id.trim()
-	if (!cleanId) return
-	const cleanName = name.trim() || 'Unnamed app'
-	const items = getRecentApps()
-	const exists = items.some(x => x.id === cleanId)
-	if (exists) {
-		setRecentApps(items)
-		return
-	}
-	const now = new Date().toISOString()
-	items.push({ id: cleanId, name: cleanName, lastUsedAt: now })
-	const sorted = items
-		.slice()
-		.sort(
-			(a, b) =>
-				new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime(),
-		)
-	setRecentApps(sorted.slice(0, 10))
-}
-
-function updateRecentName(id: string, name: string): void {
-	const items = getRecentApps()
-	const idx = items.findIndex(x => x.id === id)
-	if (idx === -1) return
-	items[idx] = { ...items[idx], name: name.trim() || 'Unnamed app' }
-	setRecentApps(items)
-}
-
-function removeRecentApp(id: string): void {
-	const items = getRecentApps().filter(x => x.id !== id)
-	setRecentApps(items)
-}
-
 function downloadJson(data: unknown, filename: string): void {
 	const json = JSON.stringify(data, null, 2)
 	const blob = new Blob([json], { type: 'application/json' })
@@ -96,290 +45,6 @@ function downloadJson(data: unknown, filename: string): void {
 	a.click()
 	document.body.removeChild(a)
 	URL.revokeObjectURL(url)
-}
-
-function createButtonPairRow(
-	pair: ButtonPair,
-	index: number,
-	onChange: (pair: ButtonPair) => void,
-	onRemove: () => void,
-): HTMLDivElement {
-	const row = document.createElement('div')
-	row.className = 'pair-row'
-	row.dataset.index = String(index)
-	row.draggable = true
-
-	const inputsWrap = document.createElement('div')
-	inputsWrap.className = 'pair-inputs'
-
-	const input1 = document.createElement('input')
-	input1.placeholder = 'Button Name #1'
-	input1.value = pair.label1 || ''
-
-	const input2 = document.createElement('input')
-	input2.placeholder = 'URL #1'
-	input2.value = pair.url1 || ''
-
-	const input3 = document.createElement('input')
-	input3.placeholder = 'Button Name #2 (optional)'
-	input3.value = pair.label2 || ''
-
-	const input4 = document.createElement('input')
-	input4.placeholder = 'URL #2 (optional)'
-	input4.value = pair.url2 || ''
-
-	const remove = document.createElement('button')
-	remove.className = 'remove-btn'
-	remove.type = 'button'
-	remove.textContent = '×'
-
-	function triggerChange(): void {
-		onChange({
-			label1: input1.value,
-			url1: input2.value,
-			label2: input3.value,
-			url2: input4.value,
-		})
-	}
-
-	input1.addEventListener('input', triggerChange)
-	input2.addEventListener('input', triggerChange)
-	input3.addEventListener('input', triggerChange)
-	input4.addEventListener('input', triggerChange)
-
-	remove.addEventListener('click', e => {
-		e.preventDefault()
-		onRemove()
-	})
-
-	row.appendChild(remove)
-	inputsWrap.appendChild(input1)
-	inputsWrap.appendChild(input2)
-	inputsWrap.appendChild(input3)
-	inputsWrap.appendChild(input4)
-	row.appendChild(inputsWrap)
-
-	return row
-}
-
-function createCycleRow(
-	entry: CycleEntry,
-	index: number,
-	onChange: (entry: CycleEntry) => void,
-	onRemove: () => void,
-): HTMLDivElement {
-	const row = document.createElement('div')
-	row.className = 'cycle-row'
-	row.dataset.index = String(index)
-	row.draggable = true
-
-	const inputsWrap = document.createElement('div')
-	inputsWrap.className = 'cycle-inputs'
-
-	const input1 = document.createElement('input')
-	input1.placeholder = 'Details'
-	input1.value = entry.details || ''
-
-	const input2 = document.createElement('input')
-	input2.placeholder = 'State'
-	input2.value = entry.state || ''
-
-	const remove = document.createElement('button')
-	remove.className = 'remove-btn'
-	remove.type = 'button'
-	remove.textContent = '×'
-
-	function triggerChange(): void {
-		onChange({
-			details: input1.value,
-			state: input2.value,
-		})
-	}
-
-	input1.addEventListener('input', triggerChange)
-	input2.addEventListener('input', triggerChange)
-
-	remove.addEventListener('click', e => {
-		e.preventDefault()
-		onRemove()
-	})
-
-	row.appendChild(remove)
-	inputsWrap.appendChild(input1)
-	inputsWrap.appendChild(input2)
-	row.appendChild(inputsWrap)
-
-	return row
-}
-
-function createTimeRow(
-	entry: TimeCycleEntry,
-	index: number,
-	onChange: (entry: TimeCycleEntry) => void,
-	onRemove: () => void,
-): HTMLDivElement {
-	const row = document.createElement('div')
-	row.className = 'cycle-row'
-	row.dataset.index = String(index)
-	row.draggable = true
-
-	const inputsWrap = document.createElement('div')
-	inputsWrap.className = 'cycle-inputs'
-
-	const nameInput = document.createElement('input')
-	nameInput.placeholder = 'Label (optional)'
-	nameInput.value = entry.label || ''
-
-	const secInput = document.createElement('input')
-	secInput.placeholder = 'Duration (sec)'
-	secInput.value =
-		typeof entry.seconds === 'number'
-			? String(entry.seconds)
-			: (entry.seconds as string) || ''
-
-	const remove = document.createElement('button')
-	remove.className = 'remove-btn'
-	remove.type = 'button'
-	remove.textContent = '×'
-
-	function triggerChange(): void {
-		onChange({
-			label: nameInput.value,
-			seconds: secInput.value,
-		})
-	}
-
-	nameInput.addEventListener('input', triggerChange)
-	secInput.addEventListener('input', triggerChange)
-
-	remove.addEventListener('click', e => {
-		e.preventDefault()
-		onRemove()
-	})
-
-	row.appendChild(remove)
-	inputsWrap.appendChild(nameInput)
-	inputsWrap.appendChild(secInput)
-	row.appendChild(inputsWrap)
-
-	return row
-}
-
-function createPartyRow(
-	party: PartyCycleEntry,
-	index: number,
-	onChange: (party: PartyCycleEntry) => void,
-	onRemove: () => void,
-): HTMLDivElement {
-	const row = document.createElement('div')
-	row.className = 'party-row'
-	row.dataset.index = String(index)
-	row.draggable = true
-
-	const wrap = document.createElement('div')
-	wrap.className = 'party-inputs'
-
-	const currentInput = document.createElement('input')
-	currentInput.placeholder = 'Current party size'
-	currentInput.value = party.sizeCurrent?.toString() ?? ''
-
-	const maxInput = document.createElement('input')
-	maxInput.placeholder = 'Max party size'
-	maxInput.value = party.sizeMax?.toString() ?? ''
-
-	const remove = document.createElement('button')
-	remove.className = 'remove-btn'
-	remove.textContent = '×'
-
-	const updateParty = () => {
-		onChange({
-			sizeCurrent: currentInput.value,
-			sizeMax: maxInput.value,
-		} as any)
-	}
-
-	currentInput.addEventListener('input', updateParty)
-	maxInput.addEventListener('input', updateParty)
-
-	remove.addEventListener('click', e => {
-		e.preventDefault()
-		onRemove()
-	})
-
-	row.appendChild(remove)
-	wrap.appendChild(currentInput)
-	wrap.appendChild(maxInput)
-	row.appendChild(wrap)
-
-	return row
-}
-
-function createImageCycleRow(
-	entry: ImageCycleEntry,
-	index: number,
-	onChange: (entry: ImageCycleEntry) => void,
-	onRemove: () => void,
-): HTMLDivElement {
-	const row = document.createElement('div')
-	row.className = 'image-row'
-	row.dataset.index = String(index)
-	row.draggable = true
-
-	const wrap = document.createElement('div')
-	wrap.className = 'image-inputs'
-
-	const largeKey = document.createElement('input')
-	largeKey.placeholder = 'Large image URL(.png/.jpeg/.gif and etc)'
-	largeKey.value = entry.largeImage || ''
-
-	const largeText = document.createElement('input')
-	largeText.placeholder = 'Large hover text'
-	largeText.value = entry.largeText || ''
-
-	const smallKey = document.createElement('input')
-	smallKey.placeholder = 'Small image URL(.png/.jpeg/.gif and etc) (optional)'
-	smallKey.value = entry.smallImage || ''
-
-	const smallText = document.createElement('input')
-	smallText.placeholder = 'Small hover text (optional)'
-	smallText.value = entry.smallText || ''
-
-	const remove = document.createElement('button')
-	remove.className = 'remove-btn'
-	remove.type = 'button'
-	remove.textContent = '×'
-
-	function triggerChange(): void {
-		onChange({
-			largeImage: largeKey.value,
-			largeText: largeText.value,
-			smallImage: smallKey.value,
-			smallText: smallText.value,
-		})
-	}
-
-	largeKey.addEventListener('input', triggerChange)
-	largeText.addEventListener('input', triggerChange)
-	smallKey.addEventListener('input', triggerChange)
-	smallText.addEventListener('input', triggerChange)
-
-	remove.addEventListener('click', e => {
-		e.preventDefault()
-		onRemove()
-	})
-
-	row.appendChild(remove)
-	wrap.appendChild(largeKey)
-	wrap.appendChild(largeText)
-	wrap.appendChild(smallKey)
-	wrap.appendChild(smallText)
-	row.appendChild(wrap)
-
-	return row
-}
-
-function deepCloneState(state: FullState): FullState {
-	return JSON.parse(JSON.stringify(state)) as FullState
 }
 
 export function setupConfigPage(): void {
@@ -572,9 +237,19 @@ export function setupConfigPage(): void {
 						state.activityType ??
 						(localStorage.getItem('activityType') as ActivityType | null) ??
 						'playing',
+					rpcMode:
+						state.rpcMode ??
+						((localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
+							'advanced'),
 				}
 
 				const st = deepCloneState(base)
+				if (st.rpcMode) {
+					localStorage.setItem('rpcMode', st.rpcMode)
+					if (window.electronAPI?.setRpcMode) {
+						window.electronAPI.setRpcMode(st.rpcMode)
+					}
+				}
 				applyStateToUIAndLists(st, ctx)
 				await saveAllFromState(st)
 				nameInput.value = ''
@@ -681,6 +356,7 @@ export function setupConfigPage(): void {
 					activityType: state.activityType,
 					nowMode: state.nowMode,
 					updateIntervalSec: state.updateIntervalSec,
+					rpcMode: state.rpcMode,
 				}
 
 				const name =
@@ -753,7 +429,9 @@ export function setupConfigPage(): void {
 			buttonPairs: state.buttonPairs || [],
 			party: state.party || [],
 			timeCycles: state.timeCycles || [],
+			rpcMode: state.rpcMode,
 		}
+
 		const name =
 			nameInput.value.trim() ||
 			`void-presence-${new Date().toISOString().slice(0, 10)}`
@@ -764,6 +442,9 @@ export function setupConfigPage(): void {
 }
 
 export function setupClientIdControls(): void {
+	const rpcModeWrap = document.getElementById(
+		'rpc-mode-wrap',
+	) as HTMLElement | null
 	const clientInput = document.getElementById(
 		'client-id-input',
 	) as HTMLInputElement | null
@@ -844,7 +525,12 @@ export function setupClientIdControls(): void {
 		'.time-cycles-divider',
 	)
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
+	const storedRpcMode =
+		(localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
+		'advanced'
 
+	let currentRpcMode: 'basic' | 'advanced' = storedRpcMode
+	applyRpcModeToUI(storedRpcMode)
 	const storedMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
 	const storedMin = localStorage.getItem('timestampRangeMin') || ''
@@ -907,7 +593,7 @@ export function setupClientIdControls(): void {
 
 	try {
 		const rawParty = localStorage.getItem('party')
-		if (rawParty) ctx.party = JSON.parse(rawParty) as PartyCycleEntry[]
+		if (rawParty) ctx.party = JSON.parse(rawParty) as any[]
 	} catch {}
 
 	if (!Array.isArray(ctx.buttonPairs)) ctx.buttonPairs = []
@@ -939,6 +625,35 @@ export function setupClientIdControls(): void {
 		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
 		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
 	}
+
+	function applyRpcModeToUI(mode: 'basic' | 'advanced') {
+		currentRpcMode = mode
+		localStorage.setItem('rpcMode', mode)
+
+		if (!rpcModeWrap) return
+
+		rpcModeWrap
+			.querySelectorAll<HTMLButtonElement>('.timestamp-mode-btn')
+			.forEach(btn => {
+				const m = btn.dataset.mode as 'basic' | 'advanced' | undefined
+				btn.dataset.active = m === mode ? 'true' : 'false'
+			})
+	}
+
+	rpcModeWrap?.addEventListener('click', e => {
+		const target = e.target as HTMLElement
+		const btn = target.closest<HTMLButtonElement>('.timestamp-mode-btn')
+		if (!btn) return
+
+		const mode = btn.dataset.mode as 'basic' | 'advanced' | undefined
+		if (!mode || mode === currentRpcMode) return
+
+		applyRpcModeToUI(mode)
+
+		if (window.electronAPI?.setRpcMode) {
+			window.electronAPI.setRpcMode(mode)
+		}
+	})
 
 	function setMode(m: TimestampMode) {
 		if (modeNow) modeNow.dataset.active = m === 'now' ? 'true' : 'false'
@@ -1018,86 +733,11 @@ export function setupClientIdControls(): void {
 		}
 	})
 
-	function attachDnD<T>(
-		container: HTMLElement,
-		items: T[],
-		renderFn: () => void,
-	): void {
-		let dragIndex: number | null = null
-
-		container.addEventListener('dragstart', e => {
-			const target = e.target as HTMLElement | null
-			if (!target) return
-
-			const isInput =
-				target instanceof HTMLInputElement ||
-				target instanceof HTMLTextAreaElement
-			if (isInput || window.getSelection()?.toString()) {
-				e.preventDefault()
-				return
-			}
-
-			const row = target.closest<HTMLElement>('[data-index]')
-			if (!row) return
-			dragIndex = Number(row.dataset.index)
-			row.classList.add('dragging')
-		})
-
-		container.addEventListener('dragend', e => {
-			const target = e.target as HTMLElement | null
-			const row = target?.closest<HTMLElement>('[data-index]')
-			if (row) row.classList.remove('dragging')
-			Array.from(container.children).forEach(ch => {
-				;(ch as HTMLElement).classList.remove(
-					'drop-target-top',
-					'drop-target-bottom',
-				)
-			})
-			dragIndex = null
-		})
-
-		container.addEventListener('dragover', e => {
-			e.preventDefault()
-			const target = e.target as HTMLElement | null
-			const row = target?.closest<HTMLElement>('[data-index]')
-			if (!row || dragIndex === null) return
-			Array.from(container.children).forEach(ch => {
-				;(ch as HTMLElement).classList.remove(
-					'drop-target-top',
-					'drop-target-bottom',
-				)
-			})
-			const rect = row.getBoundingClientRect()
-			const offset = e.clientY - rect.top
-			if (offset < rect.height / 2) {
-				row.classList.add('drop-target-top')
-			} else {
-				row.classList.add('drop-target-bottom')
-			}
-		})
-
-		container.addEventListener('drop', e => {
-			e.preventDefault()
-			const target = e.target as HTMLElement | null
-			const row = target?.closest<HTMLElement>('[data-index]')
-			if (!row || dragIndex === null) return
-			const targetIndex = Number(row.dataset.index)
-			const rect = row.getBoundingClientRect()
-			const offset = e.clientY - rect.top
-			let insertIndex = targetIndex
-			if (offset >= rect.height / 2) insertIndex = targetIndex + 1
-			const [moved] = items.splice(dragIndex, 1)
-			if (insertIndex > items.length) insertIndex = items.length
-			items.splice(insertIndex, 0, moved)
-			renderFn()
-		})
-	}
-
 	ctx.renderTimeCycles = function renderTimeCycles(): void {
 		if (!timeList) return
 		timeList.innerHTML = ''
 
-		ctx.timeCycles!.forEach((entry, idx) => {
+		ctx.timeCycles!.forEach((entry: TimeCycleEntry, idx: number) => {
 			const row = createTimeRow(
 				entry,
 				idx,
@@ -1122,7 +762,7 @@ export function setupClientIdControls(): void {
 	ctx.renderButtonPairs = function renderButtonPairs(): void {
 		if (!buttonsList) return
 		buttonsList.innerHTML = ''
-		ctx.buttonPairs.forEach((pair, idx) => {
+		ctx.buttonPairs.forEach((pair: ButtonPair, idx: number) => {
 			const row = createButtonPairRow(
 				pair,
 				idx,
@@ -1141,7 +781,7 @@ export function setupClientIdControls(): void {
 	ctx.renderCycles = function renderCycles(): void {
 		if (!cyclesList) return
 		cyclesList.innerHTML = ''
-		ctx.cycles.forEach((entry, idx) => {
+		ctx.cycles.forEach((entry: CycleEntry, idx: number) => {
 			const row = createCycleRow(
 				entry,
 				idx,
@@ -1160,7 +800,7 @@ export function setupClientIdControls(): void {
 	ctx.renderImageCycles = function renderImageCycles(): void {
 		if (!imagesList) return
 		imagesList.innerHTML = ''
-		ctx.imageCycles.forEach((entry, idx) => {
+		ctx.imageCycles.forEach((entry: ImageCycleEntry, idx: number) => {
 			const row = createImageCycleRow(
 				entry,
 				idx,
@@ -1180,7 +820,7 @@ export function setupClientIdControls(): void {
 		if (!partyList) return
 		partyList.innerHTML = ''
 
-		ctx.party.forEach((partyEntry, idx) => {
+		ctx.party.forEach((partyEntry: PartyCycleEntry, idx: number) => {
 			const row = createPartyRow(
 				partyEntry,
 				idx,
@@ -1263,94 +903,6 @@ export function setupClientIdControls(): void {
 		ctx.renderImageCycles()
 	})
 
-	const copyToastId = 'vp-copy-toast'
-	function showCopyToast(): void {
-		let toast = document.getElementById(copyToastId) as HTMLDivElement | null
-		if (!toast) {
-			toast = document.createElement('div')
-			toast.id = copyToastId
-			toast.className = 'copy-toast'
-			toast.textContent = 'Client ID copied'
-			document.body.appendChild(toast)
-		}
-		toast.dataset.visible = 'true'
-		window.setTimeout(() => {
-			toast && (toast.dataset.visible = 'false')
-		}, 2000)
-	}
-
-	function renderRecentApps(): void {
-		const items = getRecentApps()
-		recentList.innerHTML = ''
-		if (!items.length) return
-
-		items.forEach(item => {
-			const row = document.createElement('div')
-			row.className = 'cycle-row'
-			row.dataset.id = item.id
-
-			const inputsWrap = document.createElement('div')
-			inputsWrap.className = 'cycle-inputs'
-
-			const nameInput = document.createElement('input')
-			nameInput.placeholder = 'App name'
-			nameInput.value = item.name
-
-			const idText = document.createElement('input')
-			idText.value = item.id
-			idText.readOnly = true
-			idText.className = 'cycle-row input id-click'
-
-			const remove = document.createElement('button')
-			remove.className = 'remove-btn'
-			remove.type = 'button'
-			remove.textContent = '×'
-
-			nameInput.addEventListener('input', () => {
-				updateRecentName(item.id, nameInput.value)
-			})
-
-			row.addEventListener('click', async e => {
-				const target = e.target as HTMLElement
-
-				if (
-					target.tagName === 'BUTTON' ||
-					target.closest('button') === remove
-				) {
-					return
-				}
-
-				if (target === nameInput || target.closest('input') === nameInput) {
-					return
-				}
-
-				const inInputsWrap = !!target.closest('.cycle-inputs')
-				if (!inInputsWrap) {
-					return
-				}
-
-				try {
-					if (navigator.clipboard && navigator.clipboard.writeText) {
-						await navigator.clipboard.writeText(item.id)
-						showCopyToast()
-					}
-				} catch {}
-			})
-
-			remove.addEventListener('click', e => {
-				e.preventDefault()
-				removeRecentApp(item.id)
-				renderRecentApps()
-			})
-
-			row.appendChild(remove)
-			inputsWrap.appendChild(nameInput)
-			inputsWrap.appendChild(idText)
-			row.appendChild(inputsWrap)
-			recentList.appendChild(row)
-		})
-	}
-
 	async function saveAll(): Promise<void> {
 		const intervalInput = document.getElementById(
 			'update-interval-input',
@@ -1377,6 +929,7 @@ export function setupClientIdControls(): void {
 			activityType,
 			nowMode,
 			timeCycles: ctx.timeCycles,
+			rpcMode: currentRpcMode,
 		}
 
 		try {
@@ -1385,7 +938,9 @@ export function setupClientIdControls(): void {
 				clientInput.value || '',
 				document.title || 'Void Presence App',
 			)
-			renderRecentApps()
+			if (recentList) {
+				renderRecentApps(recentList)
+			}
 			appendLog({
 				message: 'Settings saved and presence restarted',
 				level: 'success',
@@ -1403,57 +958,7 @@ export function setupClientIdControls(): void {
 		await saveAll()
 	})
 	;(window as any).__voidPresenceCtx = ctx
-	renderRecentApps()
-}
-
-type ActivityTypeLocal = 'playing' | 'watching' | 'listening' | 'competing'
-
-export function setupActivityTypeControls(): void {
-	const activityButtons = [
-		{
-			type: 'playing' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-playing'),
-		},
-		{
-			type: 'watching' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-watching'),
-		},
-		{
-			type: 'listening' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-listening'),
-		},
-		{
-			type: 'competing' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-competing'),
-		},
-	]
-
-	function applyActivity(type: ActivityTypeLocal) {
-		activityButtons.forEach(btn => {
-			if (!btn.el) return
-			btn.el.dataset.active = btn.type === type ? 'true' : 'false'
-		})
+	if (recentList) {
+		renderRecentApps(recentList)
 	}
-
-	const stored: ActivityTypeLocal =
-		(localStorage.getItem('activityType') as ActivityTypeLocal | null) ||
-		'playing'
-
-	applyActivity(stored)
-
-	activityButtons.forEach(btn => {
-		btn.el?.addEventListener('click', e => {
-			e.preventDefault()
-			const type = btn.type
-
-			localStorage.setItem('activityType', type)
-			applyActivity(type)
-
-			if (window.electronAPI?.invoke) {
-				window.electronAPI.invoke('set-activity-type', type)
-			} else if ((window as any).electronAPI?.setActivityType) {
-				;(window as any).electronAPI.setActivityType(type)
-			}
-		})
-	})
 }

@@ -9,7 +9,6 @@ import { createMainWindow } from './main/window'
 let isQuitting = false
 
 decodeEnv()
-initIpc()
 
 app.on('before-quit', () => {
 	isQuitting = true
@@ -22,6 +21,8 @@ app.whenReady().then(() => {
 
 	win = createMainWindow(autoHideOnStart, () => isQuitting)
 
+	initIpc()
+
 	createTray(
 		() => {
 			if (win && !win.isDestroyed()) {
@@ -32,7 +33,7 @@ app.whenReady().then(() => {
 		},
 		() => {
 			isQuitting = true
-		}
+		},
 	)
 
 	if (win) {

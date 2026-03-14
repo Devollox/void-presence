@@ -63,19 +63,20 @@ export interface PartyConfig {
 	entries: PartyCycleEntry[]
 }
 
-export interface FullState {
+export type FullState = {
 	clientId?: string
 	updateIntervalSec?: number | string
 	buttonPairs?: ButtonPair[]
 	cycles?: CycleEntry[]
 	imageCycles?: ImageCycleEntry[]
 	party?: PartyCycleEntry[]
+	timeCycles?: TimeCycleEntry[]
 	timestampMode?: TimestampMode
-	timestampRangeMin?: number | string
-	timestampRangeMax?: number | string
+	timestampRangeMin?: string
+	timestampRangeMax?: string
 	activityType?: ActivityType
 	nowMode?: NowMode
-	timeCycles?: TimeCycleEntry[]
+	rpcMode?: 'basic' | 'advanced'
 }
 
 export interface StoredConfig {
@@ -97,7 +98,14 @@ export interface VoidPresenceCtx {
 	renderTimeCycles?: () => void
 }
 
+export type AppSettings = {
+	autoHideOnStart?: boolean
+	rpcMode?: 'basic' | 'advanced'
+}
+
 export interface ElectronAPI {
+	setRpcMode(mode: string): unknown
+	startDiscordRichProfile: any
 	invoke: any
 	setActivityType(activityType: string): unknown
 	resetPersistTimestamp(): unknown

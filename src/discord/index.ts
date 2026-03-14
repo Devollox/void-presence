@@ -1,3 +1,6 @@
+import { stopDiscordRich as stopDiscordRichAdvanced } from './modules/rpc_advanced'
+import { stopDiscordRich as stopDiscordRichBasic } from './modules/rpc_basic'
+
 export {
 	readClientConfig,
 	setButtonsConfig,
@@ -9,9 +12,24 @@ export {
 } from './modules/config'
 
 export {
-	resetPersistTimestampValue,
-	setActivityInterval,
-	stopDiscordRich,
-} from './modules/rpc'
+	resetPersistTimestampValue as resetPersistTimestampValueBasic,
+	setActivityInterval as setActivityIntervalBasic,
+	default as startDiscordRichBasic,
+	stopDiscordRich as stopDiscordRichBasic,
+} from './modules/rpc_basic'
 
-export { default } from './modules/rpc'
+export {
+	resetPersistTimestampValue as resetPersistTimestampValueAdvanced,
+	setActivityInterval as setActivityIntervalAdvanced,
+	default as startDiscordRichAdvanced,
+	stopDiscordRich as stopDiscordRichAdvanced,
+} from './modules/rpc_advanced'
+
+export function stopDiscordRich() {
+	try {
+		stopDiscordRichBasic()
+	} catch {}
+	try {
+		stopDiscordRichAdvanced()
+	} catch {}
+}

@@ -61,7 +61,7 @@ export function setupRestartButton(): void {
 		if (window.electronAPI?.restartDiscordRich) {
 			setTimeout(() => {
 				updateStatus('RESTARTING')
-			}, 500)
+			}, 100)
 			window.electronAPI.restartDiscordRich()
 		}
 	})

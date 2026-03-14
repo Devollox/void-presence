@@ -1,6 +1,6 @@
-import { Menu, Tray, app } from 'electron'
+import { app, BrowserWindow, Menu, Tray } from 'electron'
 import * as path from 'path'
-import startDiscordRich, { stopDiscordRich } from '../discord'
+import { stopDiscordRich } from '../discord'
 import { sendStatus } from './logging'
 import { getMainWindow } from './window'
 
@@ -39,14 +39,12 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 			label: 'Restart Presence',
 			accelerator: 'CmdOrCtrl+R',
 			click: () => {
-				const win = getMainWindow()
+				const win = getMainWindow() || BrowserWindow.getAllWindows()[0]
 				if (!win || win.isDestroyed()) return
-				sendStatus('RESTARTING')
-				stopDiscordRich()
-				startDiscordRich(payload => {
-					if (win.isDestroyed()) return
-					win.webContents.send('rpc-update', payload)
-				})
+				win.webContents.send('restart-discord-rich')
+				setTimeout(() => {
+					sendStatus('RESTARTING')
+				}, 100)
 			},
 		},
 		{ type: 'separator' },

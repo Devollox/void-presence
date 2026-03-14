@@ -1,6 +1,5 @@
 import { BrowserWindow, app } from 'electron'
 import * as path from 'path'
-import startDiscordRich from '../discord'
 import { sendStatus } from './logging'
 
 let mainWindow: BrowserWindow | null = null
@@ -48,12 +47,9 @@ export function createMainWindow(
 		})
 	}
 
-	sendStatus('RESTARTING')
-
-	startDiscordRich(payload => {
-		if (!mainWindow || mainWindow.isDestroyed()) return
-		mainWindow.webContents.send('rpc-update', payload)
-	})
+	setTimeout(() => {
+		sendStatus('RESTARTING')
+	}, 100)
 
 	mainWindow.on('close', ev => {
 		if (!isQuitting()) {

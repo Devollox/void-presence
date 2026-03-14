@@ -1,16 +1,22 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import startDiscordRich, {
-	resetPersistTimestampValue,
-	setActivityInterval,
+import path from 'path'
+import { Worker } from 'worker_threads'
+import {
+	resetPersistTimestampValueAdvanced,
+	resetPersistTimestampValueBasic,
+	setActivityIntervalAdvanced,
+	setActivityIntervalBasic,
 	setButtonsConfig,
 	setClientId,
 	setCycles,
 	setImageCyclesConfig,
 	setPartyConfig,
 	setTimestampConfig,
-	stopDiscordRich,
+	startDiscordRichAdvanced,
+	startDiscordRichBasic,
+	stopDiscordRichAdvanced,
+	stopDiscordRichBasic,
 } from '../discord'
-
 import { readTimestampConfig, setActivityType } from '../discord/modules/config'
 import { PartyConfig } from '../discord/modules/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
@@ -18,6 +24,51 @@ import { sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
 
 let autoHideOnStart = false
+let smtcWorker: Worker | null = null
+let lastNowPlaying: any = null
+
+type RpcMode = 'basic' | 'advanced'
+
+let currentRpcMode: RpcMode = 'advanced'
+let stopCurrentRpc: (() => void) | null = null
+
+function startDiscordRich(sendPayload: (payload: any) => void) {
+	if (stopCurrentRpc) {
+		stopCurrentRpc()
+		stopCurrentRpc = null
+	}
+
+	if (currentRpcMode === 'basic') {
+		stopCurrentRpc = stopDiscordRichBasic
+		startDiscordRichBasic(sendPayload)
+	} else {
+		stopCurrentRpc = stopDiscordRichAdvanced
+		startDiscordRichAdvanced(sendPayload)
+	}
+}
+
+function stopDiscordRich() {
+	if (stopCurrentRpc) {
+		stopCurrentRpc()
+		stopCurrentRpc = null
+	}
+}
+
+function setActivityInterval(sec: number) {
+	if (currentRpcMode === 'basic') {
+		setActivityIntervalBasic(sec)
+	} else {
+		setActivityIntervalAdvanced(sec)
+	}
+}
+
+function resetPersistTimestampValue() {
+	if (currentRpcMode === 'basic') {
+		resetPersistTimestampValueBasic()
+	} else {
+		resetPersistTimestampValueAdvanced()
+	}
+}
 
 export function getAutoHide() {
 	return autoHideOnStart
@@ -31,16 +82,120 @@ function setAutoLaunch(enabled: boolean) {
 	})
 }
 
+function startSmtcWorker() {
+	const workerPath = app.isPackaged
+		? path.join(
+				process.resourcesPath,
+				'app',
+				'src',
+				'discord',
+				'smtc-worker.js',
+			)
+		: path.join(process.cwd(), 'src', 'discord', 'smtc-worker.js')
+
+	const userDataDir = app.getPath('userData')
+
+	smtcWorker = new Worker(workerPath, {
+		env: {
+			...process.env,
+			SMTC_USER_DATA: userDataDir,
+		},
+	})
+
+	smtcWorker.on('message', (msg: any) => {
+		if (msg && msg.type === 'nowPlaying') {
+			lastNowPlaying = msg.data
+		}
+	})
+
+	setInterval(() => {
+		smtcWorker?.postMessage('getNowPlaying')
+	}, 2000)
+}
+
 export function initIpc() {
+	const s = loadSettings()
+	autoHideOnStart = !!s.autoHideOnStart
+	currentRpcMode = s.rpcMode === 'basic' ? 'basic' : 'advanced'
+
+	if (currentRpcMode === 'advanced' && !smtcWorker) {
+		startSmtcWorker()
+	}
+
+	ipcMain.handle('get-now-playing', async () => {
+		return lastNowPlaying
+	})
+
 	ipcMain.handle('restart-discord-rich', async () => {
 		const win = BrowserWindow.getAllWindows()[0]
-		if (!win || win.isDestroyed()) return
-		sendStatus('RESTARTING')
+		if (!win || win.isDestroyed()) return false
+
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+
+		try {
+			if (currentRpcMode === 'basic') {
+				stopDiscordRichBasic()
+				await new Promise(resolve => setTimeout(resolve, 100))
+				startDiscordRichBasic(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
+				stopCurrentRpc = stopDiscordRichBasic
+			} else {
+				stopDiscordRichAdvanced()
+				await new Promise(resolve => setTimeout(resolve, 100))
+				startDiscordRichAdvanced(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
+				stopCurrentRpc = stopDiscordRichAdvanced
+			}
+
+			return true
+		} catch (error) {
+			console.error('Restart failed:', error)
+			sendStatus('ERROR')
+			return false
+		}
+	})
+
+	ipcMain.handle('rpc:get-mode', async () => {
+		return currentRpcMode
+	})
+
+	ipcMain.handle('rpc:set-mode', async (_event, mode: RpcMode) => {
+		if (mode !== 'basic' && mode !== 'advanced') return currentRpcMode
+		if (mode === currentRpcMode) return currentRpcMode
+
+		const oldMode = currentRpcMode
+		currentRpcMode = mode
+
+		const current = loadSettings()
+		saveSettings({ ...current, rpcMode: currentRpcMode })
+
+		const win = BrowserWindow.getAllWindows()[0]
+		if (!win || win.isDestroyed()) return currentRpcMode
+
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+
 		stopDiscordRich()
 		startDiscordRich(payload => {
 			if (win.isDestroyed()) return
 			win.webContents.send('rpc-update', payload)
 		})
+
+		if (oldMode === 'advanced' && mode === 'basic') {
+			smtcWorker?.terminate()
+			smtcWorker = null
+		} else if (oldMode === 'basic' && mode === 'advanced') {
+			startSmtcWorker()
+		}
+
+		return currentRpcMode
 	})
 
 	ipcMain.handle('stop-discord-rich', async () => {
@@ -140,8 +295,8 @@ export function initIpc() {
 	})
 
 	ipcMain.handle('get-auto-hide', async () => {
-		const s = loadSettings()
-		autoHideOnStart = !!s.autoHideOnStart
+		const s2 = loadSettings()
+		autoHideOnStart = !!s2.autoHideOnStart
 		return autoHideOnStart
 	})
 
@@ -163,4 +318,15 @@ export function initIpc() {
 			win.minimize()
 		}
 	})
+
+	const win = BrowserWindow.getAllWindows()[0]
+	if (win && !win.isDestroyed()) {
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+		startDiscordRich(payload => {
+			if (win.isDestroyed()) return
+			win.webContents.send('rpc-update', payload)
+		})
+	}
 }
