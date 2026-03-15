@@ -18,12 +18,12 @@
 
 ## Overview
 
-Void Presence is an advanced Discord Rich Presence manager with customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer between machines. Status updates every 30 seconds, giving you complete control over how your Discord activity looks.
+Void Presence is an advanced Discord Rich Presence manager with **two RPC Modes** (`Basic` / `Music and Youtube`), customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer between machines. **Advanced mode** intelligently detects **Music** and **YouTube** activity!
 
 ---
 
 ## Features
-
+- **RPC Modes** – `Basic` (lightweight) / `Music and Youtube` (**Spotify + YouTube**)
 - **Custom button pairs** – Create multiple button sets with labels and URLs  
 - **Custom update interval** – Control how often activity is refreshed (in seconds)  
 - **Status cycles** – Rotate between different status messages (`details` and `state`)  
@@ -62,6 +62,14 @@ Void Presence is an advanced Discord Rich Presence manager with customizable but
 2. Create a new application  
 3. Copy the **Application ID** from **General Information**  
 4. Paste it into the `CLIENT ID` field in Void Presence
+
+##  RPC Modes Explained
+
+| Mode | Features | CPU | Spotify/YouTube | Use Case |
+|------|----------|-----|-----------------|----------|
+| **Basic** |  Core RPC<br> Lightweight | **0.1%** |  None | Gaming, coding, minimal |
+| **Advanced** |  All Basic +<br> **Music detection**<br> **YouTube activity** | **0.4%** | **Full** | Streaming, music, YouTube |
+
 
 ## RPC Update Intervals
 
