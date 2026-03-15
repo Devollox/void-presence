@@ -209,6 +209,16 @@ export function initIpc() {
 	})
 
 	ipcMain.handle('reset-persist-timestamp', async () => {
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+
+		stopDiscordRich()
+		startDiscordRich(payload => {
+			if (win.isDestroyed()) return
+			win.webContents.send('rpc-update', payload)
+		})
+
 		resetPersistTimestampValue()
 		const cfg = await readTimestampConfig()
 		cfg.persistOffsetSec = 0

@@ -332,22 +332,26 @@ export async function setPartyConfig(config: PartyConfig) {
 	await writePartyConfig(finalCfg)
 }
 
-export async function setTimestampConfig(config: TimestampConfig) {
-	const mode = config.mode || 'now'
+export async function setTimestampConfig(config: Partial<TimestampConfig>) {
+	const current = await readTimestampConfig()
+	const mode = config.mode || current.mode || 'now'
 	const min =
 		config.rangeMin != null && Number.isFinite(config.rangeMin)
 			? Number(config.rangeMin)
-			: null
+			: current.rangeMin
 	const max =
 		config.rangeMax != null && Number.isFinite(config.rangeMax)
 			? Number(config.rangeMax)
-			: null
+			: current.rangeMax
 	const persistOffsetSec =
 		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
 			? Number(config.persistOffsetSec)
-			: 0
-	const nowMode = config.nowMode || 'plain'
-	const timeCycles = Array.isArray(config.timeCycles) ? config.timeCycles : []
+			: current.persistOffsetSec
+	const nowMode = config.nowMode || current.nowMode || 'plain'
+	const timeCycles = Array.isArray(config.timeCycles)
+		? config.timeCycles
+		: current.timeCycles
+
 	await writeTimestampConfig({
 		mode,
 		rangeMin: min,
