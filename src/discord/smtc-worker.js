@@ -9,25 +9,22 @@ const userData =
 
 const nowPlayingPath = path.join(userData, 'now-playing.json')
 
+let lastSession = null
+let lastSessionTime = 0
+const SESSION_CACHE_MS = 2000
+
 function ensureDir() {
 	try {
 		fs.mkdirSync(userData, { recursive: true })
-	} catch (e) {
-		console.error('[SMTC worker] mkdir error:', e)
-	}
+	} catch {}
 }
 
 function saveNowPlaying(info) {
 	ensureDir()
 	try {
-		fs.writeFileSync(
-			nowPlayingPath,
-			JSON.stringify(info || null, null, 2),
-			'utf8',
-		)
-	} catch (e) {
-		console.error('[SMTC worker] write file error:', e)
-	}
+		const json = JSON.stringify(info || null)
+		fs.writeFileSync(nowPlayingPath, json, 'utf8')
+	} catch {}
 }
 
 function mapPlaybackStatus(status) {
@@ -48,10 +45,25 @@ function mapPlaybackType(type) {
 	return 'Unknown'
 }
 
+function postNowPlaying(info) {
+	saveNowPlaying(info)
+	if (parentPort) {
+		parentPort.postMessage({ type: 'nowPlaying', data: info })
+	}
+}
+
 function calcNowPlaying() {
+	const now = Date.now()
+	if (lastSession && now - lastSessionTime < SESSION_CACHE_MS) {
+		postNowPlaying(lastSession)
+		return lastSession
+	}
+
 	const session = SMTCMonitor.getCurrentMediaSession()
 	if (!session) {
-		saveNowPlaying(null)
+		lastSession = null
+		lastSessionTime = now
+		postNowPlaying(null)
 		return null
 	}
 
@@ -60,7 +72,9 @@ function calcNowPlaying() {
 	const title = (media && media.title) || ''
 	const artist = (media && media.artist) || ''
 	if (!title && !artist) {
-		saveNowPlaying(null)
+		lastSession = null
+		lastSessionTime = now
+		postNowPlaying(null)
 		return null
 	}
 
@@ -72,7 +86,6 @@ function calcNowPlaying() {
 	if (timeline) {
 		position = typeof timeline.position === 'number' ? timeline.position : null
 		duration = typeof timeline.duration === 'number' ? timeline.duration : null
-		const now = Date.now()
 		if (typeof position === 'number') {
 			startedAt = now - position * 1000
 			if (typeof duration === 'number' && duration > 0) {
@@ -94,7 +107,7 @@ function calcNowPlaying() {
 
 	const info = {
 		sourceAppId: sourceAppId || 'Player',
-		lastUpdatedTime: lastUpdatedTime || null,
+		lastUpdatedTime,
 		title,
 		artist,
 		albumTitle: (media && media.albumTitle) || '',
@@ -106,19 +119,17 @@ function calcNowPlaying() {
 		duration,
 		startedAt,
 		endsAt,
-		timeline: timeline || null,
+		timeline,
 	}
 
-	saveNowPlaying(info)
-	if (parentPort) {
-		parentPort.postMessage({ type: 'nowPlaying', data: info })
-	}
+	lastSession = info
+	lastSessionTime = now
 
+	postNowPlaying(info)
 	return info
 }
 
 if (!parentPort) {
-	console.error('[SMTC worker] no parentPort')
 	process.exit(1)
 }
 

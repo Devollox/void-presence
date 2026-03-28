@@ -29,6 +29,9 @@ type NowPlayingInfo = {
 	source: string
 	startedAt: number | null
 	endsAt: number | null
+	playbackStatus?: string | null
+	position?: number | null
+	duration?: number | null
 } | null
 
 const userDataDir =
@@ -36,23 +39,6 @@ const userDataDir =
 	path.join(process.env.APPDATA || '', 'Void Presence')
 
 const nowPlayingPath = path.join(userDataDir, 'now-playing.json')
-
-async function fetchNowPlayingFromFile(): Promise<NowPlayingInfo> {
-	try {
-		const raw = await fs.readFile(nowPlayingPath, 'utf-8')
-		const parsed = JSON.parse(raw)
-		if (!parsed || typeof parsed !== 'object') return null
-		return {
-			title: parsed.title || '',
-			artist: parsed.artist || '',
-			source: parsed.source || 'Chrome',
-			startedAt: typeof parsed.startedAt === 'number' ? parsed.startedAt : null,
-			endsAt: typeof parsed.endsAt === 'number' ? parsed.endsAt : null,
-		}
-	} catch {
-		return null
-	}
-}
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0
@@ -68,12 +54,11 @@ let client: any = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
-
-let lastJsonSignature = ''
 const MIN_UPDATE_DELAY_MS = 5000
 
 let currentTitle: string | null = null
-let lastEndedAt: number | null = null
+let lastSmTcStatus: string | null = null
+let lastJsonSignature = ''
 
 const coverCache = new Map<string, string | null>()
 
@@ -234,6 +219,10 @@ async function resolveCoverUrl(
 	}
 
 	coverCache.set(key, url || null)
+	if (coverCache.size > 100) {
+		const first = coverCache.keys().next().value
+		coverCache.delete(first)
+	}
 	return url
 }
 
@@ -285,6 +274,29 @@ function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
 		const found = stdout.toLowerCase().includes(processName.toLowerCase())
 		cb(null, found)
 	})
+}
+
+async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
+	try {
+		const raw = await fs.readFile(nowPlayingPath, 'utf-8')
+		const parsed: any = JSON.parse(raw)
+		if (!parsed || typeof parsed !== 'object') return null
+		return {
+			title: parsed.title || '',
+			artist: parsed.artist || '',
+			source: parsed.source || 'Player',
+			startedAt: typeof parsed.startedAt === 'number' ? parsed.startedAt : null,
+			endsAt: typeof parsed.endsAt === 'number' ? parsed.endsAt : null,
+			playbackStatus:
+				typeof parsed.playbackStatus === 'string'
+					? parsed.playbackStatus
+					: null,
+			position: typeof parsed.position === 'number' ? parsed.position : null,
+			duration: typeof parsed.duration === 'number' ? parsed.duration : null,
+		}
+	} catch {
+		return null
+	}
 }
 
 export default function startDiscordRich(
@@ -465,7 +477,6 @@ export default function startDiscordRich(
 
 		let hasNowPlaying = false
 		let lastSmTcPosition: number | null = null
-		let lastSmTcStatus: string | null = null
 		let pausedPlainTimestamps: { start: number } | null = null
 
 		function getNextParty(): PartyCycleEntry | null {
@@ -491,31 +502,15 @@ export default function startDiscordRich(
 			return res
 		}
 
-		async function pushActivity() {
+		async function pushActivity(nowPlaying: NowPlayingInfo) {
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
-			const nowPlaying = await fetchNowPlayingFromFile()
-
 			const smtcTitle = nowPlaying?.title?.trim() || ''
 			const smtcArtist = nowPlaying?.artist?.trim() || ''
-
-			let smtcStatus: string | null = null
-			let smtcPos: number | null = null
-			let smtcDur: number | null = null
-
-			try {
-				const raw = await fs.readFile(nowPlayingPath, 'utf-8')
-				const parsed: any = JSON.parse(raw)
-				smtcStatus =
-					parsed && typeof parsed.playbackStatus === 'string'
-						? parsed.playbackStatus
-						: null
-				smtcPos =
-					parsed && typeof parsed.position === 'number' ? parsed.position : null
-				smtcDur =
-					parsed && typeof parsed.duration === 'number' ? parsed.duration : null
-			} catch {}
+			const smtcStatus = nowPlaying?.playbackStatus || null
+			const smtcPos = nowPlaying?.position ?? null
+			const smtcDur = nowPlaying?.duration ?? null
 
 			const isPausedOrStopped =
 				smtcStatus === 'Paused' ||
@@ -670,20 +665,12 @@ export default function startDiscordRich(
 
 		async function pollJsonLoop() {
 			try {
-				const data = await fs.readFile(nowPlayingPath, 'utf-8')
-				let parsed: any = null
-				try {
-					parsed = JSON.parse(data)
-				} catch {}
+				const nowPlaying = await readNowPlayingSafe()
 
-				const title =
-					parsed && typeof parsed.title === 'string' ? parsed.title : ''
-				const status =
-					parsed && typeof parsed.playbackStatus === 'string'
-						? parsed.playbackStatus
-						: ''
+				const title = nowPlaying?.title || ''
+				const status = nowPlaying?.playbackStatus || ''
 				const position =
-					parsed && typeof parsed.position === 'number' ? parsed.position : null
+					typeof nowPlaying?.position === 'number' ? nowPlaying.position : null
 
 				const signature = JSON.stringify({ title, status, position })
 
@@ -696,7 +683,7 @@ export default function startDiscordRich(
 				if (isPlayingLike) {
 					if (signature !== lastJsonSignature) {
 						lastJsonSignature = signature
-						await pushActivity()
+						await pushActivity(nowPlaying)
 					}
 					setTimeout(pollJsonLoop, MIN_UPDATE_DELAY_MS)
 					return
@@ -706,14 +693,14 @@ export default function startDiscordRich(
 					if (signature !== lastJsonSignature) {
 						lastJsonSignature = signature
 					}
-					await pushActivity()
+					await pushActivity(nowPlaying)
 					setTimeout(pollJsonLoop, activityIntervalMs)
 					return
 				}
 
 				if (signature !== lastJsonSignature) {
 					lastJsonSignature = signature
-					await pushActivity()
+					await pushActivity(nowPlaying)
 				}
 
 				let delay = MIN_UPDATE_DELAY_MS
@@ -738,23 +725,16 @@ export default function startDiscordRich(
 			if (sendLog) sendLog('RPC ready', 'success')
 
 			try {
-				const data = await fs.readFile(nowPlayingPath, 'utf-8')
-				let parsed: any = null
-				try {
-					parsed = JSON.parse(data)
-				} catch {}
-				const title =
-					parsed && typeof parsed.title === 'string' ? parsed.title : ''
-				const status =
-					parsed && typeof parsed.playbackStatus === 'string'
-						? parsed.playbackStatus
-						: ''
+				const nowPlaying = await readNowPlayingSafe()
+				const title = nowPlaying?.title || ''
+				const status = nowPlaying?.playbackStatus || ''
 				lastJsonSignature = JSON.stringify({ title, status })
 			} catch {
 				lastJsonSignature = ''
 			}
 
-			await pushActivity()
+			const nowPlaying = await readNowPlayingSafe()
+			await pushActivity(nowPlaying)
 			void pollJsonLoop()
 		})
 
