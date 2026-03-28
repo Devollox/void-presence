@@ -20,7 +20,7 @@ import {
 import { readTimestampConfig, setActivityType } from '../discord/modules/config'
 import { PartyConfig } from '../discord/modules/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
-import { sendStatus } from './logging'
+import { sendLog, sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
 
 let autoHideOnStart = false
@@ -180,6 +180,7 @@ export function initIpc() {
 
 		setTimeout(() => {
 			sendStatus('RESTARTING')
+			sendLog(`RPC mode changed: ${oldMode} -> ${currentRpcMode}`, 'info')
 		}, 100)
 
 		stopDiscordRich()

@@ -62,6 +62,9 @@ let lastJsonSignature = ''
 
 const coverCache = new Map<string, string | null>()
 
+let isStopped = false
+let currentSessionId = 0
+
 function makeCacheKey(title: string, artist: string) {
 	return `${title.toLowerCase().trim()}::${artist.toLowerCase().trim()}`
 }
@@ -73,16 +76,12 @@ async function resolveCoverUrlFromITunes(
 	const queryParts = []
 	if (artist.trim()) queryParts.push(artist.trim())
 	if (title.trim()) queryParts.push(title.trim())
-	if (!queryParts.length) {
-		return null
-	}
+	if (!queryParts.length) return null
 	const term = encodeURIComponent(queryParts.join(' '))
 	const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=1`
 	try {
 		const res = await fetch(url)
-		if (!res.ok) {
-			return null
-		}
+		if (!res.ok) return null
 		const json: any = await res.json()
 		if (!json || !Array.isArray(json.results) || json.results.length === 0) {
 			return null
@@ -90,9 +89,7 @@ async function resolveCoverUrlFromITunes(
 		const result = json.results[0]
 		const artwork: string | undefined =
 			result.artworkUrl100 || result.artworkUrl60 || result.artworkUrl30
-		if (!artwork) {
-			return null
-		}
+		if (!artwork) return null
 		return artwork
 	} catch {
 		return null
@@ -207,9 +204,7 @@ async function resolveCoverUrl(
 	if (coverCache.has(key)) {
 		return coverCache.get(key) || null
 	}
-
 	let url: string | null = null
-
 	url = await resolveCoverUrlFromITunes(title, artist)
 	if (!url) {
 		url = await resolveCoverUrlFromTheAudioDb(title, artist)
@@ -217,7 +212,6 @@ async function resolveCoverUrl(
 	if (!url) {
 		url = await resolveCoverUrlFromMusicBrainz(title, artist)
 	}
-
 	coverCache.set(key, url || null)
 	if (coverCache.size > 100) {
 		const first = coverCache.keys().next().value
@@ -249,6 +243,8 @@ function createClient() {
 }
 
 export function stopDiscordRich() {
+	isStopped = true
+	currentSessionId++
 	if (restartTimer) {
 		clearTimeout(restartTimer)
 		restartTimer = null
@@ -302,7 +298,12 @@ async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
 export default function startDiscordRich(
 	sendPayload: (payload: RpcPayload) => void,
 ) {
+	isStopped = false
+	const sessionId = ++currentSessionId
+
 	async function startSession() {
+		if (isStopped || sessionId !== currentSessionId) return
+
 		const { clientId } = await readClientConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
@@ -491,7 +492,6 @@ export default function startDiscordRich(
 			if (!buttonPairs.length) return []
 			const pair = buttonPairs[buttonIndex % buttonPairs.length]
 			buttonIndex = (buttonIndex + 1) % buttonPairs.length
-
 			const res: { label: string; url: string }[] = []
 			if (pair.label1 && pair.url1) {
 				res.push({ label: pair.label1, url: pair.url1 })
@@ -503,6 +503,8 @@ export default function startDiscordRich(
 		}
 
 		async function pushActivity(nowPlaying: NowPlayingInfo) {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
@@ -664,6 +666,8 @@ export default function startDiscordRich(
 		}
 
 		async function pollJsonLoop() {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			try {
 				const nowPlaying = await readNowPlayingSafe()
 
@@ -722,6 +726,8 @@ export default function startDiscordRich(
 		if (sendLog) sendLog('Connecting RPC with clientId ' + clientId, 'info')
 
 		localClient.on('ready', async () => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) sendLog('RPC ready', 'success')
 
 			try {
@@ -739,6 +745,8 @@ export default function startDiscordRich(
 		})
 
 		localClient.on('disconnected', () => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) sendLog('RPC disconnected', 'warn')
 			sendStatus('DISCONNECTED')
 
@@ -749,6 +757,8 @@ export default function startDiscordRich(
 		})
 
 		localClient.on('error', (e: any) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) sendLog('RPC error: ' + (e?.message || String(e)), 'error')
 			sendStatus('DISCONNECTED')
 
@@ -759,6 +769,8 @@ export default function startDiscordRich(
 		})
 
 		localClient.login({ clientId }).catch((e: any) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) {
 				sendLog('RPC login error: ' + (e?.message || String(e)), 'error')
 			}
@@ -771,7 +783,11 @@ export default function startDiscordRich(
 	}
 
 	function findAndRestartProcess() {
+		if (isStopped || sessionId !== currentSessionId) return
+
 		checkDiscordRunning((err, isRunning) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (err) {
 				if (sendLog) {
 					sendLog('tasklist error: ' + (err?.message || String(err)), 'error')
