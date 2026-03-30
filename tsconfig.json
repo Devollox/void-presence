@@ -10,7 +10,8 @@
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		"baseUrl": ".",
-		"outDir": "dist"
+		"outDir": "dist",
+		"types": ["node", "electron"]
 	},
 	"include": ["src", "vite.*.config.ts", "src/types/void-presence-env.d.ts"]
 }

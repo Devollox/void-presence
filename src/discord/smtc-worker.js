@@ -1,31 +1,10 @@
 const { SMTCMonitor } = require('@coooookies/windows-smtc-monitor')
 const { parentPort } = require('worker_threads')
-const fs = require('fs')
-const path = require('path')
-
-const userData =
-	process.env.SMTC_USER_DATA ||
-	path.join(process.env.APPDATA || '', 'Void Presence')
-
-const nowPlayingPath = path.join(userData, 'now-playing.json')
 
 let lastSession = null
 let lastSessionTime = 0
-const SESSION_CACHE_MS = 2000
-
-function ensureDir() {
-	try {
-		fs.mkdirSync(userData, { recursive: true })
-	} catch {}
-}
-
-function saveNowPlaying(info) {
-	ensureDir()
-	try {
-		const json = JSON.stringify(info || null)
-		fs.writeFileSync(nowPlayingPath, json, 'utf8')
-	} catch {}
-}
+const SESSION_CACHE_MS = 4000
+const POLL_INTERVAL_MS = 8000
 
 function mapPlaybackStatus(status) {
 	if (status === 0) return 'Closed'
@@ -46,7 +25,6 @@ function mapPlaybackType(type) {
 }
 
 function postNowPlaying(info) {
-	saveNowPlaying(info)
 	if (parentPort) {
 		parentPort.postMessage({ type: 'nowPlaying', data: info })
 	}
@@ -138,3 +116,7 @@ parentPort.on('message', msg => {
 		calcNowPlaying()
 	}
 })
+
+setInterval(() => {
+	calcNowPlaying()
+}, POLL_INTERVAL_MS)

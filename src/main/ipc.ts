@@ -25,11 +25,14 @@ import { loadSettings, saveSettings } from './settings'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
+let steamWorker: Worker | null = null
 let lastNowPlaying: any = null
+let lastSteamPresence: any = null
+let steamPollTimer: NodeJS.Timeout | null = null
 
-type RpcMode = 'basic' | 'advanced'
+type RpcMode = 'basic' | 'advanced' | 'steam'
 
-let currentRpcMode: RpcMode = 'advanced'
+let currentRpcMode: RpcMode = 'basic'
 let stopCurrentRpc: (() => void) | null = null
 
 function startDiscordRich(sendPayload: (payload: any) => void) {
@@ -41,10 +44,13 @@ function startDiscordRich(sendPayload: (payload: any) => void) {
 	if (currentRpcMode === 'basic') {
 		stopCurrentRpc = stopDiscordRichBasic
 		startDiscordRichBasic(sendPayload)
-	} else {
+	} else if (currentRpcMode === 'advanced') {
 		stopCurrentRpc = stopDiscordRichAdvanced
 		startDiscordRichAdvanced(sendPayload)
-	}
+	} /* else {
+		stopCurrentRpc = stopDiscordRichSteam
+		startDiscordRichSteam(sendPayload)
+	} */
 }
 
 function stopDiscordRich() {
@@ -57,17 +63,21 @@ function stopDiscordRich() {
 function setActivityInterval(sec: number) {
 	if (currentRpcMode === 'basic') {
 		setActivityIntervalBasic(sec)
-	} else {
+	} else if (currentRpcMode === 'advanced') {
 		setActivityIntervalAdvanced(sec)
-	}
+	} /* else {
+		setActivityIntervalSteam(sec)
+	} */
 }
 
 function resetPersistTimestampValue() {
 	if (currentRpcMode === 'basic') {
 		resetPersistTimestampValueBasic()
-	} else {
+	} else if (currentRpcMode === 'advanced') {
 		resetPersistTimestampValueAdvanced()
-	}
+	} /* else {
+		resetPersistTimestampValueSteam()
+	} */
 }
 
 export function getAutoHide() {
@@ -93,12 +103,9 @@ function startSmtcWorker() {
 			)
 		: path.join(process.cwd(), 'src', 'discord', 'smtc-worker.js')
 
-	const userDataDir = app.getPath('userData')
-
 	smtcWorker = new Worker(workerPath, {
 		env: {
 			...process.env,
-			SMTC_USER_DATA: userDataDir,
 		},
 	})
 
@@ -107,23 +114,80 @@ function startSmtcWorker() {
 			lastNowPlaying = msg.data
 		}
 	})
+}
 
-	setInterval(() => {
-		smtcWorker?.postMessage('getNowPlaying')
-	}, 2000)
+/* function startSteamWorker() {
+	const workerPath = app.isPackaged
+		? path.join(
+				process.resourcesPath,
+				'app',
+				'src',
+				'discord',
+				'steam-worker.js',
+			)
+		: path.join(process.cwd(), 'src', 'discord', 'steam-worker.js')
+
+	steamWorker = new Worker(workerPath, {
+		env: {
+			...process.env,
+		},
+	})
+
+	steamWorker.on('message', (msg: any) => {
+		if (msg && msg.type === 'steamPresence') {
+			lastSteamPresence = msg.data
+		}
+	})
+
+	steamWorker.postMessage({
+		type: 'getSteamPresence',
+		vanityId: 'Devollox',
+	})
+
+	if (steamPollTimer) {
+		clearInterval(steamPollTimer)
+		steamPollTimer = null
+	}
+
+	steamPollTimer = setInterval(() => {
+		if (steamWorker) {
+			steamWorker.postMessage({
+				type: 'getSteamPresence',
+				vanityId: 'Devollox',
+			})
+		}
+	}, 15000)
+}
+
+export function getLastSteamPresence() {
+	return lastSteamPresence
+}
+	*/
+
+export function getLastNowPlaying() {
+	return lastNowPlaying
 }
 
 export function initIpc() {
 	const s = loadSettings()
 	autoHideOnStart = !!s.autoHideOnStart
-	currentRpcMode = s.rpcMode === 'basic' ? 'basic' : 'advanced'
+	currentRpcMode =
+		s.rpcMode === 'basic' || s.rpcMode === 'steam' ? s.rpcMode : 'advanced'
 
 	if (currentRpcMode === 'advanced' && !smtcWorker) {
 		startSmtcWorker()
 	}
 
+	/*	if (currentRpcMode === 'steam' && !steamWorker) {
+		startSteamWorker()
+	}*/
+
 	ipcMain.handle('get-now-playing', async () => {
 		return lastNowPlaying
+	})
+
+	ipcMain.handle('steam:get-now-playing', async () => {
+		return lastSteamPresence
 	})
 
 	ipcMain.handle('restart-discord-rich', async () => {
@@ -135,23 +199,12 @@ export function initIpc() {
 		}, 100)
 
 		try {
-			if (currentRpcMode === 'basic') {
-				stopDiscordRichBasic()
-				await new Promise(resolve => setTimeout(resolve, 100))
-				startDiscordRichBasic(payload => {
-					if (win.isDestroyed()) return
-					win.webContents.send('rpc-update', payload)
-				})
-				stopCurrentRpc = stopDiscordRichBasic
-			} else {
-				stopDiscordRichAdvanced()
-				await new Promise(resolve => setTimeout(resolve, 100))
-				startDiscordRichAdvanced(payload => {
-					if (win.isDestroyed()) return
-					win.webContents.send('rpc-update', payload)
-				})
-				stopCurrentRpc = stopDiscordRichAdvanced
-			}
+			stopDiscordRich()
+
+			startDiscordRich(payload => {
+				if (win.isDestroyed()) return
+				win.webContents.send('rpc-update', payload)
+			})
 
 			return true
 		} catch (error) {
@@ -166,7 +219,9 @@ export function initIpc() {
 	})
 
 	ipcMain.handle('rpc:set-mode', async (_event, mode: RpcMode) => {
-		if (mode !== 'basic' && mode !== 'advanced') return currentRpcMode
+		if (mode !== 'basic' && mode !== 'advanced' && mode !== 'steam') {
+			return currentRpcMode
+		}
 		if (mode === currentRpcMode) return currentRpcMode
 
 		const oldMode = currentRpcMode
@@ -180,7 +235,7 @@ export function initIpc() {
 
 		setTimeout(() => {
 			sendStatus('RESTARTING')
-			sendLog(`RPC mode changed: ${oldMode} -> ${currentRpcMode}`, 'info')
+			sendLog(`RPC mode changed: ${oldMode} → ${currentRpcMode}`, 'info')
 		}, 100)
 
 		stopDiscordRich()
@@ -189,12 +244,23 @@ export function initIpc() {
 			win.webContents.send('rpc-update', payload)
 		})
 
-		if (oldMode === 'advanced' && mode === 'basic') {
+		if (oldMode === 'advanced' && mode !== 'advanced') {
 			smtcWorker?.terminate()
 			smtcWorker = null
-		} else if (oldMode === 'basic' && mode === 'advanced') {
+		} else if (mode === 'advanced' && !smtcWorker) {
 			startSmtcWorker()
 		}
+		/* 
+		if (oldMode === 'steam' && mode !== 'steam') {
+			steamWorker?.terminate()
+			steamWorker = null
+			if (steamPollTimer) {
+				clearInterval(steamPollTimer)
+				steamPollTimer = null
+			}
+		} else if (mode === 'steam' && !steamWorker) {
+			startSteamWorker()
+		}*/
 
 		return currentRpcMode
 	})
@@ -210,6 +276,9 @@ export function initIpc() {
 	})
 
 	ipcMain.handle('reset-persist-timestamp', async () => {
+		const win = BrowserWindow.getAllWindows()[0]
+		if (!win || win.isDestroyed()) return false
+
 		setTimeout(() => {
 			sendStatus('RESTARTING')
 		}, 100)

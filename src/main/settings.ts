@@ -6,7 +6,7 @@ const settingsPath = path.join(app.getPath('userData'), 'settings.json')
 
 export type Settings = {
 	autoHideOnStart?: boolean
-	rpcMode?: 'basic' | 'advanced'
+	rpcMode?: 'basic' | 'advanced' | 'steam'
 }
 
 export function loadSettings(): Settings {
