@@ -55,7 +55,6 @@ async function fetchSteamPresenceOnce(vanityIdOrUrl) {
 		: `https://steamcommunity.com/id/${vanity}/`
 
 	const url = `${urlBase}?t=${Date.now()}`
-
 	const b = await getBrowser()
 	const page = await b.newPage()
 
