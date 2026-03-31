@@ -56,7 +56,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	resetPersistTimestamp: () => ipcRenderer.invoke('reset-persist-timestamp'),
 	setActivityType: (type: string) =>
 		ipcRenderer.invoke('set-activity-type', type),
-	setRpcMode: (mode: 'basic' | 'advanced' | 'steam') =>
+	setRpcMode: (mode: 'basic' | 'advanced') =>
 		ipcRenderer.invoke('rpc:set-mode', mode),
 	getRpcMode: () => ipcRenderer.invoke('rpc:get-mode'),
 })

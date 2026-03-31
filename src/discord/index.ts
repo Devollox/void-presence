@@ -1,6 +1,5 @@
 import { stopDiscordRich as stopDiscordRichAdvancedModule } from './modules/rpc-advanced'
 import { stopDiscordRich as stopDiscordRichBasicModule } from './modules/rpc-basic'
-/* import { stopDiscordRich as stopDiscordRichSteamModule } from './modules/rpc-steam' */
 
 export {
 	readClientConfig,
@@ -26,13 +25,6 @@ export {
 	stopDiscordRich as stopDiscordRichAdvanced,
 } from './modules/rpc-advanced'
 
-/* export {
-	resetPersistTimestampValue as resetPersistTimestampValueSteam,
-	setActivityInterval as setActivityIntervalSteam,
-	default as startDiscordRichSteam,
-	stopDiscordRich as stopDiscordRichSteam,
-} from './modules/rpc-steam'
-*/
 export function stopDiscordRich() {
 	try {
 		stopDiscordRichBasicModule()
@@ -40,6 +32,4 @@ export function stopDiscordRich() {
 	try {
 		stopDiscordRichAdvancedModule()
 	} catch {}
-	/* 	try {		stopDiscordRichSteamModule()
-	} catch {} */
 }
