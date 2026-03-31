@@ -32,6 +32,7 @@ function postNowPlaying(info) {
 
 function calcNowPlaying() {
 	const now = Date.now()
+
 	if (lastSession && now - lastSessionTime < SESSION_CACHE_MS) {
 		postNowPlaying(lastSession)
 		return lastSession
