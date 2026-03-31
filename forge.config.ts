@@ -9,19 +9,49 @@ const ICON_BASE = './public/favicons/favicon'
 const config: ForgeConfig = {
 	packagerConfig: {
 		icon: ICON_BASE,
+		ignore(p: string) {
+			const path = p.replace(/\\/g, '/')
+
+			if (path.startsWith('/.git') || path.startsWith('.git')) return true
+
+			if (path.endsWith('.eslintrc') || path.endsWith('.hintrc')) return true
+			if (path.endsWith('forge.config.ts')) return true
+			if (path.endsWith('tsconfig.json')) return true
+			if (path.endsWith('vite.main.config.ts')) return true
+			if (path.endsWith('vite.preload.config.ts')) return true
+			if (path.endsWith('vite.renderer.config.ts')) return true
+			if (path.endsWith('README.md')) return true
+			if (path.endsWith('LICENSE')) return true
+			if (path.endsWith('package-lock.json')) return true
+
+			if (path.includes('/src/discord')) return true
+			if (path.includes('/src/main')) return true
+			if (path.includes('/src/types')) return true
+			if (path.includes('/src/renderer/modules')) return true
+			if (path.includes('/src/renderer/index.ts')) return true
+			if (path.includes('/src/main.ts')) return true
+			if (path.includes('/src/preload.ts')) return true
+
+			if (path.includes('/node_modules/typescript')) return true
+			if (path.includes('/node_modules/@types')) return true
+			if (path.includes('/node_modules/eslint')) return true
+			if (path.includes('/node_modules/@eslint')) return true
+			if (path.includes('/node_modules/vite')) return true
+			if (path.includes('/node_modules/@vite')) return true
+
+			if (path.endsWith('.map')) return true
+
+			return false
+		},
 	},
 	rebuildConfig: {},
 	makers: [
 		new MakerZIP({}, ['darwin', 'win32']),
 		new MakerRpm({
-			options: {
-				icon: `${ICON_BASE}.ico`,
-			},
+			options: { icon: `${ICON_BASE}.ico` },
 		}),
 		new MakerDeb({
-			options: {
-				icon: `${ICON_BASE}.ico`,
-			},
+			options: { icon: `${ICON_BASE}.ico` },
 		}),
 		{
 			name: '@electron-addons/electron-forge-maker-nsis',

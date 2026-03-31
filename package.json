@@ -1,7 +1,7 @@
 {
 	"name": "voidpresence",
 	"productName": "Void Presence",
-	"version": "2.3.2",
+	"version": "2.3.5",
 	"description": "My Void Presence",
 	"main": ".vite/build/main.js",
 	"scripts": {
@@ -9,6 +9,9 @@
 		"start": "npm run build:renderer && electron-forge start",
 		"make": "npm run build:renderer && electron-forge make",
 		"package": "npm run build:renderer && electron-forge package"
+	},
+	"config": {
+		"forge": "./forge.config.ts"
 	},
 	"keywords": [],
 	"author": "Devollox",
@@ -28,7 +31,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
 		"cross-env": "^10.1.0",
-		"electron": "28.2.2",
+		"electron": "41.1.0",
 		"electron-builder": "^26.0.12",
 		"electron-reloader": "^1.2.3",
 		"eslint": "^8.56.0",

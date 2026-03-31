@@ -4,6 +4,7 @@ import { setupConfigDetailsOverlay } from './modules/config-details'
 import { setupImportOverlay } from './modules/config-import'
 import { setupClientIdControls, setupConfigPage } from './modules/config-page'
 import { setupGlobalDrop } from './modules/global-drop'
+import { fetchNowPlaying } from './modules/now-playing'
 import { setupIntervalControl } from './modules/state'
 import {
 	setupAutoHideToggle,
@@ -42,4 +43,11 @@ window.addEventListener('DOMContentLoaded', () => {
 			updateStatus(status)
 		})
 	}
+
+	async function pollNowPlayingUi() {
+		const info = await fetchNowPlaying()
+		setTimeout(pollNowPlayingUi, 4000)
+	}
+
+	void pollNowPlayingUi()
 })

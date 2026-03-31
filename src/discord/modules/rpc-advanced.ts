@@ -1,7 +1,6 @@
 import { exec } from 'child_process'
 import rpc from 'discord-rpc'
-import { promises as fs } from 'fs'
-import * as path from 'path'
+import { getLastNowPlaying } from '../../main/ipc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
 	readActivityTypeConfig,
@@ -24,21 +23,20 @@ import {
 } from './types'
 
 type NowPlayingInfo = {
+	sourceAppId: string
+	lastUpdatedTime: number | null
 	title: string
 	artist: string
-	source: string
+	albumTitle: string
+	albumArtist: string
+	genres: string[]
+	playbackStatus: string | null
+	playbackType: string | null
+	position: number | null
+	duration: number | null
 	startedAt: number | null
 	endsAt: number | null
-	playbackStatus?: string | null
-	position?: number | null
-	duration?: number | null
 } | null
-
-const userDataDir =
-	process.env.SMTC_USER_DATA ||
-	path.join(process.env.APPDATA || '', 'Void Presence')
-
-const nowPlayingPath = path.join(userDataDir, 'now-playing.json')
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0
@@ -54,13 +52,20 @@ let client: any = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
-const MIN_UPDATE_DELAY_MS = 5000
+const MIN_UPDATE_DELAY_MS = 15000
 
 let currentTitle: string | null = null
 let lastSmTcStatus: string | null = null
 let lastJsonSignature = ''
 
 const coverCache = new Map<string, string | null>()
+let coverRequestsInWindow = 0
+let coverWindowStart = 0
+const COVER_WINDOW_MS = 60000
+const COVER_MAX_PER_WINDOW = 2
+
+let isStopped = false
+let currentSessionId = 0
 
 function makeCacheKey(title: string, artist: string) {
 	return `${title.toLowerCase().trim()}::${artist.toLowerCase().trim()}`
@@ -70,19 +75,17 @@ async function resolveCoverUrlFromITunes(
 	title: string,
 	artist: string,
 ): Promise<string | null> {
-	const queryParts = []
+	const queryParts: string[] = []
 	if (artist.trim()) queryParts.push(artist.trim())
 	if (title.trim()) queryParts.push(title.trim())
-	if (!queryParts.length) {
-		return null
-	}
+	if (!queryParts.length) return null
+
 	const term = encodeURIComponent(queryParts.join(' '))
 	const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=1`
+
 	try {
 		const res = await fetch(url)
-		if (!res.ok) {
-			return null
-		}
+		if (!res.ok) return null
 		const json: any = await res.json()
 		if (!json || !Array.isArray(json.results) || json.results.length === 0) {
 			return null
@@ -90,110 +93,7 @@ async function resolveCoverUrlFromITunes(
 		const result = json.results[0]
 		const artwork: string | undefined =
 			result.artworkUrl100 || result.artworkUrl60 || result.artworkUrl30
-		if (!artwork) {
-			return null
-		}
-		return artwork
-	} catch {
-		return null
-	}
-}
-
-async function resolveCoverUrlFromTheAudioDb(
-	title: string,
-	artist: string,
-): Promise<string | null> {
-	if (!title.trim() || !artist.trim()) return null
-	const url = `https://theaudiodb.com/api/v1/json/1/searchtrack.php?s=${encodeURIComponent(
-		artist,
-	)}&t=${encodeURIComponent(title)}`
-	try {
-		const res = await fetch(url)
-		if (!res.ok) return null
-		const json: any = await res.json()
-		const tracks: any[] = json?.track
-		if (!Array.isArray(tracks) || !tracks.length) return null
-		const track = tracks[0]
-		const art: string | undefined =
-			track.strTrackThumb || track.strAlbumThumb || track.strMusicVidScreen
-		return art || null
-	} catch {
-		return null
-	}
-}
-
-async function resolveCoverUrlFromCoverArtArchiveByRelease(
-	mbid: string,
-): Promise<string | null> {
-	const url = `https://coverartarchive.org/release/${encodeURIComponent(mbid)}`
-	try {
-		const res = await fetch(url)
-		if (!res.ok) return null
-		const json: any = await res.json()
-		const images: any[] = json?.images
-		if (!Array.isArray(images) || !images.length) return null
-		const front = images.find((img: any) => img.front) || images[0]
-		const href: string | undefined = front.image
-		return href || null
-	} catch {
-		return null
-	}
-}
-
-async function resolveCoverUrlFromCoverArtArchiveByGroup(
-	mbid: string,
-): Promise<string | null> {
-	const url = `https://coverartarchive.org/release-group/${encodeURIComponent(
-		mbid,
-	)}`
-	try {
-		const res = await fetch(url)
-		if (!res.ok) return null
-		const json: any = await res.json()
-		const images: any[] = json?.images
-		if (!Array.isArray(images) || !images.length) return null
-		const front = images.find((img: any) => img.front) || images[0]
-		const href: string | undefined = front.image
-		return href || null
-	} catch {
-		return null
-	}
-}
-
-async function resolveCoverUrlFromMusicBrainz(
-	title: string,
-	artist: string,
-): Promise<string | null> {
-	if (!title.trim() || !artist.trim()) return null
-	const query = encodeURIComponent(
-		`recording:"${title}" AND artist:"${artist}"`,
-	)
-	const url = `https://musicbrainz.org/ws/2/recording/?query=${query}&fmt=json&limit=1`
-	try {
-		const res = await fetch(url, {
-			headers: {
-				'User-Agent': 'VoidPresence/1.0 (https://example.com)',
-			},
-		})
-		if (!res.ok) return null
-		const json: any = await res.json()
-		const recs: any[] = json?.recordings
-		if (!Array.isArray(recs) || !recs.length) return null
-		const rec = recs[0]
-		const release =
-			Array.isArray(rec.releases) && rec.releases.length
-				? rec.releases[0]
-				: null
-		const releaseMbid: string | undefined = release?.id
-		const groupMbid: string | undefined = release?.['release-group']?.id
-		let cover: string | null = null
-		if (releaseMbid) {
-			cover = await resolveCoverUrlFromCoverArtArchiveByRelease(releaseMbid)
-		}
-		if (!cover && groupMbid) {
-			cover = await resolveCoverUrlFromCoverArtArchiveByGroup(groupMbid)
-		}
-		return cover
+		return artwork || null
 	} catch {
 		return null
 	}
@@ -203,26 +103,31 @@ async function resolveCoverUrl(
 	title: string,
 	artist: string,
 ): Promise<string | null> {
+	const now = Date.now()
+	if (now - coverWindowStart > COVER_WINDOW_MS) {
+		coverWindowStart = now
+		coverRequestsInWindow = 0
+	}
+
+	if (coverRequestsInWindow >= COVER_MAX_PER_WINDOW) {
+		return null
+	}
+
 	const key = makeCacheKey(title, artist)
 	if (coverCache.has(key)) {
 		return coverCache.get(key) || null
 	}
 
-	let url: string | null = null
+	coverRequestsInWindow++
 
-	url = await resolveCoverUrlFromITunes(title, artist)
-	if (!url) {
-		url = await resolveCoverUrlFromTheAudioDb(title, artist)
-	}
-	if (!url) {
-		url = await resolveCoverUrlFromMusicBrainz(title, artist)
-	}
+	const url = await resolveCoverUrlFromITunes(title, artist)
 
 	coverCache.set(key, url || null)
-	if (coverCache.size > 100) {
+	if (coverCache.size > 200) {
 		const first = coverCache.keys().next().value
 		coverCache.delete(first)
 	}
+
 	return url
 }
 
@@ -249,6 +154,8 @@ function createClient() {
 }
 
 export function stopDiscordRich() {
+	isStopped = true
+	currentSessionId++
 	if (restartTimer) {
 		clearTimeout(restartTimer)
 		restartTimer = null
@@ -278,21 +185,26 @@ function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
 
 async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
 	try {
-		const raw = await fs.readFile(nowPlayingPath, 'utf-8')
-		const parsed: any = JSON.parse(raw)
-		if (!parsed || typeof parsed !== 'object') return null
+		const raw: any = getLastNowPlaying()
+		if (!raw || typeof raw !== 'object') return null
+
 		return {
-			title: parsed.title || '',
-			artist: parsed.artist || '',
-			source: parsed.source || 'Player',
-			startedAt: typeof parsed.startedAt === 'number' ? parsed.startedAt : null,
-			endsAt: typeof parsed.endsAt === 'number' ? parsed.endsAt : null,
+			sourceAppId: raw.sourceAppId || 'Player',
+			lastUpdatedTime:
+				typeof raw.lastUpdatedTime === 'number' ? raw.lastUpdatedTime : null,
+			title: raw.title || '',
+			artist: raw.artist || '',
+			albumTitle: raw.albumTitle || '',
+			albumArtist: raw.albumArtist || '',
+			genres: Array.isArray(raw.genres) ? raw.genres : [],
 			playbackStatus:
-				typeof parsed.playbackStatus === 'string'
-					? parsed.playbackStatus
-					: null,
-			position: typeof parsed.position === 'number' ? parsed.position : null,
-			duration: typeof parsed.duration === 'number' ? parsed.duration : null,
+				typeof raw.playbackStatus === 'string' ? raw.playbackStatus : null,
+			playbackType:
+				typeof raw.playbackType === 'string' ? raw.playbackType : null,
+			position: typeof raw.position === 'number' ? raw.position : null,
+			duration: typeof raw.duration === 'number' ? raw.duration : null,
+			startedAt: typeof raw.startedAt === 'number' ? raw.startedAt : null,
+			endsAt: typeof raw.endsAt === 'number' ? raw.endsAt : null,
 		}
 	} catch {
 		return null
@@ -302,7 +214,12 @@ async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
 export default function startDiscordRich(
 	sendPayload: (payload: RpcPayload) => void,
 ) {
+	isStopped = false
+	const sessionId = ++currentSessionId
+
 	async function startSession() {
+		if (isStopped || sessionId !== currentSessionId) return
+
 		const { clientId } = await readClientConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
@@ -491,7 +408,6 @@ export default function startDiscordRich(
 			if (!buttonPairs.length) return []
 			const pair = buttonPairs[buttonIndex % buttonPairs.length]
 			buttonIndex = (buttonIndex + 1) % buttonPairs.length
-
 			const res: { label: string; url: string }[] = []
 			if (pair.label1 && pair.url1) {
 				res.push({ label: pair.label1, url: pair.url1 })
@@ -503,14 +419,19 @@ export default function startDiscordRich(
 		}
 
 		async function pushActivity(nowPlaying: NowPlayingInfo) {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
 			const smtcTitle = nowPlaying?.title?.trim() || ''
 			const smtcArtist = nowPlaying?.artist?.trim() || ''
 			const smtcStatus = nowPlaying?.playbackStatus || null
-			const smtcPos = nowPlaying?.position ?? null
+			const smtcPosRaw = nowPlaying?.position ?? null
 			const smtcDur = nowPlaying?.duration ?? null
+
+			const smtcPos =
+				typeof smtcPosRaw === 'number' ? Math.floor(smtcPosRaw / 10) * 10 : null
 
 			const isPausedOrStopped =
 				smtcStatus === 'Paused' ||
@@ -610,13 +531,14 @@ export default function startDiscordRich(
 			const finalTimestamps: { start?: number; end?: number } | undefined =
 				timestamps
 
-			const coverUrl =
-				smtcTitle && smtcArtist
-					? await resolveCoverUrl(smtcTitle, smtcArtist)
-					: null
+			let largeImage: string | undefined = current.largeImage || undefined
 
-			let largeImage: string | undefined =
-				coverUrl || current.largeImage || undefined
+			if (smtcTitle && smtcArtist) {
+				const coverUrl = await resolveCoverUrl(smtcTitle, smtcArtist)
+				if (coverUrl) {
+					largeImage = coverUrl
+				}
+			}
 
 			const activity: any = {
 				details,
@@ -664,13 +586,17 @@ export default function startDiscordRich(
 		}
 
 		async function pollJsonLoop() {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			try {
 				const nowPlaying = await readNowPlayingSafe()
 
 				const title = nowPlaying?.title || ''
 				const status = nowPlaying?.playbackStatus || ''
-				const position =
+				const posRaw =
 					typeof nowPlaying?.position === 'number' ? nowPlaying.position : null
+				const position =
+					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
 
 				const signature = JSON.stringify({ title, status, position })
 
@@ -685,7 +611,8 @@ export default function startDiscordRich(
 						lastJsonSignature = signature
 						await pushActivity(nowPlaying)
 					}
-					setTimeout(pollJsonLoop, MIN_UPDATE_DELAY_MS)
+					const delayMs = Math.max(activityIntervalMs, MIN_UPDATE_DELAY_MS)
+					setTimeout(pollJsonLoop, delayMs)
 					return
 				}
 
@@ -694,7 +621,8 @@ export default function startDiscordRich(
 						lastJsonSignature = signature
 					}
 					await pushActivity(nowPlaying)
-					setTimeout(pollJsonLoop, activityIntervalMs)
+					const delayMs = Math.max(activityIntervalMs, MIN_UPDATE_DELAY_MS)
+					setTimeout(pollJsonLoop, delayMs)
 					return
 				}
 
@@ -703,7 +631,7 @@ export default function startDiscordRich(
 					await pushActivity(nowPlaying)
 				}
 
-				let delay = MIN_UPDATE_DELAY_MS
+				let delay = Math.max(activityIntervalMs, MIN_UPDATE_DELAY_MS)
 				if (mode === 'now' && nowMode === 'cycles') {
 					const cycle = getNextTimeCycle()
 					const cycleDelay = getDelayForCycles(cycle)
@@ -711,6 +639,8 @@ export default function startDiscordRich(
 						delay = cycleDelay
 					}
 				}
+
+				if (delay < MIN_UPDATE_DELAY_MS) delay = MIN_UPDATE_DELAY_MS
 
 				setTimeout(pollJsonLoop, delay)
 			} catch {
@@ -722,13 +652,18 @@ export default function startDiscordRich(
 		if (sendLog) sendLog('Connecting RPC with clientId ' + clientId, 'info')
 
 		localClient.on('ready', async () => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) sendLog('RPC ready', 'success')
 
 			try {
-				const nowPlaying = await readNowPlayingSafe()
-				const title = nowPlaying?.title || ''
-				const status = nowPlaying?.playbackStatus || ''
-				lastJsonSignature = JSON.stringify({ title, status })
+				const np = await readNowPlayingSafe()
+				const title = np?.title || ''
+				const status = np?.playbackStatus || ''
+				const posRaw = typeof np?.position === 'number' ? np.position : null
+				const position =
+					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
+				lastJsonSignature = JSON.stringify({ title, status, position })
 			} catch {
 				lastJsonSignature = ''
 			}
@@ -739,6 +674,8 @@ export default function startDiscordRich(
 		})
 
 		localClient.on('disconnected', () => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) sendLog('RPC disconnected', 'warn')
 			sendStatus('DISCONNECTED')
 
@@ -749,6 +686,8 @@ export default function startDiscordRich(
 		})
 
 		localClient.on('error', (e: any) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) sendLog('RPC error: ' + (e?.message || String(e)), 'error')
 			sendStatus('DISCONNECTED')
 
@@ -759,6 +698,8 @@ export default function startDiscordRich(
 		})
 
 		localClient.login({ clientId }).catch((e: any) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (sendLog) {
 				sendLog('RPC login error: ' + (e?.message || String(e)), 'error')
 			}
@@ -771,7 +712,11 @@ export default function startDiscordRich(
 	}
 
 	function findAndRestartProcess() {
+		if (isStopped || sessionId !== currentSessionId) return
+
 		checkDiscordRunning((err, isRunning) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			if (err) {
 				if (sendLog) {
 					sendLog('tasklist error: ' + (err?.message || String(err)), 'error')
