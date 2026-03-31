@@ -1373,6 +1373,14 @@ button:active {
 	padding: 2px 4px;
 }
 
+.timestamp-mode-wrap_activity {
+	padding: 2px 0px;
+}
+
+#activity-type-competing {
+	margin-top: 6px;
+}
+
 .timestamp-mode-btn {
 	border: 1px solid transparent;
 	border-radius: 999px;

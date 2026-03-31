@@ -35,6 +35,8 @@ let cycleTimer: NodeJS.Timeout | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
+let isStopped = false
+let currentSessionId = 0
 
 export function setActivityInterval(sec: number) {
 	if (!Number.isFinite(sec) || sec < 5) {
@@ -64,6 +66,8 @@ function createClient() {
 }
 
 export function stopDiscordRich() {
+	isStopped = true
+	currentSessionId++
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
 		clearTimeout(cycleTimer as any)
@@ -99,7 +103,12 @@ function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
 export default function startDiscordRich(
 	sendPayload: (payload: RpcPayload) => void,
 ) {
+	isStopped = false
+	const sessionId = ++currentSessionId
+
 	async function startSession() {
+		if (isStopped || sessionId !== currentSessionId) return
+
 		const { clientId } = await readClientConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
@@ -298,6 +307,8 @@ export default function startDiscordRich(
 		}
 
 		async function pushActivity() {
+			if (isStopped || sessionId !== currentSessionId) return
+
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
@@ -406,6 +417,7 @@ export default function startDiscordRich(
 		if (sendLog) sendLog('Connecting RPC with clientId ' + clientId, 'info')
 
 		localClient.on('ready', () => {
+			if (isStopped || sessionId !== currentSessionId) return
 			if (sendLog) sendLog('RPC ready', 'success')
 
 			if (cycleTimer) {
@@ -433,6 +445,7 @@ export default function startDiscordRich(
 		})
 
 		localClient.on('disconnected', () => {
+			if (isStopped || sessionId !== currentSessionId) return
 			if (sendLog) sendLog('RPC disconnected', 'warn')
 			sendStatus('DISCONNECTED')
 
@@ -449,6 +462,7 @@ export default function startDiscordRich(
 		})
 
 		localClient.on('error', (e: any) => {
+			if (isStopped || sessionId !== currentSessionId) return
 			if (sendLog) sendLog('RPC error: ' + (e?.message || String(e)), 'error')
 			sendStatus('DISCONNECTED')
 
@@ -465,6 +479,7 @@ export default function startDiscordRich(
 		})
 
 		localClient.login({ clientId }).catch((e: any) => {
+			if (isStopped || sessionId !== currentSessionId) return
 			if (sendLog) {
 				sendLog('RPC login error: ' + (e?.message || String(e)), 'error')
 			}
@@ -477,7 +492,9 @@ export default function startDiscordRich(
 	}
 
 	function findAndRestartProcess() {
+		if (isStopped || sessionId !== currentSessionId) return
 		checkDiscordRunning((err, isRunning) => {
+			if (isStopped || sessionId !== currentSessionId) return
 			if (err) {
 				if (sendLog) {
 					sendLog('tasklist error: ' + (err?.message || String(err)), 'error')

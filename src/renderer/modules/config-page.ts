@@ -239,7 +239,11 @@ export function setupConfigPage(): void {
 						'playing',
 					rpcMode:
 						state.rpcMode ??
-						((localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
+						((localStorage.getItem('rpcMode') as
+							| 'basic'
+							| 'advanced'
+							| 'steam'
+							| null) ||
 							'advanced'),
 				}
 
@@ -526,10 +530,13 @@ export function setupClientIdControls(): void {
 	)
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
 	const storedRpcMode =
-		(localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
-		'advanced'
+		(localStorage.getItem('rpcMode') as
+			| 'basic'
+			| 'advanced'
+			| 'steam'
+			| null) || 'advanced'
 
-	let currentRpcMode: 'basic' | 'advanced' = storedRpcMode
+	let currentRpcMode: 'basic' | 'advanced' | 'steam' = storedRpcMode
 	applyRpcModeToUI(storedRpcMode)
 	const storedMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
@@ -626,7 +633,7 @@ export function setupClientIdControls(): void {
 		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
 	}
 
-	function applyRpcModeToUI(mode: 'basic' | 'advanced') {
+	function applyRpcModeToUI(mode: 'basic' | 'advanced' | 'steam') {
 		currentRpcMode = mode
 		localStorage.setItem('rpcMode', mode)
 
@@ -635,7 +642,7 @@ export function setupClientIdControls(): void {
 		rpcModeWrap
 			.querySelectorAll<HTMLButtonElement>('.timestamp-mode-btn')
 			.forEach(btn => {
-				const m = btn.dataset.mode as 'basic' | 'advanced' | undefined
+				const m = btn.dataset.mode as 'basic' | 'advanced' | 'steam' | undefined
 				btn.dataset.active = m === mode ? 'true' : 'false'
 			})
 	}
@@ -645,7 +652,7 @@ export function setupClientIdControls(): void {
 		const btn = target.closest<HTMLButtonElement>('.timestamp-mode-btn')
 		if (!btn) return
 
-		const mode = btn.dataset.mode as 'basic' | 'advanced' | undefined
+		const mode = btn.dataset.mode as 'basic' | 'advanced' | 'steam' | undefined
 		if (!mode || mode === currentRpcMode) return
 
 		applyRpcModeToUI(mode)

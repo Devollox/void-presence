@@ -76,7 +76,7 @@ export type FullState = {
 	timestampRangeMax?: string
 	activityType?: ActivityType
 	nowMode?: NowMode
-	rpcMode?: 'basic' | 'advanced'
+	rpcMode?: 'basic' | 'advanced' | 'steam'
 }
 
 export interface StoredConfig {
@@ -100,7 +100,7 @@ export interface VoidPresenceCtx {
 
 export type AppSettings = {
 	autoHideOnStart?: boolean
-	rpcMode?: 'basic' | 'advanced'
+	rpcMode?: 'basic' | 'advanced' | 'steam'
 }
 
 export interface ElectronAPI {
