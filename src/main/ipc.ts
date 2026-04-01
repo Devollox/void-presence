@@ -18,7 +18,7 @@ import {
 	stopDiscordRichBasic,
 } from '../discord'
 import { readTimestampConfig, setActivityType } from '../discord/modules/config'
-import { PartyConfig } from '../discord/modules/types'
+import { NowMode, PartyConfig } from '../discord/modules/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import { sendLog, sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
@@ -320,6 +320,129 @@ export function initIpc() {
 			win.minimize()
 		}
 	})
+
+	ipcMain.handle('live-set-client-id', async (_event, clientId: string) => {
+		await setClientId(clientId)
+		return true
+	})
+
+	ipcMain.handle(
+		'live-set-buttons',
+		async (
+			_event,
+			pairs: {
+				label1: string
+				url1: string
+				label2: string
+				url2: string
+			}[],
+		) => {
+			await setButtonsConfig(pairs)
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'live-set-cycles',
+		async (_event, entries: { details: string; state: string }[]) => {
+			await setCycles(entries)
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'live-set-images',
+		async (
+			_event,
+			cycles: {
+				largeImage: string
+				largeText: string
+				smallImage: string
+				smallText: string
+			}[],
+		) => {
+			await setImageCyclesConfig(cycles)
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'live-set-party',
+		async (
+			_event,
+			party: {
+				sizeCurrent: string
+				sizeMax: string
+			}[],
+		) => {
+			const cfg: PartyConfig = {
+				entries: party.map(p => ({
+					sizeCurrent: p.sizeCurrent === '' ? null : Number(p.sizeCurrent),
+					sizeMax: p.sizeMax === '' ? null : Number(p.sizeMax),
+				})),
+			}
+			await setPartyConfig(cfg)
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'live-set-time-cycles',
+		async (
+			_event,
+			cycles: {
+				label: string
+				seconds: string
+			}[],
+		) => {
+			const current = await readTimestampConfig()
+			const mapped = cycles.map(c => ({
+				label: c.label,
+				seconds: Number(c.seconds) || 0,
+			}))
+			await setTimestampConfig({
+				...current,
+				timeCycles: mapped,
+			})
+			return true
+		},
+	)
+
+	ipcMain.handle('live-set-interval', async (_event, sec: number) => {
+		await setActivityInterval(sec)
+		return true
+	})
+
+	ipcMain.handle(
+		'live-set-timestamp',
+		async (
+			_event,
+			cfg: {
+				mode: string
+				rangeMin: string
+				rangeMax: string
+				nowMode: string
+			},
+		) => {
+			const current = await readTimestampConfig()
+			const mode =
+				cfg.mode === 'range' || cfg.mode === 'persist' ? cfg.mode : 'now'
+			const rangeMin = cfg.rangeMin.trim() === '' ? null : Number(cfg.rangeMin)
+			const rangeMax = cfg.rangeMax.trim() === '' ? null : Number(cfg.rangeMax)
+			const nowMode =
+				cfg.nowMode === 'progress' || cfg.nowMode === 'cycles'
+					? (cfg.nowMode as NowMode)
+					: 'plain'
+			await setTimestampConfig({
+				...current,
+				mode,
+				rangeMin,
+				rangeMax,
+				nowMode,
+			})
+			return true
+		},
+	)
 
 	const win = BrowserWindow.getAllWindows()[0]
 	if (win && !win.isDestroyed()) {

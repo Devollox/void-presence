@@ -1449,3 +1449,38 @@ button:active {
 .time-cycles-list[data-visible='false'] {
 	display: none;
 }
+.client-id-save-btn {
+	padding: 3px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--border-soft);
+	background: #000000;
+	color: var(--text);
+	font-size: 9px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+	transition:
+		background 0.1s ease-out,
+		color 0.1s ease-out,
+		border-color 0.1s ease-out,
+		transform 0.08s ease-out,
+		box-shadow 0.08s ease-out;
+}
+
+.client-id-save-btn:hover {
+	background: #ffffff;
+	color: #000000;
+	border-color: #ffffff;
+	transform: translateY(-0.5px);
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.8);
+}
+.auto-row {
+	gap: 8px;
+}
+.auto-toggle {
+	flex: 0 0 auto;
+}

@@ -15,11 +15,7 @@ import {
 	setConfigs,
 	upsertRecentApp,
 } from './config-storage'
-import {
-	applyStateToUIAndLists,
-	loadCurrentState,
-	saveAllFromState,
-} from './state'
+import { applyStateToUIAndLists, loadCurrentState } from './state'
 import {
 	ActivityType,
 	ButtonPair,
@@ -45,6 +41,114 @@ function downloadJson(data: unknown, filename: string): void {
 	a.click()
 	document.body.removeChild(a)
 	URL.revokeObjectURL(url)
+}
+
+async function pushLiveStateFromCtx(
+	ctx: VoidPresenceCtx,
+	currentRpcMode: 'basic' | 'advanced',
+): Promise<void> {
+	const clientInput = document.getElementById(
+		'client-id-input',
+	) as HTMLInputElement | null
+	const intervalInput = document.getElementById(
+		'update-interval-input',
+	) as HTMLInputElement | null
+	const clientId = clientInput ? clientInput.value.trim() : ''
+	const intervalSec = intervalInput
+		? parseInt(intervalInput.value.trim(), 10)
+		: NaN
+	const timestampMode: TimestampMode =
+		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
+	const timestampRangeMin = localStorage.getItem('timestampRangeMin') || ''
+	const timestampRangeMax = localStorage.getItem('timestampRangeMax') || ''
+	const activityType: ActivityType =
+		(localStorage.getItem('activityType') as ActivityType | null) || 'playing'
+	const nowMode: NowMode =
+		(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+	const timeCycles = Array.isArray(ctx.timeCycles) ? ctx.timeCycles : []
+
+	const state: FullState = {
+		clientId,
+		buttonPairs: ctx.buttonPairs,
+		cycles: ctx.cycles,
+		imageCycles: ctx.imageCycles,
+		updateIntervalSec: intervalSec,
+		party: ctx.party,
+		timestampMode,
+		timestampRangeMin,
+		timestampRangeMax,
+		activityType,
+		nowMode,
+		timeCycles,
+		rpcMode: currentRpcMode,
+	}
+
+	localStorage.setItem('clientId', clientId)
+	localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
+	localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
+	localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
+	localStorage.setItem('party', JSON.stringify(ctx.party))
+	localStorage.setItem('timeCycles', JSON.stringify(timeCycles))
+	localStorage.setItem('timestampMode', timestampMode)
+	localStorage.setItem('timestampRangeMin', timestampRangeMin)
+	localStorage.setItem('timestampRangeMax', timestampRangeMax)
+	localStorage.setItem('activityType', activityType)
+	localStorage.setItem('nowMode', nowMode)
+	if (Number.isFinite(intervalSec) && intervalSec > 0) {
+		localStorage.setItem('updateIntervalSec', String(intervalSec))
+	}
+
+	if (window.electronAPI?.liveSetClientId) {
+		await window.electronAPI.liveSetClientId(clientId)
+	}
+
+	if (window.electronAPI?.liveSetCycles) {
+		await window.electronAPI.liveSetCycles((ctx.cycles || []) as any[])
+	}
+
+	if (window.electronAPI?.liveSetImages) {
+		await window.electronAPI.liveSetImages((ctx.imageCycles || []) as any[])
+	}
+
+	if (window.electronAPI?.liveSetButtons) {
+		await window.electronAPI.liveSetButtons((ctx.buttonPairs || []) as any[])
+	}
+
+	if (window.electronAPI?.liveSetParty) {
+		const partyPayload = (ctx.party || []).map(p => ({
+			sizeCurrent: p.sizeCurrent?.toString() ?? '',
+			sizeMax: p.sizeMax?.toString() ?? '',
+		}))
+		await window.electronAPI.liveSetParty(partyPayload as any[])
+	}
+
+	if (window.electronAPI?.liveSetTimeCycles) {
+		const timePayload = timeCycles.map(tc => ({
+			label: tc.label || '',
+			seconds:
+				typeof tc.seconds === 'number'
+					? String(tc.seconds)
+					: (tc.seconds as string) || '',
+		}))
+		await window.electronAPI.liveSetTimeCycles(timePayload as any[])
+	}
+
+	if (
+		window.electronAPI?.liveSetInterval &&
+		Number.isFinite(intervalSec) &&
+		intervalSec > 0
+	) {
+		await window.electronAPI.liveSetInterval(intervalSec)
+	}
+
+	if (window.electronAPI?.liveSetTimestamp) {
+		await window.electronAPI.liveSetTimestamp({
+			mode: timestampMode,
+			rangeMin: timestampRangeMin,
+			rangeMax: timestampRangeMax,
+			nowMode,
+		})
+	}
 }
 
 export function setupConfigPage(): void {
@@ -199,7 +303,9 @@ export function setupConfigPage(): void {
 
 			loadBtn.addEventListener('click', async e => {
 				e.preventDefault()
-				const ctx = (window as any).__voidPresenceCtx
+				const ctx = (window as any).__voidPresenceCtx as
+					| VoidPresenceCtx
+					| undefined
 				if (!ctx) return
 
 				const base: FullState = {
@@ -251,7 +357,7 @@ export function setupConfigPage(): void {
 					}
 				}
 				applyStateToUIAndLists(st, ctx)
-				await saveAllFromState(st)
+				await pushLiveStateFromCtx(ctx, (st.rpcMode as any) || 'advanced')
 				nameInput.value = ''
 				setActiveView('main')
 			})
@@ -400,7 +506,7 @@ export function setupConfigPage(): void {
 
 	;(window as any).addConfigFromState = addConfigFromState
 
-	saveBtn.addEventListener('click', async e => {
+	saveBtn.addEventListener('click', e => {
 		e.preventDefault()
 		const name = nameInput.value.trim()
 		if (!name) return
@@ -448,9 +554,6 @@ export function setupClientIdControls(): void {
 	const clientInput = document.getElementById(
 		'client-id-input',
 	) as HTMLInputElement | null
-	const saveBtn = document.getElementById(
-		'client-id-save',
-	) as HTMLButtonElement | null
 	const buttonsList = document.getElementById(
 		'buttons-list',
 	) as HTMLElement | null
@@ -541,7 +644,6 @@ export function setupClientIdControls(): void {
 
 	if (
 		!clientInput ||
-		!saveBtn ||
 		!buttonsList ||
 		!addButtonPair ||
 		!cyclesList ||
@@ -553,10 +655,11 @@ export function setupClientIdControls(): void {
 		return
 	}
 
-	saveBtn.type = 'button'
 	clientInput.value = localStorage.getItem('clientId') || ''
+	let lastSavedClientId = clientInput.value.trim()
 
 	const ctx: VoidPresenceCtx = {
+		clientId: [],
 		buttonPairs: [],
 		cycles: [],
 		imageCycles: [],
@@ -624,6 +727,8 @@ export function setupClientIdControls(): void {
 		if (timeDivider) timeDivider.dataset.visible = showTime ? 'true' : 'false'
 		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
 		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
+
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	}
 
 	function applyRpcModeToUI(mode: 'basic' | 'advanced') {
@@ -653,6 +758,8 @@ export function setupClientIdControls(): void {
 		if (window.electronAPI?.setRpcMode) {
 			window.electronAPI.setRpcMode(mode)
 		}
+
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	})
 
 	function setMode(m: TimestampMode) {
@@ -680,6 +787,8 @@ export function setupClientIdControls(): void {
 		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
 
 		localStorage.setItem('timestampMode', m)
+
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	}
 
 	setNowMode(storedNowMode)
@@ -720,10 +829,12 @@ export function setupClientIdControls(): void {
 
 	rangeMinInput?.addEventListener('input', () => {
 		localStorage.setItem('timestampRangeMin', rangeMinInput.value)
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	})
 
 	rangeMaxInput?.addEventListener('input', () => {
 		localStorage.setItem('timestampRangeMax', rangeMaxInput.value)
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	})
 
 	persistResetBtn?.addEventListener('click', e => {
@@ -732,6 +843,29 @@ export function setupClientIdControls(): void {
 			window.electronAPI.resetPersistTimestamp()
 		}
 	})
+
+	const clientIdToast = document.getElementById(
+		'client-id-toast',
+	) as HTMLElement | null
+	const blocksToast = document.getElementById(
+		'blocks-toast',
+	) as HTMLElement | null
+
+	function showClientIdToast() {
+		if (!clientIdToast) return
+		clientIdToast.dataset.visible = 'true'
+		setTimeout(() => {
+			clientIdToast.dataset.visible = 'false'
+		}, 1800)
+	}
+
+	function showBlocksToast() {
+		if (!blocksToast) return
+		blocksToast.dataset.visible = 'true'
+		setTimeout(() => {
+			blocksToast.dataset.visible = 'false'
+		}, 1800)
+	}
 
 	ctx.renderTimeCycles = function renderTimeCycles(): void {
 		if (!timeList) return
@@ -744,6 +878,8 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.timeCycles![idx] = updated
 					localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 				() => {
 					ctx.timeCycles!.splice(idx, 1)
@@ -753,6 +889,8 @@ export function setupClientIdControls(): void {
 						localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
 					}
 					ctx.renderTimeCycles!()
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 			)
 			timeList!.appendChild(row)
@@ -768,10 +906,16 @@ export function setupClientIdControls(): void {
 				idx,
 				updated => {
 					ctx.buttonPairs[idx] = updated
+					localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 				() => {
 					ctx.buttonPairs.splice(idx, 1)
+					localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
 					ctx.renderButtonPairs()
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 			)
 			buttonsList.appendChild(row)
@@ -787,10 +931,16 @@ export function setupClientIdControls(): void {
 				idx,
 				updated => {
 					ctx.cycles[idx] = updated
+					localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 				() => {
 					ctx.cycles.splice(idx, 1)
+					localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
 					ctx.renderCycles()
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 			)
 			cyclesList.appendChild(row)
@@ -806,10 +956,16 @@ export function setupClientIdControls(): void {
 				idx,
 				updated => {
 					ctx.imageCycles[idx] = updated
+					localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 				() => {
 					ctx.imageCycles.splice(idx, 1)
+					localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
 					ctx.renderImageCycles()
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 			)
 			imagesList.appendChild(row)
@@ -827,6 +983,8 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.party[idx] = updated
 					localStorage.setItem('party', JSON.stringify(ctx.party))
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 				() => {
 					ctx.party.splice(idx, 1)
@@ -838,6 +996,8 @@ export function setupClientIdControls(): void {
 					}
 
 					ctx.renderPartyCycles()
+					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					showBlocksToast()
 				},
 			)
 			partyList.appendChild(row)
@@ -849,6 +1009,8 @@ export function setupClientIdControls(): void {
 		ctx.timeCycles!.push({ label: '', seconds: '' })
 		localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
 		ctx.renderTimeCycles!()
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		showBlocksToast()
 	})
 
 	addParty?.addEventListener('click', e => {
@@ -856,6 +1018,8 @@ export function setupClientIdControls(): void {
 		ctx.party.push({ sizeCurrent: '', sizeMax: '' })
 		localStorage.setItem('party', JSON.stringify(ctx.party))
 		ctx.renderPartyCycles()
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		showBlocksToast()
 	})
 
 	ctx.renderPartyCycles()
@@ -864,13 +1028,36 @@ export function setupClientIdControls(): void {
 	ctx.renderImageCycles()
 	ctx.renderTimeCycles()
 
-	if (partyList) attachDnD(partyList, ctx.party, ctx.renderPartyCycles)
+	if (partyList)
+		attachDnD(partyList, ctx.party, () => {
+			ctx.renderPartyCycles()
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			showBlocksToast()
+		})
 	if (buttonsList)
-		attachDnD(buttonsList, ctx.buttonPairs, ctx.renderButtonPairs)
-	if (cyclesList) attachDnD(cyclesList, ctx.cycles, ctx.renderCycles)
-	if (imagesList) attachDnD(imagesList, ctx.imageCycles, ctx.renderImageCycles)
+		attachDnD(buttonsList, ctx.buttonPairs, () => {
+			ctx.renderButtonPairs()
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			showBlocksToast()
+		})
+	if (cyclesList)
+		attachDnD(cyclesList, ctx.cycles, () => {
+			ctx.renderCycles()
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			showBlocksToast()
+		})
+	if (imagesList)
+		attachDnD(imagesList, ctx.imageCycles, () => {
+			ctx.renderImageCycles()
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			showBlocksToast()
+		})
 	if (timeList && ctx.timeCycles)
-		attachDnD(timeList, ctx.timeCycles, ctx.renderTimeCycles!)
+		attachDnD(timeList, ctx.timeCycles, () => {
+			ctx.renderTimeCycles!()
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			showBlocksToast()
+		})
 
 	addButtonPair.addEventListener('click', e => {
 		e.preventDefault()
@@ -881,6 +1068,8 @@ export function setupClientIdControls(): void {
 			url2: '',
 		})
 		ctx.renderButtonPairs()
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		showBlocksToast()
 	})
 
 	addCycle.addEventListener('click', e => {
@@ -890,6 +1079,8 @@ export function setupClientIdControls(): void {
 			state: '',
 		})
 		ctx.renderCycles()
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		showBlocksToast()
 	})
 
 	addImage.addEventListener('click', e => {
@@ -901,64 +1092,56 @@ export function setupClientIdControls(): void {
 			smallText: '',
 		})
 		ctx.renderImageCycles()
-	})
-
-	async function saveAll(): Promise<void> {
-		const intervalInput = document.getElementById(
-			'update-interval-input',
-		) as HTMLInputElement | null
-		const intervalSec = intervalInput
-			? parseInt(intervalInput.value.trim(), 10)
-			: NaN
-		const activityType =
-			(localStorage.getItem('activityType') as ActivityType | null) || 'playing'
-		const nowMode: NowMode =
-			(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
-
-		const state: FullState = {
-			clientId: clientInput.value,
-			buttonPairs: ctx.buttonPairs,
-			cycles: ctx.cycles,
-			imageCycles: ctx.imageCycles,
-			updateIntervalSec: intervalSec,
-			party: ctx.party,
-			timestampMode:
-				(localStorage.getItem('timestampMode') as TimestampMode) || 'now',
-			timestampRangeMin: localStorage.getItem('timestampRangeMin') || '',
-			timestampRangeMax: localStorage.getItem('timestampRangeMax') || '',
-			activityType,
-			nowMode,
-			timeCycles: ctx.timeCycles,
-			rpcMode: currentRpcMode,
-		}
-
-		try {
-			await saveAllFromState(state)
-			upsertRecentApp(
-				clientInput.value || '',
-				document.title || 'Void Presence App',
-			)
-			if (recentList) {
-				renderRecentApps(recentList)
-			}
-			appendLog({
-				message: 'Settings saved and presence restarted',
-				level: 'success',
-			})
-		} catch (err: any) {
-			appendLog({
-				message: `Failed to save settings: ${err?.message ?? String(err)}`,
-				level: 'error',
-			})
-		}
-	}
-
-	saveBtn.addEventListener('click', async e => {
-		e.preventDefault()
-		await saveAll()
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		showBlocksToast()
 	})
 	;(window as any).__voidPresenceCtx = ctx
 	if (recentList) {
 		renderRecentApps(recentList)
+	}
+
+	let clientIdDebounce: number | undefined
+
+	clientInput.addEventListener('input', () => {
+		if (clientIdDebounce) {
+			window.clearTimeout(clientIdDebounce)
+		}
+		clientIdDebounce = window.setTimeout(() => {
+			const newClientId = clientInput.value.trim()
+
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+
+			if (newClientId.length !== 19) {
+				return
+			}
+
+			if (newClientId === lastSavedClientId) {
+				return
+			}
+
+			lastSavedClientId = newClientId
+			upsertRecentApp(newClientId, document.title || 'Void Presence App')
+			if (recentList) {
+				renderRecentApps(recentList)
+			}
+			showClientIdToast()
+		}, 600)
+	})
+
+	const intervalInput = document.getElementById(
+		'update-interval-input',
+	) as HTMLInputElement | null
+	if (intervalInput) {
+		intervalInput.addEventListener('input', () => {
+			void pushLiveStateFromCtx(ctx, currentRpcMode)
+		})
+	}
+
+	const initialClientId = clientInput.value.trim()
+	if (initialClientId) {
+		upsertRecentApp(initialClientId, document.title || 'Void Presence App')
+		if (recentList) {
+			renderRecentApps(recentList)
+		}
 	}
 }

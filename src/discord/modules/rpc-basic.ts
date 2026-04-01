@@ -37,8 +37,14 @@ let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
 let isStopped = false
 let currentSessionId = 0
+let isConnecting = false
+let hasEverBeenReady = false
+let hasLoggedConnectingOnce = false
+let suppressFirstLoginError = true
+let intervalLocked = false
 
 export function setActivityInterval(sec: number) {
+	if (intervalLocked) return
 	if (!Number.isFinite(sec) || sec < 5) {
 		activityIntervalMs = 5000
 	} else {
@@ -68,6 +74,7 @@ function createClient() {
 export function stopDiscordRich() {
 	isStopped = true
 	currentSessionId++
+	intervalLocked = false
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
 		clearTimeout(cycleTimer as any)
@@ -90,6 +97,9 @@ export function stopDiscordRich() {
 		} catch {}
 		client = null
 	}
+	isConnecting = false
+	hasEverBeenReady = false
+	hasLoggedConnectingOnce = false
 }
 
 function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
@@ -105,26 +115,36 @@ export default function startDiscordRich(
 ) {
 	isStopped = false
 	const sessionId = ++currentSessionId
+	hasLoggedConnectingOnce = false
 
 	async function startSession() {
 		if (isStopped || sessionId !== currentSessionId) return
+		if (isConnecting) return
+		isConnecting = true
 
 		const { clientId } = await readClientConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
 		const imageCyclesConfig = await readImageCyclesConfig()
-		const partyConfig = await readPartyConfig()
+		const partyConfigInitial = await readPartyConfig()
 
 		if (!clientId || !cyclesConfig.entries.length) {
+			isConnecting = false
 			sendStatus('NO_CLIENT_ID')
 			if (sendLog) sendLog('No client ID or no cycles configured', 'warn')
 			return
 		}
 
-		const timestampConfig: TimestampConfig = await readTimestampConfig()
-		const mode = timestampConfig.mode
-		const nowMode: NowMode = timestampConfig.nowMode
-		const timeCycles = Array.isArray(timestampConfig.timeCycles)
+		sendStatus('CONNECTING RPC')
+		if (!hasLoggedConnectingOnce && sendLog) {
+			sendLog('Connecting RPC with clientId ' + clientId, 'info')
+			hasLoggedConnectingOnce = true
+		}
+
+		let timestampConfig: TimestampConfig = await readTimestampConfig()
+		let mode = timestampConfig.mode
+		let nowMode: NowMode = timestampConfig.nowMode
+		let timeCycles = Array.isArray(timestampConfig.timeCycles)
 			? timestampConfig.timeCycles
 			: []
 
@@ -137,7 +157,7 @@ export default function startDiscordRich(
 		}
 
 		const activityTypeCfg = await readActivityTypeConfig()
-		const activityType: ActivityType = activityTypeCfg.type
+		let activityType: ActivityType = activityTypeCfg.type
 
 		const plainTimestamps = { start: Date.now() }
 
@@ -262,23 +282,28 @@ export default function startDiscordRich(
 
 		const localClient = createClient()
 
-		const baseCycles = cyclesConfig.entries
-		const buttonPairs = Array.isArray(buttonsConfig.pairs)
+		let baseCycles = cyclesConfig.entries
+		let buttonPairs = Array.isArray(buttonsConfig.pairs)
 			? buttonsConfig.pairs
 			: []
+		let partyConfig = partyConfigInitial || null
 
-		const cycles = baseCycles.map((c, idx) => {
-			const img = baseImageCycles[idx % baseImageCycles.length]
-			return {
-				details: c.details,
-				state: c.state,
-				largeImage: img.largeImage,
-				largeText: img.largeText,
-				smallImage: img.smallImage,
-				smallText: img.smallText,
-			}
-		})
+		function buildCycles() {
+			if (!baseCycles.length) return []
+			return baseCycles.map((c, idx) => {
+				const img = baseImageCycles[idx % baseImageCycles.length]
+				return {
+					details: c.details,
+					state: c.state,
+					largeImage: img.largeImage,
+					largeText: img.largeText,
+					smallImage: img.smallImage,
+					smallText: img.smallText,
+				}
+			})
+		}
 
+		let cycles = buildCycles()
 		let cycleIndex = 0
 		let partyIndex = 0
 		let buttonIndex = 0
@@ -306,8 +331,62 @@ export default function startDiscordRich(
 			return res
 		}
 
+		async function refreshConfigsIfChanged() {
+			try {
+				const [newButtons, newCycles, newImages, newParty, newTs, newType] =
+					await Promise.all([
+						readButtonsConfig(),
+						readCyclesConfig(),
+						readImageCyclesConfig(),
+						readPartyConfig(),
+						readTimestampConfig(),
+						readActivityTypeConfig(),
+					])
+
+				if (newCycles.entries.length && newImages.cycles.length) {
+					baseCycles = newCycles.entries
+					if (
+						newImages.cycles.length !== baseImageCycles.length ||
+						JSON.stringify(newImages.cycles) !== JSON.stringify(baseImageCycles)
+					) {
+						for (let i = 0; i < newImages.cycles.length; i++) {
+							baseImageCycles[i] = newImages.cycles[i]
+						}
+					}
+					cycles = buildCycles()
+					if (cycleIndex >= cycles.length) cycleIndex = 0
+				}
+
+				if (Array.isArray(newButtons.pairs)) {
+					buttonPairs = newButtons.pairs
+					if (buttonIndex >= buttonPairs.length) buttonIndex = 0
+				}
+
+				if (newParty) {
+					partyConfig = newParty
+					if (partyIndex >= partyConfig.entries.length) partyIndex = 0
+				}
+
+				timestampConfig = newTs
+				mode = newTs.mode
+				nowMode = newTs.nowMode
+				timeCycles = Array.isArray(newTs.timeCycles) ? newTs.timeCycles : []
+				activityType = newType.type
+			} catch (e) {
+				if (sendLog) {
+					sendLog(
+						'Config refresh error: ' + ((e as any)?.message || String(e)),
+						'error',
+					)
+				}
+			}
+		}
+
 		async function pushActivity() {
 			if (isStopped || sessionId !== currentSessionId) return
+
+			await refreshConfigsIfChanged()
+			if (!cycles.length) return
 
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
@@ -413,12 +492,14 @@ export default function startDiscordRich(
 			}
 		}
 
-		sendStatus('CONNECTING RPC')
-		if (sendLog) sendLog('Connecting RPC with clientId ' + clientId, 'info')
-
 		localClient.on('ready', () => {
 			if (isStopped || sessionId !== currentSessionId) return
+			isConnecting = false
+			hasEverBeenReady = true
+			hasLoggedConnectingOnce = false
+			intervalLocked = true
 			if (sendLog) sendLog('RPC ready', 'success')
+			sendStatus('ACTIVE')
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
@@ -446,8 +527,12 @@ export default function startDiscordRich(
 
 		localClient.on('disconnected', () => {
 			if (isStopped || sessionId !== currentSessionId) return
-			if (sendLog) sendLog('RPC disconnected', 'warn')
+			isConnecting = false
+
 			sendStatus('DISCONNECTED')
+			if (hasEverBeenReady && sendLog) {
+				sendLog('RPC disconnected', 'warn')
+			}
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
@@ -463,8 +548,12 @@ export default function startDiscordRich(
 
 		localClient.on('error', (e: any) => {
 			if (isStopped || sessionId !== currentSessionId) return
-			if (sendLog) sendLog('RPC error: ' + (e?.message || String(e)), 'error')
+			isConnecting = false
+
 			sendStatus('DISCONNECTED')
+			if (hasEverBeenReady && sendLog) {
+				sendLog('RPC error: ' + (e?.message || String(e)), 'error')
+			}
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
@@ -478,12 +567,15 @@ export default function startDiscordRich(
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
 		})
 
+		suppressFirstLoginError = !hasEverBeenReady
+
 		localClient.login({ clientId }).catch((e: any) => {
 			if (isStopped || sessionId !== currentSessionId) return
-			if (sendLog) {
+			isConnecting = false
+
+			if (!suppressFirstLoginError && sendLog) {
 				sendLog('RPC login error: ' + (e?.message || String(e)), 'error')
 			}
-			sendStatus('DISCONNECTED')
 			if (restartTimer) {
 				clearTimeout(restartTimer)
 			}
@@ -496,10 +588,10 @@ export default function startDiscordRich(
 		checkDiscordRunning((err, isRunning) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			if (err) {
-				if (sendLog) {
-					sendLog('tasklist error: ' + (err?.message || String(err)), 'error')
+				if (restartTimer) {
+					clearTimeout(restartTimer)
 				}
-				sendStatus('DISCONNECTED')
+				restartTimer = setTimeout(findAndRestartProcess, 5000)
 				return
 			}
 			if (!isRunning) {
@@ -512,10 +604,11 @@ export default function startDiscordRich(
 				if (restartTimer) {
 					clearTimeout(restartTimer)
 				}
-				restartTimer = setTimeout(startSession, 25000)
 				if (restartInterval) {
 					clearInterval(restartInterval)
 				}
+				restartInterval = null
+				void startSession()
 			}
 		})
 	}

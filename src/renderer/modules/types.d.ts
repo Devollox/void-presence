@@ -86,6 +86,7 @@ export interface StoredConfig {
 }
 
 export interface VoidPresenceCtx {
+	clientId: any[]
 	party?: PartyCycleEntry[]
 	buttonPairs: ButtonPair[]
 	cycles: CycleEntry[]
@@ -104,6 +105,23 @@ export type AppSettings = {
 }
 
 export interface ElectronAPI {
+	liveSetClientId?: (clientId: string) => Promise<unknown> | unknown
+	liveSetButtons?: (pairs: ButtonPair[]) => Promise<unknown> | unknown
+	liveSetCycles?: (cycles: CycleEntry[]) => Promise<unknown> | unknown
+	liveSetImages?: (cycles: ImageCycleEntry[]) => Promise<unknown> | unknown
+	liveSetParty?: (
+		party: { sizeCurrent: string; sizeMax: string }[],
+	) => Promise<unknown> | unknown
+	liveSetTimestamp?: (cfg: {
+		mode: TimestampMode
+		rangeMin: string
+		rangeMax: string
+		nowMode: NowMode
+	}) => Promise<unknown> | unknown
+	liveSetInterval?: (sec: number) => Promise<unknown> | unknown
+	liveSetTimeCycles?: (
+		cycles: { label: string; seconds: string }[],
+	) => Promise<unknown> | unknown
 	setRpcMode(mode: string): unknown
 	startDiscordRichProfile: any
 	invoke: any

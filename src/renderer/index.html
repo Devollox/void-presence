@@ -108,16 +108,6 @@
 										>
 											music and youtube
 										</button>
-										<!--
-																				<button
-											type="button"
-											class="timestamp-mode-btn"
-											data-mode="steam"
-											data-active="true"
-											id="rpc-mode-steam"
-										>
-											steam
-										</button>-->
 									</div>
 								</div>
 
@@ -285,13 +275,27 @@
 								<div class="divider"></div>
 
 								<div class="button-row">
-									<button id="client-id-save" class="rpc-button">
+									<button
+										style="display: none"
+										id="client-id-save"
+										class="rpc-button"
+									>
 										<span>SAVE and RESTART PRESENCE</span>
 									</button>
 								</div>
+								<div class="button-row">
+									<button id="restart-discord" class="rpc-button">
+										<div class="rpc-button-icon">↻</div>
+										<span>RESTART PRESENCE</span>
+									</button>
+									<button id="stop-discord" class="rpc-button">
+										<div class="rpc-button-icon">■</div>
+										<span>STOP PRESENCE</span>
+									</button>
+								</div>
 								<p class="hint-text">
-									Blank fields and empty lines are saved, but in Discord they
-									are not displayed.
+									After changing the client id or update(sec), click “RESTART
+									PRESENCE”.
 								</p>
 								<div class="divider"></div>
 
@@ -333,6 +337,7 @@
 								<div class="auto-row">
 									<div class="auto-label">
 										<span>AUTO START</span>
+										<div class="hint-text">launch app with Windows</div>
 									</div>
 									<div
 										id="auto-launch-toggle"
@@ -343,6 +348,7 @@
 									</div>
 									<div class="auto-label">
 										<span>AUTO HIDE</span>
+										<div class="hint-text">minimize to tray on start</div>
 									</div>
 									<div
 										id="auto-hide-toggle"
@@ -351,17 +357,6 @@
 									>
 										<div class="auto-toggle-knob"></div>
 									</div>
-								</div>
-
-								<div class="button-row">
-									<button id="restart-discord" class="rpc-button">
-										<div class="rpc-button-icon">↻</div>
-										<span>RESTART PRESENCE</span>
-									</button>
-									<button id="stop-discord" class="rpc-button">
-										<div class="rpc-button-icon">■</div>
-										<span>STOP PRESENCE</span>
-									</button>
 								</div>
 
 								<div class="meta-row">
@@ -556,6 +551,12 @@
 			</div>
 		</div>
 
+		<div id="client-id-toast" class="copy-toast" data-visible="false">
+			client id saved
+		</div>
+		<div id="blocks-toast" class="copy-toast" data-visible="false">
+			changes saved
+		</div>
 		<div id="global-drop-overlay" data-active="false"></div>
 		<script type="module" src="../../build/renderer/renderer.js"></script>
 	</body>

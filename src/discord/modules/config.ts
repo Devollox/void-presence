@@ -66,7 +66,7 @@ export async function readClientConfig(): Promise<ClientConfig> {
 
 export async function writeClientConfig(config: ClientConfig) {
 	const configPath = getClientConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 function normalizeButtonPairLoose(p: any): ButtonPair {
@@ -97,7 +97,7 @@ export async function readButtonsConfig(): Promise<ButtonsConfig> {
 
 export async function writeButtonsConfig(config: ButtonsConfig) {
 	const configPath = getButtonsConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 export async function readCyclesConfig(): Promise<CyclesConfig> {
@@ -119,7 +119,7 @@ export async function readCyclesConfig(): Promise<CyclesConfig> {
 
 export async function writeCyclesConfig(config: CyclesConfig) {
 	const configPath = getCyclesConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 export async function readImageCyclesConfig(): Promise<ImageCyclesConfig> {
@@ -155,7 +155,7 @@ export async function readImageCyclesConfig(): Promise<ImageCyclesConfig> {
 
 export async function writeImageCyclesConfig(config: ImageCyclesConfig) {
 	const configPath = getImageCyclesConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 export async function readPartyConfig(): Promise<PartyConfig | null> {
@@ -188,7 +188,7 @@ export async function writePartyConfig(config: PartyConfig | null) {
 		} catch {}
 		return
 	}
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 export async function readTimestampConfig(): Promise<TimestampConfig> {
@@ -234,7 +234,7 @@ export async function readTimestampConfig(): Promise<TimestampConfig> {
 
 export async function writeTimestampConfig(config: TimestampConfig) {
 	const configPath = getTimestampConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 export async function readActivityTypeConfig(): Promise<ActivityTypeConfig> {
@@ -251,7 +251,7 @@ export async function readActivityTypeConfig(): Promise<ActivityTypeConfig> {
 
 export async function writeActivityTypeConfig(config: ActivityTypeConfig) {
 	const configPath = getActivityTypeConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2))
+	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
 export async function setActivityType(type: ActivityTypeConfig['type']) {

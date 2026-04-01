@@ -24,7 +24,8 @@ const config: ForgeConfig = {
 			if (path.endsWith('LICENSE')) return true
 			if (path.endsWith('package-lock.json')) return true
 
-			if (path.includes('/src/discord')) return true
+			if (path.includes('/src/discord/modules')) return true
+			if (path.includes('/src/discord/index.ts')) return true
 			if (path.includes('/src/main')) return true
 			if (path.includes('/src/types')) return true
 			if (path.includes('/src/renderer/modules')) return true

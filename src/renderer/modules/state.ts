@@ -10,7 +10,6 @@ import {
 	TimestampMode,
 	VoidPresenceCtx,
 } from './types'
-import { updateStatus } from './views'
 
 export async function setupIntervalControl(): Promise<void> {
 	const input = document.getElementById(
@@ -102,7 +101,7 @@ export function loadCurrentState(): FullState {
 	}
 }
 
-export async function saveAllFromState(state: FullState): Promise<void> {
+export async function applyAndPushState(state: FullState): Promise<void> {
 	const clientId = (state.clientId || '').trim()
 	const buttonPairs = Array.isArray(state.buttonPairs) ? state.buttonPairs : []
 	const cycles = Array.isArray(state.cycles) ? state.cycles : []
@@ -112,18 +111,17 @@ export async function saveAllFromState(state: FullState): Promise<void> {
 
 	const intervalSecRaw = Number(state.updateIntervalSec)
 
-	if (!clientId || !Number.isFinite(intervalSecRaw) || intervalSecRaw <= 0) {
-		updateStatus('NO_CLIENT_ID')
-		return
-	}
-
 	const timestampMode: TimestampMode =
-		(state.timestampMode as TimestampMode) || 'now'
-	const timestampRangeMin =
+		(state.timestampMode as TimestampMode) ||
+		(localStorage.getItem('timestampMode') as TimestampMode | null) ||
+		'now'
+
+	const timestampRangeMinRaw =
 		typeof state.timestampRangeMin === 'number'
 			? state.timestampRangeMin
 			: Number(state.timestampRangeMin)
-	const timestampRangeMax =
+
+	const timestampRangeMaxRaw =
 		typeof state.timestampRangeMax === 'number'
 			? state.timestampRangeMax
 			: Number(state.timestampRangeMax)
@@ -142,52 +140,54 @@ export async function saveAllFromState(state: FullState): Promise<void> {
 	localStorage.setItem('buttonPairs', JSON.stringify(buttonPairs))
 	localStorage.setItem('cycles', JSON.stringify(cycles))
 	localStorage.setItem('imageCycles', JSON.stringify(imageCycles))
-	localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
 	localStorage.setItem('party', JSON.stringify(partyEntries))
+	localStorage.setItem('timeCycles', JSON.stringify(timeCycles))
 	localStorage.setItem('timestampMode', timestampMode)
 	localStorage.setItem('activityType', activityType)
 	localStorage.setItem('nowMode', nowMode)
-	localStorage.setItem('timeCycles', JSON.stringify(timeCycles))
-	if (Number.isFinite(timestampRangeMin)) {
-		localStorage.setItem('timestampRangeMin', String(timestampRangeMin))
+	if (Number.isFinite(intervalSecRaw) && intervalSecRaw > 0) {
+		localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
+	}
+
+	if (Number.isFinite(timestampRangeMinRaw)) {
+		localStorage.setItem('timestampRangeMin', String(timestampRangeMinRaw))
 	} else {
 		localStorage.removeItem('timestampRangeMin')
 	}
-	if (Number.isFinite(timestampRangeMax)) {
-		localStorage.setItem('timestampRangeMax', String(timestampRangeMax))
+
+	if (Number.isFinite(timestampRangeMaxRaw)) {
+		localStorage.setItem('timestampRangeMax', String(timestampRangeMaxRaw))
 	} else {
 		localStorage.removeItem('timestampRangeMax')
 	}
 
-	if (window.electronAPI?.setClientId) {
+	if (window.electronAPI?.setClientId && clientId) {
 		await window.electronAPI.setClientId(clientId)
 	}
 	if (window.electronAPI?.setImageCycles) {
-		await window.electronAPI.setImageCycles(imageCycles)
+		await window.electronAPI.setImageCycles(imageCycles as any)
 	}
 	if (window.electronAPI?.setButtons) {
-		await window.electronAPI.setButtons(buttonPairs)
+		await window.electronAPI.setButtons(buttonPairs as any)
 	}
 	if (window.electronAPI?.setCycles) {
-		await window.electronAPI.setCycles(cycles)
-	}
-	if (window.electronAPI?.setActivityInterval) {
-		await window.electronAPI.setActivityInterval(intervalSecRaw)
+		await window.electronAPI.setCycles(cycles as any)
 	}
 	if (window.electronAPI?.setPartyConfig) {
-		await window.electronAPI.setPartyConfig({ entries: partyEntries })
+		await window.electronAPI.setPartyConfig({ entries: partyEntries } as any)
 	}
 	if (window.electronAPI?.setTimestampConfig) {
 		await window.electronAPI.setTimestampConfig({
 			mode: timestampMode,
-			rangeMin: Number.isFinite(timestampRangeMin) ? timestampRangeMin : null,
-			rangeMax: Number.isFinite(timestampRangeMax) ? timestampRangeMax : null,
+			rangeMin: Number.isFinite(timestampRangeMinRaw)
+				? timestampRangeMinRaw
+				: null,
+			rangeMax: Number.isFinite(timestampRangeMaxRaw)
+				? timestampRangeMaxRaw
+				: null,
 			nowMode,
 			timeCycles,
 		} as any)
-	}
-	if (window.electronAPI?.restartDiscordRich) {
-		await window.electronAPI.restartDiscordRich()
 	}
 }
 
