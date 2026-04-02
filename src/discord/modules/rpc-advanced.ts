@@ -503,6 +503,10 @@ export default function startDiscordRich(
 			cycles = buildCycles(imgCycle)
 			if (!cycles.length) return
 
+			if (cycleIndex >= cycles.length) {
+				cycleIndex = 0
+			}
+
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
