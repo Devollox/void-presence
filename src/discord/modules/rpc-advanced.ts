@@ -74,6 +74,8 @@ let hasLoggedConnectingOnce = false
 let suppressFirstLoginError = true
 let intervalLocked = false
 let imageIndex = 0
+let isSearchingDiscord = false
+let lastReadyAt = 0
 
 function makeCacheKey(title: string, artist: string) {
 	return `${title.toLowerCase().trim()}::${artist.toLowerCase().trim()}`
@@ -745,6 +747,8 @@ export default function startDiscordRich(
 			hasEverBeenReady = true
 			hasLoggedConnectingOnce = false
 			intervalLocked = true
+			lastReadyAt = Date.now()
+			isSearchingDiscord = false
 			if (sendLog) sendLog('RPC ready', 'success')
 			sendStatus('ACTIVE')
 
@@ -801,8 +805,15 @@ export default function startDiscordRich(
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
 
-			if (!suppressFirstLoginError && sendLog) {
-				sendLog('RPC login error: ' + (e?.message || String(e)), 'error')
+			const msg = e?.message || ''
+			const isCouldNotConnect = msg.includes('Could not connect')
+			const justAfterSearch =
+				isSearchingDiscord && Date.now() - lastReadyAt > 2000
+			const shouldSuppress =
+				suppressFirstLoginError || (isCouldNotConnect && justAfterSearch)
+
+			if (!shouldSuppress && sendLog) {
+				sendLog('RPC login error: ' + (msg || String(e)), 'error')
 			}
 			if (restartTimer) {
 				clearTimeout(restartTimer)
@@ -813,6 +824,7 @@ export default function startDiscordRich(
 
 	function findAndRestartProcess() {
 		if (isStopped || sessionId !== currentSessionId) return
+		isSearchingDiscord = true
 		checkDiscordRunning((err, isRunning) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			if (err) {

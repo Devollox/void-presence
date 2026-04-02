@@ -46,6 +46,8 @@ let hasLoggedConnectingOnce = false
 let suppressFirstLoginError = true
 let intervalLocked = false
 let imageIndex = 0
+let isSearchingDiscord = false
+let lastReadyAt = 0
 
 export function setActivityInterval(sec: number) {
 	if (intervalLocked) return
@@ -307,16 +309,14 @@ export default function startDiscordRich(
 
 		function buildCycles(imgCycle: ImageCycle) {
 			if (!baseCycles.length) return []
-			return baseCycles.map(
-				(c: { details: string; state: string }, idx: number) => ({
-					details: c.details,
-					state: c.state,
-					largeImage: imgCycle.largeImage,
-					largeText: imgCycle.largeText,
-					smallImage: imgCycle.smallImage,
-					smallText: imgCycle.smallText,
-				}),
-			)
+			return baseCycles.map((c: { details: string; state: string }) => ({
+				details: c.details,
+				state: c.state,
+				largeImage: imgCycle.largeImage,
+				largeText: imgCycle.largeText,
+				smallImage: imgCycle.smallImage,
+				smallText: imgCycle.smallText,
+			}))
 		}
 
 		let cycles: any[] = []
@@ -525,6 +525,8 @@ export default function startDiscordRich(
 			hasEverBeenReady = true
 			hasLoggedConnectingOnce = false
 			intervalLocked = true
+			lastReadyAt = Date.now()
+			isSearchingDiscord = false
 			if (sendLog) sendLog('RPC ready', 'success')
 			sendStatus('ACTIVE')
 
@@ -600,11 +602,15 @@ export default function startDiscordRich(
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
 
-			if (!suppressFirstLoginError && sendLog) {
-				sendLog(
-					'RPC login error: ' + (e?.message || JSON.stringify(e)),
-					'error',
-				)
+			const msg = e?.message || ''
+			const isCouldNotConnect = msg.includes('Could not connect')
+			const justAfterSearch =
+				isSearchingDiscord && Date.now() - lastReadyAt > 2000
+			const shouldSuppress =
+				suppressFirstLoginError || (isCouldNotConnect && justAfterSearch)
+
+			if (!shouldSuppress && sendLog) {
+				sendLog('RPC login error: ' + (msg || JSON.stringify(e)), 'error')
 			}
 			if (restartTimer) {
 				clearTimeout(restartTimer)
@@ -615,6 +621,7 @@ export default function startDiscordRich(
 
 	function findAndRestartProcess() {
 		if (isStopped || sessionId !== currentSessionId) return
+		isSearchingDiscord = true
 		checkDiscordRunning((err, isRunning) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			if (err) {
