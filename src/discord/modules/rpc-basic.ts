@@ -48,6 +48,7 @@ let intervalLocked = false
 let imageIndex = 0
 
 export function setActivityInterval(sec: number) {
+	if (intervalLocked) return
 	if (!Number.isFinite(sec) || sec < 5) {
 		activityIntervalMs = 5000
 	} else {
