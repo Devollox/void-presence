@@ -45,9 +45,9 @@ let hasEverBeenReady = false
 let hasLoggedConnectingOnce = false
 let suppressFirstLoginError = true
 let intervalLocked = false
+let imageIndex = 0
 
 export function setActivityInterval(sec: number) {
-	if (intervalLocked) return
 	if (!Number.isFinite(sec) || sec < 5) {
 		activityIntervalMs = 5000
 	} else {
@@ -78,6 +78,7 @@ export function stopDiscordRich() {
 	isStopped = true
 	currentSessionId++
 	intervalLocked = false
+	imageIndex = 0
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
 		clearTimeout(cycleTimer)
@@ -115,23 +116,45 @@ function checkDiscordRunning(
 	})
 }
 
+function getNextImageCycle(imageCyclesConfig: {
+	cycles: ImageCycle[]
+}): ImageCycle {
+	if (!imageCyclesConfig.cycles.length) {
+		return {
+			largeImage: null,
+			largeText: null,
+			smallImage: null,
+			smallText: null,
+		}
+	}
+	const img =
+		imageCyclesConfig.cycles[imageIndex % imageCyclesConfig.cycles.length]
+	imageIndex = (imageIndex + 1) % imageCyclesConfig.cycles.length
+	return img
+}
+
 export default function startDiscordRich(
 	sendPayload: (payload: RpcPayload) => void,
 ) {
 	isStopped = false
 	const sessionId = ++currentSessionId
 	hasLoggedConnectingOnce = false
+	imageIndex = 0
 
 	async function startSession() {
 		if (isStopped || sessionId !== currentSessionId) return
 		if (isConnecting) return
 		isConnecting = true
 
-		const { clientId } = await readClientConfig()
+		const { clientId, updateIntervalSec } = await readClientConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
 		const imageCyclesConfig = await readImageCyclesConfig()
 		const partyConfigInitial = await readPartyConfig()
+
+		if (updateIntervalSec != null) {
+			setActivityInterval(updateIntervalSec)
+		}
 
 		if (!clientId || !cyclesConfig.entries.length) {
 			isConnecting = false
@@ -273,18 +296,6 @@ export default function startDiscordRich(
 			await setTimestampConfig(timestampConfig)
 		}
 
-		const baseImageCycles: ImageCycle[] =
-			imageCyclesConfig.cycles.length > 0
-				? imageCyclesConfig.cycles
-				: [
-						{
-							largeImage: null,
-							largeText: null,
-							smallImage: null,
-							smallText: null,
-						},
-					]
-
 		const localClient = createClient()
 
 		let baseCycles = cyclesConfig.entries
@@ -293,24 +304,21 @@ export default function startDiscordRich(
 			: []
 		let partyConfig = partyConfigInitial || null
 
-		function buildCycles() {
+		function buildCycles(imgCycle: ImageCycle) {
 			if (!baseCycles.length) return []
 			return baseCycles.map(
-				(c: { details: string; state: string }, idx: number) => {
-					const img = baseImageCycles[idx % baseImageCycles.length]
-					return {
-						details: c.details,
-						state: c.state,
-						largeImage: img.largeImage,
-						largeText: img.largeText,
-						smallImage: img.smallImage,
-						smallText: img.smallText,
-					}
-				},
+				(c: { details: string; state: string }, idx: number) => ({
+					details: c.details,
+					state: c.state,
+					largeImage: imgCycle.largeImage,
+					largeText: imgCycle.largeText,
+					smallImage: imgCycle.smallImage,
+					smallText: imgCycle.smallText,
+				}),
 			)
 		}
 
-		let cycles = buildCycles()
+		let cycles: any[] = []
 		let cycleIndex = 0
 		let partyIndex = 0
 		let buttonIndex = 0
@@ -350,18 +358,8 @@ export default function startDiscordRich(
 						readActivityTypeConfig(),
 					])
 
-				if (newCycles.entries.length && newImages.cycles.length) {
+				if (newCycles.entries.length) {
 					baseCycles = newCycles.entries
-					if (
-						newImages.cycles.length !== baseImageCycles.length ||
-						JSON.stringify(newImages.cycles) !== JSON.stringify(baseImageCycles)
-					) {
-						for (let i = 0; i < newImages.cycles.length; i++) {
-							baseImageCycles[i] = newImages.cycles[i]
-						}
-					}
-					cycles = buildCycles()
-					if (cycleIndex >= cycles.length) cycleIndex = 0
 				}
 
 				if (Array.isArray(newButtons.pairs)) {
@@ -393,6 +391,12 @@ export default function startDiscordRich(
 			if (isStopped || sessionId !== currentSessionId) return
 
 			await refreshConfigsIfChanged()
+			if (!baseCycles.length) return
+
+			const imageCyclesConfig = await readImageCyclesConfig()
+			const imgCycle = getNextImageCycle(imageCyclesConfig)
+			cycles = buildCycles(imgCycle)
+
 			if (!cycles.length) return
 
 			const current = cycles[cycleIndex]

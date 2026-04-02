@@ -17,7 +17,11 @@ import {
 	stopDiscordRichAdvanced,
 	stopDiscordRichBasic,
 } from '../discord'
-import { readTimestampConfig, setActivityType } from '../discord/modules/config'
+import {
+	readTimestampConfig,
+	setActivityIntervalConfig,
+	setActivityType,
+} from '../discord/modules/config'
 import {
 	ActivityType,
 	NowMode,
@@ -276,6 +280,8 @@ export function initIpc() {
 
 	ipcMain.handle('set-activity-interval', async (_event, sec: number) => {
 		await setActivityInterval(sec)
+		await setActivityIntervalConfig(sec)
+
 		return true
 	})
 
@@ -417,6 +423,7 @@ export function initIpc() {
 
 	ipcMain.handle('live-set-interval', async (_event, sec: number) => {
 		await setActivityInterval(sec)
+		await setActivityIntervalConfig(sec)
 		return true
 	})
 

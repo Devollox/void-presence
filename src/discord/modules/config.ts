@@ -53,15 +53,33 @@ export async function readClientConfig(): Promise<ClientConfig> {
 	try {
 		const raw = await fs.readFile(configPath, 'utf-8')
 		const parsed = JSON.parse(raw) as Partial<ClientConfig>
-		return {
-			clientId:
-				typeof parsed.clientId === 'string' && parsed.clientId.trim().length > 0
-					? parsed.clientId.trim()
-					: null,
-		}
+		const clientId =
+			typeof parsed.clientId === 'string' && parsed.clientId.trim().length > 0
+				? parsed.clientId.trim()
+				: null
+		const updateIntervalSec =
+			typeof parsed.updateIntervalSec === 'number' &&
+			Number.isFinite(parsed.updateIntervalSec) &&
+			parsed.updateIntervalSec > 0
+				? parsed.updateIntervalSec
+				: null
+
+		return { clientId, updateIntervalSec }
 	} catch {
-		return { clientId: null }
+		return { clientId: null, updateIntervalSec: null }
 	}
+}
+
+export async function setActivityIntervalConfig(sec: number | null) {
+	const cfg = await readClientConfig()
+
+	let safe: number | null = null
+	if (typeof sec === 'number' && Number.isFinite(sec) && sec > 0) {
+		safe = Math.max(5, Math.floor(sec))
+	}
+
+	cfg.updateIntervalSec = safe
+	await writeClientConfig(cfg)
 }
 
 export async function writeClientConfig(config: ClientConfig) {

@@ -73,7 +73,10 @@ export interface PartyCycleEntry {
 	skip?: boolean
 }
 
-export type ClientConfig = { clientId: string | null }
+export type ClientConfig = {
+	clientId: string | null
+	updateIntervalSec?: number | null
+}
 export type ButtonsConfig = { pairs: ButtonPair[] }
 export type CyclesConfig = { entries: CycleEntry[] }
 export type ImageCyclesConfig = { cycles: ImageCycle[] }

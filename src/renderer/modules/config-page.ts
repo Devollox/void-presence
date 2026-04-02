@@ -1136,6 +1136,7 @@ export function setupClientIdControls(): void {
 	if (intervalInput) {
 		intervalInput.addEventListener('input', () => {
 			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			showBlocksToast()
 		})
 	}
 
