@@ -18,7 +18,22 @@ export interface RichPresenceButton {
 export interface RichPresencePayload {
 	details?: string
 	state?: string
+	type?: ActivityType | number
 	buttons?: RichPresenceButton[]
+	assets?: {
+		large_image?: string
+		large_text?: string
+		small_image?: string
+		small_text?: string
+	}
+	party?: {
+		id?: string
+		size?: [number, number]
+	}
+	timestamps?: {
+		start?: number | Date
+		end?: number | Date
+	}
 }
 
 export interface ButtonPair {
@@ -53,8 +68,8 @@ export interface TimeCycleEntry {
 }
 
 export interface PartyCycleEntry {
-	sizeCurrent: any
-	sizeMax: any
+	sizeCurrent: string | number
+	sizeMax: string | number
 	skip?: boolean
 }
 
@@ -121,7 +136,7 @@ export interface LogEntry {
 }
 
 export interface VoidPresenceCtx {
-	clientId: any[]
+	clientId: string | number[]
 	party?: PartyCycleEntry[]
 	buttonPairs: ButtonPair[]
 	cycles: CycleEntry[]
@@ -132,6 +147,31 @@ export interface VoidPresenceCtx {
 	renderImageCycles: () => void
 	renderPartyCycles: () => void
 	renderTimeCycles?: () => void
+}
+
+export interface DiscordClient {
+	clearActivity(): Promise<void>
+	connect(clientId: string): Promise<void>
+	request(command: string, args: Record<string, unknown>): Promise<unknown>
+	login(options: { clientId: string }): Promise<this>
+	destroy(): Promise<void>
+	on(event: string, handler: (...args: unknown[]) => void): this
+}
+
+export interface NowPlayingData {
+	sourceAppId?: string
+	lastUpdatedTime?: number
+	title?: string
+	artist?: string
+	albumTitle?: string
+	albumArtist?: string
+	genres?: string[]
+	playbackStatus?: string
+	playbackType?: string
+	position?: number
+	duration?: number
+	startedAt?: number
+	endsAt?: number
 }
 
 export interface ElectronAPI {
@@ -163,12 +203,14 @@ export interface ElectronAPI {
 	resetPersistTimestamp(): unknown
 	setTimestampConfig(arg0: {
 		mode: TimestampMode
-		rangeMin: number
-		rangeMax: number
+		rangeMin: number | null
+		rangeMax: number | null
+		nowMode?: NowMode
+		timeCycles?: TimeCycleEntry[]
 	}): unknown
 	setPartyConfig?: (config: PartyConfig) => Promise<void>
 	setPartySize(sizeCurrent: number, sizeMax: number): unknown
-	startDiscordRichProfile: any
+	startDiscordRichProfile: () => Promise<void> | void
 	restartDiscordRich?: () => Promise<void>
 	stopDiscordRich?: () => Promise<void>
 	setAutoLaunch?: (on: boolean) => Promise<void> | void
@@ -178,7 +220,7 @@ export interface ElectronAPI {
 	onLogMessage?: (handler: (entry: LogEntry) => void) => void
 	onRpcUpdate?: (handler: (payload: RichPresencePayload) => void) => void
 	onRpcStatus?: (handler: (status: string) => void) => void
-	invoke: any
+	invoke: <T = unknown>(channel: string, ...args: unknown[]) => Promise<T>
 	uploadConfig?: (config: {
 		title: string
 		authorId: string

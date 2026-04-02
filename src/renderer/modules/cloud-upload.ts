@@ -88,7 +88,7 @@ export function setupCloudUpload(): void {
 
 			nameInput.value = ''
 			localStorage.setItem('configAuthor', authorId)
-		} catch (err: any) {
+		} catch (err) {
 			appendLog({
 				message: `Upload failed: ${err?.message ?? String(err)}`,
 				level: 'error',

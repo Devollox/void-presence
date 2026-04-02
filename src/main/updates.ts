@@ -22,7 +22,7 @@ export async function checkForUpdates() {
 		} else {
 			sendLog(`Void Presence v${current} (up to date)`)
 		}
-	} catch (e: any) {
+	} catch (e) {
 		console.error('checkForUpdates error', e)
 		sendLog(`Update check failed: ${e?.message || String(e)}`)
 	}

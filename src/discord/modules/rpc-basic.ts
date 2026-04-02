@@ -3,10 +3,13 @@ import rpc from 'discord-rpc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
 	ActivityType,
+	DiscordClient,
 	ImageCycle,
 	NowMode,
 	PartyCycleEntry,
+	RichPresencePayload,
 	RpcPayload,
+	TimeCycleEntry,
 	TimestampConfig,
 } from '../../types/types'
 import {
@@ -30,7 +33,7 @@ export function resetPersistTimestampValue() {
 
 const processName = 'Discord.exe'
 
-let client: any = null
+let client: DiscordClient | null = null
 let cycleTimer: NodeJS.Timeout | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
@@ -52,7 +55,7 @@ export function setActivityInterval(sec: number) {
 	}
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
-		clearTimeout(cycleTimer as any)
+		clearTimeout(cycleTimer)
 		cycleTimer = null
 	}
 }
@@ -67,7 +70,7 @@ function createClient() {
 		} catch {}
 		client = null
 	}
-	client = new rpc.Client({ transport: 'ipc' })
+	client = new rpc.Client({ transport: 'ipc' }) as unknown as DiscordClient
 	return client
 }
 
@@ -77,7 +80,7 @@ export function stopDiscordRich() {
 	intervalLocked = false
 	if (cycleTimer) {
 		clearInterval(cycleTimer)
-		clearTimeout(cycleTimer as any)
+		clearTimeout(cycleTimer)
 		cycleTimer = null
 	}
 	if (restartTimer) {
@@ -102,7 +105,9 @@ export function stopDiscordRich() {
 	hasLoggedConnectingOnce = false
 }
 
-function checkDiscordRunning(cb: (err: any, isRunning: boolean) => void) {
+function checkDiscordRunning(
+	cb: (err: { message: string }, isRunning: boolean) => void,
+) {
 	exec('tasklist', (err, stdout) => {
 		if (err) return cb(err, false)
 		const found = stdout.toLowerCase().includes(processName.toLowerCase())
@@ -377,7 +382,7 @@ export default function startDiscordRich(
 			} catch (e) {
 				if (sendLog) {
 					sendLog(
-						'Config refresh error: ' + ((e as any)?.message || String(e)),
+						'Config refresh error: ' + (e?.message || JSON.stringify(e)),
 						'error',
 					)
 				}
@@ -405,22 +410,33 @@ export default function startDiscordRich(
 				partyEntry &&
 				Number.isFinite(partyEntry.sizeCurrent) &&
 				Number.isFinite(partyEntry.sizeMax) &&
-				partyEntry.sizeCurrent! > 0 &&
+				Number(partyEntry.sizeCurrent!) > 0 &&
 				partyEntry.sizeMax! >= partyEntry.sizeCurrent!
-					? { size: [partyEntry.sizeCurrent!, partyEntry.sizeMax!] }
+					? {
+							size: [
+								Number(partyEntry.sizeCurrent!),
+								Number(partyEntry.sizeMax!),
+							] as [number, number],
+						}
 					: undefined
 
-			let cycleForNow: any | null = null
+			let cycleForNow: TimeCycleEntry | null = null
 			let nextDelayMs: number | null = null
 
 			if (mode === 'now' && nowMode === 'cycles') {
 				cycleForNow = getNextTimeCycle()
-				nextDelayMs = getDelayForCycles(cycleForNow)
+				nextDelayMs = getDelayForCycles(
+					cycleForNow as unknown as { label: string; seconds: string },
+				)
 			}
 
-			const timestamps = getTimestampsForActivity(mode, nowMode, cycleForNow)
+			const timestamps = getTimestampsForActivity(
+				mode,
+				nowMode,
+				cycleForNow as unknown as { label: string; seconds: string },
+			)
 
-			const activity: any = {
+			const activity: RichPresencePayload = {
 				details: current.details,
 				state: safeState,
 				assets: {
@@ -453,7 +469,7 @@ export default function startDiscordRich(
 					pid: process.pid,
 					activity,
 				})
-				.catch((e: any) => {
+				.catch((e: { message: string }) => {
 					if (sendLog) {
 						sendLog(
 							'SET_ACTIVITY error: ' + (e?.message || JSON.stringify(e) || ''),
@@ -505,7 +521,7 @@ export default function startDiscordRich(
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
-				clearTimeout(cycleTimer as any)
+				clearTimeout(cycleTimer)
 				cycleTimer = null
 			}
 
@@ -538,7 +554,7 @@ export default function startDiscordRich(
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
-				clearTimeout(cycleTimer as any)
+				clearTimeout(cycleTimer)
 				cycleTimer = null
 			}
 
@@ -548,7 +564,7 @@ export default function startDiscordRich(
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
 		})
 
-		localClient.on('error', (e: any) => {
+		localClient.on('error', (e: { message: string }) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
 
@@ -559,7 +575,7 @@ export default function startDiscordRich(
 
 			if (cycleTimer) {
 				clearInterval(cycleTimer)
-				clearTimeout(cycleTimer as any)
+				clearTimeout(cycleTimer)
 				cycleTimer = null
 			}
 
@@ -571,12 +587,15 @@ export default function startDiscordRich(
 
 		suppressFirstLoginError = !hasEverBeenReady
 
-		localClient.login({ clientId }).catch((e: any) => {
+		localClient.login({ clientId }).catch((e: { message: string }) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
 
 			if (!suppressFirstLoginError && sendLog) {
-				sendLog('RPC login error: ' + (e?.message || String(e)), 'error')
+				sendLog(
+					'RPC login error: ' + (e?.message || JSON.stringify(e)),
+					'error',
+				)
 			}
 			if (restartTimer) {
 				clearTimeout(restartTimer)

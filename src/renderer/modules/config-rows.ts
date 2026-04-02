@@ -203,7 +203,7 @@ export function createPartyRow(
 		onChange({
 			sizeCurrent: currentInput.value,
 			sizeMax: maxInput.value,
-		} as any)
+		})
 	}
 
 	currentInput.addEventListener('input', updateParty)

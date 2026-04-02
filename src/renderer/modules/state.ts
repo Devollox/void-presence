@@ -165,16 +165,16 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 		await window.electronAPI.setClientId(clientId)
 	}
 	if (window.electronAPI?.setImageCycles) {
-		await window.electronAPI.setImageCycles(imageCycles as any)
+		await window.electronAPI.setImageCycles(imageCycles)
 	}
 	if (window.electronAPI?.setButtons) {
-		await window.electronAPI.setButtons(buttonPairs as any)
+		await window.electronAPI.setButtons(buttonPairs)
 	}
 	if (window.electronAPI?.setCycles) {
-		await window.electronAPI.setCycles(cycles as any)
+		await window.electronAPI.setCycles(cycles)
 	}
 	if (window.electronAPI?.setPartyConfig) {
-		await window.electronAPI.setPartyConfig({ entries: partyEntries } as any)
+		await window.electronAPI.setPartyConfig({ entries: partyEntries })
 	}
 	if (window.electronAPI?.setTimestampConfig) {
 		await window.electronAPI.setTimestampConfig({
@@ -187,7 +187,7 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 				: null,
 			nowMode,
 			timeCycles,
-		} as any)
+		})
 	}
 }
 
@@ -296,9 +296,7 @@ export async function applyStateToUIAndLists(
 	ctx.cycles = Array.isArray(state.cycles) ? state.cycles : []
 	ctx.imageCycles = Array.isArray(state.imageCycles) ? state.imageCycles : []
 	ctx.party = Array.isArray(state.party) ? state.party : []
-	;(ctx as any).timeCycles = Array.isArray(state.timeCycles)
-		? state.timeCycles
-		: []
+	ctx.timeCycles = Array.isArray(state.timeCycles) ? state.timeCycles : []
 
 	const applyNowMode = (m: NowMode) => {
 		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
@@ -321,5 +319,5 @@ export async function applyStateToUIAndLists(
 	ctx.renderCycles()
 	ctx.renderImageCycles()
 	ctx.renderPartyCycles()
-	;(ctx as any).renderTimeCycles?.()
+	ctx.renderTimeCycles?.()
 }

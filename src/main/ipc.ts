@@ -18,14 +18,20 @@ import {
 	stopDiscordRichBasic,
 } from '../discord'
 import { readTimestampConfig, setActivityType } from '../discord/modules/config'
-import { NowMode, PartyConfig, RpcPayload } from '../types/types'
+import {
+	ActivityType,
+	NowMode,
+	NowPlayingData,
+	PartyConfig,
+	RpcPayload,
+} from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import { sendLog, sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
-let lastNowPlaying: any = null
+let lastNowPlaying: NowPlayingData | null = null
 
 type RpcMode = 'basic' | 'advanced'
 
@@ -100,7 +106,7 @@ function startSmtcWorker() {
 		},
 	})
 
-	smtcWorker.on('message', (msg: any) => {
+	smtcWorker.on('message', msg => {
 		if (msg && msg.type === 'nowPlaying') {
 			lastNowPlaying = msg.data
 		}
@@ -220,7 +226,7 @@ export function initIpc() {
 	})
 
 	ipcMain.handle('set-activity-type', async (_event, type: string) => {
-		await setActivityType(type as any)
+		await setActivityType(type as ActivityType)
 		return true
 	})
 

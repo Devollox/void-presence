@@ -1,8 +1,16 @@
-import { StoredConfig } from '../../types/types'
+import {
+	ButtonPair,
+	CycleEntry,
+	ImageCycleEntry,
+	PartyCycleEntry,
+	StoredConfig,
+} from '../../types/types'
+
+type RenderItem = CycleEntry | ImageCycleEntry | ButtonPair | PartyCycleEntry
 
 function renderList(
 	listEl: HTMLElement,
-	items: any[],
+	items: RenderItem[],
 	type: 'cycles' | 'images' | 'buttons' | 'party',
 ): void {
 	listEl.innerHTML = ''
@@ -32,13 +40,14 @@ function renderList(
 		meta.className = 'config-details-item-meta'
 
 		if (type === 'cycles') {
+			const it = item as CycleEntry
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
-			label.textContent = item.details || 'No details'
+			label.textContent = it.details || 'No details'
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = item.state || 'No state'
+			sub.textContent = it.state || 'No state'
 
 			main.appendChild(label)
 			main.appendChild(sub)
@@ -48,15 +57,16 @@ function renderList(
 			pill.textContent = `#${idx + 1}`
 			meta.appendChild(pill)
 		} else if (type === 'images') {
+			const it = item as ImageCycleEntry
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
-			label.textContent = item.largeText || item.largeImage || 'Large image'
+			label.textContent = it.largeText || it.largeImage || 'Large image'
 
 			const largeUrlPill = document.createElement('div')
 			largeUrlPill.className = 'config-details-pill'
 			const largeLink = document.createElement('a')
-			largeLink.href = item.largeImage || '#'
-			largeLink.textContent = item.largeImage || 'no large url'
+			largeLink.href = it.largeImage || '#'
+			largeLink.textContent = it.largeImage || 'no large url'
 			largeLink.target = '_blank'
 			largeUrlPill.appendChild(largeLink)
 
@@ -65,13 +75,13 @@ function renderList(
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = item.smallText || item.smallImage || 'Small image'
+			sub.textContent = it.smallText || it.smallImage || 'Small image'
 
 			const smallUrlPill = document.createElement('div')
 			smallUrlPill.className = 'config-details-pill'
 			const smallLink = document.createElement('a')
-			smallLink.href = item.smallImage || '#'
-			smallLink.textContent = item.smallImage || 'no'
+			smallLink.href = it.smallImage || '#'
+			smallLink.textContent = it.smallImage || 'no'
 			if (smallLink.textContent !== 'no') {
 				smallLink.target = '_blank'
 				smallUrlPill.appendChild(smallLink)
@@ -79,15 +89,16 @@ function renderList(
 				meta.appendChild(smallUrlPill)
 			}
 		} else if (type === 'buttons') {
+			const it = item as ButtonPair
 			const mainLabel = document.createElement('div')
 			mainLabel.className = 'config-details-item-label'
-			mainLabel.textContent = item.label1 || 'Button 1'
+			mainLabel.textContent = it.label1 || 'Button 1'
 
 			const mainUrlPill = document.createElement('div')
 			mainUrlPill.className = 'config-details-pill'
 			const mainLink = document.createElement('a')
-			mainLink.href = item.url1 || '#'
-			mainLink.textContent = item.url1 || 'no url 1'
+			mainLink.href = it.url1 || '#'
+			mainLink.textContent = it.url1 || 'no url 1'
 			if (mainLink.textContent !== 'no url 1') {
 				mainLink.target = '_blank'
 				mainUrlPill.appendChild(mainLink)
@@ -97,13 +108,13 @@ function renderList(
 
 			const metaLabel = document.createElement('div')
 			metaLabel.className = 'config-details-item-label'
-			metaLabel.textContent = item.label2 || 'Button 2'
+			metaLabel.textContent = it.label2 || 'Button 2'
 
 			const metaUrlPill = document.createElement('div')
 			metaUrlPill.className = 'config-details-pill'
 			const metaLink = document.createElement('a')
-			metaLink.href = item.url2 || '#'
-			metaLink.textContent = item.url2 || 'no url 2'
+			metaLink.href = it.url2 || '#'
+			metaLink.textContent = it.url2 || 'no url 2'
 			if (metaLink.textContent !== 'no url 2') {
 				metaLink.target = '_blank'
 				metaUrlPill.appendChild(metaLink)
@@ -111,14 +122,15 @@ function renderList(
 				main.appendChild(metaUrlPill)
 			}
 		} else if (type === 'party') {
+			const it = item as PartyCycleEntry
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
 			label.textContent = 'Party size'
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = `Current: ${item.sizeCurrent ?? '-'} | Max: ${
-				item.sizeMax ?? '-'
+			sub.textContent = `Current: ${it.sizeCurrent ?? '-'} | Max: ${
+				it.sizeMax ?? '-'
 			}`
 
 			main.appendChild(label)

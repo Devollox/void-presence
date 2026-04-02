@@ -103,15 +103,19 @@ async function pushLiveStateFromCtx(
 	}
 
 	if (window.electronAPI?.liveSetCycles) {
-		await window.electronAPI.liveSetCycles((ctx.cycles || []) as any[])
+		await window.electronAPI.liveSetCycles((ctx.cycles || []) as CycleEntry[])
 	}
 
 	if (window.electronAPI?.liveSetImages) {
-		await window.electronAPI.liveSetImages((ctx.imageCycles || []) as any[])
+		await window.electronAPI.liveSetImages(
+			(ctx.imageCycles || []) as ImageCycleEntry[],
+		)
 	}
 
 	if (window.electronAPI?.liveSetButtons) {
-		await window.electronAPI.liveSetButtons((ctx.buttonPairs || []) as any[])
+		await window.electronAPI.liveSetButtons(
+			(ctx.buttonPairs || []) as ButtonPair[],
+		)
 	}
 
 	if (window.electronAPI?.liveSetParty) {
@@ -119,7 +123,7 @@ async function pushLiveStateFromCtx(
 			sizeCurrent: p.sizeCurrent?.toString() ?? '',
 			sizeMax: p.sizeMax?.toString() ?? '',
 		}))
-		await window.electronAPI.liveSetParty(partyPayload as any[])
+		await window.electronAPI.liveSetParty(partyPayload)
 	}
 
 	if (window.electronAPI?.liveSetTimeCycles) {
@@ -130,7 +134,7 @@ async function pushLiveStateFromCtx(
 					? String(tc.seconds)
 					: (tc.seconds as string) || '',
 		}))
-		await window.electronAPI.liveSetTimeCycles(timePayload as any[])
+		await window.electronAPI.liveSetTimeCycles(timePayload)
 	}
 
 	if (
@@ -355,7 +359,7 @@ export function setupConfigPage(): void {
 					}
 				}
 				applyStateToUIAndLists(st, ctx)
-				await pushLiveStateFromCtx(ctx, (st.rpcMode as any) || 'advanced')
+				await pushLiveStateFromCtx(ctx, st.rpcMode || 'advanced')
 				nameInput.value = ''
 				setActiveView('main')
 			})
@@ -426,7 +430,7 @@ export function setupConfigPage(): void {
 							message: `Config "${config.title}" uploaded!`,
 							level: 'success',
 						})
-					} catch (err: any) {
+					} catch (err) {
 						appendLog({
 							message: `Upload failed: ${err?.message ?? String(err)}`,
 							level: 'error',
@@ -694,7 +698,7 @@ export function setupClientIdControls(): void {
 
 	try {
 		const rawParty = localStorage.getItem('party')
-		if (rawParty) ctx.party = JSON.parse(rawParty) as any[]
+		if (rawParty) ctx.party = JSON.parse(rawParty) as PartyCycleEntry[]
 	} catch {}
 
 	if (!Array.isArray(ctx.buttonPairs)) ctx.buttonPairs = []

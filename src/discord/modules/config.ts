@@ -108,8 +108,8 @@ export async function readCyclesConfig(): Promise<CyclesConfig> {
 		const entries = Array.isArray(parsed.entries) ? parsed.entries : []
 		return {
 			entries: entries.map(e => ({
-				details: (e as any).details?.toString() ?? '',
-				state: (e as any).state?.toString() ?? '',
+				details: e.details?.toString() ?? '',
+				state: e.state?.toString() ?? '',
 			})),
 		}
 	} catch {
@@ -131,21 +131,21 @@ export async function readImageCyclesConfig(): Promise<ImageCyclesConfig> {
 		return {
 			cycles: arr.map(c => ({
 				largeImage:
-					(c as any).largeImage === null || (c as any).largeImage === undefined
+					c.largeImage === null || c.largeImage === undefined
 						? null
-						: (c as any).largeImage.toString(),
+						: c.largeImage.toString(),
 				largeText:
-					(c as any).largeText === null || (c as any).largeText === undefined
+					c.largeText === null || c.largeText === undefined
 						? null
-						: (c as any).largeText.toString(),
+						: c.largeText.toString(),
 				smallImage:
-					(c as any).smallImage === null || (c as any).smallImage === undefined
+					c.smallImage === null || c.smallImage === undefined
 						? null
-						: (c as any).smallImage.toString(),
+						: c.smallImage.toString(),
 				smallText:
-					(c as any).smallText === null || (c as any).smallText === undefined
+					c.smallText === null || c.smallText === undefined
 						? null
-						: (c as any).smallText.toString(),
+						: c.smallText.toString(),
 			})),
 		}
 	} catch {
@@ -162,7 +162,7 @@ export async function readPartyConfig(): Promise<PartyConfig | null> {
 	const configPath = getPartyConfigPath()
 	try {
 		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as any
+		const parsed = JSON.parse(raw) as Partial<PartyConfig>
 		const entriesRaw = Array.isArray(parsed.entries) ? parsed.entries : []
 		const entries: PartyCycleEntry[] = entriesRaw.map((p: PartyCycleEntry) => ({
 			sizeCurrent:

@@ -29,6 +29,7 @@
       {
         "button-name": "off"
       }
-    ]
+    ],
+    "axe/language": "off"
   }
 }

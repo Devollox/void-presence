@@ -1,26 +1,13 @@
-export type NowPlayingInfo = {
-	sourceAppId: string
-	lastUpdatedTime: number | null
-	title: string
-	artist: string
-	albumTitle: string
-	albumArtist: string
-	genres: string[]
-	playbackStatus: string | null
-	playbackType: string | null
-	position: number | null
-	duration: number | null
-	startedAt: number | null
-	endsAt: number | null
-} | null
+import { NowPlayingData } from 'src/types/types'
 
-export async function fetchNowPlaying(): Promise<NowPlayingInfo> {
+export async function fetchNowPlaying(): Promise<NowPlayingData> {
 	if (!window.electronAPI?.invoke) {
 		return null
 	}
 
 	try {
-		const raw: any = await window.electronAPI.invoke('get-now-playing')
+		const raw =
+			await window.electronAPI.invoke<NowPlayingData>('get-now-playing')
 
 		if (!raw || typeof raw !== 'object') return null
 
