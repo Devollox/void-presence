@@ -1,4 +1,16 @@
-import { PartyCycleEntry } from 'src/discord/modules/types'
+import {
+	ActivityType,
+	ButtonPair,
+	CycleEntry,
+	FullState,
+	ImageCycleEntry,
+	NowMode,
+	PartyCycleEntry,
+	StoredConfig,
+	TimeCycleEntry,
+	TimestampMode,
+	VoidPresenceCtx,
+} from '../../types/types'
 import { openConfigDetails } from './config-details'
 import { attachDnD } from './config-dnd'
 import { renderRecentApps } from './config-recent'
@@ -16,18 +28,6 @@ import {
 	upsertRecentApp,
 } from './config-storage'
 import { applyStateToUIAndLists, loadCurrentState } from './state'
-import {
-	ActivityType,
-	ButtonPair,
-	CycleEntry,
-	FullState,
-	ImageCycleEntry,
-	NowMode,
-	StoredConfig,
-	TimeCycleEntry,
-	TimestampMode,
-	VoidPresenceCtx,
-} from './types'
 import { appendLog, setActiveView } from './views'
 
 function downloadJson(data: unknown, filename: string): void {
@@ -303,9 +303,7 @@ export function setupConfigPage(): void {
 
 			loadBtn.addEventListener('click', async e => {
 				e.preventDefault()
-				const ctx = (window as any).__voidPresenceCtx as
-					| VoidPresenceCtx
-					| undefined
+				const ctx = window.__voidPresenceCtx as VoidPresenceCtx | undefined
 				if (!ctx) return
 
 				const base: FullState = {
@@ -504,7 +502,7 @@ export function setupConfigPage(): void {
 		renderConfigs()
 	}
 
-	;(window as any).addConfigFromState = addConfigFromState
+	window.addConfigFromState = addConfigFromState
 
 	saveBtn.addEventListener('click', e => {
 		e.preventDefault()
@@ -1095,7 +1093,7 @@ export function setupClientIdControls(): void {
 		void pushLiveStateFromCtx(ctx, currentRpcMode)
 		showBlocksToast()
 	})
-	;(window as any).__voidPresenceCtx = ctx
+	window.__voidPresenceCtx = ctx
 	if (recentList) {
 		renderRecentApps(recentList)
 	}

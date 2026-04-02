@@ -2,6 +2,14 @@ import { exec } from 'child_process'
 import rpc from 'discord-rpc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
+	ActivityType,
+	ImageCycle,
+	NowMode,
+	PartyCycleEntry,
+	RpcPayload,
+	TimestampConfig,
+} from '../../types/types'
+import {
 	readActivityTypeConfig,
 	readButtonsConfig,
 	readClientConfig,
@@ -11,14 +19,6 @@ import {
 	readTimestampConfig,
 	setTimestampConfig,
 } from './config'
-import {
-	ActivityType,
-	ImageCycle,
-	NowMode,
-	PartyCycleEntry,
-	RpcPayload,
-	TimestampConfig,
-} from './types'
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0
@@ -290,17 +290,19 @@ export default function startDiscordRich(
 
 		function buildCycles() {
 			if (!baseCycles.length) return []
-			return baseCycles.map((c, idx) => {
-				const img = baseImageCycles[idx % baseImageCycles.length]
-				return {
-					details: c.details,
-					state: c.state,
-					largeImage: img.largeImage,
-					largeText: img.largeText,
-					smallImage: img.smallImage,
-					smallText: img.smallText,
-				}
-			})
+			return baseCycles.map(
+				(c: { details: string; state: string }, idx: number) => {
+					const img = baseImageCycles[idx % baseImageCycles.length]
+					return {
+						details: c.details,
+						state: c.state,
+						largeImage: img.largeImage,
+						largeText: img.largeText,
+						smallImage: img.smallImage,
+						smallText: img.smallText,
+					}
+				},
+			)
 		}
 
 		let cycles = buildCycles()

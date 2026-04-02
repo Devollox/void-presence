@@ -43,8 +43,8 @@ export function setupActivityTypeControls(): void {
 
 			if (window.electronAPI?.invoke) {
 				window.electronAPI.invoke('set-activity-type', type)
-			} else if ((window as any).electronAPI?.setActivityType) {
-				;(window as any).electronAPI.setActivityType(type)
+			} else if (window.electronAPI?.setActivityType) {
+				window.electronAPI.setActivityType(type)
 			}
 		})
 	})

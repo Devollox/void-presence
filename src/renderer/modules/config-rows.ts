@@ -1,10 +1,10 @@
-import { PartyCycleEntry } from 'src/discord/modules/types'
 import {
 	ButtonPair,
 	CycleEntry,
 	ImageCycleEntry,
+	PartyCycleEntry,
 	TimeCycleEntry,
-} from './types'
+} from '../../types/types'
 
 export function createButtonPairRow(
 	pair: ButtonPair,

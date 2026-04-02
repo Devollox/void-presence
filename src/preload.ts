@@ -1,23 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { PartyConfig } from './discord/modules/types'
 import { UploadConfigPayload } from './main/cloud'
+import {
+	ButtonPair,
+	CycleEntry,
+	ImageCycleEntry,
+	LogEntry,
+	PartyConfig,
+	RpcPayload,
+} from './types/types'
 
 contextBridge.exposeInMainWorld('electronAPI', {
 	liveSetClientId: (clientId: string) =>
 		ipcRenderer.invoke('live-set-client-id', clientId),
-	liveSetButtons: (
-		pairs: { label1: string; url1: string; label2: string; url2: string }[],
-	) => ipcRenderer.invoke('live-set-buttons', pairs),
-	liveSetCycles: (entries: { details: string; state: string }[]) =>
+	liveSetButtons: (pairs: ButtonPair[]) =>
+		ipcRenderer.invoke('live-set-buttons', pairs),
+	liveSetCycles: (entries: CycleEntry[]) =>
 		ipcRenderer.invoke('live-set-cycles', entries),
-	liveSetImages: (
-		cycles: {
-			largeImage: string
-			largeText: string
-			smallImage: string
-			smallText: string
-		}[],
-	) => ipcRenderer.invoke('live-set-images', cycles),
+	liveSetImages: (cycles: ImageCycleEntry[]) =>
+		ipcRenderer.invoke('live-set-images', cycles),
 	liveSetParty: (party: { sizeCurrent: string; sizeMax: string }[]) =>
 		ipcRenderer.invoke('live-set-party', party),
 	liveSetTimeCycles: (cycles: { label: string; seconds: string }[]) =>
@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	}) => ipcRenderer.invoke('live-set-timestamp', cfg),
 	restartDiscordRich: () => ipcRenderer.invoke('restart-discord-rich'),
 	stopDiscordRich: () => ipcRenderer.invoke('stop-discord-rich'),
-	onRpcUpdate: (callback: (payload: any) => void) => {
+	onRpcUpdate: (callback: (payload: RpcPayload) => void) => {
 		ipcRenderer.on('rpc-update', (_event, payload) => callback(payload))
 	},
 	onRpcStatus: (callback: (status: string) => void) => {
@@ -57,7 +57,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('set-cycles', entries),
 	windowClose: () => ipcRenderer.invoke('window-close'),
 	windowMinimize: () => ipcRenderer.invoke('window-minimize'),
-	onLogMessage: (callback: (entry: any) => void) => {
+	onLogMessage: (callback: (entry: LogEntry) => void) => {
 		ipcRenderer.on('log-message', (_event, entry) => callback(entry))
 	},
 	setAutoHide: (value: boolean) => ipcRenderer.invoke('set-auto-hide', value),

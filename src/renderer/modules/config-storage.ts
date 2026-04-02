@@ -1,4 +1,4 @@
-import { FullState, StoredConfig } from './types'
+import { FullState, StoredConfig } from '../../types/types'
 
 export type StoredRecentApp = {
 	id: string

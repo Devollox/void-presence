@@ -18,7 +18,7 @@ import {
 	stopDiscordRichBasic,
 } from '../discord'
 import { readTimestampConfig, setActivityType } from '../discord/modules/config'
-import { NowMode, PartyConfig } from '../discord/modules/types'
+import { NowMode, PartyConfig, RpcPayload } from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import { sendLog, sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
@@ -32,7 +32,7 @@ type RpcMode = 'basic' | 'advanced'
 let currentRpcMode: RpcMode = 'basic'
 let stopCurrentRpc: (() => void) | null = null
 
-function startDiscordRich(sendPayload: (payload: any) => void) {
+function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
 	if (stopCurrentRpc) {
 		stopCurrentRpc()
 		stopCurrentRpc = null
@@ -89,9 +89,10 @@ function startSmtcWorker() {
 				'app',
 				'src',
 				'discord',
+				'workers',
 				'smtc-worker.js',
 			)
-		: path.join(process.cwd(), 'src', 'discord', 'smtc-worker.js')
+		: path.join(process.cwd(), 'src', 'discord', 'workers', 'smtc-worker.js')
 
 	smtcWorker = new Worker(workerPath, {
 		env: {

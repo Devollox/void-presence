@@ -13,7 +13,7 @@ import {
 	PartyConfig,
 	PartyCycleEntry,
 	TimestampConfig,
-} from './types'
+} from '../../types/types'
 
 function getConfigPath(name: string) {
 	const userData = app.getPath('userData')
@@ -69,7 +69,7 @@ export async function writeClientConfig(config: ClientConfig) {
 	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
 }
 
-function normalizeButtonPairLoose(p: any): ButtonPair {
+function normalizeButtonPairLoose(p: ButtonPair): ButtonPair {
 	return {
 		label1: typeof p.label1 === 'string' ? p.label1 : '',
 		url1: typeof p.url1 === 'string' ? p.url1 : '',
@@ -164,7 +164,7 @@ export async function readPartyConfig(): Promise<PartyConfig | null> {
 		const raw = await fs.readFile(configPath, 'utf-8')
 		const parsed = JSON.parse(raw) as any
 		const entriesRaw = Array.isArray(parsed.entries) ? parsed.entries : []
-		const entries: PartyCycleEntry[] = entriesRaw.map((p: any) => ({
+		const entries: PartyCycleEntry[] = entriesRaw.map((p: PartyCycleEntry) => ({
 			sizeCurrent:
 				p?.sizeCurrent === null || p?.sizeCurrent === undefined
 					? null

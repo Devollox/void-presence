@@ -1,4 +1,4 @@
-import { StoredConfig } from './types'
+import { StoredConfig } from '../../types/types'
 
 function renderList(
 	listEl: HTMLElement,

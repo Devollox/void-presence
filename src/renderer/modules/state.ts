@@ -9,7 +9,7 @@ import {
 	TimeCycleEntry,
 	TimestampMode,
 	VoidPresenceCtx,
-} from './types'
+} from '../../types/types'
 
 export async function setupIntervalControl(): Promise<void> {
 	const input = document.getElementById(

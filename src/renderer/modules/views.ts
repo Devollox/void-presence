@@ -1,4 +1,4 @@
-import { LogEntry, RichPresencePayload, ViewName } from './types'
+import { LogEntry, RichPresencePayload, ViewName } from '../../types/types'
 
 const logsViewList = document.getElementById(
 	'logs-view-list',

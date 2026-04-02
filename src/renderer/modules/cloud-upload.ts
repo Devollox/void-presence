@@ -1,5 +1,5 @@
+import { FullState } from '../../types/types'
 import { loadCurrentState } from './state'
-import { FullState } from './types'
 import { appendLog } from './views'
 
 export function setupCloudUpload(): void {
@@ -75,11 +75,11 @@ export function setupCloudUpload(): void {
 				configData: safeState,
 			}
 
-			if (!(window as any).electronAPI?.uploadConfig) {
+			if (!window.electronAPI?.uploadConfig) {
 				throw new Error('Cloud upload is not available')
 			}
 
-			await (window as any).electronAPI.uploadConfig(config)
+			await window.electronAPI.uploadConfig(config)
 
 			appendLog({
 				message: `Config "${config.title}" uploaded!`,

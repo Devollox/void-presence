@@ -1,4 +1,4 @@
-import { FullState } from './types'
+import { FullState } from '../../types/types'
 
 export function importConfigFromFile(file: File): void {
 	const reader = new FileReader()
@@ -35,8 +35,8 @@ export function importConfigFromFile(file: File): void {
 				file.name.replace(/\.[^.]+$/, '') ||
 				'Imported profile'
 
-			if ((window as any).addConfigFromState) {
-				;(window as any).addConfigFromState(baseName, state)
+			if (window.addConfigFromState) {
+				window.addConfigFromState(baseName, state)
 			}
 		} catch (err) {
 			console.error('Failed to import config', err)
