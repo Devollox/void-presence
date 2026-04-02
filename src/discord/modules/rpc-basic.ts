@@ -3,8 +3,10 @@ import rpc from 'discord-rpc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
 	ActivityType,
+	CycleEntry,
 	DiscordClient,
 	ImageCycle,
+	ImageCycleEntry,
 	NowMode,
 	PartyCycleEntry,
 	RichPresencePayload,
@@ -319,7 +321,7 @@ export default function startDiscordRich(
 			)
 		}
 
-		let cycles: any[] = []
+		let cycles: RichPresencePayload[] = []
 		let cycleIndex = 0
 		let partyIndex = 0
 		let buttonIndex = 0
@@ -400,7 +402,8 @@ export default function startDiscordRich(
 
 			if (!cycles.length) return
 
-			const current = cycles[cycleIndex]
+			const current = cycles[cycleIndex] as unknown as ImageCycleEntry &
+				CycleEntry
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
 			const buttons = getNextButtons()
