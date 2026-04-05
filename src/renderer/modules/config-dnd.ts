@@ -9,16 +9,14 @@ export function attachDnD<T>(
 		const target = e.target as HTMLElement | null
 		if (!target) return
 
-		const isInput =
-			target instanceof HTMLInputElement ||
-			target instanceof HTMLTextAreaElement
-		if (isInput || window.getSelection()?.toString()) {
+		const row = target.closest<HTMLElement>('[data-index]')
+		if (!row) return
+
+		if (window.getSelection()?.toString()) {
 			e.preventDefault()
 			return
 		}
 
-		const row = target.closest<HTMLElement>('[data-index]')
-		if (!row) return
 		dragIndex = Number(row.dataset.index)
 		row.classList.add('dragging')
 	})
