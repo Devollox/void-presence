@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-  <img width="1080" height="874" alt="Void Presence preview" src="https://github.com/user-attachments/assets/4e44a6f9-f11a-46c2-9c64-947d8048ee86" />
+ <img width="1920" height="1031" alt="image" src="https://github.com/user-attachments/assets/57e15016-71b1-44cc-9e39-ed1244990d15" />
 </p>
 
 <p align="center">
