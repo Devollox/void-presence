@@ -92,7 +92,8 @@ export function appendLog(entry: LogEntry | string): void {
 
 	const msg = document.createElement('div')
 	msg.className = 'log-item-message'
-	rawText.split('\n').forEach(line => {
+	const safeText = typeof rawText === 'string' ? rawText : String(rawText ?? '')
+	safeText.split('\n').forEach(line => {
 		const lineEl = document.createElement('div')
 		lineEl.textContent = line
 		msg.appendChild(lineEl)
@@ -290,7 +291,7 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	infoObject.textContent = payload.details || '–'
 	infoDetails.textContent = payload.state || '–'
 	infoStatus.textContent = 'Active'
-	metaObject.textContent = `OBJECT: ${payload.details || '—'}`
+	metaObject.textContent = `DETAILS: ${payload.details || '—'}`
 	metaButtons.textContent = `BUTTONS: ${buttonsText}`
 
 	if (!activityStartMs) {
@@ -332,3 +333,45 @@ export function updateStatus(status: string): void {
 		stopUptimeTimer()
 	}
 }
+
+function closeOverlay(overlayId: string) {
+	const overlay = document.getElementById(overlayId) as HTMLElement | null
+	if (!overlay) return
+	overlay.setAttribute('data-open', 'false')
+
+	if (overlayId === 'import-overlay') {
+		const input = document.getElementById(
+			'import-file-input',
+		) as HTMLInputElement | null
+		if (input) input.value = ''
+	}
+}
+
+document.addEventListener('keydown', event => {
+	if (event.key !== 'Escape') return
+
+	const tag = (document.activeElement?.tagName || '').toUpperCase()
+	if (tag === 'INPUT' || tag === 'TEXTAREA') return
+
+	const importOverlay = document.getElementById('import-overlay')
+	const detailsOverlay = document.getElementById('config-details-overlay')
+	const uploadOverlay = document.getElementById('upload-confirm-overlay')
+
+	if (importOverlay && importOverlay.getAttribute('data-open') === 'true') {
+		event.preventDefault()
+		closeOverlay('import-overlay')
+		return
+	}
+
+	if (uploadOverlay && uploadOverlay.getAttribute('data-open') === 'true') {
+		event.preventDefault()
+		closeOverlay('upload-confirm-overlay')
+		return
+	}
+
+	if (detailsOverlay && detailsOverlay.getAttribute('data-open') === 'true') {
+		event.preventDefault()
+		closeOverlay('config-details-overlay')
+		return
+	}
+})

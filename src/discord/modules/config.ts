@@ -15,6 +15,27 @@ import {
 	TimestampConfig,
 } from '../../types/types'
 
+type Validator<T> = (input: unknown) => T
+
+async function readJsonWithSchema<T>(
+	filePath: string,
+	validate: Validator<T>,
+	fallback: T,
+): Promise<T> {
+	try {
+		const raw = await fs.readFile(filePath, 'utf-8')
+		const parsed = JSON.parse(raw)
+		return validate(parsed)
+	} catch {
+		return fallback
+	}
+}
+
+async function writeJsonSafe<T>(filePath: string, data: T): Promise<void> {
+	const json = JSON.stringify(data, null, 2)
+	await fs.writeFile(filePath, json, 'utf-8')
+}
+
 function getConfigPath(name: string) {
 	const userData = app.getPath('userData')
 	return path.join(userData, name)
@@ -48,154 +69,179 @@ function getActivityTypeConfigPath() {
 	return getConfigPath('activity-type.json')
 }
 
-export async function readClientConfig(): Promise<ClientConfig> {
-	const configPath = getClientConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<ClientConfig>
-		const clientId =
-			typeof parsed.clientId === 'string' && parsed.clientId.trim().length > 0
-				? parsed.clientId.trim()
-				: null
-		const updateIntervalSec =
-			typeof parsed.updateIntervalSec === 'number' &&
-			Number.isFinite(parsed.updateIntervalSec) &&
-			parsed.updateIntervalSec > 0
-				? parsed.updateIntervalSec
-				: null
+const defaultClientConfig: ClientConfig = {
+	clientId: null,
+	updateIntervalSec: null,
+}
 
-		return { clientId, updateIntervalSec }
-	} catch {
-		return { clientId: null, updateIntervalSec: null }
-	}
+const validateClientConfig: Validator<ClientConfig> = (input): ClientConfig => {
+	const obj = (input ?? {}) as Partial<ClientConfig>
+
+	const clientId =
+		typeof obj.clientId === 'string' && obj.clientId.trim().length > 0
+			? obj.clientId.trim()
+			: null
+
+	const updateIntervalSec =
+		typeof obj.updateIntervalSec === 'number' &&
+		Number.isFinite(obj.updateIntervalSec) &&
+		obj.updateIntervalSec > 0
+			? obj.updateIntervalSec
+			: null
+
+	return { clientId, updateIntervalSec }
+}
+
+export async function readClientConfig(): Promise<ClientConfig> {
+	return readJsonWithSchema(
+		getClientConfigPath(),
+		validateClientConfig,
+		defaultClientConfig,
+	)
+}
+
+export async function writeClientConfig(config: ClientConfig) {
+	await writeJsonSafe(getClientConfigPath(), validateClientConfig(config))
 }
 
 export async function setActivityIntervalConfig(sec: number | null) {
 	const cfg = await readClientConfig()
-
 	let safe: number | null = null
 	if (typeof sec === 'number' && Number.isFinite(sec) && sec > 0) {
 		safe = Math.max(5, Math.floor(sec))
 	}
-
 	cfg.updateIntervalSec = safe
 	await writeClientConfig(cfg)
 }
 
-export async function writeClientConfig(config: ClientConfig) {
-	const configPath = getClientConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
-}
+const normalizeButtonPairLoose = (p: ButtonPair): ButtonPair => ({
+	label1: typeof p.label1 === 'string' ? p.label1 : '',
+	url1: typeof p.url1 === 'string' ? p.url1 : '',
+	label2:
+		typeof p.label2 === 'string' && p.label2.length > 0 ? p.label2 : undefined,
+	url2: typeof p.url2 === 'string' && p.url2.length > 0 ? p.url2 : undefined,
+})
 
-function normalizeButtonPairLoose(p: ButtonPair): ButtonPair {
+const defaultButtonsConfig: ButtonsConfig = { pairs: [] }
+
+const validateButtonsConfig: Validator<ButtonsConfig> = (
+	input,
+): ButtonsConfig => {
+	const obj = (input ?? {}) as Partial<ButtonsConfig>
+	const pairs = Array.isArray(obj.pairs) ? obj.pairs : []
 	return {
-		label1: typeof p.label1 === 'string' ? p.label1 : '',
-		url1: typeof p.url1 === 'string' ? p.url1 : '',
-		label2:
-			typeof p.label2 === 'string' && p.label2.length > 0
-				? p.label2
-				: undefined,
-		url2: typeof p.url2 === 'string' && p.url2.length > 0 ? p.url2 : undefined,
+		pairs: pairs.map(normalizeButtonPairLoose),
 	}
 }
 
 export async function readButtonsConfig(): Promise<ButtonsConfig> {
-	const configPath = getButtonsConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<ButtonsConfig>
-		const pairs = Array.isArray(parsed.pairs) ? parsed.pairs : []
-		return {
-			pairs: pairs.map(normalizeButtonPairLoose),
-		}
-	} catch {
-		return { pairs: [] }
-	}
+	return readJsonWithSchema(
+		getButtonsConfigPath(),
+		validateButtonsConfig,
+		defaultButtonsConfig,
+	)
 }
 
 export async function writeButtonsConfig(config: ButtonsConfig) {
-	const configPath = getButtonsConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+	await writeJsonSafe(getButtonsConfigPath(), validateButtonsConfig(config))
+}
+
+const defaultCyclesConfig: CyclesConfig = { entries: [] }
+
+const validateCyclesConfig: Validator<CyclesConfig> = (input): CyclesConfig => {
+	const obj = (input ?? {}) as Partial<CyclesConfig>
+	const entries = Array.isArray(obj.entries) ? obj.entries : []
+	return {
+		entries: entries.map(e => ({
+			details: e?.details?.toString() ?? '',
+			state: e?.state?.toString() ?? '',
+		})),
+	}
 }
 
 export async function readCyclesConfig(): Promise<CyclesConfig> {
-	const configPath = getCyclesConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<CyclesConfig>
-		const entries = Array.isArray(parsed.entries) ? parsed.entries : []
-		return {
-			entries: entries.map(e => ({
-				details: e.details?.toString() ?? '',
-				state: e.state?.toString() ?? '',
-			})),
-		}
-	} catch {
-		return { entries: [] }
-	}
+	return readJsonWithSchema(
+		getCyclesConfigPath(),
+		validateCyclesConfig,
+		defaultCyclesConfig,
+	)
 }
 
 export async function writeCyclesConfig(config: CyclesConfig) {
-	const configPath = getCyclesConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+	await writeJsonSafe(getCyclesConfigPath(), validateCyclesConfig(config))
+}
+
+const defaultImageCyclesConfig: ImageCyclesConfig = { cycles: [] }
+
+const validateImageCyclesConfig: Validator<ImageCyclesConfig> = (
+	input,
+): ImageCyclesConfig => {
+	const obj = (input ?? {}) as Partial<ImageCyclesConfig>
+	const arr = Array.isArray(obj.cycles) ? obj.cycles : []
+	return {
+		cycles: arr.map(c => ({
+			largeImage:
+				c?.largeImage === null || c?.largeImage === undefined
+					? null
+					: c.largeImage.toString(),
+			largeText:
+				c?.largeText === null || c?.largeText === undefined
+					? null
+					: c.largeText.toString(),
+			smallImage:
+				c?.smallImage === null || c?.smallImage === undefined
+					? null
+					: c.smallImage.toString(),
+			smallText:
+				c?.smallText === null || c?.smallText === undefined
+					? null
+					: c.smallText.toString(),
+		})),
+	}
 }
 
 export async function readImageCyclesConfig(): Promise<ImageCyclesConfig> {
-	const configPath = getImageCyclesConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<ImageCyclesConfig>
-		const arr = Array.isArray(parsed.cycles) ? parsed.cycles : []
-		return {
-			cycles: arr.map(c => ({
-				largeImage:
-					c.largeImage === null || c.largeImage === undefined
-						? null
-						: c.largeImage.toString(),
-				largeText:
-					c.largeText === null || c.largeText === undefined
-						? null
-						: c.largeText.toString(),
-				smallImage:
-					c.smallImage === null || c.smallImage === undefined
-						? null
-						: c.smallImage.toString(),
-				smallText:
-					c.smallText === null || c.smallText === undefined
-						? null
-						: c.smallText.toString(),
-			})),
-		}
-	} catch {
-		return { cycles: [] }
-	}
+	return readJsonWithSchema(
+		getImageCyclesConfigPath(),
+		validateImageCyclesConfig,
+		defaultImageCyclesConfig,
+	)
 }
 
 export async function writeImageCyclesConfig(config: ImageCyclesConfig) {
-	const configPath = getImageCyclesConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+	await writeJsonSafe(
+		getImageCyclesConfigPath(),
+		validateImageCyclesConfig(config),
+	)
+}
+
+const defaultPartyConfig: PartyConfig | null = null
+
+const validatePartyConfig: Validator<PartyConfig | null> = (
+	input,
+): PartyConfig | null => {
+	if (!input || typeof input !== 'object') return null
+	const obj = input as Partial<PartyConfig>
+	const entriesRaw = Array.isArray(obj.entries) ? obj.entries : []
+	const entries: PartyCycleEntry[] = entriesRaw.map((p: PartyCycleEntry) => ({
+		sizeCurrent:
+			p?.sizeCurrent === null || p?.sizeCurrent === undefined
+				? null
+				: Number(p.sizeCurrent),
+		sizeMax:
+			p?.sizeMax === null || p?.sizeMax === undefined
+				? null
+				: Number(p.sizeMax),
+	}))
+	return { entries }
 }
 
 export async function readPartyConfig(): Promise<PartyConfig | null> {
-	const configPath = getPartyConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<PartyConfig>
-		const entriesRaw = Array.isArray(parsed.entries) ? parsed.entries : []
-		const entries: PartyCycleEntry[] = entriesRaw.map((p: PartyCycleEntry) => ({
-			sizeCurrent:
-				p?.sizeCurrent === null || p?.sizeCurrent === undefined
-					? null
-					: Number(p.sizeCurrent),
-			sizeMax:
-				p?.sizeMax === null || p?.sizeMax === undefined
-					? null
-					: Number(p.sizeMax),
-		}))
-		return { entries }
-	} catch {
-		return null
-	}
+	return readJsonWithSchema(
+		getPartyConfigPath(),
+		validatePartyConfig,
+		defaultPartyConfig,
+	)
 }
 
 export async function writePartyConfig(config: PartyConfig | null) {
@@ -206,70 +252,83 @@ export async function writePartyConfig(config: PartyConfig | null) {
 		} catch {}
 		return
 	}
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+	await writeJsonSafe(configPath, validatePartyConfig(config) as PartyConfig)
+}
+
+const defaultTimestampConfig: TimestampConfig = {
+	mode: 'now',
+	rangeMin: null,
+	rangeMax: null,
+	persistOffsetSec: 0,
+	nowMode: 'plain',
+	timeCycles: [],
+}
+
+const validateTimestampConfig: Validator<TimestampConfig> = (
+	input,
+): TimestampConfig => {
+	const obj = (input ?? {}) as Partial<TimestampConfig>
+	const mode = obj.mode || 'now'
+	const min =
+		typeof obj.rangeMin === 'number' && Number.isFinite(obj.rangeMin)
+			? obj.rangeMin
+			: null
+	const max =
+		typeof obj.rangeMax === 'number' && Number.isFinite(obj.rangeMax)
+			? obj.rangeMax
+			: null
+	const persistOffsetSec =
+		typeof obj.persistOffsetSec === 'number' &&
+		Number.isFinite(obj.persistOffsetSec)
+			? obj.persistOffsetSec
+			: 0
+	const nowMode = (obj.nowMode as NowMode) || 'plain'
+	const timeCycles = Array.isArray(obj.timeCycles) ? obj.timeCycles : []
+	return {
+		mode,
+		rangeMin: min,
+		rangeMax: max,
+		persistOffsetSec,
+		nowMode,
+		timeCycles,
+	}
 }
 
 export async function readTimestampConfig(): Promise<TimestampConfig> {
-	const configPath = getTimestampConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<TimestampConfig>
-		const mode = parsed.mode || 'now'
-		const min =
-			typeof parsed.rangeMin === 'number' && Number.isFinite(parsed.rangeMin)
-				? parsed.rangeMin
-				: null
-		const max =
-			typeof parsed.rangeMax === 'number' && Number.isFinite(parsed.rangeMax)
-				? parsed.rangeMax
-				: null
-		const persistOffsetSec =
-			typeof parsed.persistOffsetSec === 'number' &&
-			Number.isFinite(parsed.persistOffsetSec)
-				? parsed.persistOffsetSec
-				: 0
-		const nowMode = (parsed.nowMode as NowMode) || 'plain'
-		const timeCycles = Array.isArray(parsed.timeCycles) ? parsed.timeCycles : []
-		return {
-			mode,
-			rangeMin: min,
-			rangeMax: max,
-			persistOffsetSec,
-			nowMode,
-			timeCycles,
-		}
-	} catch {
-		return {
-			mode: 'now',
-			rangeMin: null,
-			rangeMax: null,
-			persistOffsetSec: 0,
-			nowMode: 'plain',
-			timeCycles: [],
-		}
-	}
+	return readJsonWithSchema(
+		getTimestampConfigPath(),
+		validateTimestampConfig,
+		defaultTimestampConfig,
+	)
 }
 
 export async function writeTimestampConfig(config: TimestampConfig) {
-	const configPath = getTimestampConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+	await writeJsonSafe(getTimestampConfigPath(), validateTimestampConfig(config))
+}
+
+const defaultActivityTypeConfig: ActivityTypeConfig = { type: 'playing' }
+
+const validateActivityTypeConfig: Validator<ActivityTypeConfig> = (
+	input,
+): ActivityTypeConfig => {
+	const obj = (input ?? {}) as Partial<ActivityTypeConfig>
+	const type = obj.type || 'playing'
+	return { type }
 }
 
 export async function readActivityTypeConfig(): Promise<ActivityTypeConfig> {
-	const configPath = getActivityTypeConfigPath()
-	try {
-		const raw = await fs.readFile(configPath, 'utf-8')
-		const parsed = JSON.parse(raw) as Partial<ActivityTypeConfig>
-		const type = parsed.type || 'playing'
-		return { type }
-	} catch {
-		return { type: 'playing' }
-	}
+	return readJsonWithSchema(
+		getActivityTypeConfigPath(),
+		validateActivityTypeConfig,
+		defaultActivityTypeConfig,
+	)
 }
 
 export async function writeActivityTypeConfig(config: ActivityTypeConfig) {
-	const configPath = getActivityTypeConfigPath()
-	await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+	await writeJsonSafe(
+		getActivityTypeConfigPath(),
+		validateActivityTypeConfig(config),
+	)
 }
 
 export async function setActivityType(type: ActivityTypeConfig['type']) {
@@ -277,7 +336,6 @@ export async function setActivityType(type: ActivityTypeConfig['type']) {
 		type === 'watching' || type === 'listening' || type === 'competing'
 			? type
 			: 'playing'
-
 	await writeActivityTypeConfig({ type: safeType })
 }
 
