@@ -92,7 +92,8 @@ export function appendLog(entry: LogEntry | string): void {
 
 	const msg = document.createElement('div')
 	msg.className = 'log-item-message'
-	rawText.split('\n').forEach(line => {
+	const safeText = typeof rawText === 'string' ? rawText : String(rawText ?? '')
+	safeText.split('\n').forEach(line => {
 		const lineEl = document.createElement('div')
 		lineEl.textContent = line
 		msg.appendChild(lineEl)

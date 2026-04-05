@@ -3,7 +3,7 @@ import { decodeEnv } from './main/cloud'
 import { getAutoHide, initIpc } from './main/ipc'
 import { loadSettings } from './main/settings'
 import { createTray } from './main/tray'
-import { initAutoUpdate } from './main/updates'
+import { checkForUpdates } from './main/updates'
 import { createMainWindow } from './main/window'
 
 let isQuitting = false
@@ -38,10 +38,10 @@ app.whenReady().then(() => {
 
 	if (win) {
 		win.webContents.once('did-finish-load', () => {
-			initAutoUpdate()
+			checkForUpdates()
 		})
 	} else {
-		initAutoUpdate()
+		checkForUpdates()
 	}
 })
 
