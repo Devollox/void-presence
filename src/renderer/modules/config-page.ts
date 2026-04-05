@@ -355,7 +355,7 @@ export function setupConfigPage(): void {
 					rpcMode:
 						state.rpcMode ??
 						((localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
-							'advanced'),
+							'basic'),
 				}
 
 				const st = deepCloneState(base)
@@ -698,8 +698,7 @@ export function setupClientIdControls(): void {
 	)
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
 	const storedRpcMode =
-		(localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
-		'advanced'
+		(localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) || 'basic'
 
 	let currentRpcMode: 'basic' | 'advanced' = storedRpcMode
 	applyRpcModeToUI(storedRpcMode)

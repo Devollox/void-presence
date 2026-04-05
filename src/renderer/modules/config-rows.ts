@@ -188,11 +188,11 @@ export function createPartyRow(
 	wrap.className = 'party-inputs'
 
 	const currentInput = document.createElement('input')
-	currentInput.placeholder = 'Current party size'
+	currentInput.placeholder = 'Current party size (optional)'
 	currentInput.value = party.sizeCurrent?.toString() ?? ''
 
 	const maxInput = document.createElement('input')
-	maxInput.placeholder = 'Max party size'
+	maxInput.placeholder = 'Max party size (optional)'
 	maxInput.value = party.sizeMax?.toString() ?? ''
 
 	const remove = document.createElement('button')

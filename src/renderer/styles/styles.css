@@ -857,6 +857,7 @@ input {
 		background-color 0.12s ease;
 }
 
+.party-inputs input::placeholder,
 .cycle-inputs input::placeholder,
 .image-inputs input::placeholder,
 .pair-inputs input::placeholder {
