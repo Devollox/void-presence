@@ -271,7 +271,7 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		infoObject.textContent = '–'
 		infoDetails.textContent = '–'
 		infoStatus.textContent = 'No active rich presence'
-		metaObject.textContent = 'OBJECT: —'
+		metaObject.textContent = 'DETAILS: —'
 		metaButtons.textContent = 'BUTTONS: —'
 		if (infoUptime) infoUptime.textContent = '–'
 		activityStartMs = null
