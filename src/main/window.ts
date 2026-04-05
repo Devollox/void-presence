@@ -1,6 +1,5 @@
-import { BrowserWindow, app } from 'electron'
+import { BrowserWindow, app, screen } from 'electron'
 import * as path from 'path'
-import { sendStatus } from './logging'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -21,15 +20,18 @@ export function createMainWindow(
 ) {
 	const shouldShow = !autoHideOnStart
 
+	const { width, height } = screen.getPrimaryDisplay().workAreaSize
+
 	mainWindow = new BrowserWindow({
-		width: 480,
-		height: 640,
 		icon: iconPath,
 		frame: false,
-		resizable: false,
 		titleBarStyle: 'hidden',
 		backgroundColor: '#000000',
-		show: false,
+		show: shouldShow,
+		width,
+		height,
+		x: 0,
+		y: 0,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -39,17 +41,6 @@ export function createMainWindow(
 
 	mainWindow.setMenuBarVisibility(false)
 	mainWindow.loadFile('src/renderer/index.html')
-
-	if (shouldShow) {
-		mainWindow.once('ready-to-show', () => {
-			if (!mainWindow || mainWindow.isDestroyed()) return
-			mainWindow.show()
-		})
-	}
-
-	setTimeout(() => {
-		sendStatus('RESTARTING')
-	}, 100)
 
 	mainWindow.on('close', ev => {
 		if (!isQuitting()) {

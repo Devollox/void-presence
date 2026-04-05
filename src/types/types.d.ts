@@ -220,6 +220,7 @@ export interface ElectronAPI {
 	setAutoHide?: (on: boolean) => Promise<void> | void
 	windowClose?: () => void
 	windowMinimize?: () => void
+	windowToggleMaximize?: () => void
 	onLogMessage?: (handler: (entry: LogEntry) => void) => void
 	onRpcUpdate?: (handler: (payload: RichPresencePayload) => void) => void
 	onRpcStatus?: (handler: (status: string) => void) => void

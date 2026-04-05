@@ -51,11 +51,6 @@ function renderList(
 
 			main.appendChild(label)
 			main.appendChild(sub)
-
-			const pill = document.createElement('div')
-			pill.className = 'config-details-pill'
-			pill.textContent = `#${idx + 1}`
-			meta.appendChild(pill)
 		} else if (type === 'images') {
 			const it = item as ImageCycleEntry
 			const label = document.createElement('div')
@@ -90,37 +85,37 @@ function renderList(
 			}
 		} else if (type === 'buttons') {
 			const it = item as ButtonPair
-			const mainLabel = document.createElement('div')
-			mainLabel.className = 'config-details-item-label'
-			mainLabel.textContent = it.label1 || 'Button 1'
 
-			const mainUrlPill = document.createElement('div')
-			mainUrlPill.className = 'config-details-pill'
-			const mainLink = document.createElement('a')
-			mainLink.href = it.url1 || '#'
-			mainLink.textContent = it.url1 || 'no url 1'
-			if (mainLink.textContent !== 'no url 1') {
-				mainLink.target = '_blank'
-				mainUrlPill.appendChild(mainLink)
-				main.appendChild(mainLabel)
-				main.appendChild(mainUrlPill)
-			}
+			const col1 = document.createElement('div')
+			const col1Label = document.createElement('div')
+			col1Label.className = 'config-details-item-label'
+			col1Label.textContent = it.label1 || ''
+			const col1Url = document.createElement('div')
+			col1Url.className = 'config-details-pill'
+			const col1Link = document.createElement('a')
+			col1Link.href = it.url1 || ''
+			col1Link.textContent = it.url1 || ''
+			if (it.url1) col1Link.target = '_blank'
+			col1Url.appendChild(col1Link)
+			col1.appendChild(col1Label)
+			col1.appendChild(col1Url)
 
-			const metaLabel = document.createElement('div')
-			metaLabel.className = 'config-details-item-label'
-			metaLabel.textContent = it.label2 || 'Button 2'
+			const col2 = document.createElement('div')
+			const col2Label = document.createElement('div')
+			col2Label.className = 'config-details-item-label'
+			col2Label.textContent = it.label2 || ''
+			const col2Url = document.createElement('div')
+			col2Url.className = 'config-details-pill'
+			const col2Link = document.createElement('a')
+			col2Link.href = it.url2 || ''
+			col2Link.textContent = it.url2 || ''
+			if (it.url2) col2Link.target = '_blank'
+			col2Url.appendChild(col2Link)
+			col2.appendChild(col2Label)
+			col2.appendChild(col2Url)
 
-			const metaUrlPill = document.createElement('div')
-			metaUrlPill.className = 'config-details-pill'
-			const metaLink = document.createElement('a')
-			metaLink.href = it.url2 || '#'
-			metaLink.textContent = it.url2 || 'no url 2'
-			if (metaLink.textContent !== 'no url 2') {
-				metaLink.target = '_blank'
-				metaUrlPill.appendChild(metaLink)
-				main.appendChild(metaLabel)
-				main.appendChild(metaUrlPill)
-			}
+			main.appendChild(col1)
+			main.appendChild(col2)
 		} else if (type === 'party') {
 			const it = item as PartyCycleEntry
 			const label = document.createElement('div')
@@ -135,11 +130,6 @@ function renderList(
 
 			main.appendChild(label)
 			main.appendChild(sub)
-
-			const pill = document.createElement('div')
-			pill.className = 'config-details-pill'
-			pill.textContent = `#${idx + 1}`
-			meta.appendChild(pill)
 		}
 
 		row.appendChild(main)

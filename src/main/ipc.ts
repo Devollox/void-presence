@@ -327,6 +327,16 @@ export function initIpc() {
 		}
 	})
 
+	ipcMain.handle('window-toggle-maximize', () => {
+		const win = BrowserWindow.getAllWindows()[0]
+		if (!win || win.isDestroyed()) return
+		if (win.isMaximized()) {
+			win.unmaximize()
+		} else {
+			win.maximize()
+		}
+	})
+
 	ipcMain.handle('window-minimize', () => {
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win && !win.isDestroyed()) {

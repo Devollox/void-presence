@@ -1,21 +1,28 @@
 <!doctype html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Void Presence</title>
 		<link
 			rel="icon"
 			type="image/png"
 			href="../../public/favicons/dark-fav.png"
 		/>
-
 		<link rel="stylesheet" href="./styles/styles.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<body>
 		<div class="app">
 			<div class="titlebar">
 				<div class="titlebar-buttons">
 					<button id="window-minimize" class="titlebar-btn">–</button>
+					<button id="window-maximize" class="titlebar-btn">□</button>
 					<button id="window-close" class="titlebar-btn">×</button>
 				</div>
 			</div>
@@ -29,6 +36,7 @@
 							<div class="brand-sub">PRESENCE</div>
 						</div>
 					</div>
+
 					<div class="tabs">
 						<button
 							class="tab-btn"
@@ -69,316 +77,376 @@
 							</div>
 						</div>
 
-						<div class="content-scroll">
-							<div class="card">
-								<div class="card-header">
-									<div class="card-label">activity</div>
-									<div class="card-title-block">
-										<div class="card-title" id="activity-title">Idle</div>
-										<div class="card-label" id="activity-sub">
-											Waiting for Discord
+						<div class="content-scroll wrapper">
+							<div class="main-content-block">
+								<div class="card">
+									<div class="card-header">
+										<div class="card-label">activity</div>
+										<div class="card-title-block">
+											<div class="card-title" id="activity-title">
+												Main Menu
+											</div>
+											<div class="card-label" id="activity-sub">Idle</div>
 										</div>
 									</div>
-								</div>
 
-								<div class="divider"></div>
-
-								<div class="client-row">
-									<span>client id</span>
-									<input id="client-id-input" placeholder="Application ID" />
-								</div>
-								<div class="client-row">
-									<span>rpc mode</span>
-									<div class="timestamp-mode-wrap" id="rpc-mode-wrap">
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											data-mode="basic"
-											data-active="false"
-											id="rpc-mode-basic"
-										>
-											basic
-										</button>
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											data-mode="advanced"
-											data-active="true"
-											id="rpc-mode-advanced"
-										>
-											music and youtube
-										</button>
+									<div class="client-row">
+										<span>client id</span>
+										<input
+											id="client-id-input"
+											placeholder="APPLICATION ID"
+											class="font-mono tracking-tight"
+											value="1459645961512161331"
+										/>
 									</div>
-								</div>
 
-								<div class="client-row">
-									<span>update(sec)</span>
-									<input
-										id="update-interval-input"
-										placeholder="Update Activity (sec) Minimum 5 sec"
-									/>
-								</div>
+									<div class="client-row">
+										<span>rpc mode</span>
+										<div class="timestamp-mode-wrap" id="rpc-mode-wrap">
+											<button
+												class="timestamp-mode-btn"
+												data-mode="basic"
+												data-active="false"
+												id="rpc-mode-basic"
+											>
+												basic
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-mode="advanced"
+												data-active="true"
+												id="rpc-mode-advanced"
+											>
+												music and youtube
+											</button>
+										</div>
+									</div>
 
-								<div class="client-row">
-									<span>activity</span>
+									<div class="client-row">
+										<span>update(sec)</span>
+										<input
+											id="update-interval-input"
+											placeholder="UPDATE ACTIVITY (SEC) MIN 5 SEC"
+											value="5"
+										/>
+									</div>
+
+									<div class="client-row">
+										<span>activity</span>
+										<div
+											class="timestamp-mode-wrap_activity"
+											id="activity-type-modes"
+										>
+											<button
+												id="activity-type-playing"
+												class="timestamp-mode-btn"
+												data-active="true"
+											>
+												playing
+											</button>
+											<button
+												id="activity-type-watching"
+												class="timestamp-mode-btn"
+												data-active="false"
+											>
+												watching
+											</button>
+											<button
+												id="activity-type-listening"
+												class="timestamp-mode-btn"
+												data-active="false"
+											>
+												listening
+											</button>
+											<button
+												id="activity-type-competing"
+												class="timestamp-mode-btn"
+												data-active="false"
+											>
+												competing
+											</button>
+										</div>
+									</div>
+
+									<div class="client-row">
+										<span>timestamp</span>
+										<div class="timestamp-mode-wrap">
+											<button
+												class="timestamp-mode-btn"
+												data-mode="now"
+												data-active="true"
+												id="timestamp-mode-now"
+											>
+												now
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-mode="range"
+												data-active="false"
+												id="timestamp-mode-range"
+											>
+												range
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-mode="persist"
+												data-active="false"
+												id="timestamp-mode-persist"
+											>
+												persist
+											</button>
+										</div>
+									</div>
+
 									<div
-										class="timestamp-mode-wrap_activity"
-										id="activity-type-modes"
+										class="client-row timestamp-range-row"
+										data-visible="false"
 									>
-										<button
-											id="activity-type-playing"
-											class="timestamp-mode-btn"
-											data-active="true"
-										>
-											playing
-										</button>
-										<button
-											id="activity-type-watching"
-											class="timestamp-mode-btn"
-											data-active="false"
-										>
-											watching
-										</button>
-										<button
-											id="activity-type-listening"
-											class="timestamp-mode-btn"
-											data-active="false"
-										>
-											listening
-										</button>
-										<button
-											id="activity-type-competing"
-											class="timestamp-mode-btn"
-											data-active="false"
-										>
-											competing
-										</button>
+										<span>range(min)</span>
+										<input
+											id="timestamp-range-min"
+											placeholder="Seconds ago (min)"
+										/>
 									</div>
-								</div>
 
-								<div class="client-row">
-									<span>timestamp</span>
-									<div class="timestamp-mode-wrap">
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											data-mode="now"
-											data-active="true"
-											id="timestamp-mode-now"
-										>
-											now
-										</button>
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											data-mode="range"
-											data-active="false"
-											id="timestamp-mode-range"
-										>
-											range
-										</button>
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											data-mode="persist"
-											data-active="false"
-											id="timestamp-mode-persist"
-										>
-											persist
-										</button>
-									</div>
-								</div>
-
-								<div
-									class="client-row timestamp-range-row"
-									data-visible="false"
-								>
-									<span>range(min)</span>
-									<input
-										id="timestamp-range-min"
-										placeholder="Seconds ago (min)"
-									/>
-								</div>
-
-								<div
-									class="client-row timestamp-range-row"
-									data-visible="false"
-								>
-									<span>range(max)</span>
-									<input
-										id="timestamp-range-max"
-										placeholder="Seconds ago (max)"
-									/>
-								</div>
-
-								<div
-									class="client-row timestamp-persist-row"
-									data-visible="false"
-								>
-									<span>persist</span>
-									<button
-										id="timestamp-persist-reset"
-										class="timestamp-reset-btn"
+									<div
+										class="client-row timestamp-range-row"
+										data-visible="false"
 									>
-										reset saved timestamp
-									</button>
-								</div>
-
-								<div class="client-row now-mode-row" data-visible="true">
-									<span>now mode</span>
-									<div class="timestamp-mode-wrap">
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											id="now-mode-plain"
-											data-active="true"
-										>
-											plain
-										</button>
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											id="now-mode-progress"
-											data-active="false"
-										>
-											progress
-										</button>
-										<button
-											type="button"
-											class="timestamp-mode-btn"
-											id="now-mode-cycles"
-											data-active="false"
-										>
-											cycles
-										</button>
+										<span>range(max)</span>
+										<input
+											id="timestamp-range-max"
+											placeholder="Seconds ago (max)"
+										/>
 									</div>
-								</div>
 
-								<div
-									class="divider time-cycles-divider"
-									data-visible="false"
-								></div>
-
-								<div
-									class="list-header time-cycles-header"
-									data-visible="false"
-								>
-									<div class="list-header-label">time cycles</div>
-									<button id="add-time" class="add-btn">+ time</button>
-								</div>
-								<div
-									id="time-list"
-									class="time-cycles-list"
-									data-visible="false"
-								></div>
-
-								<div class="divider"></div>
-
-								<div class="button-row">
-									<button
-										style="display: none"
-										id="client-id-save"
-										class="rpc-button"
+									<div
+										class="client-row timestamp-persist-row"
+										data-visible="false"
 									>
-										<span>SAVE and RESTART PRESENCE</span>
-									</button>
-								</div>
-								<div class="button-row">
-									<button id="restart-discord" class="rpc-button">
-										<div class="rpc-button-icon">↻</div>
-										<span>RESTART PRESENCE</span>
-									</button>
-									<button id="stop-discord" class="rpc-button">
-										<div class="rpc-button-icon">■</div>
-										<span>STOP PRESENCE</span>
-									</button>
-								</div>
-								<p class="hint-text">
-									After changing the client id or update(sec), click “RESTART
-									PRESENCE”.
-								</p>
-								<div class="divider"></div>
+										<span>persist</span>
+										<div class="timestamp-mode-wrap">
+											<button
+												type="button"
+												class="timestamp-mode-btn"
+												id="timestamp-persist-save"
+											>
+												save current timestamp
+											</button>
+										</div>
+									</div>
 
-								<div class="list-header" style="margin-top: 6px">
-									<div class="list-header-label">Details & State</div>
-									<button id="add-cycle" class="add-btn">
-										+ Details & State
-									</button>
-								</div>
-								<div id="cycles-list"></div>
+									<div class="client-row now-mode-row" data-visible="true">
+										<span>now mode</span>
+										<div class="timestamp-mode-wrap">
+											<button
+												type="button"
+												class="timestamp-mode-btn"
+												id="now-mode-plain"
+												data-active="true"
+											>
+												plain
+											</button>
+											<button
+												type="button"
+												class="timestamp-mode-btn"
+												id="now-mode-progress"
+												data-active="false"
+											>
+												progress
+											</button>
+											<button
+												type="button"
+												class="timestamp-mode-btn"
+												id="now-mode-cycles"
+												data-active="false"
+											>
+												cycles
+											</button>
+										</div>
+									</div>
 
-								<div class="divider"></div>
+									<div
+										class="divider time-cycles-divider"
+										data-visible="false"
+									></div>
 
-								<div class="list-header">
-									<div class="list-header-label">images</div>
-									<button id="add-image" class="add-btn">+ image</button>
-								</div>
-								<div id="images-list"></div>
-
-								<div class="divider"></div>
-
-								<div class="list-header">
-									<div class="list-header-label">button pairs</div>
-									<button id="add-button-pair" class="add-btn">+ pair</button>
-								</div>
-								<div id="buttons-list"></div>
-
-								<div class="divider"></div>
-
-								<div class="list-header">
-									<div class="list-header-label">party size</div>
-									<button id="add-party" class="add-btn">+ party</button>
-								</div>
-
-								<div id="party-list"></div>
-
-								<div class="divider"></div>
-
-								<div class="auto-row">
-									<div class="auto-label">
-										<span>AUTO START</span>
-										<div class="hint-text">launch app with Windows</div>
+									<div
+										class="list-header time-cycles-header"
+										data-visible="false"
+									>
+										<div class="list-header-label">time cycles</div>
+										<button id="add-time" class="add-btn">time</button>
 									</div>
 									<div
-										id="auto-launch-toggle"
-										class="auto-toggle"
-										data-on="false"
-									>
-										<div class="auto-toggle-knob"></div>
+										id="time-list"
+										class="time-cycles-list"
+										data-visible="false"
+									></div>
+
+									<div class="button-row-container">
+										<div class="button-row-buttons">
+											<button
+												id="restart-discord"
+												class="rpc-button rpc-button-primary"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="12"
+													height="12"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													class="rpc-button-icon-svg"
+												>
+													<path
+														d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+													></path>
+													<path d="M3 3v5h5"></path>
+												</svg>
+												RESTART PRESENCE
+											</button>
+											<button
+												id="stop-discord"
+												class="rpc-button rpc-button-destructive"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="12"
+													height="12"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													class="rpc-button-icon-svg"
+												>
+													<rect
+														width="18"
+														height="18"
+														x="3"
+														y="3"
+														rx="2"
+													></rect>
+												</svg>
+												STOP PRESENCE
+											</button>
+										</div>
 									</div>
-									<div class="auto-label">
-										<span>AUTO HIDE</span>
-										<div class="hint-text">minimize to tray on start</div>
+									<div class="divider"></div>
+									<p class="hint-text">
+										After changing the client id or update(sec), click “RESTART
+										PRESENCE”.
+									</p>
+								</div>
+
+								<div class="main-grid-row">
+									<div class="card">
+										<div class="list-header">
+											<div class="list-header-label">Details & State</div>
+											<button id="add-cycle" class="add-btn">
+												<span>Add details &amp; state</span>
+											</button>
+										</div>
+										<div class="divider"></div>
+										<div id="cycles-list" class="divide-y divide-white/5"></div>
 									</div>
-									<div
-										id="auto-hide-toggle"
-										class="auto-toggle"
-										data-on="false"
-									>
-										<div class="auto-toggle-knob"></div>
+
+									<div class="card">
+										<div class="list-header">
+											<div class="list-header-label">images</div>
+											<button id="add-image" class="add-btn">
+												<span>Add image</span>
+											</button>
+										</div>
+										<div class="divider"></div>
+										<div id="images-list" class="divide-y divide-white/5"></div>
+									</div>
+
+									<div class="card">
+										<div class="list-header">
+											<div class="list-header-label">button pairs</div>
+											<button id="add-button-pair" class="add-btn">
+												<span>Add button pair</span>
+											</button>
+										</div>
+										<div class="divider"></div>
+										<div
+											id="buttons-list"
+											class="divide-y divide-white/5"
+										></div>
+									</div>
+
+									<div class="card">
+										<div class="list-header">
+											<div class="list-header-label">party size</div>
+											<button id="add-party" class="add-btn">
+												<span>Add party</span>
+											</button>
+										</div>
+										<div class="divider"></div>
+										<div id="party-list" class="divide-y divide-white/5"></div>
 									</div>
 								</div>
 
-								<div class="meta-row">
-									<span id="meta-object">OBJECT: —</span>
-									<span id="meta-buttons">BUTTONS: —</span>
-								</div>
-							</div>
+								<div class="card">
+									<div class="auto-row">
+										<div class="wrapper-auto-label">
+											<div class="auto-label">
+												<span>AUTO START</span>
+												<div class="hint-text">launch app with Windows</div>
+											</div>
+											<div
+												id="auto-launch-toggle"
+												class="auto-toggle"
+												data-on="false"
+											>
+												<div class="auto-toggle-knob"></div>
+											</div>
+										</div>
 
-							<div class="payload">
-								<div class="payload-title">current payload</div>
-								<div class="payload-grid">
-									<div class="payload-label">Buttons</div>
-									<div class="payload-value" id="info-buttons">–</div>
-									<div class="payload-label">Object</div>
-									<div class="payload-value" id="info-object">–</div>
-									<div class="payload-label">State</div>
-									<div class="payload-value" id="info-details">–</div>
-									<div class="payload-label">Uptime</div>
-									<div class="payload-value" id="info-uptime">–</div>
+										<div>
+											<div class="wrapper-auto-label">
+												<div class="auto-label">
+													<span>AUTO HIDE</span>
+													<div class="hint-text">minimize to tray on start</div>
+												</div>
+												<div
+													id="auto-hide-toggle"
+													class="auto-toggle"
+													data-on="false"
+												>
+													<div class="auto-toggle-knob"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="divider"></div>
+									<div class="auto-row meta-row">
+										<span id="meta-object">DETAILS: —</span>
+										<span id="meta-buttons">BUTTONS: —</span>
+									</div>
 								</div>
-								<div class="payload-status" id="info-status">
-									Waiting for first update…
+
+								<div class="payload">
+									<div class="payload-title">current payload</div>
+									<div class="payload-grid">
+										<div class="payload-label">Buttons</div>
+										<div class="payload-value" id="info-buttons">–</div>
+										<div class="payload-label">DETAILS</div>
+										<div class="payload-value" id="info-object">–</div>
+										<div class="payload-label">State</div>
+										<div class="payload-value" id="info-details">–</div>
+										<div class="payload-label">Uptime</div>
+										<div class="payload-value" id="info-uptime">–</div>
+									</div>
+									<div class="payload-status" id="info-status">
+										Waiting for first update…
+									</div>
 								</div>
 							</div>
 						</div>
@@ -387,9 +455,16 @@
 					<section class="view" data-view="logs" data-active="false">
 						<div class="logs-view-wrapper">
 							<div class="logs-view-header">
-								<div class="logs-view-title">logs</div>
+								<div class="card-header-config">
+									<div class="card-label">Logs</div>
+									<div class="card-title-block">
+										<div class="card-title">Session events</div>
+										<div class="card-label">Events history</div>
+									</div>
+								</div>
 								<div class="logs-view-counter" id="logs-counter">0 entries</div>
 							</div>
+							<div class="divider"></div>
 							<div id="logs-view-list" class="logs-view-list"></div>
 						</div>
 					</section>
@@ -408,14 +483,15 @@
 								</div>
 							</div>
 
-							<div class="divider"></div>
-
 							<div class="client-row">
 								<span>name</span>
 								<input id="config-name-input" placeholder="config name" />
-								<button id="config-save-btn">save config</button>
+								<div class="config-save-btn">
+									<button type="button" id="config-save-btn">
+										save config
+									</button>
+								</div>
 							</div>
-
 							<div class="client-row">
 								<span>author ID</span>
 								<input
@@ -423,41 +499,52 @@
 									placeholder="you can get an Author ID if you log in to the website"
 								/>
 							</div>
-							<div class="list-header">
-								<div class="list-header-label">recent apps</div>
+						</div>
+
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title-label">Recent Apps</div>
 							</div>
 							<div id="recent-list"></div>
+						</div>
 
-							<div class="list-header">
-								<div class="list-header-label">Cloud Sync</div>
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title-label">Cloud Sync</div>
 							</div>
-							<div
-								class="cloud-actions"
-								style="display: flex; gap: 8px; margin-bottom: 12px"
-							>
+
+							<div class="client-row">
 								<button
 									id="cloud-upload-btn"
 									class="rpc-button"
 									style="flex: 1"
 								>
-									<div class="rpc-button-icon">☁️</div>
-									<span>Upload Current</span>
+									Upload Current
 								</button>
 							</div>
 
-							<div class="divider"></div>
+							<p class="hint-text">
+								Upload will overwrite the remote copy of this profile in the
+								cloud.
+							</p>
+						</div>
 
+						<div class="card">
 							<div class="list-header">
 								<div class="list-header-label">saved configs</div>
-								<button id="config-export-btn" class="add-btn">export</button>
-								<button id="config-add-btn" class="add-btn">import</button>
+								<input
+									id="config-search-input"
+									type="text"
+									placeholder="search"
+									class="config-search-input"
+								/>
+								<div class="config-actions-right">
+									<button id="config-export-btn" class="add-btn">export</button>
+									<button id="config-add-btn" class="add-btn">import</button>
+								</div>
 							</div>
-							<div id="config-list"></div>
-
-							<div
-								id="cloud-configs-list"
-								style="max-height: 200px; overflow-y: auto"
-							></div>
+							<div class="divider"></div>
+							<div id="config-list" class="divide-y divide-white/5"></div>
 						</div>
 					</section>
 				</main>
@@ -466,88 +553,215 @@
 
 		<div id="config-details-overlay" data-open="false">
 			<div class="config-details-modal">
-				<div class="config-details-header">
-					<div>
-						<div class="config-details-title" id="config-details-name"></div>
-						<div class="config-details-subtitle">Profile configuration</div>
+				<main class="config-details-main">
+					<div class="config-details-inner-scroll">
+						<div class="config-details-animate">
+							<button
+								id="config-details-close"
+								class="config-details-back-btn"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-chevron-left"
+								>
+									<path d="m15 18-6-6 6-6"></path>
+								</svg>
+								Back to profiles
+							</button>
+
+							<div class="card config-details-card">
+								<div class="card-header config-details-card-header">
+									<div>
+										<div class="card-label">Profile configuration</div>
+										<div
+											class="card-title config-details-title"
+											id="config-details-name"
+										></div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="config-details-body">
+									<div>
+										<div class="config-details-section-label">
+											Details &amp; State
+										</div>
+										<div
+											class="config-details-section-block"
+											id="config-details-cycles-wrapper"
+										>
+											<div
+												class="config-details-list"
+												id="config-details-cycles"
+											></div>
+										</div>
+									</div>
+
+									<div>
+										<div class="config-details-section-label">Images</div>
+										<div class="config-details-section-block">
+											<div
+												class="config-details-list"
+												id="config-details-images"
+											></div>
+										</div>
+									</div>
+
+									<div>
+										<div class="config-details-section-label">Buttons</div>
+										<div class="config-details-section-block">
+											<div
+												class="config-details-list"
+												id="config-details-buttons"
+											></div>
+										</div>
+									</div>
+
+									<div>
+										<div class="config-details-section-label">Party</div>
+										<div class="config-details-section-block">
+											<div
+												class="config-details-list"
+												id="config-details-party"
+											></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
-					<button id="config-details-close">×</button>
-				</div>
-				<div class="config-details-sections content-scroll">
-					<section class="config-details-section">
-						<h3>Details & State</h3>
-						<div class="config-details-list" id="config-details-cycles"></div>
-					</section>
-					<section class="config-details-section">
-						<h3>Images</h3>
-						<div class="config-details-list" id="config-details-images"></div>
-					</section>
-					<section class="config-details-section">
-						<h3>Buttons</h3>
-						<div class="config-details-list" id="config-details-buttons"></div>
-					</section>
-					<section class="config-details-section">
-						<h3>Party</h3>
-						<div class="config-details-list" id="config-details-party"></div>
-					</section>
-				</div>
+				</main>
 			</div>
 		</div>
 
 		<div id="upload-confirm-overlay" data-open="false">
 			<div class="config-details-modal">
-				<div class="config-details-header">
-					<div>
-						<div class="config-details-title">Upload config?</div>
-						<div class="config-details-subtitle">
-							Are you sure you want to upload this profile to the cloud?
+				<main class="config-details-main">
+					<div class="config-details-inner-scroll">
+						<div class="config-details-animate">
+							<button
+								id="upload-confirm-close"
+								class="config-details-back-btn"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-chevron-left"
+								>
+									<path d="m15 18-6-6 6-6"></path>
+								</svg>
+								Back to profiles
+							</button>
+
+							<div class="card config-details-card">
+								<div class="card-header config-details-card-header">
+									<div>
+										<div class="card-label">Cloud sync</div>
+										<div class="card-title config-details-title">
+											Upload config?
+										</div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="config-details-body">
+									<div class="config-details-section">
+										<div class="config-details-section-label">Profile</div>
+										<div
+											class="config-details-list"
+											id="upload-confirm-profile-info"
+										></div>
+									</div>
+
+									<div class="config-details-section">
+										<div class="config-details-section-label">Actions</div>
+										<button id="upload-confirm-ok" class="rpc-button">
+											confirm upload
+										</button>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-					<button id="upload-confirm-close">×</button>
-				</div>
-				<div class="config-details-sections">
-					<section class="config-details-section">
-						<h3>Profile</h3>
-						<div
-							class="config-details-list"
-							id="upload-confirm-profile-info"
-						></div>
-					</section>
-					<section class="config-details-section">
-						<h3>Actions</h3>
-						<button id="upload-confirm-ok" class="rpc-button">
-							confirm upload
-						</button>
-					</section>
-				</div>
+				</main>
 			</div>
 		</div>
 
 		<div id="import-overlay" data-open="false">
-			<div class="import-modal">
-				<div class="import-header">
-					<div>
-						<div class="import-title">Import profile</div>
-						<div class="import-subtitle">
-							Drop a JSON file anywhere or choose it here
+			<div class="config-details-modal">
+				<main class="config-details-main">
+					<div class="config-details-inner-scroll">
+						<div class="config-details-animate">
+							<button
+								id="import-close-btn"
+								class="config-details-back-btn"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-chevron-left"
+								>
+									<path d="m15 18-6-6 6-6"></path>
+								</svg>
+								Back to profiles
+							</button>
+							<div class="card config-details-card">
+								<div class="card-header config-details-card-header">
+									<div>
+										<div class="card-label">Import profile</div>
+										<div class="card-title config-details-title">
+											Drop a JSON file anywhere or choose it here
+										</div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="config-details-body import-body">
+									<div>Only button, cycles and image will be imported.</div>
+									<div class="import-input-row">
+										<input
+											type="file"
+											id="import-file-input"
+											accept="application/json,.json"
+										/>
+									</div>
+									<div class="import-hint">
+										You can also drag and drop a .json file onto the window;
+										dashed border will appear when ready to drop.
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-					<button id="import-close-btn">×</button>
-				</div>
-				<div class="import-body">
-					<div>Only button, cycles and image will be imported.</div>
-					<div class="import-input-row">
-						<input
-							type="file"
-							id="import-file-input"
-							accept="application/json,.json"
-						/>
-					</div>
-					<div style="font-size: 11px; color: #9ca3af">
-						You can also drag and drop a .json file onto the window; dashed
-						border will appear when ready to drop.
-					</div>
-				</div>
+				</main>
 			</div>
 		</div>
 
@@ -557,7 +771,12 @@
 		<div id="blocks-toast" class="copy-toast" data-visible="false">
 			changes saved
 		</div>
+		<div id="config-toast" class="copy-toast" data-visible="false">
+			config saved
+		</div>
+
 		<div id="global-drop-overlay" data-active="false"></div>
+
 		<script type="module" src="../../build/renderer/renderer.js"></script>
 	</body>
 </html>

@@ -154,7 +154,6 @@ async function pushLiveStateFromCtx(
 		})
 	}
 }
-
 export function setupConfigPage(): void {
 	const nameInput = document.getElementById(
 		'config-name-input',
@@ -169,6 +168,9 @@ export function setupConfigPage(): void {
 	const exportBtn = document.getElementById(
 		'config-export-btn',
 	) as HTMLButtonElement | null
+	const configSearchInput = document.getElementById(
+		'config-search-input',
+	) as HTMLInputElement | null
 
 	if (!nameInput || !saveBtn || !list || !addBtn || !exportBtn) return
 
@@ -245,6 +247,11 @@ export function setupConfigPage(): void {
 
 			const card = document.createElement('div')
 			card.className = 'config-activity-card'
+
+			card.setAttribute('data-config-id', cfg.createdAt || String(Date.now()))
+			card.setAttribute('data-name', (cfg.name || '').toLowerCase())
+			const rawAuthor = (state as any).authorId || (state as any).author || ''
+			card.setAttribute('data-author', String(rawAuthor).toLowerCase())
 
 			const body = document.createElement('div')
 			body.className = 'config-activity-body'
@@ -493,6 +500,19 @@ export function setupConfigPage(): void {
 
 			list.appendChild(card)
 		})
+
+		if (configSearchInput) {
+			const q = configSearchInput.value.trim().toLowerCase()
+			if (q) {
+				const items = list.querySelectorAll<HTMLElement>('[data-config-id]')
+				items.forEach(item => {
+					const name = (item.getAttribute('data-name') || '').toLowerCase()
+					const author = (item.getAttribute('data-author') || '').toLowerCase()
+					const match = !q || name.includes(q) || author.includes(q)
+					item.style.display = match ? '' : 'none'
+				})
+			}
+		}
 	}
 
 	function addConfigFromState(name: string, state: FullState): void {
@@ -506,7 +526,19 @@ export function setupConfigPage(): void {
 		renderConfigs()
 	}
 
-	window.addConfigFromState = addConfigFromState
+	;(window as any).addConfigFromState = addConfigFromState
+
+	const configToast = document.getElementById(
+		'config-toast',
+	) as HTMLElement | null
+
+	function showConfigToast() {
+		if (!configToast) return
+		configToast.dataset.visible = 'true'
+		setTimeout(() => {
+			configToast.dataset.visible = 'false'
+		}, 1800)
+	}
 
 	saveBtn.addEventListener('click', e => {
 		e.preventDefault()
@@ -515,6 +547,7 @@ export function setupConfigPage(): void {
 		const state = loadCurrentState()
 		addConfigFromState(name, state)
 		nameInput.value = ''
+		showConfigToast()
 	})
 
 	addBtn.addEventListener('click', e => {
@@ -546,7 +579,41 @@ export function setupConfigPage(): void {
 		downloadJson(data, `${name}.json`)
 	})
 
+	if (configSearchInput && list) {
+		configSearchInput.addEventListener('input', () => {
+			const query = configSearchInput.value.trim().toLowerCase()
+			const items = list.querySelectorAll<HTMLElement>('[data-config-id]')
+
+			items.forEach(item => {
+				const name = (item.getAttribute('data-name') || '').toLowerCase()
+				const author = (item.getAttribute('data-author') || '').toLowerCase()
+				const match = !query || name.includes(query) || author.includes(query)
+				item.style.display = match ? '' : 'none'
+			})
+		})
+	}
+
 	renderConfigs()
+}
+
+const configSearchInput = document.getElementById(
+	'config-search-input',
+) as HTMLInputElement | null
+const configList = document.getElementById('config-list') as HTMLElement | null
+
+if (configSearchInput && configList) {
+	configSearchInput.addEventListener('input', () => {
+		const query = configSearchInput.value.trim().toLowerCase()
+		const items = configList.querySelectorAll<HTMLElement>('[data-config-id]')
+
+		items.forEach(item => {
+			const name = (item.getAttribute('data-name') || '').toLowerCase()
+			const author = (item.getAttribute('data-author') || '').toLowerCase()
+			const match = !query || name.includes(query) || author.includes(query)
+
+			item.style.display = match ? '' : 'none'
+		})
+	})
 }
 
 export function setupClientIdControls(): void {
