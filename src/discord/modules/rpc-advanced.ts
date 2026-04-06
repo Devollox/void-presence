@@ -54,7 +54,6 @@ let client: DiscordClient | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
-const MIN_UPDATE_DELAY_MS = 15000
 
 let currentTitle: string | null = null
 let lastSmTcStatus: string | null = null
@@ -617,8 +616,8 @@ export default function startDiscordRich(
 			lastSmTcPosition = smtcPos
 			lastSmTcStatus = smtcStatus || null
 
-			if (overrideDelayMs == null || overrideDelayMs < MIN_UPDATE_DELAY_MS) {
-				overrideDelayMs = MIN_UPDATE_DELAY_MS
+			if (overrideDelayMs == null || overrideDelayMs < activityIntervalMs) {
+				overrideDelayMs = activityIntervalMs
 			}
 
 			const finalTimestamps: { start?: number; end?: number } | undefined =
@@ -704,7 +703,7 @@ export default function startDiscordRich(
 						lastJsonSignature = signature
 						await pushActivity(nowPlaying)
 					}
-					const delayMs = Math.max(activityIntervalMs, MIN_UPDATE_DELAY_MS)
+					const delayMs = Math.max(activityIntervalMs, activityIntervalMs)
 					setTimeout(pollJsonLoop, delayMs)
 					return
 				}
@@ -714,7 +713,7 @@ export default function startDiscordRich(
 						lastJsonSignature = signature
 					}
 					await pushActivity(nowPlaying)
-					const delayMs = Math.max(activityIntervalMs, MIN_UPDATE_DELAY_MS)
+					const delayMs = Math.max(activityIntervalMs, activityIntervalMs)
 					setTimeout(pollJsonLoop, delayMs)
 					return
 				}
@@ -724,20 +723,20 @@ export default function startDiscordRich(
 					await pushActivity(nowPlaying)
 				}
 
-				let delay = Math.max(activityIntervalMs, MIN_UPDATE_DELAY_MS)
+				let delay = Math.max(activityIntervalMs, activityIntervalMs)
 				if (mode === 'now' && nowMode === 'cycles') {
 					const cycle = getNextTimeCycle()
 					const cycleDelay = getDelayForCycles(cycle)
-					if (Number.isFinite(cycleDelay) && cycleDelay > MIN_UPDATE_DELAY_MS) {
+					if (Number.isFinite(cycleDelay) && cycleDelay > activityIntervalMs) {
 						delay = cycleDelay
 					}
 				}
 
-				if (delay < MIN_UPDATE_DELAY_MS) delay = MIN_UPDATE_DELAY_MS
+				if (delay < activityIntervalMs) delay = activityIntervalMs
 
 				setTimeout(pollJsonLoop, delay)
 			} catch {
-				setTimeout(pollJsonLoop, MIN_UPDATE_DELAY_MS)
+				setTimeout(pollJsonLoop, activityIntervalMs)
 			}
 		}
 

@@ -124,7 +124,7 @@ export function getLastNowPlaying() {
 export function initIpc() {
 	const s = loadSettings()
 	autoHideOnStart = !!s.autoHideOnStart
-	currentRpcMode = s.rpcMode === 'basic' ? s.rpcMode : 'advanced'
+	currentRpcMode = s.rpcMode === 'advanced' ? 'advanced' : 'basic'
 
 	if (currentRpcMode === 'advanced' && !smtcWorker) {
 		startSmtcWorker()

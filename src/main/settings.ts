@@ -12,9 +12,13 @@ export type Settings = {
 export function loadSettings(): Settings {
 	try {
 		const raw = fs.readFileSync(settingsPath, 'utf-8')
-		return JSON.parse(raw)
+		const parsed = JSON.parse(raw) as Settings
+		return {
+			autoHideOnStart: parsed.autoHideOnStart,
+			rpcMode: parsed.rpcMode === 'advanced' ? 'advanced' : 'basic',
+		}
 	} catch {
-		return {}
+		return { rpcMode: 'basic' }
 	}
 }
 

@@ -644,7 +644,6 @@ export function setupClientIdControls(): void {
 	const recentList = document.getElementById(
 		'recent-list',
 	) as HTMLElement | null
-
 	const partyList = document.getElementById('party-list') as HTMLElement | null
 	const addParty = document.getElementById(
 		'add-party',
@@ -697,11 +696,16 @@ export function setupClientIdControls(): void {
 		'.time-cycles-divider',
 	)
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
+
+	const advancedIntervalHint = document.getElementById(
+		'advanced-interval-hint',
+	) as HTMLElement | null
+
 	const storedRpcMode =
 		(localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) || 'basic'
 
 	let currentRpcMode: 'basic' | 'advanced' = storedRpcMode
-	applyRpcModeToUI(storedRpcMode)
+
 	const storedMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
 	const storedMin = localStorage.getItem('timestampRangeMin') || ''
@@ -778,6 +782,27 @@ export function setupClientIdControls(): void {
 	if (!Array.isArray(ctx.imageCycles)) ctx.imageCycles = []
 	if (!Array.isArray(ctx.party)) ctx.party = []
 
+	function applyRpcModeToUI(mode: 'basic' | 'advanced') {
+		currentRpcMode = mode
+		localStorage.setItem('rpcMode', mode)
+
+		if (advancedIntervalHint) {
+			advancedIntervalHint.dataset.visible =
+				mode === 'advanced' ? 'true' : 'false'
+		}
+
+		if (!rpcModeWrap) return
+
+		rpcModeWrap
+			.querySelectorAll<HTMLButtonElement>('.timestamp-mode-btn')
+			.forEach(btn => {
+				const m = btn.dataset.mode as 'basic' | 'advanced' | undefined
+				btn.dataset.active = m === mode ? 'true' : 'false'
+			})
+	}
+
+	applyRpcModeToUI(storedRpcMode)
+
 	function setNowMode(m: NowMode) {
 		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
 		if (nowProgress)
@@ -798,37 +823,6 @@ export function setupClientIdControls(): void {
 
 		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	}
-
-	function applyRpcModeToUI(mode: 'basic' | 'advanced') {
-		currentRpcMode = mode
-		localStorage.setItem('rpcMode', mode)
-
-		if (!rpcModeWrap) return
-
-		rpcModeWrap
-			.querySelectorAll<HTMLButtonElement>('.timestamp-mode-btn')
-			.forEach(btn => {
-				const m = btn.dataset.mode as 'basic' | 'advanced' | undefined
-				btn.dataset.active = m === mode ? 'true' : 'false'
-			})
-	}
-
-	rpcModeWrap?.addEventListener('click', e => {
-		const target = e.target as HTMLElement
-		const btn = target.closest<HTMLButtonElement>('.timestamp-mode-btn')
-		if (!btn) return
-
-		const mode = btn.dataset.mode as 'basic' | 'advanced' | undefined
-		if (!mode || mode === currentRpcMode) return
-
-		applyRpcModeToUI(mode)
-
-		if (window.electronAPI?.setRpcMode) {
-			window.electronAPI.setRpcMode(mode)
-		}
-
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
-	})
 
 	function setMode(m: TimestampMode) {
 		if (modeNow) modeNow.dataset.active = m === 'now' ? 'true' : 'false'
@@ -858,6 +852,23 @@ export function setupClientIdControls(): void {
 
 		void pushLiveStateFromCtx(ctx, currentRpcMode)
 	}
+
+	rpcModeWrap?.addEventListener('click', e => {
+		const target = e.target as HTMLElement
+		const btn = target.closest<HTMLButtonElement>('.timestamp-mode-btn')
+		if (!btn) return
+
+		const mode = btn.dataset.mode as 'basic' | 'advanced' | undefined
+		if (!mode || mode === currentRpcMode) return
+
+		applyRpcModeToUI(mode)
+
+		if (window.electronAPI?.setRpcMode) {
+			window.electronAPI.setRpcMode(mode)
+		}
+
+		void pushLiveStateFromCtx(ctx, currentRpcMode)
+	})
 
 	setNowMode(storedNowMode)
 	setMode(storedMode)
@@ -1163,7 +1174,7 @@ export function setupClientIdControls(): void {
 		void pushLiveStateFromCtx(ctx, currentRpcMode)
 		showBlocksToast()
 	})
-	window.__voidPresenceCtx = ctx
+	;(window as any).__voidPresenceCtx = ctx
 	if (recentList) {
 		renderRecentApps(recentList)
 	}

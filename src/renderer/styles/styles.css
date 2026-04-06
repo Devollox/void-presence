@@ -1862,3 +1862,6 @@ button:active {
 .config-search-input:focus {
 	border-color: rgba(255, 255, 255, 0.25);
 }
+#advanced-interval-hint[data-visible='false'] {
+	display: none;
+}
