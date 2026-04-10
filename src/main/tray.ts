@@ -14,12 +14,17 @@ function getAssetPath(...segments: string[]) {
 const iconPath = getAssetPath('public', 'favicons', 'dark-fav.png')
 
 function showOrCreateWindow(create: () => void) {
-	const win = getMainWindow()
+	let win = getMainWindow()
+
 	if (!win || win.isDestroyed()) {
 		create()
-		return
+		win = getMainWindow()
 	}
+
+	if (!win || win.isDestroyed()) return
+
 	if (win.isMinimized()) win.restore()
+
 	win.show()
 	win.focus()
 }

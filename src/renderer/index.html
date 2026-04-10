@@ -79,6 +79,115 @@
 
 						<div class="content-scroll wrapper">
 							<div class="main-content-block">
+								<div
+									class="card tutorial-inline"
+									id="tutorial-card"
+									data-visible="true"
+								>
+									<div class="card-header tutorial-inline-header">
+										<div>
+											<div class="card-label">tutorial</div>
+											<div class="card-title">First‑time setup</div>
+										</div>
+										<button
+											id="tutorial-inline-close"
+											class="tutorial-inline-close"
+											type="button"
+										>
+											skip
+										</button>
+									</div>
+
+									<div class="divider"></div>
+
+									<div class="tutorial-inline-body">
+										<div class="tutorial-inline-col">
+											<div class="tutorial-inline-step-label">
+												Step 1 — Discord Client ID
+											</div>
+											<ol class="tutorial-inline-list">
+												<li>
+													Open
+													<span class="tutorial-code"
+														>https://discord.com/developers/applications</span
+													>.
+												</li>
+												<li>Create or select an existing application.</li>
+												<li>
+													Add an app icon
+													<span class="tutorial-strong">1024×1024</span>
+													(PNG / JPG / GIF / WEBP, up to 10 MB).
+												</li>
+												<li>
+													Copy the
+													<span class="tutorial-strong">Application ID</span>
+													from the overview page.
+												</li>
+												<li>
+													Paste it into the
+													<span class="tutorial-strong">client id</span>
+													field above.
+												</li>
+											</ol>
+										</div>
+
+										<div class="tutorial-inline-col">
+											<div class="tutorial-inline-wrapper">
+												<div class="tutorial-inline-col">
+													<div class="tutorial-inline-step-label">
+														Step 2 — Start your presence
+													</div>
+													<ul class="tutorial-inline-list">
+														<li>
+															Set
+															<span class="tutorial-strong">update(sec)</span>
+															to how often presence should refresh.
+														</li>
+														<li>
+															Pick an
+															<span class="tutorial-strong">activity</span>
+															type: playing / watching / listening / competing.
+														</li>
+														<li>
+															Click
+															<span class="tutorial-strong"
+																>RESTART PRESENCE</span
+															>
+															to apply your settings.
+														</li>
+													</ul>
+												</div>
+												<div class="tutorial-inline-col">
+													<div class="tutorial-inline-step-label">
+														Step 3 — Troubleshooting
+													</div>
+													<ul class="tutorial-inline-list">
+														<li>
+															If you see
+															<span class="tutorial-strong"
+																>"Connection closed"</span
+															>, very long connecting, or frequent disconnects
+															in the log console, but Discord itself works fine,
+															try restarting Discord.
+														</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="tutorial-inline-wrapper btn-wrapper">
+										<button
+											id="tutorial-inline-open-dev"
+											class="rpc-button tutorial-inline-btn"
+										>
+											Open Discord Developer Portal
+										</button>
+										<button id="tutorial-inline-dont-show" class="add-btn">
+											<span>Do not show this tutorial again</span>
+										</button>
+									</div>
+								</div>
+
 								<div class="card">
 									<div class="card-header">
 										<div class="card-label">activity</div>
@@ -89,7 +198,6 @@
 											<div class="card-label" id="activity-sub">Idle</div>
 										</div>
 									</div>
-
 									<div class="client-row">
 										<span>client id</span>
 										<input
@@ -99,29 +207,70 @@
 											value="1459645961512161331"
 										/>
 									</div>
-
-									<div class="client-row">
-										<span>rpc mode</span>
-										<div class="timestamp-mode-wrap" id="rpc-mode-wrap">
-											<button
-												class="timestamp-mode-btn"
-												data-mode="basic"
-												data-active="false"
-												id="rpc-mode-basic"
-											>
-												basic
-											</button>
-											<button
-												class="timestamp-mode-btn"
-												data-mode="advanced"
-												data-active="true"
-												id="rpc-mode-advanced"
-											>
-												music and youtube
-											</button>
+									<div id="advanced-interval-hint" class="client-row">
+										<span>rpc mode filter</span>
+										<div class="advanced-toggles-wrap">
+											<div class="wrapper-auto-label">
+												<div class="auto-label">
+													<span>Music filter</span>
+													<div class="hint-text">smart music detection</div>
+												</div>
+												<div
+													id="music-filter-toggle"
+													class="auto-toggle"
+													data-on="false"
+												>
+													<div class="auto-toggle-knob"></div>
+												</div>
+											</div>
+											<div class="wrapper-auto-label">
+												<div class="auto-label">
+													<span>Video filter</span>
+													<div class="hint-text">smart video detection</div>
+												</div>
+												<div
+													id="video-filter-toggle"
+													class="auto-toggle"
+													data-on="false"
+												>
+													<div class="auto-toggle-knob"></div>
+												</div>
+											</div>
+										</div>
+										<span>Automatic</span>
+										<div class="advanced-toggles-wrap">
+											<div class="wrapper-auto-label">
+												<div class="auto-label">
+													<span>Automatic activity</span>
+													<div class="hint-text">
+														we substitute the activity by type
+													</div>
+												</div>
+												<div
+													id="automatic-activity-toggle"
+													class="auto-toggle"
+													data-on="false"
+												>
+													<div class="auto-toggle-knob"></div>
+												</div>
+											</div>
+											<div class="wrapper-auto-label">
+												<div class="auto-label">
+													<span>Fetch covers</span>
+													<div class="hint-text">
+														use album art when available
+													</div>
+												</div>
+												<div
+													id="cover-fetch-toggle"
+													class="auto-toggle"
+													data-on="true"
+												>
+													<div class="auto-toggle-knob"></div>
+												</div>
+											</div>
 										</div>
 									</div>
-
 									<div class="client-row">
 										<span>update(sec)</span>
 										<input
@@ -130,14 +279,7 @@
 											value="5"
 										/>
 									</div>
-									<p
-										class="hint-text"
-										id="advanced-interval-hint"
-										data-visible="false"
-									>
-										In music & YouTube mode, the recommended update interval is
-										10–15 seconds.
-									</p>
+
 									<div class="client-row">
 										<span>activity</span>
 										<div
@@ -346,8 +488,13 @@
 									</div>
 									<div class="divider"></div>
 									<p class="hint-text">
-										After changing the client id or update(sec), click “RESTART
-										PRESENCE”.
+										The “RESTART PRESENCE” button should be pressed only when
+										you change the Client ID or Update, in all other cases it is
+										not necessary.
+									</p>
+									<p class="hint-text last-child">
+										If the connection is going on indefinitely, but the discord
+										is running, try restarting the discord.
 									</p>
 								</div>
 
@@ -481,6 +628,96 @@
 						data-view="config"
 						data-active="false"
 					>
+						<div
+							class="card tutorial-inline"
+							id="cloud-tutorial-card"
+							data-visible="true"
+						>
+							<div class="card-header tutorial-inline-header">
+								<div>
+									<div class="card-label">tutorial</div>
+									<div class="card-title">Cloud profiles</div>
+								</div>
+								<button
+									id="cloud-tutorial-close"
+									class="tutorial-inline-close"
+									type="button"
+								>
+									skip
+								</button>
+							</div>
+
+							<div class="divider"></div>
+
+							<div class="tutorial-inline-body">
+								<div class="tutorial-inline-col">
+									<div class="tutorial-inline-step-label">
+										Step 1 — Prepare your profile
+									</div>
+									<ol class="tutorial-inline-list">
+										<li>
+											Set up your presence, details, images and buttons the way
+											you like.
+										</li>
+										<li>
+											Enter a short
+											<span class="tutorial-strong">config name</span>
+											in the field above.
+										</li>
+										<li>
+											Optionally add your
+											<span class="tutorial-strong">author ID</span>
+											(from void-presence.com) to link the profile to your
+											account.
+										</li>
+										<li>
+											Click
+											<span class="tutorial-strong">save config</span>
+											to store this setup locally.
+										</li>
+									</ol>
+									<button
+										id="get-author-id"
+										class="rpc-button tutorial-inline-btn"
+									>
+										Open profile & get author ID
+									</button>
+								</div>
+
+								<div class="tutorial-inline-col">
+									<div class="tutorial-inline-step-label">
+										Step 2 — Upload to cloud
+									</div>
+									<ul class="tutorial-inline-list">
+										<li>
+											Select the profile you want in
+											<span class="tutorial-strong">saved configs</span>.
+										</li>
+										<li>
+											Make sure
+											<span class="tutorial-strong">author ID</span>
+											is set for this profile.
+										</li>
+										<li>
+											Click
+											<span class="tutorial-strong">Upload Current</span>
+											in the
+											<span class="tutorial-strong">Cloud Sync</span>
+											card.
+										</li>
+										<li>
+											Confirm in the
+											<span class="tutorial-strong">Upload config?</span>
+											dialog to overwrite the cloud copy.
+										</li>
+									</ul>
+									<button id="cloud-tutorial-dont-show" class="add-btn">
+										<span>Do not show this cloud tutorial again</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
 						<div class="card">
 							<div class="card-header">
 								<div class="card-label">config</div>
@@ -503,7 +740,7 @@
 								<span>author ID</span>
 								<input
 									id="config-author-input"
-									placeholder="you can get an Author ID if you log in to the website"
+									placeholder="Get from void-presence.com"
 								/>
 							</div>
 						</div>
@@ -526,6 +763,22 @@
 									class="rpc-button"
 									style="flex: 1"
 								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="12"
+										height="12"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="rpc-button-icon-svg"
+									>
+										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+										<polyline points="17 8 12 3 7 8"></polyline>
+										<line x1="12" y1="3" x2="12" y2="15"></line>
+									</svg>
 									Upload Current
 								</button>
 							</div>

@@ -9,9 +9,14 @@ import { setupIntervalControl } from './modules/state'
 import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
+	setupAutomaticActivityToggle,
+	setupCoverFetchToggle,
+	setupMusicFilterToggle,
 	setupRestartButton,
 	setupStopButton,
+	setupVideoFilterToggle,
 } from './modules/toggles'
+import { setupTutorials } from './modules/tutorials'
 import { updateInfo, updateStatus } from './modules/views'
 import { setupWindowControls } from './modules/window-controls'
 
@@ -25,12 +30,17 @@ window.addEventListener('DOMContentLoaded', () => {
 	setupConfigDetailsOverlay()
 	setupConfigPage()
 	setupStopButton()
+	setupTutorials()
+	setupMusicFilterToggle()
+	setupVideoFilterToggle()
+	setupCoverFetchToggle()
+	setupAutomaticActivityToggle()
 	void setupIntervalControl()
 	setupImportOverlay()
 	setupGlobalDrop()
 	setupCloudUpload()
 	updateInfo(null)
-	updateStatus('CONNECTING RPC')
+	updateStatus('DISABLED')
 
 	if (window.electronAPI?.onRpcUpdate) {
 		window.electronAPI.onRpcUpdate(payload => {

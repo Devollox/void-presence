@@ -43,20 +43,19 @@ function downloadJson(data: unknown, filename: string): void {
 	URL.revokeObjectURL(url)
 }
 
-async function pushLiveStateFromCtx(
-	ctx: VoidPresenceCtx,
-	currentRpcMode: 'basic' | 'advanced',
-): Promise<void> {
+async function pushLiveStateFromCtx(ctx: VoidPresenceCtx): Promise<void> {
 	const clientInput = document.getElementById(
 		'client-id-input',
 	) as HTMLInputElement | null
 	const intervalInput = document.getElementById(
 		'update-interval-input',
 	) as HTMLInputElement | null
+
 	const clientId = clientInput ? clientInput.value.trim() : ''
 	const intervalSec = intervalInput
 		? parseInt(intervalInput.value.trim(), 10)
 		: NaN
+
 	const timestampMode: TimestampMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
 	const timestampRangeMin = localStorage.getItem('timestampRangeMin') || ''
@@ -80,7 +79,6 @@ async function pushLiveStateFromCtx(
 		activityType,
 		nowMode,
 		timeCycles,
-		rpcMode: currentRpcMode,
 	}
 
 	localStorage.setItem('clientId', clientId)
@@ -94,30 +92,23 @@ async function pushLiveStateFromCtx(
 	localStorage.setItem('timestampRangeMax', timestampRangeMax)
 	localStorage.setItem('activityType', activityType)
 	localStorage.setItem('nowMode', nowMode)
-	if (Number.isFinite(intervalSec) && intervalSec > 0) {
-		localStorage.setItem('updateIntervalSec', String(intervalSec))
-	}
 
 	if (window.electronAPI?.liveSetClientId) {
 		await window.electronAPI.liveSetClientId(clientId)
 	}
-
 	if (window.electronAPI?.liveSetCycles) {
 		await window.electronAPI.liveSetCycles((ctx.cycles || []) as CycleEntry[])
 	}
-
 	if (window.electronAPI?.liveSetImages) {
 		await window.electronAPI.liveSetImages(
 			(ctx.imageCycles || []) as ImageCycleEntry[],
 		)
 	}
-
 	if (window.electronAPI?.liveSetButtons) {
 		await window.electronAPI.liveSetButtons(
 			(ctx.buttonPairs || []) as ButtonPair[],
 		)
 	}
-
 	if (window.electronAPI?.liveSetParty) {
 		const partyPayload = (ctx.party || []).map(p => ({
 			sizeCurrent: p.sizeCurrent?.toString() ?? '',
@@ -125,7 +116,6 @@ async function pushLiveStateFromCtx(
 		}))
 		await window.electronAPI.liveSetParty(partyPayload)
 	}
-
 	if (window.electronAPI?.liveSetTimeCycles) {
 		const timePayload = timeCycles.map(tc => ({
 			label: tc.label || '',
@@ -136,15 +126,6 @@ async function pushLiveStateFromCtx(
 		}))
 		await window.electronAPI.liveSetTimeCycles(timePayload)
 	}
-
-	if (
-		window.electronAPI?.liveSetInterval &&
-		Number.isFinite(intervalSec) &&
-		intervalSec > 0
-	) {
-		await window.electronAPI.liveSetInterval(intervalSec)
-	}
-
 	if (window.electronAPI?.liveSetTimestamp) {
 		await window.electronAPI.liveSetTimestamp({
 			mode: timestampMode,
@@ -154,6 +135,7 @@ async function pushLiveStateFromCtx(
 		})
 	}
 }
+
 export function setupConfigPage(): void {
 	const nameInput = document.getElementById(
 		'config-name-input',
@@ -352,21 +334,11 @@ export function setupConfigPage(): void {
 						state.activityType ??
 						(localStorage.getItem('activityType') as ActivityType | null) ??
 						'playing',
-					rpcMode:
-						state.rpcMode ??
-						((localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) ||
-							'basic'),
 				}
 
 				const st = deepCloneState(base)
-				if (st.rpcMode) {
-					localStorage.setItem('rpcMode', st.rpcMode)
-					if (window.electronAPI?.setRpcMode) {
-						window.electronAPI.setRpcMode(st.rpcMode)
-					}
-				}
 				applyStateToUIAndLists(st, ctx)
-				await pushLiveStateFromCtx(ctx, st.rpcMode || 'advanced')
+				await pushLiveStateFromCtx(ctx)
 				nameInput.value = ''
 				setActiveView('main')
 			})
@@ -437,7 +409,7 @@ export function setupConfigPage(): void {
 							message: `Config "${config.title}" uploaded!`,
 							level: 'success',
 						})
-					} catch (err) {
+					} catch (err: any) {
 						appendLog({
 							message: `Upload failed: ${err?.message ?? String(err)}`,
 							level: 'error',
@@ -471,7 +443,6 @@ export function setupConfigPage(): void {
 					activityType: state.activityType,
 					nowMode: state.nowMode,
 					updateIntervalSec: state.updateIntervalSec,
-					rpcMode: state.rpcMode,
 				}
 
 				const name =
@@ -570,7 +541,6 @@ export function setupConfigPage(): void {
 			buttonPairs: state.buttonPairs || [],
 			party: state.party || [],
 			timeCycles: state.timeCycles || [],
-			rpcMode: state.rpcMode,
 		}
 
 		const name =
@@ -617,9 +587,6 @@ if (configSearchInput && configList) {
 }
 
 export function setupClientIdControls(): void {
-	const rpcModeWrap = document.getElementById(
-		'rpc-mode-wrap',
-	) as HTMLElement | null
 	const clientInput = document.getElementById(
 		'client-id-input',
 	) as HTMLInputElement | null
@@ -695,16 +662,8 @@ export function setupClientIdControls(): void {
 	const timeDivider = document.querySelector<HTMLElement>(
 		'.time-cycles-divider',
 	)
+
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
-
-	const advancedIntervalHint = document.getElementById(
-		'advanced-interval-hint',
-	) as HTMLElement | null
-
-	const storedRpcMode =
-		(localStorage.getItem('rpcMode') as 'basic' | 'advanced' | null) || 'basic'
-
-	let currentRpcMode: 'basic' | 'advanced' = storedRpcMode
 
 	const storedMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
@@ -782,27 +741,6 @@ export function setupClientIdControls(): void {
 	if (!Array.isArray(ctx.imageCycles)) ctx.imageCycles = []
 	if (!Array.isArray(ctx.party)) ctx.party = []
 
-	function applyRpcModeToUI(mode: 'basic' | 'advanced') {
-		currentRpcMode = mode
-		localStorage.setItem('rpcMode', mode)
-
-		if (advancedIntervalHint) {
-			advancedIntervalHint.dataset.visible =
-				mode === 'advanced' ? 'true' : 'false'
-		}
-
-		if (!rpcModeWrap) return
-
-		rpcModeWrap
-			.querySelectorAll<HTMLButtonElement>('.timestamp-mode-btn')
-			.forEach(btn => {
-				const m = btn.dataset.mode as 'basic' | 'advanced' | undefined
-				btn.dataset.active = m === mode ? 'true' : 'false'
-			})
-	}
-
-	applyRpcModeToUI(storedRpcMode)
-
 	function setNowMode(m: NowMode) {
 		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
 		if (nowProgress)
@@ -821,7 +759,7 @@ export function setupClientIdControls(): void {
 		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
 		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
 
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 	}
 
 	function setMode(m: TimestampMode) {
@@ -840,9 +778,9 @@ export function setupClientIdControls(): void {
 		const isNow = m === 'now'
 		if (nowModeRow) nowModeRow.dataset.visible = isNow ? 'true' : 'false'
 
-		const nowMode: NowMode =
+		const nowModeVal: NowMode =
 			(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
-		const showTime = isNow && nowMode === 'cycles'
+		const showTime = isNow && nowModeVal === 'cycles'
 
 		if (timeDivider) timeDivider.dataset.visible = showTime ? 'true' : 'false'
 		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
@@ -850,25 +788,8 @@ export function setupClientIdControls(): void {
 
 		localStorage.setItem('timestampMode', m)
 
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 	}
-
-	rpcModeWrap?.addEventListener('click', e => {
-		const target = e.target as HTMLElement
-		const btn = target.closest<HTMLButtonElement>('.timestamp-mode-btn')
-		if (!btn) return
-
-		const mode = btn.dataset.mode as 'basic' | 'advanced' | undefined
-		if (!mode || mode === currentRpcMode) return
-
-		applyRpcModeToUI(mode)
-
-		if (window.electronAPI?.setRpcMode) {
-			window.electronAPI.setRpcMode(mode)
-		}
-
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
-	})
 
 	setNowMode(storedNowMode)
 	setMode(storedMode)
@@ -908,12 +829,12 @@ export function setupClientIdControls(): void {
 
 	rangeMinInput?.addEventListener('input', () => {
 		localStorage.setItem('timestampRangeMin', rangeMinInput.value)
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 	})
 
 	rangeMaxInput?.addEventListener('input', () => {
 		localStorage.setItem('timestampRangeMax', rangeMaxInput.value)
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 	})
 
 	persistResetBtn?.addEventListener('click', e => {
@@ -957,7 +878,7 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.timeCycles![idx] = updated
 					localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 				() => {
@@ -968,7 +889,7 @@ export function setupClientIdControls(): void {
 						localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
 					}
 					ctx.renderTimeCycles!()
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 			)
@@ -986,14 +907,14 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.buttonPairs[idx] = updated
 					localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 				() => {
 					ctx.buttonPairs.splice(idx, 1)
 					localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
 					ctx.renderButtonPairs()
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 			)
@@ -1011,14 +932,14 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.cycles[idx] = updated
 					localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 				() => {
 					ctx.cycles.splice(idx, 1)
 					localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
 					ctx.renderCycles()
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 			)
@@ -1036,14 +957,14 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.imageCycles[idx] = updated
 					localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 				() => {
 					ctx.imageCycles.splice(idx, 1)
 					localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
 					ctx.renderImageCycles()
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 			)
@@ -1062,7 +983,7 @@ export function setupClientIdControls(): void {
 				updated => {
 					ctx.party[idx] = updated
 					localStorage.setItem('party', JSON.stringify(ctx.party))
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 				() => {
@@ -1075,7 +996,7 @@ export function setupClientIdControls(): void {
 					}
 
 					ctx.renderPartyCycles()
-					void pushLiveStateFromCtx(ctx, currentRpcMode)
+					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
 				},
 			)
@@ -1088,7 +1009,7 @@ export function setupClientIdControls(): void {
 		ctx.timeCycles!.push({ label: '', seconds: '' })
 		localStorage.setItem('timeCycles', JSON.stringify(ctx.timeCycles))
 		ctx.renderTimeCycles!()
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 		showBlocksToast()
 	})
 
@@ -1097,7 +1018,7 @@ export function setupClientIdControls(): void {
 		ctx.party.push({ sizeCurrent: '', sizeMax: '' })
 		localStorage.setItem('party', JSON.stringify(ctx.party))
 		ctx.renderPartyCycles()
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 		showBlocksToast()
 	})
 
@@ -1110,31 +1031,31 @@ export function setupClientIdControls(): void {
 	if (partyList)
 		attachDnD(partyList, ctx.party, () => {
 			ctx.renderPartyCycles()
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			void pushLiveStateFromCtx(ctx)
 			showBlocksToast()
 		})
 	if (buttonsList)
 		attachDnD(buttonsList, ctx.buttonPairs, () => {
 			ctx.renderButtonPairs()
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			void pushLiveStateFromCtx(ctx)
 			showBlocksToast()
 		})
 	if (cyclesList)
 		attachDnD(cyclesList, ctx.cycles, () => {
 			ctx.renderCycles()
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			void pushLiveStateFromCtx(ctx)
 			showBlocksToast()
 		})
 	if (imagesList)
 		attachDnD(imagesList, ctx.imageCycles, () => {
 			ctx.renderImageCycles()
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			void pushLiveStateFromCtx(ctx)
 			showBlocksToast()
 		})
 	if (timeList && ctx.timeCycles)
 		attachDnD(timeList, ctx.timeCycles, () => {
 			ctx.renderTimeCycles!()
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			void pushLiveStateFromCtx(ctx)
 			showBlocksToast()
 		})
 
@@ -1147,7 +1068,7 @@ export function setupClientIdControls(): void {
 			url2: '',
 		})
 		ctx.renderButtonPairs()
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 		showBlocksToast()
 	})
 
@@ -1158,7 +1079,7 @@ export function setupClientIdControls(): void {
 			state: '',
 		})
 		ctx.renderCycles()
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 		showBlocksToast()
 	})
 
@@ -1171,7 +1092,7 @@ export function setupClientIdControls(): void {
 			smallText: '',
 		})
 		ctx.renderImageCycles()
-		void pushLiveStateFromCtx(ctx, currentRpcMode)
+		void pushLiveStateFromCtx(ctx)
 		showBlocksToast()
 	})
 	;(window as any).__voidPresenceCtx = ctx
@@ -1180,6 +1101,7 @@ export function setupClientIdControls(): void {
 	}
 
 	let clientIdDebounce: number | undefined
+	let intervalDebounce: number | undefined
 
 	clientInput.addEventListener('input', () => {
 		if (clientIdDebounce) {
@@ -1188,7 +1110,7 @@ export function setupClientIdControls(): void {
 		clientIdDebounce = window.setTimeout(() => {
 			const newClientId = clientInput.value.trim()
 
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
+			void pushLiveStateFromCtx(ctx)
 
 			if (newClientId.length !== 19) {
 				return
@@ -1199,7 +1121,7 @@ export function setupClientIdControls(): void {
 			}
 
 			lastSavedClientId = newClientId
-			upsertRecentApp(newClientId, document.title || 'Void Presence App')
+			upsertRecentApp(newClientId, '')
 			if (recentList) {
 				renderRecentApps(recentList)
 			}
@@ -1210,16 +1132,43 @@ export function setupClientIdControls(): void {
 	const intervalInput = document.getElementById(
 		'update-interval-input',
 	) as HTMLInputElement | null
+
 	if (intervalInput) {
+		const rawInterval = localStorage.getItem('updateIntervalSec')
+		const savedInterval = rawInterval != null ? Number(rawInterval) : NaN
+		if (Number.isFinite(savedInterval) && savedInterval > 0) {
+			intervalInput.value = String(savedInterval)
+		} else {
+			intervalInput.value = ''
+		}
+
 		intervalInput.addEventListener('input', () => {
-			void pushLiveStateFromCtx(ctx, currentRpcMode)
-			showBlocksToast()
+			if (intervalDebounce) {
+				window.clearTimeout(intervalDebounce)
+			}
+			intervalDebounce = window.setTimeout(async () => {
+				const raw = intervalInput.value.trim()
+				const val = Number(raw)
+
+				if (!Number.isFinite(val) || val <= 0) {
+					return
+				}
+
+				localStorage.setItem('updateIntervalSec', String(val))
+
+				if (window.electronAPI?.liveSetInterval) {
+					await window.electronAPI.liveSetInterval(val)
+				}
+
+				void pushLiveStateFromCtx(ctx)
+				showBlocksToast()
+			}, 600)
 		})
 	}
 
 	const initialClientId = clientInput.value.trim()
 	if (initialClientId) {
-		upsertRecentApp(initialClientId, document.title || 'Void Presence App')
+		upsertRecentApp(initialClientId, '')
 		if (recentList) {
 			renderRecentApps(recentList)
 		}

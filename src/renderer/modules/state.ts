@@ -321,3 +321,17 @@ export async function applyStateToUIAndLists(
 	ctx.renderPartyCycles()
 	ctx.renderTimeCycles?.()
 }
+
+document.getElementById('get-author-id').addEventListener('click', async () => {
+	if (window.electronAPI?.openDiscordDeveloperAuthorId) {
+		await window.electronAPI.openDiscordDeveloperAuthorId()
+	}
+})
+
+document
+	.getElementById('tutorial-inline-open-dev')
+	.addEventListener('click', async () => {
+		if (window.electronAPI?.openDiscordDeveloperPortal) {
+			await window.electronAPI.openDiscordDeveloperPortal()
+		}
+	})

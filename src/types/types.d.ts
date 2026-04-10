@@ -116,7 +116,6 @@ export type FullState = {
 	timestampRangeMax?: string
 	activityType?: ActivityType
 	nowMode?: NowMode
-	rpcMode?: 'basic' | 'advanced'
 }
 
 export interface StoredConfig {
@@ -127,7 +126,8 @@ export interface StoredConfig {
 
 export type AppSettings = {
 	autoHideOnStart?: boolean
-	rpcMode?: 'basic' | 'advanced'
+	musicFilter?: boolean
+	videoFilter?: boolean
 }
 
 export interface LogEntry {
@@ -169,15 +169,31 @@ export interface NowPlayingData {
 	albumTitle?: string
 	albumArtist?: string
 	genres?: string[]
-	playbackStatus?: string
-	playbackType?: string
-	position?: number
-	duration?: number
-	startedAt?: number
-	endsAt?: number
+	playbackStatus?: string | null
+	playbackType?: string | null
+	position?: number | null
+	duration?: number | null
+	startedAt?: number | null
+	endsAt?: number | null
+	thumbnail?: { width: number; height: number; size: number } | null
+	isThumbMusic?: boolean
+	isThumbVideo?: boolean
+}
+
+export type ConfigState = {
+	musicFilter?: boolean
+	videoFilter?: boolean
+	activityFilter?: boolean
+	coverFetchEnabled?: boolean
 }
 
 export interface ElectronAPI {
+	setCoverFetch?: (on: boolean) => Promise<void> | void
+	setAutomaticActivity?: (on: boolean) => Promise<void> | void
+	setMusicFilter?: (on: boolean) => Promise<void> | void
+	setVideoFilter?: (on: boolean) => Promise<void> | void
+	openDiscordDeveloperPortal?: () => Promise<void>
+	openDiscordDeveloperAuthorId?: () => Promise<void>
 	liveSetClientId?: (clientId: string) => Promise<unknown> | unknown
 	liveSetButtons?: (pairs: ButtonPair[]) => Promise<unknown> | unknown
 	liveSetCycles?: (cycles: CycleEntry[]) => Promise<unknown> | unknown

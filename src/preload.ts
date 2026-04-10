@@ -79,7 +79,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	resetPersistTimestamp: () => ipcRenderer.invoke('reset-persist-timestamp'),
 	setActivityType: (type: string) =>
 		ipcRenderer.invoke('set-activity-type', type),
-	setRpcMode: (mode: 'basic' | 'advanced') =>
-		ipcRenderer.invoke('rpc:set-mode', mode),
-	getRpcMode: () => ipcRenderer.invoke('rpc:get-mode'),
+
+	openDiscordDeveloperAuthorId: () => {
+		ipcRenderer.invoke('open-discord-author-id')
+	},
+	openDiscordDeveloperPortal: () => {
+		ipcRenderer.invoke('open-discord-client-id')
+	},
+	setMusicFilter: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-music-filter', enabled),
+	setVideoFilter: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-video-filter', enabled),
+	setAutomaticActivity: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-automatic-activity', enabled),
+	setCoverFetch: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-cover-fetch', enabled),
 })

@@ -1,5 +1,6 @@
 import { exec } from 'child_process'
 import rpc from 'discord-rpc'
+import { getLastNowPlaying } from '../../main/ipc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
 	ActivityType,
@@ -17,11 +18,30 @@ import {
 	readButtonsConfig,
 	readClientConfig,
 	readCyclesConfig,
+	readFiltersState,
 	readImageCyclesConfig,
 	readPartyConfig,
 	readTimestampConfig,
 	setTimestampConfig,
 } from './config'
+
+type NowPlayingInfo = {
+	sourceAppId: string
+	lastUpdatedTime: number | null
+	title: string
+	artist: string
+	albumTitle: string
+	albumArtist: string
+	genres: string[]
+	playbackStatus: string | null
+	playbackType: string | null
+	position: number | null
+	duration: number | null
+	startedAt: number | null
+	endsAt: number | null
+	isThumbMusic?: boolean | null
+	isThumbVideo?: boolean | null
+} | null
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0
@@ -34,10 +54,23 @@ export function resetPersistTimestampValue() {
 const processName = 'Discord.exe'
 
 let client: DiscordClient | null = null
-let cycleTimer: NodeJS.Timeout | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
+
+let currentTitle: string | null = null
+let lastSmTcStatus: string | null = null
+let lastJsonSignature = ''
+let lastSmTcPosition: number | null = null
+
+const coverCache = new Map<string, string | null>()
+const coverRetries = new Map<string, number>()
+let coverRequestsInWindow = 0
+let coverWindowStart = 0
+const COVER_WINDOW_MS = 60000
+const COVER_MAX_PER_WINDOW = 4
+const COVER_MAX_RETRIES_PER_TRACK = 3
+
 let isStopped = false
 let currentSessionId = 0
 let isConnecting = false
@@ -48,6 +81,74 @@ let intervalLocked = false
 let imageIndex = 0
 let isSearchingDiscord = false
 let lastReadyAt = 0
+let lastStoppedAt: number | null = null
+
+function makeCacheKey(title: string, artist: string) {
+	return `${title.toLowerCase().trim()}::${artist.toLowerCase().trim()}`
+}
+
+async function resolveCoverUrlFromITunes(
+	title: string,
+	artist: string,
+): Promise<string | null> {
+	const queryParts: string[] = []
+	if (artist.trim()) queryParts.push(artist.trim())
+	if (title.trim()) queryParts.push(title.trim())
+	if (!queryParts.length) return null
+	const term = encodeURIComponent(queryParts.join(' '))
+	const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=1`
+	try {
+		const res = await fetch(url)
+		if (!res.ok) return null
+		const json = await res.json()
+		if (!json || !Array.isArray(json.results) || json.results.length === 0) {
+			return null
+		}
+		const result = json.results[0]
+		const artwork: string | undefined =
+			result.artworkUrl100 || result.artworkUrl60 || result.artworkUrl30
+		return artwork || null
+	} catch {
+		return null
+	}
+}
+
+async function resolveCoverUrl(
+	title: string,
+	artist: string,
+): Promise<string | null> {
+	const key = makeCacheKey(title, artist)
+
+	if (coverCache.has(key)) {
+		return coverCache.get(key) || null
+	}
+
+	const now = Date.now()
+	if (now - coverWindowStart > COVER_WINDOW_MS) {
+		coverWindowStart = now
+		coverRequestsInWindow = 0
+	}
+	if (coverRequestsInWindow >= COVER_MAX_PER_WINDOW) {
+		return null
+	}
+
+	const tries = coverRetries.get(key) ?? 0
+	if (tries >= COVER_MAX_RETRIES_PER_TRACK) {
+		return null
+	}
+	coverRetries.set(key, tries + 1)
+
+	coverRequestsInWindow++
+	const url = await resolveCoverUrlFromITunes(title, artist)
+	coverCache.set(key, url || null)
+
+	if (coverCache.size > 1000) {
+		const first = coverCache.keys().next().value
+		coverCache.delete(first)
+	}
+
+	return url
+}
 
 export function setActivityInterval(sec: number) {
 	if (intervalLocked) return
@@ -55,11 +156,6 @@ export function setActivityInterval(sec: number) {
 		activityIntervalMs = 5000
 	} else {
 		activityIntervalMs = sec * 1000
-	}
-	if (cycleTimer) {
-		clearInterval(cycleTimer)
-		clearTimeout(cycleTimer)
-		cycleTimer = null
 	}
 }
 
@@ -82,11 +178,6 @@ export function stopDiscordRich() {
 	currentSessionId++
 	intervalLocked = false
 	imageIndex = 0
-	if (cycleTimer) {
-		clearInterval(cycleTimer)
-		clearTimeout(cycleTimer)
-		cycleTimer = null
-	}
 	if (restartTimer) {
 		clearTimeout(restartTimer)
 		restartTimer = null
@@ -110,7 +201,7 @@ export function stopDiscordRich() {
 }
 
 function checkDiscordRunning(
-	cb: (err: { message: string }, isRunning: boolean) => void,
+	cb: (err: { message: string } | null, isRunning: boolean) => void,
 ) {
 	exec('tasklist', (err, stdout) => {
 		if (err) return cb(err, false)
@@ -134,6 +225,69 @@ function getNextImageCycle(imageCyclesConfig: {
 		imageCyclesConfig.cycles[imageIndex % imageCyclesConfig.cycles.length]
 	imageIndex = (imageIndex + 1) % imageCyclesConfig.cycles.length
 	return img
+}
+
+async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
+	try {
+		const raw = getLastNowPlaying()
+		if (!raw || typeof raw !== 'object') return null
+		const title = (raw.title || '').trim()
+		if (!title && !raw.playbackStatus) {
+			return null
+		}
+		const { musicFilter, videoFilter } = await readFiltersState()
+		const isMusic = raw.isThumbMusic === true && raw.isThumbVideo !== true
+		const isVideo = raw.isThumbVideo === true && raw.isThumbMusic !== true
+		let filteredOut = false
+		if (!musicFilter && !videoFilter) {
+			filteredOut = true
+		} else if (musicFilter && !videoFilter && !isMusic) {
+			filteredOut = true
+		} else if (!musicFilter && videoFilter && !isVideo) {
+			filteredOut = true
+		}
+		if (filteredOut) {
+			return {
+				sourceAppId: 'Filtered',
+				lastUpdatedTime: Date.now(),
+				title: '',
+				artist: '',
+				albumTitle: '',
+				albumArtist: '',
+				genres: [],
+				playbackStatus: 'Stopped',
+				playbackType: null,
+				position: null,
+				duration: null,
+				startedAt: null,
+				endsAt: null,
+			}
+		}
+		return {
+			sourceAppId: raw.sourceAppId || 'Player',
+			lastUpdatedTime:
+				typeof raw.lastUpdatedTime === 'number' ? raw.lastUpdatedTime : null,
+			title: raw.title || '',
+			artist: raw.artist || '',
+			albumTitle: raw.albumTitle || '',
+			albumArtist: raw.albumArtist || '',
+			genres: Array.isArray(raw.genres) ? raw.genres : [],
+			playbackStatus:
+				typeof raw.playbackStatus === 'string' ? raw.playbackStatus : null,
+			playbackType:
+				typeof raw.playbackType === 'string' ? raw.playbackType : null,
+			position: typeof raw.position === 'number' ? raw.position : null,
+			duration: typeof raw.duration === 'number' ? raw.duration : null,
+			startedAt: typeof raw.startedAt === 'number' ? raw.startedAt : null,
+			endsAt: typeof raw.endsAt === 'number' ? raw.endsAt : null,
+			isThumbMusic:
+				typeof raw.isThumbMusic === 'boolean' ? raw.isThumbMusic : null,
+			isThumbVideo:
+				typeof raw.isThumbVideo === 'boolean' ? raw.isThumbVideo : null,
+		}
+	} catch {
+		return null
+	}
 }
 
 export default function startDiscordRich(
@@ -175,7 +329,7 @@ export default function startDiscordRich(
 		let timestampConfig: TimestampConfig = await readTimestampConfig()
 		let mode = timestampConfig.mode
 		let nowMode: NowMode = timestampConfig.nowMode
-		let timeCycles = Array.isArray(timestampConfig.timeCycles)
+		let timeCycles: TimeCycleEntry[] = Array.isArray(timestampConfig.timeCycles)
 			? timestampConfig.timeCycles
 			: []
 
@@ -189,12 +343,14 @@ export default function startDiscordRich(
 
 		const activityTypeCfg = await readActivityTypeConfig()
 		let activityType: ActivityType = activityTypeCfg.type
+		const filters = await readFiltersState()
+		let activityFilterEnabled = filters.activityFilter === true
 
 		const plainTimestamps = { start: Date.now() }
 
 		let timeCycleIndex = 0
 
-		function getNextTimeCycle() {
+		function getNextTimeCycle(): TimeCycleEntry | null {
 			if (!timeCycles.length) return null
 			const cycle = timeCycles[timeCycleIndex % timeCycles.length]
 			timeCycleIndex = (timeCycleIndex + 1) % timeCycles.length
@@ -214,17 +370,16 @@ export default function startDiscordRich(
 			return { start, end }
 		}
 
-		function getTimestampsForCycles(
-			cycle: { label: string; seconds: string } | null,
-		) {
+		function getTimestampsForCycles(cycle: TimeCycleEntry | null): {
+			start: number
+			end?: number
+		} {
 			if (!cycle) {
 				const start = Date.now()
 				return { start }
 			}
-
 			const labelSec = Number(cycle.label)
 			const secondsSec = Number(cycle.seconds)
-
 			if (
 				!Number.isFinite(labelSec) ||
 				!Number.isFinite(secondsSec) ||
@@ -233,7 +388,6 @@ export default function startDiscordRich(
 				const start = Date.now()
 				return { start }
 			}
-
 			const now = Date.now()
 			const startMs = now - labelSec * 1000
 			if (secondsSec === 0) {
@@ -243,9 +397,7 @@ export default function startDiscordRich(
 			return { start: startMs, end: endMs }
 		}
 
-		function getDelayForCycles(
-			cycle: { label: string; seconds: string } | null,
-		) {
+		function getDelayForCycles(cycle: TimeCycleEntry | null) {
 			if (!cycle) return activityIntervalMs
 			const secondsSec = Number(cycle.seconds)
 			if (!Number.isFinite(secondsSec) || secondsSec < 0)
@@ -256,8 +408,8 @@ export default function startDiscordRich(
 		function getTimestampsForActivity(
 			modeLocal: typeof mode,
 			nowModeLocal: NowMode,
-			cycleForNow: { label: string; seconds: string } | null,
-		) {
+			cycleForNow: TimeCycleEntry | null,
+		): { start: number; end?: number } {
 			if (modeLocal === 'now') {
 				if (nowModeLocal === 'plain') {
 					return getTimestampsForPlain()
@@ -324,6 +476,9 @@ export default function startDiscordRich(
 		let partyIndex = 0
 		let buttonIndex = 0
 
+		let hasNowPlaying = false
+		let pausedPlainTimestamps: { start: number } | null = null
+
 		function getNextParty(): PartyCycleEntry | null {
 			if (!partyConfig || !Array.isArray(partyConfig.entries)) return null
 			if (!partyConfig.entries.length) return null
@@ -336,7 +491,6 @@ export default function startDiscordRich(
 			if (!buttonPairs.length) return []
 			const pair = buttonPairs[buttonIndex % buttonPairs.length]
 			buttonIndex = (buttonIndex + 1) % buttonPairs.length
-
 			const res: { label: string; url: string }[] = []
 			if (pair.label1 && pair.url1) {
 				res.push({ label: pair.label1, url: pair.url1 })
@@ -358,46 +512,43 @@ export default function startDiscordRich(
 						readTimestampConfig(),
 						readActivityTypeConfig(),
 					])
-
 				if (newCycles.entries.length) {
 					baseCycles = newCycles.entries
 				}
-
 				if (Array.isArray(newButtons.pairs)) {
 					buttonPairs = newButtons.pairs
 					if (buttonIndex >= buttonPairs.length) buttonIndex = 0
 				}
-
 				if (newParty) {
 					partyConfig = newParty
 					if (partyIndex >= partyConfig.entries.length) partyIndex = 0
 				}
-
+				const newFilters = await readFiltersState()
 				timestampConfig = newTs
 				mode = newTs.mode
 				nowMode = newTs.nowMode
 				timeCycles = Array.isArray(newTs.timeCycles) ? newTs.timeCycles : []
 				activityType = newType.type
-			} catch (e) {
+				activityFilterEnabled = newFilters.activityFilter === true
+			} catch (e: any) {
 				if (sendLog) {
 					sendLog(
-						'Config refresh error: ' + (e?.message || JSON.stringify(e)),
+						'Config refresh error: ' + (e?.message || String(e) || ''),
 						'error',
 					)
 				}
 			}
 		}
 
-		async function pushActivity() {
+		async function pushActivity(nowPlaying: NowPlayingInfo) {
 			if (isStopped || sessionId !== currentSessionId) return
 
 			await refreshConfigsIfChanged()
 			if (!baseCycles.length) return
 
-			const imageCyclesConfig = await readImageCyclesConfig()
-			const imgCycle = getNextImageCycle(imageCyclesConfig)
+			const imageCyclesConfigCurrent = await readImageCyclesConfig()
+			const imgCycle = getNextImageCycle(imageCyclesConfigCurrent)
 			cycles = buildCycles(imgCycle)
-
 			if (!cycles.length) return
 
 			if (cycleIndex >= cycles.length) {
@@ -407,12 +558,67 @@ export default function startDiscordRich(
 			const current = cycles[cycleIndex]
 			cycleIndex = (cycleIndex + 1) % cycles.length
 
+			let smtcTitle = nowPlaying?.title?.trim() || ''
+			let smtcArtist = nowPlaying?.artist?.trim() || ''
+			const smtcStatus = nowPlaying?.playbackStatus || null
+			const smtcPosRaw = nowPlaying?.position ?? null
+			const smtcDur = nowPlaying?.duration ?? null
+
+			const smtcPos =
+				typeof smtcPosRaw === 'number' ? Math.floor(smtcPosRaw / 10) * 10 : null
+
+			const isPausedOrStopped =
+				smtcStatus === 'Paused' ||
+				smtcStatus === 'Stopped' ||
+				smtcStatus === 'Closed'
+
+			const isPlayingLike =
+				smtcStatus === 'Playing' ||
+				smtcStatus === 'Opened' ||
+				smtcStatus === 'Changing'
+
+			const hasValidTrack = !!smtcTitle
+
+			let details: string | undefined
+			let state: string | undefined
+			let effectiveActivityType: ActivityType = activityType
+
+			if (isPlayingLike && hasValidTrack) {
+				hasNowPlaying = true
+				details = smtcTitle
+				state = smtcArtist || undefined
+				if (activityFilterEnabled && hasValidTrack) {
+					const isMusic =
+						nowPlaying?.isThumbMusic === true &&
+						nowPlaying?.isThumbVideo !== true
+					const isVideo =
+						nowPlaying?.isThumbVideo === true &&
+						nowPlaying?.isThumbMusic !== true
+					if (isMusic) {
+						effectiveActivityType = 'listening'
+					} else if (isVideo) {
+						effectiveActivityType = 'watching'
+					} else {
+						effectiveActivityType = activityType
+					}
+				}
+			} else {
+				details = current.details || 'Waiting for playback'
+				state = current.state || 'Idle'
+			}
+
+			if (smtcTitle && smtcTitle !== currentTitle) {
+				currentTitle = smtcTitle
+			} else if (!smtcTitle) {
+				currentTitle = null
+			}
+
 			const buttons = getNextButtons()
 			const partyEntry = getNextParty()
 
 			const safeState =
-				typeof current.state === 'string' && current.state.trim().length >= 2
-					? current.state
+				typeof state === 'string' && state.trim().length >= 2
+					? state
 					: undefined
 
 			const party =
@@ -430,55 +636,96 @@ export default function startDiscordRich(
 					: undefined
 
 			let cycleForNow: TimeCycleEntry | null = null
-			let nextDelayMs: number | null = null
 
 			if (mode === 'now' && nowMode === 'cycles') {
 				cycleForNow = getNextTimeCycle()
-				nextDelayMs = getDelayForCycles(
-					cycleForNow as unknown as { label: string; seconds: string },
-				)
 			}
 
-			const timestamps = getTimestampsForActivity(
-				mode,
-				nowMode,
-				cycleForNow as unknown as { label: string; seconds: string },
-			)
+			let timestamps: { start: number; end?: number } =
+				getTimestampsForActivity(mode, nowMode, cycleForNow)
+
+			let overrideDelayMs: number | null = null
+
+			if (isPlayingLike && smtcPos != null && smtcDur != null && smtcDur > 0) {
+				pausedPlainTimestamps = null
+				const now = Date.now()
+				const start = now - smtcPos * 1000
+				const end = start + smtcDur * 1000
+				timestamps = { start, end }
+				const remaining = end - now
+				if (remaining > 0 && Number.isFinite(remaining)) {
+					overrideDelayMs = remaining
+				}
+			} else if (
+				nowMode === 'progress' &&
+				(isPlayingLike || isPausedOrStopped)
+			) {
+				timestamps = getTimestampsForProgress()
+			} else if (isPausedOrStopped) {
+				if (!pausedPlainTimestamps) {
+					pausedPlainTimestamps = getTimestampsForActivity(
+						mode,
+						nowMode,
+						cycleForNow,
+					)
+				}
+				timestamps = pausedPlainTimestamps
+			}
+
+			lastSmTcPosition = smtcPos
+			lastSmTcStatus = smtcStatus || null
+
+			if (!isPlayingLike && isPausedOrStopped) {
+				hasNowPlaying = false
+			}
+
+			if (overrideDelayMs == null || overrideDelayMs < activityIntervalMs) {
+				overrideDelayMs = activityIntervalMs
+			}
+
+			const finalTimestamps: { start?: number; end?: number } | undefined =
+				timestamps
+
+			let largeImage: string | undefined = current.largeImage || undefined
+			let largeText: string | undefined = current.largeText || undefined
+			const filtersCurrent = await readFiltersState()
+			const coverFetchEnabled = filtersCurrent.coverFetchEnabled === true
+
+			if (hasValidTrack && coverFetchEnabled && isPlayingLike) {
+				const coverUrl = await resolveCoverUrl(smtcTitle, smtcArtist)
+				if (coverUrl) {
+					largeImage = coverUrl
+				}
+				;``
+				largeText = undefined
+			}
 
 			const activity: RichPresencePayload = {
-				details: current.details,
+				details,
 				state: safeState,
 				assets: {
-					large_image: current.largeImage || undefined,
-					large_text: current.largeText || undefined,
+					large_image: largeImage,
+					large_text: largeText,
 					small_image: current.smallImage || undefined,
 					small_text: current.smallText || undefined,
 				},
-				timestamps,
+				timestamps: finalTimestamps,
 				type:
-					activityType === 'watching'
+					effectiveActivityType === 'watching'
 						? 3
-						: activityType === 'listening'
+						: effectiveActivityType === 'listening'
 							? 2
-							: activityType === 'competing'
+							: effectiveActivityType === 'competing'
 								? 5
 								: 0,
 			}
 
-			if (party) {
-				activity.party = party
-			}
+			if (party) activity.party = party
+			if (buttons.length > 0) activity.buttons = buttons
 
-			if (buttons.length > 0) {
-				activity.buttons = buttons
-			}
-
-			localClient
-				.request('SET_ACTIVITY', {
-					pid: process.pid,
-					activity,
-				})
-				.catch((e: { message: string }) => {
+			await localClient
+				.request('SET_ACTIVITY', { pid: process.pid, activity })
+				.catch((e: any) => {
 					if (sendLog) {
 						sendLog(
 							'SET_ACTIVITY error: ' + (e?.message || JSON.stringify(e) || ''),
@@ -490,36 +737,69 @@ export default function startDiscordRich(
 			await updatePersistOffsetIfNeeded()
 
 			sendStatus('ACTIVE')
-
 			sendPayload({
-				details: current.details,
-				state: current.state,
+				details: details || '',
+				state: safeState || '',
 				coordinates: '',
 				buttons,
 			})
-
-			if (mode === 'now' && nowMode === 'cycles') {
-				const delay = nextDelayMs != null ? nextDelayMs : activityIntervalMs
-				if (cycleTimer) {
-					clearTimeout(cycleTimer)
-					cycleTimer = null
-				}
-				cycleTimer = setTimeout(() => {
-					void pushActivity()
-				}, delay)
-			} else if (mode === 'now' && nowMode === 'progress') {
-				const nextMs = activityIntervalMs
-				if (cycleTimer) {
-					clearTimeout(cycleTimer)
-					cycleTimer = null
-				}
-				cycleTimer = setTimeout(() => {
-					void pushActivity()
-				}, nextMs)
-			}
 		}
 
-		localClient.on('ready', () => {
+		async function pollJsonLoop() {
+			if (isStopped || sessionId !== currentSessionId) return
+
+			try {
+				const nowPlaying = await readNowPlayingSafe()
+				const title = nowPlaying?.title || ''
+				const status = nowPlaying?.playbackStatus || ''
+				const posRaw =
+					typeof nowPlaying?.position === 'number' ? nowPlaying.position : null
+				const position =
+					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
+
+				const signature = JSON.stringify({ title, status, position })
+
+				const isPlayingLike =
+					status === 'Playing' || status === 'Opened' || status === 'Changing'
+
+				const isPausedOrStopped = !isPlayingLike
+
+				const now = Date.now()
+				const GRACE_MS = 4000
+
+				if (isPlayingLike) {
+					lastStoppedAt = null
+					if (signature !== lastJsonSignature) {
+						lastJsonSignature = signature
+						await pushActivity(nowPlaying)
+					}
+					setTimeout(pollJsonLoop, activityIntervalMs)
+					return
+				}
+
+				if (isPausedOrStopped) {
+					if (lastStoppedAt == null) {
+						lastStoppedAt = now
+					}
+
+					if (now - lastStoppedAt < GRACE_MS) {
+						setTimeout(pollJsonLoop, activityIntervalMs)
+						return
+					}
+
+					lastJsonSignature = signature
+					await pushActivity(nowPlaying)
+					setTimeout(pollJsonLoop, activityIntervalMs)
+					return
+				}
+			} catch (e) {
+				console.log('[VP] pollJsonLoop: error', e)
+			}
+
+			setTimeout(pollJsonLoop, activityIntervalMs)
+		}
+
+		localClient.on('ready', async () => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
 			hasEverBeenReady = true
@@ -529,67 +809,45 @@ export default function startDiscordRich(
 			isSearchingDiscord = false
 			if (sendLog) sendLog('RPC ready', 'success')
 			sendStatus('ACTIVE')
-
-			if (cycleTimer) {
-				clearInterval(cycleTimer)
-				clearTimeout(cycleTimer)
-				cycleTimer = null
+			cycleIndex = 0
+			try {
+				const np = await readNowPlayingSafe()
+				const title = np?.title || ''
+				const status = np?.playbackStatus || ''
+				const posRaw = typeof np?.position === 'number' ? np.position : null
+				const position =
+					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
+				lastJsonSignature = JSON.stringify({ title, status, position })
+				currentTitle = title || null
+				lastSmTcStatus = status || null
+				lastSmTcPosition =
+					typeof position === 'number' ? position : lastSmTcPosition
+			} catch {
+				lastJsonSignature = ''
 			}
-
-			if (mode === 'now' && nowMode === 'plain') {
-				void pushActivity()
-				cycleTimer = setInterval(() => {
-					void pushActivity()
-				}, activityIntervalMs)
-			} else if (
-				mode === 'now' &&
-				(nowMode === 'progress' || nowMode === 'cycles')
-			) {
-				void pushActivity()
-			} else {
-				void pushActivity()
-				cycleTimer = setInterval(() => {
-					void pushActivity()
-				}, activityIntervalMs)
-			}
+			void pollJsonLoop()
 		})
 
 		localClient.on('disconnected', () => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
-
 			sendStatus('DISCONNECTED')
 			if (hasEverBeenReady && sendLog) {
 				sendLog('RPC disconnected', 'warn')
 			}
-
-			if (cycleTimer) {
-				clearInterval(cycleTimer)
-				clearTimeout(cycleTimer)
-				cycleTimer = null
-			}
-
 			if (restartTimer) {
 				clearTimeout(restartTimer)
 			}
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
 		})
 
-		localClient.on('error', (e: { message: string }) => {
+		localClient.on('error', (e: any) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
-
 			sendStatus('DISCONNECTED')
 			if (hasEverBeenReady && sendLog) {
 				sendLog('RPC error: ' + (e?.message || String(e)), 'error')
 			}
-
-			if (cycleTimer) {
-				clearInterval(cycleTimer)
-				clearTimeout(cycleTimer)
-				cycleTimer = null
-			}
-
 			if (restartTimer) {
 				clearTimeout(restartTimer)
 			}
@@ -598,19 +856,17 @@ export default function startDiscordRich(
 
 		suppressFirstLoginError = !hasEverBeenReady
 
-		localClient.login({ clientId }).catch((e: { message: string }) => {
+		localClient.login({ clientId }).catch((e: any) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
-
 			const msg = e?.message || ''
 			const isCouldNotConnect = msg.includes('Could not connect')
 			const justAfterSearch =
 				isSearchingDiscord && Date.now() - lastReadyAt > 2000
 			const shouldSuppress =
 				suppressFirstLoginError || (isCouldNotConnect && justAfterSearch)
-
 			if (!shouldSuppress && sendLog) {
-				sendLog('RPC login error: ' + (msg || JSON.stringify(e)), 'error')
+				sendLog('RPC login error: ' + (msg || String(e)), 'error')
 			}
 			if (restartTimer) {
 				clearTimeout(restartTimer)

@@ -1,38 +1,94 @@
 import { updateInfo, updateStatus } from './views'
 
-export function setupAutoLaunchToggle(): void {
-	const toggle = document.getElementById(
-		'auto-launch-toggle',
-	) as HTMLElement | null
+type ToggleKey =
+	| 'autoLaunch'
+	| 'autoHide'
+	| 'musicFilter'
+	| 'videoFilter'
+	| 'activityFilter'
+	| 'coverFetchEnabled'
+
+type ToggleApi =
+	| 'setAutoLaunch'
+	| 'setAutoHide'
+	| 'setMusicFilter'
+	| 'setVideoFilter'
+	| 'setAutomaticActivity'
+	| 'setCoverFetch'
+
+type ToggleConfig<K extends ToggleKey, A extends ToggleApi> = {
+	id: string
+	storageKey: K
+	apiMethod: A
+}
+
+function setupGenericToggle<K extends ToggleKey, A extends ToggleApi>(
+	cfg: ToggleConfig<K, A>,
+): void {
+	const toggle = document.getElementById(cfg.id) as HTMLElement | null
 	if (!toggle) return
-	const saved = localStorage.getItem('autoLaunch') === 'true'
+
+	const saved = localStorage.getItem(cfg.storageKey) === 'true'
 	toggle.dataset.on = saved ? 'true' : 'false'
+
 	toggle.addEventListener('click', () => {
 		const current = toggle.dataset.on === 'true'
 		const next = !current
 		toggle.dataset.on = next ? 'true' : 'false'
-		localStorage.setItem('autoLaunch', String(next))
-		if (window.electronAPI?.setAutoLaunch) {
-			window.electronAPI.setAutoLaunch(next)
+		localStorage.setItem(cfg.storageKey, String(next))
+
+		const api = window.electronAPI as any
+		if (api?.[cfg.apiMethod]) {
+			api[cfg.apiMethod](next)
 		}
 	})
 }
 
+export function setupAutoLaunchToggle(): void {
+	setupGenericToggle({
+		id: 'auto-launch-toggle',
+		storageKey: 'autoLaunch',
+		apiMethod: 'setAutoLaunch',
+	})
+}
+
 export function setupAutoHideToggle(): void {
-	const toggle = document.getElementById(
-		'auto-hide-toggle',
-	) as HTMLElement | null
-	if (!toggle) return
-	const saved = localStorage.getItem('autoHide') === 'true'
-	toggle.dataset.on = saved ? 'true' : 'false'
-	toggle.addEventListener('click', () => {
-		const current = toggle.dataset.on === 'true'
-		const next = !current
-		toggle.dataset.on = next ? 'true' : 'false'
-		localStorage.setItem('autoHide', String(next))
-		if (window.electronAPI?.setAutoHide) {
-			window.electronAPI.setAutoHide(next)
-		}
+	setupGenericToggle({
+		id: 'auto-hide-toggle',
+		storageKey: 'autoHide',
+		apiMethod: 'setAutoHide',
+	})
+}
+
+export function setupMusicFilterToggle(): void {
+	setupGenericToggle({
+		id: 'music-filter-toggle',
+		storageKey: 'musicFilter',
+		apiMethod: 'setMusicFilter',
+	})
+}
+
+export function setupVideoFilterToggle(): void {
+	setupGenericToggle({
+		id: 'video-filter-toggle',
+		storageKey: 'videoFilter',
+		apiMethod: 'setVideoFilter',
+	})
+}
+
+export function setupAutomaticActivityToggle(): void {
+	setupGenericToggle({
+		id: 'automatic-activity-toggle',
+		storageKey: 'activityFilter',
+		apiMethod: 'setAutomaticActivity',
+	})
+}
+
+export function setupCoverFetchToggle(): void {
+	setupGenericToggle({
+		id: 'cover-fetch-toggle',
+		storageKey: 'coverFetchEnabled',
+		apiMethod: 'setCoverFetch',
 	})
 }
 

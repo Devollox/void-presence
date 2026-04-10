@@ -39,7 +39,7 @@ export function upsertRecentApp(id: string, name: string): void {
 	const cleanId = id.trim()
 	if (!cleanId) return
 
-	const cleanName = name.trim() || 'Unnamed app'
+	const cleanName = name.trim() || ''
 	const items = getRecentApps()
 	const exists = items.some(x => x.id === cleanId)
 	if (exists) {

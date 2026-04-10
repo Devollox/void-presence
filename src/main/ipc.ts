@@ -1,11 +1,9 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import { Worker } from 'worker_threads'
 import {
 	resetPersistTimestampValueAdvanced,
-	resetPersistTimestampValueBasic,
 	setActivityIntervalAdvanced,
-	setActivityIntervalBasic,
 	setButtonsConfig,
 	setClientId,
 	setCycles,
@@ -13,11 +11,10 @@ import {
 	setPartyConfig,
 	setTimestampConfig,
 	startDiscordRichAdvanced,
-	startDiscordRichBasic,
 	stopDiscordRichAdvanced,
-	stopDiscordRichBasic,
 } from '../discord'
 import {
+	readFiltersState,
 	readTimestampConfig,
 	setActivityIntervalConfig,
 	setActivityType,
@@ -30,7 +27,7 @@ import {
 	RpcPayload,
 } from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
-import { sendLog, sendStatus } from './logging'
+import { sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
 
 let autoHideOnStart = false
@@ -48,13 +45,8 @@ function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
 		stopCurrentRpc = null
 	}
 
-	if (currentRpcMode === 'basic') {
-		stopCurrentRpc = stopDiscordRichBasic
-		startDiscordRichBasic(sendPayload)
-	} else if (currentRpcMode === 'advanced') {
-		stopCurrentRpc = stopDiscordRichAdvanced
-		startDiscordRichAdvanced(sendPayload)
-	}
+	stopCurrentRpc = stopDiscordRichAdvanced
+	startDiscordRichAdvanced(sendPayload)
 }
 
 function stopDiscordRich() {
@@ -65,19 +57,11 @@ function stopDiscordRich() {
 }
 
 function setActivityInterval(sec: number) {
-	if (currentRpcMode === 'basic') {
-		setActivityIntervalBasic(sec)
-	} else if (currentRpcMode === 'advanced') {
-		setActivityIntervalAdvanced(sec)
-	}
+	setActivityIntervalAdvanced(sec)
 }
 
 function resetPersistTimestampValue() {
-	if (currentRpcMode === 'basic') {
-		resetPersistTimestampValueBasic()
-	} else if (currentRpcMode === 'advanced') {
-		resetPersistTimestampValueAdvanced()
-	}
+	resetPersistTimestampValueAdvanced()
 }
 
 export function getAutoHide() {
@@ -104,16 +88,54 @@ function startSmtcWorker() {
 			)
 		: path.join(process.cwd(), 'src', 'discord', 'workers', 'smtc-worker.js')
 
-	smtcWorker = new Worker(workerPath, {
-		env: {
-			...process.env,
-		},
+	if (!smtcWorker) {
+		smtcWorker = new Worker(workerPath, { env: { ...process.env } })
+	}
+
+	smtcWorker.removeAllListeners('message')
+
+	smtcWorker.on('message', async msg => {
+		if (!msg || typeof msg !== 'object') return
+
+		if (msg.type === 'smtcError') {
+			return
+		}
+
+		if (msg.type !== 'nowPlaying') return
+
+		const { musicFilter, videoFilter } = await readFiltersState()
+
+		const haveAnyFilter = !!musicFilter || !!videoFilter
+		if (!haveAnyFilter) {
+			lastNowPlaying = null
+			return
+		}
+
+		const isMusic =
+			msg.data?.isThumbMusic === true && msg.data?.isThumbVideo !== true
+		const isVideo =
+			msg.data?.isThumbVideo === true && msg.data?.isThumbMusic !== true
+
+		if (musicFilter && !videoFilter && !isMusic) {
+			lastNowPlaying = null
+			return
+		}
+
+		if (!musicFilter && videoFilter && !isVideo) {
+			lastNowPlaying = null
+			return
+		}
+
+		lastNowPlaying = msg.data
 	})
 
-	smtcWorker.on('message', msg => {
-		if (msg && msg.type === 'nowPlaying') {
-			lastNowPlaying = msg.data
-		}
+	smtcWorker.on('error', err => {
+		console.error('SMTC worker error:', err)
+	})
+
+	smtcWorker.on('exit', code => {
+		console.error('SMTC worker exited with code', code)
+		smtcWorker = null
 	})
 }
 
@@ -121,12 +143,27 @@ export function getLastNowPlaying() {
 	return lastNowPlaying
 }
 
+function refreshSmtcWorkerIfNeeded() {
+	const s = loadSettings()
+	const shouldUseSmtc = s.musicFilter || s.videoFilter
+
+	if (shouldUseSmtc && !smtcWorker) {
+		startSmtcWorker()
+	}
+
+	if (!shouldUseSmtc && smtcWorker) {
+		smtcWorker.terminate()
+		smtcWorker = null
+		lastNowPlaying = null
+	}
+}
+
 export function initIpc() {
 	const s = loadSettings()
 	autoHideOnStart = !!s.autoHideOnStart
-	currentRpcMode = s.rpcMode === 'advanced' ? 'advanced' : 'basic'
 
-	if (currentRpcMode === 'advanced' && !smtcWorker) {
+	const shouldUseSmtc = s.musicFilter || s.videoFilter
+	if (shouldUseSmtc && !smtcWorker) {
 		startSmtcWorker()
 	}
 
@@ -158,46 +195,6 @@ export function initIpc() {
 		}
 	})
 
-	ipcMain.handle('rpc:get-mode', async () => {
-		return currentRpcMode
-	})
-
-	ipcMain.handle('rpc:set-mode', async (_event, mode: RpcMode) => {
-		if (mode !== 'basic' && mode !== 'advanced') {
-			return currentRpcMode
-		}
-		if (mode === currentRpcMode) return currentRpcMode
-
-		const oldMode = currentRpcMode
-		currentRpcMode = mode
-
-		const current = loadSettings()
-		saveSettings({ ...current, rpcMode: currentRpcMode })
-
-		const win = BrowserWindow.getAllWindows()[0]
-		if (!win || win.isDestroyed()) return currentRpcMode
-
-		setTimeout(() => {
-			sendStatus('RESTARTING')
-			sendLog(`RPC mode changed: ${oldMode} → ${currentRpcMode}`, 'info')
-		}, 100)
-
-		stopDiscordRich()
-		startDiscordRich(payload => {
-			if (win.isDestroyed()) return
-			win.webContents.send('rpc-update', payload)
-		})
-
-		if (oldMode === 'advanced' && mode !== 'advanced') {
-			smtcWorker?.terminate()
-			smtcWorker = null
-		} else if (mode === 'advanced' && !smtcWorker) {
-			startSmtcWorker()
-		}
-
-		return currentRpcMode
-	})
-
 	ipcMain.handle('stop-discord-rich', async () => {
 		stopDiscordRich()
 		sendStatus('DISABLED')
@@ -217,15 +214,18 @@ export function initIpc() {
 		}, 100)
 
 		stopDiscordRich()
-		startDiscordRich(payload => {
-			if (win.isDestroyed()) return
-			win.webContents.send('rpc-update', payload)
-		})
 
 		resetPersistTimestampValue()
 		const cfg = await readTimestampConfig()
 		cfg.persistOffsetSec = 0
 		await setTimestampConfig(cfg)
+
+		setTimeout(() => {
+			startDiscordRich(payload => {
+				if (win.isDestroyed()) return
+				win.webContents.send('rpc-update', payload)
+			})
+		}, 2000)
 		return true
 	})
 
@@ -449,14 +449,17 @@ export function initIpc() {
 			},
 		) => {
 			const current = await readTimestampConfig()
+			const oldMode = current.mode
+
 			const mode =
 				cfg.mode === 'range' || cfg.mode === 'persist' ? cfg.mode : 'now'
 			const rangeMin = cfg.rangeMin.trim() === '' ? null : Number(cfg.rangeMin)
 			const rangeMax = cfg.rangeMax.trim() === '' ? null : Number(cfg.rangeMax)
-			const nowMode =
+			const nowMode: NowMode =
 				cfg.nowMode === 'progress' || cfg.nowMode === 'cycles'
 					? (cfg.nowMode as NowMode)
 					: 'plain'
+
 			await setTimestampConfig({
 				...current,
 				mode,
@@ -464,6 +467,86 @@ export function initIpc() {
 				rangeMax,
 				nowMode,
 			})
+
+			const switchedPersistOn = oldMode !== 'persist' && mode === 'persist'
+			const switchedPersistOff = oldMode === 'persist' && mode !== 'persist'
+
+			if (switchedPersistOn || switchedPersistOff) {
+				const win = BrowserWindow.getAllWindows()[0]
+				if (!win || win.isDestroyed()) return true
+
+				setTimeout(() => {
+					sendStatus('RESTARTING')
+				}, 100)
+
+				stopDiscordRich()
+
+				setTimeout(() => {
+					const w = BrowserWindow.getAllWindows()[0]
+					if (!w || w.isDestroyed()) return
+					startDiscordRich(payload => {
+						if (w.isDestroyed()) return
+						w.webContents.send('rpc-update', payload)
+					})
+				}, 2000)
+			}
+
+			return true
+		},
+	)
+
+	ipcMain.handle('open-discord-author-id', async () => {
+		try {
+			await shell.openExternal('https://voidpresence.site/profile')
+		} catch (error) {
+			console.error('Failed to open browser:', error)
+		}
+	})
+
+	ipcMain.handle('open-discord-client-id', async () => {
+		try {
+			await shell.openExternal('https://discord.com/developers/applications')
+		} catch (error) {
+			console.error('Failed to open browser:', error)
+		}
+	})
+
+	ipcMain.handle(
+		'settings:set-music-filter',
+		async (_event, enabled: boolean) => {
+			const current = loadSettings()
+			saveSettings({ ...current, musicFilter: !!enabled })
+
+			refreshSmtcWorkerIfNeeded()
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'settings:set-video-filter',
+		async (_event, enabled: boolean) => {
+			const current = loadSettings()
+			saveSettings({ ...current, videoFilter: !!enabled })
+
+			refreshSmtcWorkerIfNeeded()
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'settings:set-automatic-activity',
+		async (_event, enabled: boolean) => {
+			const current = loadSettings()
+			saveSettings({ ...current, activityFilter: !!enabled })
+			return true
+		},
+	)
+
+	ipcMain.handle(
+		'settings:set-cover-fetch',
+		async (_event, enabled: boolean) => {
+			const current = loadSettings()
+			saveSettings({ ...current, coverFetchEnabled: !!enabled })
 			return true
 		},
 	)

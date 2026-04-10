@@ -6,6 +6,7 @@ import {
 	ButtonPair,
 	ButtonsConfig,
 	ClientConfig,
+	ConfigState,
 	CyclesConfig,
 	ImageCycle,
 	ImageCyclesConfig,
@@ -69,6 +70,10 @@ function getActivityTypeConfigPath() {
 	return getConfigPath('activity-type.json')
 }
 
+function getSettingsPath() {
+	return getConfigPath('settings.json')
+}
+
 const defaultClientConfig: ClientConfig = {
 	clientId: null,
 	updateIntervalSec: null,
@@ -76,19 +81,16 @@ const defaultClientConfig: ClientConfig = {
 
 const validateClientConfig: Validator<ClientConfig> = (input): ClientConfig => {
 	const obj = (input ?? {}) as Partial<ClientConfig>
-
 	const clientId =
 		typeof obj.clientId === 'string' && obj.clientId.trim().length > 0
 			? obj.clientId.trim()
 			: null
-
 	const updateIntervalSec =
 		typeof obj.updateIntervalSec === 'number' &&
 		Number.isFinite(obj.updateIntervalSec) &&
 		obj.updateIntervalSec > 0
 			? obj.updateIntervalSec
 			: null
-
 	return { clientId, updateIntervalSec }
 }
 
@@ -408,6 +410,10 @@ export async function setPartyConfig(config: PartyConfig) {
 	await writePartyConfig(finalCfg)
 }
 
+function roundToNearest5(x: number) {
+	return Math.round(x / 5) * 5
+}
+
 export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 	const current = await readTimestampConfig()
 	const mode = config.mode || current.mode || 'now'
@@ -419,10 +425,14 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 		config.rangeMax != null && Number.isFinite(config.rangeMax)
 			? Number(config.rangeMax)
 			: current.rangeMax
-	const persistOffsetSec =
+	const persistOffsetSecRaw =
 		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
 			? Number(config.persistOffsetSec)
 			: current.persistOffsetSec
+	const persistOffsetSec =
+		Number.isFinite(persistOffsetSecRaw) && persistOffsetSecRaw > 0
+			? roundToNearest5(persistOffsetSecRaw)
+			: 0
 	const nowMode = config.nowMode || current.nowMode || 'plain'
 	const timeCycles = Array.isArray(config.timeCycles)
 		? config.timeCycles
@@ -436,4 +446,29 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 		nowMode,
 		timeCycles,
 	})
+}
+
+export async function readFiltersState(): Promise<ConfigState> {
+	try {
+		const raw = await fs.readFile(getSettingsPath(), 'utf-8')
+		const parsed = JSON.parse(raw) as {
+			musicFilter?: boolean
+			videoFilter?: boolean
+			activityFilter?: boolean
+			coverFetchEnabled?: boolean
+		}
+		return {
+			musicFilter: parsed.musicFilter === true,
+			videoFilter: parsed.videoFilter === true,
+			activityFilter: parsed.activityFilter === true,
+			coverFetchEnabled: parsed.coverFetchEnabled === true,
+		}
+	} catch {
+		return {
+			musicFilter: false,
+			videoFilter: false,
+			activityFilter: false,
+			coverFetchEnabled: false,
+		}
+	}
 }

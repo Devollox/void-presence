@@ -2,6 +2,7 @@ import { BrowserWindow, app, screen } from 'electron'
 import * as path from 'path'
 
 let mainWindow: BrowserWindow | null = null
+let hasShownOnce = false
 
 export function getMainWindow() {
 	return mainWindow
@@ -42,11 +43,25 @@ export function createMainWindow(
 	mainWindow.setMenuBarVisibility(false)
 	mainWindow.loadFile('src/renderer/index.html')
 
+	mainWindow.webContents.once('did-finish-load', () => {
+		if (!autoHideOnStart && !hasShownOnce) {
+			mainWindow?.maximize()
+			hasShownOnce = true
+		}
+	})
+
 	mainWindow.on('close', ev => {
 		if (!isQuitting()) {
 			ev.preventDefault()
 			mainWindow?.hide()
 			return
+		}
+	})
+
+	mainWindow.on('show', () => {
+		if (!hasShownOnce) {
+			mainWindow?.maximize()
+			hasShownOnce = true
 		}
 	})
 
