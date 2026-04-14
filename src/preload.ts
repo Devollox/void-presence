@@ -7,6 +7,7 @@ import {
 	LogEntry,
 	PartyConfig,
 	RpcPayload,
+	UpdateInfo,
 } from './types/types'
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -94,4 +95,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('settings:set-automatic-activity', enabled),
 	setCoverFetch: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-cover-fetch', enabled),
+	onUpdateAvailable: (callback: (info: UpdateInfo) => void) => {
+		ipcRenderer.on('update-available', (_event, info) => callback(info))
+	},
+	installUpdate: (info: UpdateInfo) => {
+		ipcRenderer.send('install-update', info)
+	},
+	useReadyClientId: () => ipcRenderer.invoke('use-ready-client-id'),
 })

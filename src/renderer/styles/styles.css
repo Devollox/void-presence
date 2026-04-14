@@ -552,6 +552,7 @@ input {
 }
 
 .client-row span {
+	width: 70px;
 	align-items: center;
 	flex-shrink: 0;
 	font-size: 9px;
@@ -1274,7 +1275,8 @@ button:active {
 .config-details-overlay,
 #config-details-overlay,
 #upload-confirm-overlay,
-#import-overlay {
+#import-overlay,
+#update-overlay {
 	position: fixed;
 	inset: 0;
 	display: flex;
@@ -1298,9 +1300,14 @@ button:active {
 	z-index: 40;
 }
 
+#update-overlay {
+	z-index: 60;
+}
+
 #config-details-overlay[data-open='true'],
 #upload-confirm-overlay[data-open='true'],
-#import-overlay[data-open='true'] {
+#import-overlay[data-open='true'],
+#update-overlay[data-open='true'] {
 	opacity: 1;
 	pointer-events: auto;
 }

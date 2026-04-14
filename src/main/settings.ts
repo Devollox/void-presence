@@ -1,16 +1,9 @@
 import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
+import { Settings } from 'src/types/types'
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json')
-
-export type Settings = {
-	autoHideOnStart?: boolean
-	musicFilter?: boolean
-	videoFilter?: boolean
-	activityFilter?: boolean
-	coverFetchEnabled?: boolean
-}
 
 export function loadSettings(): Settings {
 	try {

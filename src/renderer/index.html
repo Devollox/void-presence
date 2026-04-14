@@ -177,9 +177,39 @@
 									</div>
 									<div class="tutorial-inline-wrapper btn-wrapper">
 										<button
-											id="tutorial-inline-open-dev"
+											id="use-ready-id"
 											class="rpc-button tutorial-inline-btn"
 										>
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+											>
+												<path
+													d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+												></path>
+											</svg>
+											Use Ready Client ID
+										</button>
+										<button
+											id="tutorial-inline-open-dev"
+											class="rpc-button tutorial-inline-btn secondary"
+										>
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+											>
+												<path
+													d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+												></path>
+											</svg>
 											Open Discord Developer Portal
 										</button>
 										<button id="tutorial-inline-dont-show" class="add-btn">
@@ -956,6 +986,95 @@
 										<div class="config-details-section-label">Actions</div>
 										<button id="upload-confirm-ok" class="rpc-button">
 											confirm upload
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
+
+		<div id="update-overlay" data-open="false">
+			<div class="config-details-modal">
+				<main class="config-details-main">
+					<div class="config-details-inner-scroll">
+						<div class="config-details-animate">
+							<button
+								id="update-close-btn"
+								class="config-details-back-btn"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-chevron-left"
+								>
+									<path d="m15 18-6-6 6-6"></path>
+								</svg>
+								Back to profiles
+							</button>
+							<div class="card config-details-card">
+								<div class="card-header config-details-card-header">
+									<div>
+										<div class="card-label">Update available</div>
+										<div
+											class="card-title config-details-title"
+											id="update-title"
+										>
+											New version available
+										</div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="config-details-body">
+									<div class="config-details-section">
+										<div class="config-details-section-label">Version</div>
+										<div class="config-details-list">
+											<div class="config-details-item">
+												<div class="config-details-item-main">
+													<div>
+														<div class="config-details-item-label">Current</div>
+														<div
+															class="config-details-item-sub"
+															id="update-current-version"
+														>
+															–
+														</div>
+													</div>
+													<div>
+														<div class="config-details-item-label">Latest</div>
+														<div
+															class="config-details-item-sub"
+															id="update-latest-version"
+														>
+															–
+														</div>
+													</div>
+												</div>
+												<div class="config-details-item-meta">
+													<span class="config-details-pill">
+														Updates are installed via a Windows setup file.
+													</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="config-details-section">
+										<div class="config-details-section-label">Actions</div>
+										<button id="update-install-btn" class="rpc-button">
+											Install update and restart
 										</button>
 									</div>
 								</div>

@@ -80,9 +80,11 @@ export type ClientConfig = {
 export type ButtonsConfig = { pairs: ButtonPair[] }
 export type CyclesConfig = { entries: CycleEntry[] }
 export type ImageCyclesConfig = { cycles: ImageCycle[] }
+
 export interface ActivityTypeConfig {
 	type: ActivityType
 }
+
 export interface PartyConfig {
 	entries: PartyCycleEntry[]
 }
@@ -187,7 +189,46 @@ export type ConfigState = {
 	coverFetchEnabled?: boolean
 }
 
+export type UpdateInfo = {
+	latestTag: string
+	downloadUrl: string | null
+	currentVersion: string
+}
+
+export type Settings = {
+	autoHideOnStart?: boolean
+	musicFilter?: boolean
+	videoFilter?: boolean
+	activityFilter?: boolean
+	coverFetchEnabled?: boolean
+	lastUpdateNotified?: string | null
+	lastUpdateNotifiedVersion?: string | null
+}
+
+export type NowPlayingInfo = {
+	sourceAppId: string
+	lastUpdatedTime: number | null
+	title: string
+	artist: string
+	albumTitle: string
+	albumArtist: string
+	genres: string[]
+	playbackStatus: string | null
+	playbackType: string | null
+	position: number | null
+	duration: number | null
+	startedAt: number | null
+	endsAt: number | null
+	isThumbMusic?: boolean | null
+	isThumbVideo?: boolean | null
+} | null
+
+export type LogLevel = 'info' | 'warn' | 'error' | 'success'
+
 export interface ElectronAPI {
+	useReadyClientId?: () => Promise<void>
+	onUpdateAvailable?: (callback: (info: UpdateInfo) => void) => void
+	installUpdate?: (info: UpdateInfo) => void
 	setCoverFetch?: (on: boolean) => Promise<void> | void
 	setAutomaticActivity?: (on: boolean) => Promise<void> | void
 	setMusicFilter?: (on: boolean) => Promise<void> | void

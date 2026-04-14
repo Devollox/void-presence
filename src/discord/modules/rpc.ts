@@ -7,6 +7,7 @@ import {
 	DiscordClient,
 	ImageCycle,
 	NowMode,
+	NowPlayingInfo,
 	PartyCycleEntry,
 	RichPresencePayload,
 	RpcPayload,
@@ -24,24 +25,6 @@ import {
 	readTimestampConfig,
 	setTimestampConfig,
 } from './config'
-
-type NowPlayingInfo = {
-	sourceAppId: string
-	lastUpdatedTime: number | null
-	title: string
-	artist: string
-	albumTitle: string
-	albumArtist: string
-	genres: string[]
-	playbackStatus: string | null
-	playbackType: string | null
-	position: number | null
-	duration: number | null
-	startedAt: number | null
-	endsAt: number | null
-	isThumbMusic?: boolean | null
-	isThumbVideo?: boolean | null
-} | null
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0

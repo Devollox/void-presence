@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import { Worker } from 'worker_threads'
@@ -27,8 +28,9 @@ import {
 	RpcPayload,
 } from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
-import { sendStatus } from './logging'
+import { sendLog, sendStatus } from './logging'
 import { loadSettings, saveSettings } from './settings'
+import { downloadFile } from './updates'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
@@ -550,6 +552,57 @@ export function initIpc() {
 			return true
 		},
 	)
+
+	ipcMain.on('install-update', async (_event, info) => {
+		try {
+			if (!info.downloadUrl) {
+				sendLog('Update install failed: no download URL')
+				return
+			}
+
+			const { filePath } = await downloadFile(
+				info.downloadUrl,
+				info.latestTag.replace(/^v/i, ''),
+			)
+
+			sendLog(`Launching installer: ${path.basename(filePath)}`)
+
+			const child = spawn(filePath, [], {
+				detached: true,
+				stdio: 'ignore',
+			})
+
+			child.unref()
+			app.quit()
+		} catch (e: any) {
+			sendLog(`Update install failed: ${e?.message || String(e)}`, 'error')
+		}
+	})
+
+	ipcMain.handle('use-ready-client-id', async () => {
+		const readyId = '1492470601686847598'
+
+		await setClientId(readyId)
+
+		const win = BrowserWindow.getAllWindows()[0]
+		if (!win || win.isDestroyed()) return true
+
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+
+		stopDiscordRich()
+
+		setTimeout(() => {
+			startDiscordRich(payload => {
+				if (win.isDestroyed()) return
+				win.webContents.send('rpc-update', payload)
+			})
+		}, 2000)
+
+		sendLog(`Used ready Client ID: ${readyId}`)
+		return true
+	})
 
 	const win = BrowserWindow.getAllWindows()[0]
 	if (win && !win.isDestroyed()) {

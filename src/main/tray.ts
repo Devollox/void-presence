@@ -2,6 +2,7 @@ import { app, BrowserWindow, Menu, Tray } from 'electron'
 import * as path from 'path'
 import { stopDiscordRich } from '../discord'
 import { sendStatus } from './logging'
+import { checkForUpdates } from './updates'
 import { getMainWindow } from './window'
 
 let tray: Tray | null = null
@@ -36,9 +37,7 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 		{
 			label: 'Show Window',
 			accelerator: 'CmdOrCtrl+,',
-			click: () => {
-				showOrCreateWindow(createWindow)
-			},
+			click: () => showOrCreateWindow(createWindow),
 		},
 		{
 			label: 'Restart Presence',
@@ -47,10 +46,14 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 				const win = getMainWindow() || BrowserWindow.getAllWindows()[0]
 				if (!win || win.isDestroyed()) return
 				win.webContents.send('restart-discord-rich')
-				setTimeout(() => {
-					sendStatus('RESTARTING')
-				}, 100)
+				setTimeout(() => sendStatus('RESTARTING'), 100)
 			},
+		},
+		{ type: 'separator' },
+		{
+			label: 'Check Updates',
+			accelerator: 'CmdOrCtrl+U',
+			click: () => checkForUpdates({ log: false }),
 		},
 		{ type: 'separator' },
 		{
@@ -67,10 +70,6 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 	tray = new Tray(iconPath)
 	tray.setToolTip('Void Presence')
 	tray.setContextMenu(contextMenu)
-	tray.on('click', () => {
-		showOrCreateWindow(createWindow)
-	})
-	tray.on('double-click', () => {
-		showOrCreateWindow(createWindow)
-	})
+	tray.on('click', () => showOrCreateWindow(createWindow))
+	tray.on('double-click', () => showOrCreateWindow(createWindow))
 }

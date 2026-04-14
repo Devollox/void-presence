@@ -688,6 +688,28 @@ export function setupClientIdControls(): void {
 
 	clientInput.value = localStorage.getItem('clientId') || ''
 	let lastSavedClientId = clientInput.value.trim()
+	if (lastSavedClientId.length > 18) {
+		window.electronAPI.liveSetClientId(lastSavedClientId)
+	}
+
+	const useReadyIdBtn = document.getElementById(
+		'use-ready-id',
+	) as HTMLButtonElement | null
+
+	useReadyIdBtn?.addEventListener('click', async e => {
+		e.preventDefault()
+		clientInput.value = '1492470601686847598'
+
+		localStorage.setItem('clientId', clientInput.value)
+
+		if (window.electronAPI?.useReadyClientId) {
+			await window.electronAPI.useReadyClientId()
+		}
+
+		upsertRecentApp('1492470601686847598', '')
+		if (recentList) renderRecentApps(recentList)
+		showClientIdToast()
+	})
 
 	const ctx: VoidPresenceCtx = {
 		clientId: [],

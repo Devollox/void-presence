@@ -16,7 +16,8 @@ import {
 	setupStopButton,
 	setupVideoFilterToggle,
 } from './modules/toggles'
-import { setupTutorials } from './modules/tutorials'
+import { setupTutorials } from './modules/tutorials-modal'
+import './modules/update-modal'
 import { updateInfo, updateStatus } from './modules/views'
 import { setupWindowControls } from './modules/window-controls'
 

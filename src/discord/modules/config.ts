@@ -343,7 +343,7 @@ export async function setActivityType(type: ActivityTypeConfig['type']) {
 
 export async function setClientId(clientId: string) {
 	const cfg = await readClientConfig()
-	cfg.clientId = clientId.trim() || null
+	cfg.clientId = clientId.trim() || cfg.clientId
 	await writeClientConfig(cfg)
 }
 

@@ -38,10 +38,10 @@ app.whenReady().then(() => {
 
 	if (win) {
 		win.webContents.once('did-finish-load', () => {
-			checkForUpdates()
+			checkForUpdates({ log: true })
 		})
 	} else {
-		checkForUpdates()
+		checkForUpdates({ log: true })
 	}
 })
 

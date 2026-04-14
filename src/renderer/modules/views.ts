@@ -63,6 +63,30 @@ export function appendLog(entry: LogEntry | string): void {
 		obj.error ||
 		(typeof entry === 'string' ? entry : JSON.stringify(entry))
 
+	const isDownloadProgress = rawText.startsWith('Downloading update…')
+
+	if (isDownloadProgress) {
+		const first = logsViewList.firstChild as HTMLElement | null
+		if (first) {
+			const msgEl = first.querySelector(
+				'.log-item-message',
+			) as HTMLElement | null
+			const metaEl = first.querySelector('.log-item-meta') as HTMLElement | null
+
+			if (msgEl && metaEl) {
+				msgEl.textContent = ''
+				rawText.split('\n').forEach(line => {
+					const lineEl = document.createElement('div')
+					lineEl.textContent = line
+					msgEl.appendChild(lineEl)
+				})
+
+				metaEl.textContent = `${level.toUpperCase()} · ${time}`
+				return
+			}
+		}
+	}
+
 	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
 	const isError = level === 'error' || isErrorText
 	const isSuccess = level === 'success'
@@ -355,10 +379,17 @@ document.addEventListener('keydown', event => {
 	const importOverlay = document.getElementById('import-overlay')
 	const detailsOverlay = document.getElementById('config-details-overlay')
 	const uploadOverlay = document.getElementById('upload-confirm-overlay')
+	const updateOverlay = document.getElementById('update-overlay')
 
 	if (importOverlay && importOverlay.getAttribute('data-open') === 'true') {
 		event.preventDefault()
 		closeOverlay('import-overlay')
+		return
+	}
+
+	if (updateOverlay && updateOverlay.getAttribute('data-open') === 'true') {
+		event.preventDefault()
+		closeOverlay('update-overlay')
 		return
 	}
 
