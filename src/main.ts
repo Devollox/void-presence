@@ -7,6 +7,21 @@ import { checkForUpdates } from './main/updates'
 import { createMainWindow } from './main/window'
 
 let isQuitting = false
+let mainWindow: Electron.BrowserWindow | null = null
+
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+	app.quit()
+	process.exit(0)
+}
+
+app.on('second-instance', () => {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		if (mainWindow.isMinimized()) mainWindow.restore()
+		mainWindow.show()
+		mainWindow.focus()
+	}
+})
 
 decodeEnv()
 
@@ -14,30 +29,29 @@ app.on('before-quit', () => {
 	isQuitting = true
 })
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 	const initialSettings = loadSettings()
 	const autoHideOnStart = !!initialSettings.autoHideOnStart
-	let win: Electron.BrowserWindow | null = null
 
-	win = createMainWindow(autoHideOnStart, () => isQuitting)
+	mainWindow = createMainWindow(autoHideOnStart, () => isQuitting)
 
 	initIpc()
 
 	createTray(
 		() => {
-			if (win && !win.isDestroyed()) {
-				win.show()
-				win.focus()
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.show()
+				mainWindow.focus()
 			}
-			return win
+			return mainWindow
 		},
 		() => {
 			isQuitting = true
 		},
 	)
 
-	if (win) {
-		win.webContents.once('did-finish-load', () => {
+	if (mainWindow) {
+		mainWindow.webContents.once('did-finish-load', () => {
 			checkForUpdates({ log: true })
 		})
 	} else {
@@ -46,8 +60,8 @@ app.whenReady().then(() => {
 })
 
 app.on('activate', () => {
-	if (!getAutoHide()) {
-		createMainWindow(getAutoHide(), () => isQuitting)
+	if (!getAutoHide() && !mainWindow) {
+		mainWindow = createMainWindow(getAutoHide(), () => isQuitting)
 	}
 })
 

@@ -66,6 +66,33 @@ let isSearchingDiscord = false
 let lastReadyAt = 0
 let lastStoppedAt: number | null = null
 
+function cleanupMemory() {
+	if (coverCache.size > 100) {
+		const keys = Array.from(coverCache.keys())
+		keys.slice(0, coverCache.size - 100).forEach(k => {
+			coverCache.delete(k)
+			coverRetries.delete(k)
+		})
+	}
+
+	coverRequestsInWindow = 0
+	if (Date.now() - coverWindowStart > COVER_WINDOW_MS * 2) {
+		coverWindowStart = Date.now()
+	}
+
+	if (client && hasEverBeenReady) {
+		try {
+			client.clearActivity()
+		} catch {}
+	}
+
+	if ((global as any).gc) {
+		try {
+			;(global as any).gc()
+		} catch {}
+	}
+}
+
 function makeCacheKey(title: string, artist: string) {
 	return `${title.toLowerCase().trim()}::${artist.toLowerCase().trim()}`
 }
@@ -80,10 +107,16 @@ async function resolveCoverUrlFromITunes(
 	if (!queryParts.length) return null
 	const term = encodeURIComponent(queryParts.join(' '))
 	const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=1`
+
+	const controller = new AbortController()
+	const timeoutId = setTimeout(() => controller.abort(), 10000)
+
 	try {
-		const res = await fetch(url)
+		const res = await fetch(url, { signal: controller.signal } as any)
+		clearTimeout(timeoutId)
 		if (!res.ok) return null
 		const json = await res.json()
+		res.body?.cancel?.()
 		if (!json || !Array.isArray(json.results) || json.results.length === 0) {
 			return null
 		}
@@ -92,6 +125,7 @@ async function resolveCoverUrlFromITunes(
 			result.artworkUrl100 || result.artworkUrl60 || result.artworkUrl30
 		return artwork || null
 	} catch {
+		clearTimeout(timeoutId)
 		return null
 	}
 }
@@ -152,7 +186,7 @@ function createClient() {
 		} catch {}
 		client = null
 	}
-	client = new rpc.Client({ transport: 'ipc' }) as unknown as DiscordClient
+	client = new (rpc.Client as any)({ transport: 'ipc' }) as DiscordClient
 	return client
 }
 
@@ -679,7 +713,6 @@ export default function startDiscordRich(
 				if (coverUrl) {
 					largeImage = coverUrl
 				}
-				;``
 				largeText = undefined
 			}
 
@@ -706,7 +739,7 @@ export default function startDiscordRich(
 			if (party) activity.party = party
 			if (buttons.length > 0) activity.buttons = buttons
 
-			await localClient
+			await (localClient as any)
 				.request('SET_ACTIVITY', { pid: process.pid, activity })
 				.catch((e: any) => {
 					if (sendLog) {
@@ -749,6 +782,10 @@ export default function startDiscordRich(
 
 				const now = Date.now()
 				const GRACE_MS = 4000
+
+				if (now % 3600000 < activityIntervalMs) {
+					cleanupMemory()
+				}
 
 				if (isPlayingLike) {
 					lastStoppedAt = null
