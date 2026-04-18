@@ -1,12 +1,10 @@
-import { MakerDeb } from '@electron-forge/maker-deb'
-import { MakerRpm } from '@electron-forge/maker-rpm'
-import { MakerZIP } from '@electron-forge/maker-zip'
-import { VitePlugin } from '@electron-forge/plugin-vite'
-import { PublisherGithub } from '@electron-forge/publisher-github'
+const { MakerZIP } = require('@electron-forge/maker-zip')
+const { VitePlugin } = require('@electron-forge/plugin-vite')
+const { PublisherGithub } = require('@electron-forge/publisher-github')
 
 const ICON_BASE = './public/favicons/favicon'
 
-const config = {
+module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
 		ignore(p) {
@@ -49,13 +47,7 @@ const config = {
 		skipPrebuild: true,
 	},
 	makers: [
-		new MakerZIP({}, ['darwin', 'win32']),
-		new MakerRpm({
-			options: { icon: `${ICON_BASE}.ico` },
-		}),
-		new MakerDeb({
-			options: { icon: `${ICON_BASE}.ico` },
-		}),
+		new MakerZIP({}, ['win32']),
 		{
 			name: '@electron-addons/electron-forge-maker-nsis',
 			config: {
@@ -63,11 +55,14 @@ const config = {
 					win: {
 						target: ['nsis'],
 						icon: './public/favicons/favicon256.ico',
+						publish: null,
 					},
 					nsis: {
 						installerIcon: './public/favicons/favicon256.ico',
 						uninstallerIcon: './public/favicons/favicon256.ico',
 						installerHeaderIcon: './public/favicons/favicon256.ico',
+						oneClick: true,
+						perMachine: false,
 					},
 				},
 			},
@@ -97,5 +92,3 @@ const config = {
 		}),
 	],
 }
-
-export default config
