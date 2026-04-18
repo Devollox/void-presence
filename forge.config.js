@@ -1,6 +1,5 @@
 const { MakerZIP } = require('@electron-forge/maker-zip')
 const { VitePlugin } = require('@electron-forge/plugin-vite')
-const { PublisherGithub } = require('@electron-forge/publisher-github')
 
 const ICON_BASE = './public/favicons/favicon'
 
@@ -46,14 +45,19 @@ module.exports = {
 		skipPrebuild: true,
 	},
 	makers: [
-		new MakerZIP({}, ['win32']),
+		{
+			name: '@electron-forge/maker-zip',
+			platforms: ['win32'],
+		},
 		{
 			name: '@electron-addons/electron-forge-maker-nsis',
 			config: {
+				productName: 'Void.Presence.Setup',
 				build: {
 					win: {
 						target: ['nsis'],
 						icon: './public/favicons/favicon256.ico',
+						publish: [],
 					},
 					nsis: {
 						installerIcon: './public/favicons/favicon256.ico',
@@ -65,15 +69,6 @@ module.exports = {
 				},
 			},
 		},
-	],
-	publishers: [
-		new PublisherGithub({
-			repository: {
-				owner: 'Devollox',
-				name: 'void-presence',
-			},
-			prerelease: true,
-		}),
 	],
 	plugins: [
 		new VitePlugin({

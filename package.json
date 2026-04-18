@@ -8,8 +8,7 @@
 		"build:renderer": "vite build --config vite.renderer.config.ts",
 		"start": "npm run build:renderer && electron-forge start",
 		"make": "npm run build:renderer && electron-forge make",
-		"package": "npm run build:renderer && electron-forge package",
-		"publish": "npm run build:renderer && electron-forge publish"
+		"package": "npm run build:renderer && electron-forge package"
 	},
 	"config": {
 		"forge": "./forge.config.js"
@@ -26,7 +25,6 @@
 		"@electron-forge/maker-zip": "^7.2.0",
 		"@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
 		"@electron-forge/plugin-vite": "^7.2.0",
-		"@electron-forge/publisher-github": "^7.11.1",
 		"@electron/rebuild": "^4.0.3",
 		"@types/discord-rpc": "^4.0.8",
 		"@types/firebase": "^2.4.32",

@@ -22,7 +22,58 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build and Publish
-        run: npm run publish
+      - name: Build Application
+        run: npm run make
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup Assets (local)
+        shell: bash
+        run: |
+          find out/make -type f \( -name "*.blockmap" -o -name "*.yml" \) -delete
+          ls -R out/make
+
+      - name: Rename NSIS installer
+        shell: pwsh
+        run: |
+          Get-ChildItem out\make\nsis\x64\*.exe | ForEach-Object {
+            $newName = $_.Name -replace " ", "."
+            Rename-Item $_.FullName -NewName $newName
+          }
+
+      - name: Rename ZIP
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem out\make\zip\win32\x64\*.zip | Select-Object -First 1
+          $newName = $file.Name -replace " ", "."
+          Rename-Item $file.FullName -NewName $newName
+
+      - name: Upload Release (softprops)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/make/nsis/x64/*.exe
+            out/make/zip/win32/x64/*.zip
+          body_path: RELEASE_NOTES.md
+          tag_name: ${{ github.ref_name }}
+          make_latest: true
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update release description from RELEASE_NOTES.md
+        run: |
+          gh release edit ${{ github.ref_name }} --notes-file RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete unwanted assets (latest.yml & blockmap & old .exe)
+        shell: bash
+        run: |
+          TAG_VERSION=${{ github.ref_name }}
+          ASSET_VERSION=${TAG_VERSION#v}  # 2.6.3
+          gh release delete-asset "${{ github.ref_name }}" "Void-Presence-Setup-$ASSET_VERSION.exe"
+          gh release delete-asset "${{ github.ref_name }}" "Void-Presence-Setup-$ASSET_VERSION.exe.blockmap"
+          gh release delete-asset "${{ github.ref_name }}" latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
