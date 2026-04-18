@@ -55,7 +55,6 @@ module.exports = {
 					win: {
 						target: ['nsis'],
 						icon: './public/favicons/favicon256.ico',
-						publish: null,
 					},
 					nsis: {
 						installerIcon: './public/favicons/favicon256.ico',
