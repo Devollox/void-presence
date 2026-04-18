@@ -3,14 +3,13 @@ import { MakerRpm } from '@electron-forge/maker-rpm'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import { PublisherGithub } from '@electron-forge/publisher-github'
-import type { ForgeConfig } from '@electron-forge/shared-types'
 
 const ICON_BASE = './public/favicons/favicon'
 
-const config: ForgeConfig = {
+const config = {
 	packagerConfig: {
 		icon: ICON_BASE,
-		ignore(p: string) {
+		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 
 			if (path.startsWith('/.git') || path.startsWith('.git')) return true

@@ -12,7 +12,7 @@
 		"publish": "npm run build:renderer && electron-forge publish"
 	},
 	"config": {
-		"forge": "./forge.config.ts"
+		"forge": "./forge.config.js"
 	},
 	"keywords": [],
 	"author": "Devollox",
