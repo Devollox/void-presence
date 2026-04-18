@@ -11,7 +11,6 @@ module.exports = {
 			const path = p.replace(/\\/g, '/')
 
 			if (path.startsWith('/.git') || path.startsWith('.git')) return true
-
 			if (path.endsWith('.eslintrc') || path.endsWith('.hintrc')) return true
 			if (path.endsWith('forge.config.ts')) return true
 			if (path.endsWith('tsconfig.json')) return true
