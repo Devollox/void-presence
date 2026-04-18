@@ -45,7 +45,9 @@ const config = {
 			return false
 		},
 	},
-	rebuildConfig: {},
+	rebuildConfig: {
+		skipPrebuild: true,
+	},
 	makers: [
 		new MakerZIP({}, ['darwin', 'win32']),
 		new MakerRpm({
