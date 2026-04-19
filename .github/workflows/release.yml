@@ -27,7 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cleanup Assets (local)
+      - name: Cleanup Assets
         shell: bash
         run: |
           find out/make -type f \( -name "*.blockmap" -o -name "*.yml" \) -delete
@@ -48,7 +48,7 @@ jobs:
           $newName = $file.Name -replace " ", "."
           Rename-Item $file.FullName -NewName $newName
 
-      - name: Upload Release (softprops)
+      - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
