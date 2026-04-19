@@ -16,6 +16,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		const latestTag = data.tag_name
 		const latest = latestTag.replace(/^v/i, '')
 		const current = app.getVersion()
+		const changelogMd: string = (data.body || '').trim()
 
 		if (latest === current) {
 			sendLog(`Void Presence v${current}`)
@@ -26,9 +27,17 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		const lastNotified = settings.lastUpdateNotified || null
 		const lastNotifiedFor = settings.lastUpdateNotifiedVersion || current
 
+		const downloadUrl = getDownloadUrl(data.assets)
+
+		const info = {
+			latestTag,
+			downloadUrl,
+			currentVersion: current,
+			changelogMd,
+		}
+
 		if (lastNotified === latestTag && lastNotifiedFor === current) {
-			const downloadUrl = getDownloadUrl(data.assets)
-			return { latestTag, downloadUrl, currentVersion: current }
+			return info
 		}
 
 		if (log) {
@@ -44,17 +53,12 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 			lastUpdateNotifiedVersion: current,
 		})
 
-		const downloadUrl = getDownloadUrl(data.assets)
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win) {
-			win.webContents.send('update-available', {
-				latestTag,
-				downloadUrl,
-				currentVersion: current,
-			})
+			win.webContents.send('update-available', info)
 		}
 
-		return { latestTag, downloadUrl, currentVersion: current }
+		return info
 	} catch (e: any) {
 		sendLog(`Update failed: ${e?.message || String(e)}`)
 	}

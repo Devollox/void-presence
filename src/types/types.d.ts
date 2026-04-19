@@ -193,6 +193,7 @@ export type UpdateInfo = {
 	latestTag: string
 	downloadUrl: string | null
 	currentVersion: string
+	changelogMd: string
 }
 
 export type Settings = {

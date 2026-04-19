@@ -4,7 +4,7 @@ import {
 	ImageCycleEntry,
 	PartyCycleEntry,
 	TimeCycleEntry,
-} from '../../types/types'
+} from '../../../types/types'
 
 export function createButtonPairRow(
 	pair: ButtonPair,

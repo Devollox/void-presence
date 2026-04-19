@@ -1,7 +1,7 @@
 {
 	"name": "voidpresence",
 	"productName": "Void Presence",
-	"version": "2.6.3-nightly",
+	"version": "2.6.4",
 	"description": "My Void Presence",
 	"main": ".vite/build/main.js",
 	"scripts": {
@@ -44,6 +44,7 @@
 		"discord-rpc": "^4.0.1",
 		"dotenv": "^17.2.3",
 		"electron-squirrel-startup": "^1.0.0",
-		"firebase": "^12.6.0"
+		"firebase": "^12.6.0",
+		"marked": "^18.0.2"
 	}
 }

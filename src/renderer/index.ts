@@ -1,11 +1,15 @@
-import { setupCloudUpload } from './modules/cloud-upload'
-import { setupActivityTypeControls } from './modules/config-activity'
-import { setupConfigDetailsOverlay } from './modules/config-details'
-import { setupImportOverlay } from './modules/config-import'
-import { setupClientIdControls, setupConfigPage } from './modules/config-page'
-import { setupGlobalDrop } from './modules/global-drop'
-import { fetchNowPlaying } from './modules/now-playing'
-import { setupIntervalControl } from './modules/state'
+import { setupActivityTypeControls } from './modules/config/activity'
+import { setupClientIdControls, setupConfigPage } from './modules/config/ui'
+import { setupCloudUpload } from './modules/config/upload'
+import { setupConfigDetailsOverlay } from './modules/modals/details'
+import { setupImportOverlay } from './modules/modals/import'
+
+import { fetchNowPlaying } from './modules/core/now-playing'
+import { setupIntervalControl } from './modules/core/state'
+import { setupGlobalDrop } from './modules/modals/global-drop'
+import { setupTutorials } from './modules/modals/tutorials'
+import './modules/modals/update'
+import { initUpdateOverlay } from './modules/modals/update'
 import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
@@ -15,11 +19,9 @@ import {
 	setupRestartButton,
 	setupStopButton,
 	setupVideoFilterToggle,
-} from './modules/toggles'
-import { setupTutorials } from './modules/tutorials-modal'
-import './modules/update-modal'
-import { updateInfo, updateStatus } from './modules/views'
-import { setupWindowControls } from './modules/window-controls'
+} from './modules/shell/toggles'
+import { updateInfo, updateStatus } from './modules/shell/views'
+import { setupWindowControls } from './modules/shell/window-controls'
 
 window.addEventListener('DOMContentLoaded', () => {
 	setupRestartButton()
@@ -37,6 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	setupCoverFetchToggle()
 	setupAutomaticActivityToggle()
 	void setupIntervalControl()
+	initUpdateOverlay()
 	setupImportOverlay()
 	setupGlobalDrop()
 	setupCloudUpload()

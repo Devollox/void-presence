@@ -1,15 +1,10 @@
-# Automation Workflow Test & Stability
+# v2.6.4 – Changelog Bridge & Structure Cleanup
 
 ## Improvements
 
-- **CI/CD Integration**: Implemented GitHub Actions for automated building, packaging, and publishing of Windows binaries.
-- **Release Automation**: Verified GITHUB_TOKEN permissions and automated asset delivery to GitHub Releases.
+- **Inline Changelog in Update Overlay**: The existing update overlay now shows a short “What’s new” section, pulling release notes directly from the latest GitHub Release body and rendering them as markdown inside the app.
 
 ## Internal Changes
 
-- **Configuration Refactoring**: Migrated forge.config.js to improve compatibility with the CI/CD environment.
-- **Deployment Mode**: Enabled the prerelease flag to ensure testing builds are isolated from the stable update channel.
-
-## Dependencies
-
-- Verified compatibility with **Node.js 22** (LTS) for the build pipeline and maintained **Electron 41.2.1** runtime.
+- **Unified Update Payload**: Main, preload and renderer now share a single `UpdateInfo` shape for updates, including `changelogMd` for the inline changelog.
+- **Folder Structure Cleanup**: Refined main/renderer module layout for update logic and UI modals to keep all update‑related code in clear, focused files and folders.

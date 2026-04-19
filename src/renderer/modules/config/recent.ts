@@ -1,8 +1,4 @@
-import {
-	getRecentApps,
-	removeRecentApp,
-	updateRecentName,
-} from './config-storage'
+import { getRecentApps, removeRecentApp, updateRecentName } from './storage'
 
 const copyToastId = 'vp-copy-toast'
 
