@@ -1,4 +1,4 @@
-# v2.6.3-nightly – Automation Workflow Test & Stability
+# Automation Workflow Test & Stability
 
 ## Improvements
 
