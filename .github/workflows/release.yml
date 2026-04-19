@@ -76,6 +76,6 @@ jobs:
           | grep -E '^Void-Presence-Setup-.*\.exe$|^Void-Presence-Setup-.*\.exe\.blockmap$|^latest\.yml$' \
           | while read -r ASSET; do
               gh release delete-asset "$TAG" "$ASSET" -y
-            done
+            done || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
