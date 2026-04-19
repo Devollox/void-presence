@@ -1,4 +1,4 @@
-# v2.6.4 – Changelog Bridge & Structure Cleanup
+Changelog Bridge & Structure Cleanup
 
 ## Improvements
 
