@@ -13,7 +13,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		if (!res.ok) return null
 
 		const data = await res.json()
-		const latestTag = data.tag_name
+		const latestTag = data.tag_name as string
 		const latest = latestTag.replace(/^v/i, '')
 		const current = app.getVersion()
 		const changelogMd: string = (data.body || '').trim()
@@ -36,22 +36,23 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 			changelogMd,
 		}
 
-		if (lastNotified === latestTag && lastNotifiedFor === current) {
-			return info
-		}
+		const alreadyNotified =
+			lastNotified === latestTag && lastNotifiedFor === current
 
-		if (log) {
+		if (log && !alreadyNotified) {
 			sendLog(
 				`New version ${latestTag} available! (current: v${current}). Click the tray icon to install the update.`,
 				'warn',
 			)
 		}
 
-		await writeSettings({
-			...settings,
-			lastUpdateNotified: latestTag,
-			lastUpdateNotifiedVersion: current,
-		})
+		if (!alreadyNotified) {
+			await writeSettings({
+				...settings,
+				lastUpdateNotified: latestTag,
+				lastUpdateNotifiedVersion: current,
+			})
+		}
 
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win) {
@@ -61,13 +62,17 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		return info
 	} catch (e: any) {
 		sendLog(`Update failed: ${e?.message || String(e)}`)
+		return null
 	}
 }
 
 function getDownloadUrl(assets: any[]) {
 	return (
 		assets?.find(
-			(a: any) => a.name.includes('Setup') && a.name.endsWith('.exe'),
+			(a: any) =>
+				typeof a.name === 'string' &&
+				a.name.includes('Setup') &&
+				a.name.endsWith('.exe'),
 		)?.browser_download_url || null
 	)
 }

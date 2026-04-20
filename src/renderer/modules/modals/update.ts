@@ -1,11 +1,7 @@
 import { marked } from 'marked'
+import type { UpdateInfo } from 'src/types/types'
 
-interface UpdateInfo {
-	latestTag: string
-	downloadUrl: string | null
-	currentVersion: string
-	changelogMd: string
-}
+let pendingUpdate: UpdateInfo | null = null
 
 async function renderMarkdown(md: string): Promise<string> {
 	marked.setOptions({ breaks: true })
@@ -38,6 +34,8 @@ async function openUpdateOverlay(info: UpdateInfo) {
 	) as HTMLElement | null
 	if (!overlay) return
 
+	pendingUpdate = info
+
 	const titleText =
 		info.latestTag && info.currentVersion
 			? `New version ${info.latestTag} available`
@@ -61,40 +59,55 @@ async function openUpdateOverlay(info: UpdateInfo) {
 	overlay.dataset.open = 'true'
 }
 
+function hideUpdateOverlay() {
+	const overlay = document.getElementById(
+		'update-overlay',
+	) as HTMLElement | null
+	if (!overlay) return
+	overlay.dataset.open = 'false'
+}
+
 function bindUpdateOverlayControls() {
 	const overlay = document.getElementById(
 		'update-overlay',
 	) as HTMLElement | null
 	if (!overlay) return
 
-	const closeBtn = document.getElementById('update-close-btn')
-	const installBtn = document.getElementById('update-install-btn')
+	const closeBtn = document.getElementById(
+		'update-close-btn',
+	) as HTMLButtonElement | null
+	const laterBtn = document.getElementById(
+		'update-later-btn',
+	) as HTMLButtonElement | null
+	const installBtn = document.getElementById(
+		'update-install-btn',
+	) as HTMLButtonElement | null
 
 	if (closeBtn) {
 		closeBtn.addEventListener('click', () => {
-			overlay.dataset.open = 'false'
+			hideUpdateOverlay()
+		})
+	}
+
+	if (laterBtn) {
+		laterBtn.addEventListener('click', () => {
+			hideUpdateOverlay()
 		})
 	}
 
 	if (installBtn) {
 		installBtn.addEventListener('click', () => {
 			if (
-				window.electronAPI &&
-				typeof window.electronAPI.installUpdate === 'function'
+				!window.electronAPI ||
+				typeof window.electronAPI.installUpdate !== 'function'
 			) {
-				const latestTag = (
-					document.getElementById('update-latest-version')?.textContent || ''
-				).trim()
-				const currentVersion = (
-					document.getElementById('update-current-version')?.textContent || ''
-				).trim()
-				window.electronAPI.installUpdate?.({
-					latestTag,
-					currentVersion,
-					downloadUrl: null,
-					changelogMd: '',
-				})
+				return
 			}
+			if (!pendingUpdate || !pendingUpdate.downloadUrl) {
+				return
+			}
+			window.electronAPI.installUpdate(pendingUpdate)
+			hideUpdateOverlay()
 		})
 	}
 }
@@ -106,7 +119,7 @@ export function initUpdateOverlay() {
 		window.electronAPI &&
 		typeof window.electronAPI.onUpdateAvailable === 'function'
 	) {
-		window.electronAPI.onUpdateAvailable(info => {
+		window.electronAPI.onUpdateAvailable((info: UpdateInfo) => {
 			void openUpdateOverlay(info)
 		})
 	}
