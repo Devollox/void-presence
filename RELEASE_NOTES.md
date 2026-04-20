@@ -1,6 +1,11 @@
-# Persist Timestamp Safety Clamp
+# Timestamp Safety
 
 ## Improvements
 
-- **Safer Persist Timestamp Updates**
-  Added a guard to the `persistOffsetSec` timestamp configuration so that large jumps are ignored. Incoming `persistOffsetSec` values are still rounded to the nearest 5 seconds, but if a new value is more than 10 seconds higher than the currently stored offset, the change is discarded and the existing value is preserved. This prevents accidental or noisy updates from causing sudden, unrealistic jumps in the persisted timestamp.
+- **Smoother Live Timestamp Editing**
+  Updated the `live-set-timestamp` IPC handler so that switching timestamp modes (`now`, `range`, `persist`) no longer forces a Discord Rich Presence restart. Mode, range, and display settings now apply live without interrupting the active RPC session, making timestamp experimentation feel more responsive in the UI.
+
+## Internal Changes
+
+- **Centralized Timestamp Config Handling**
+  All timestamp-related logic (`mode`, `rangeMin`, `rangeMax`, `persistOffsetSec`, `nowMode`, `timeCycles`) now flows through the shared `setTimestampConfig` helper, ensuring consistent validation, rounding, and safety checks across both regular and live update paths.
