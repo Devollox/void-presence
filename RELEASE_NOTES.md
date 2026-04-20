@@ -1,6 +1,6 @@
-# Auto‑Update Overlay Fix
+# Upload Button Style Patch
 
 ## Improvements
 
-- **Auto‑Update Overlay Fix**
-  Fixed a bug where the inline changelog update overlay could trigger installation without a valid download URL, restoring reliable one‑click auto‑updates from inside the app.
+- **Upload Button Style Refresh**
+  Tweaked the upload button styling (via `uploadBtn.innerHTML`) to better match the rest of the UI, improving visual consistency and making the upload action more noticeable without changing its behavior.
