@@ -1,6 +1,6 @@
-# Upload Button Style Patch
+# Persist Timestamp Safety Clamp
 
 ## Improvements
 
-- **Upload Button Style Refresh**
-  Tweaked the upload button styling (via `uploadBtn.innerHTML`) to better match the rest of the UI, improving visual consistency and making the upload action more noticeable without changing its behavior.
+- **Safer Persist Timestamp Updates**
+  Added a guard to the `persistOffsetSec` timestamp configuration so that large jumps are ignored. Incoming `persistOffsetSec` values are still rounded to the nearest 5 seconds, but if a new value is more than 10 seconds higher than the currently stored offset, the change is discarded and the existing value is preserved. This prevents accidental or noisy updates from causing sudden, unrealistic jumps in the persisted timestamp.
