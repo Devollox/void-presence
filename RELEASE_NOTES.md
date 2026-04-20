@@ -1,10 +1,15 @@
-# Changelog Bridge & Structure Cleanup
+# Cloud Security & Config Refactor
 
 ## Improvements
 
-- **Inline Changelog in Update Overlay**: The existing update overlay now shows a short “What’s new” section, pulling release notes directly from the latest GitHub Release body and rendering them as markdown inside the app.
+- **Safer Cloud Config Upload**  
+  Cloud upload now uses a centralized Firebase base URL injected at build time and read via environment variables, instead of hard‑coded or encoded strings in the code. This simplifies configuration and reduces the risk of accidentally exposing sensitive endpoints.
+
 
 ## Internal Changes
 
-- **Unified Update Payload**: Main, preload and renderer now share a single `UpdateInfo` shape for updates, including `changelogMd` for the inline changelog.
-- **Folder Structure Cleanup**: Refined main/renderer module layout for update logic and UI modals to keep all update‑related code in clear, focused files and folders.
+- **Centralized Main Config Module**  
+  All JSON config read/write logic (`client-config`, `buttons`, `cycles`, `image-cycles`, `party`, `timestamp`, `settings`) has been consolidated into a single `main/config.ts` module, using a generic `Validator<T>` and safe helpers `readJsonWithSchema` / `writeJsonSafe` for consistent validation and error handling.
+
+- **Async Settings API**  
+  Legacy synchronous `loadSettings` / `saveSettings` have been replaced with asynchronous `readSettings` / `writeSettings`, and `readFiltersState` can now rely on the shared `Settings` validator, reducing duplication and improving code clarity.
