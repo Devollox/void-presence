@@ -11,6 +11,7 @@
 !.yarn/releases
 !.yarn/versions
 
+
 # testing
 /coverage
 
@@ -20,7 +21,7 @@
 
 # production
 /build
-
+vite.main.config.ts
 /.vite
 
 # misc
