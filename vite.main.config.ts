@@ -14,4 +14,7 @@ export default defineConfig({
 			],
 		},
 	},
+	define: {
+		'process.env.FIREBASE_DB_URL': JSON.stringify(process.env.FIREBASE_DB_URL),
+	},
 })
