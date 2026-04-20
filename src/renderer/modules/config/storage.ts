@@ -63,7 +63,7 @@ export function updateRecentName(id: string, name: string): void {
 	const items = getRecentApps()
 	const idx = items.findIndex(x => x.id === id)
 	if (idx === -1) return
-	items[idx] = { ...items[idx], name: name.trim() || 'Unnamed app' }
+	items[idx] = { ...items[idx], name: name.trim() || '' }
 	setRecentApps(items)
 }
 

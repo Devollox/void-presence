@@ -15,12 +15,6 @@ import {
 	stopDiscordRichAdvanced,
 } from '../discord'
 import {
-	readFiltersState,
-	readTimestampConfig,
-	setActivityIntervalConfig,
-	setActivityType,
-} from '../discord/modules/config'
-import {
 	ActivityType,
 	NowMode,
 	NowPlayingData,
@@ -28,8 +22,15 @@ import {
 	RpcPayload,
 } from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
+import {
+	readFiltersState,
+	readSettings,
+	readTimestampConfig,
+	setActivityIntervalConfig,
+	setActivityType,
+	writeSettings,
+} from './config'
 import { sendLog, sendStatus } from './logging'
-import { loadSettings, saveSettings } from './settings'
 import { downloadFile } from './updates'
 
 let autoHideOnStart = false
@@ -145,8 +146,8 @@ export function getLastNowPlaying() {
 	return lastNowPlaying
 }
 
-function refreshSmtcWorkerIfNeeded() {
-	const s = loadSettings()
+async function refreshSmtcWorkerIfNeeded() {
+	const s = await readSettings()
 	const shouldUseSmtc = s.musicFilter || s.videoFilter
 
 	if (shouldUseSmtc && !smtcWorker) {
@@ -160,8 +161,8 @@ function refreshSmtcWorkerIfNeeded() {
 	}
 }
 
-export function initIpc() {
-	const s = loadSettings()
+export async function initIpc() {
+	const s = await readSettings()
 	autoHideOnStart = !!s.autoHideOnStart
 
 	const shouldUseSmtc = s.musicFilter || s.videoFilter
@@ -306,13 +307,13 @@ export function initIpc() {
 
 	ipcMain.handle('set-auto-hide', async (_event, enabled: boolean) => {
 		autoHideOnStart = !!enabled
-		const current = loadSettings()
-		saveSettings({ ...current, autoHideOnStart })
+		const current = await readSettings()
+		await writeSettings({ ...current, autoHideOnStart })
 		return true
 	})
 
 	ipcMain.handle('get-auto-hide', async () => {
-		const s2 = loadSettings()
+		const s2 = await readSettings()
 		autoHideOnStart = !!s2.autoHideOnStart
 		return autoHideOnStart
 	})
@@ -516,8 +517,8 @@ export function initIpc() {
 	ipcMain.handle(
 		'settings:set-music-filter',
 		async (_event, enabled: boolean) => {
-			const current = loadSettings()
-			saveSettings({ ...current, musicFilter: !!enabled })
+			const current = await readSettings()
+			await writeSettings({ ...current, musicFilter: !!enabled })
 
 			refreshSmtcWorkerIfNeeded()
 			return true
@@ -527,8 +528,8 @@ export function initIpc() {
 	ipcMain.handle(
 		'settings:set-video-filter',
 		async (_event, enabled: boolean) => {
-			const current = loadSettings()
-			saveSettings({ ...current, videoFilter: !!enabled })
+			const current = await readSettings()
+			await writeSettings({ ...current, videoFilter: !!enabled })
 
 			refreshSmtcWorkerIfNeeded()
 			return true
@@ -538,8 +539,8 @@ export function initIpc() {
 	ipcMain.handle(
 		'settings:set-automatic-activity',
 		async (_event, enabled: boolean) => {
-			const current = loadSettings()
-			saveSettings({ ...current, activityFilter: !!enabled })
+			const current = await readSettings()
+			await writeSettings({ ...current, activityFilter: !!enabled })
 			return true
 		},
 	)
@@ -547,8 +548,8 @@ export function initIpc() {
 	ipcMain.handle(
 		'settings:set-cover-fetch',
 		async (_event, enabled: boolean) => {
-			const current = loadSettings()
-			saveSettings({ ...current, coverFetchEnabled: !!enabled })
+			const current = await readSettings()
+			await writeSettings({ ...current, coverFetchEnabled: !!enabled })
 			return true
 		},
 	)

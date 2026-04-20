@@ -1,7 +1,7 @@
+import 'dotenv/config'
 import { app } from 'electron'
-import { decodeEnv } from './main/cloud'
+import { readSettings } from './main/config'
 import { getAutoHide, initIpc } from './main/ipc'
-import { loadSettings } from './main/settings'
 import { createTray } from './main/tray'
 import { checkForUpdates } from './main/updates'
 import { createMainWindow } from './main/window'
@@ -23,14 +23,12 @@ app.on('second-instance', () => {
 	}
 })
 
-decodeEnv()
-
 app.on('before-quit', () => {
 	isQuitting = true
 })
 
 app.whenReady().then(async () => {
-	const initialSettings = loadSettings()
+	const initialSettings = await readSettings()
 	const autoHideOnStart = !!initialSettings.autoHideOnStart
 
 	mainWindow = createMainWindow(autoHideOnStart, () => isQuitting)

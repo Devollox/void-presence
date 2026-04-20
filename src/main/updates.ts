@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from 'electron'
 import fs from 'fs'
 import path from 'path'
+import { readSettings, writeSettings } from './config'
 import { sendLog } from './logging'
-import { loadSettings, saveSettings } from './settings'
 
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
@@ -23,7 +23,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 			return null
 		}
 
-		const settings = loadSettings()
+		const settings = await readSettings()
 		const lastNotified = settings.lastUpdateNotified || null
 		const lastNotifiedFor = settings.lastUpdateNotifiedVersion || current
 
@@ -47,7 +47,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 			)
 		}
 
-		saveSettings({
+		await writeSettings({
 			...settings,
 			lastUpdateNotified: latestTag,
 			lastUpdateNotifiedVersion: current,

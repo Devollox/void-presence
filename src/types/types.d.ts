@@ -147,6 +147,7 @@ export interface VoidPresenceCtx {
 	cycles: CycleEntry[]
 	imageCycles: ImageCycleEntry[]
 	timeCycles?: TimeCycleEntry[]
+	showBlocksToast: () => void
 	renderButtonPairs: () => void
 	renderCycles: () => void
 	renderImageCycles: () => void

@@ -8,7 +8,7 @@ export {
 	setImageCyclesConfig,
 	setPartyConfig,
 	setTimestampConfig,
-} from './modules/config'
+} from '../main/config'
 
 export {
 	resetPersistTimestampValue as resetPersistTimestampValueAdvanced,

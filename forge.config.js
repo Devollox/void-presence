@@ -12,10 +12,13 @@ module.exports = {
 			if (path.startsWith('/.git') || path.startsWith('.git')) return true
 			if (path.endsWith('.eslintrc') || path.endsWith('.hintrc')) return true
 			if (path.endsWith('forge.config.ts')) return true
+			if (path.endsWith('.env')) return true
 			if (path.endsWith('tsconfig.json')) return true
 			if (path.endsWith('vite.main.config.ts')) return true
 			if (path.endsWith('vite.preload.config.ts')) return true
 			if (path.endsWith('vite.renderer.config.ts')) return true
+			if (path.endsWith('vite.win.config.ts')) return true
+			if (path.endsWith('RELEASE_NOTES.md')) return true
 			if (path.endsWith('README.md')) return true
 			if (path.endsWith('LICENSE')) return true
 			if (path.endsWith('package-lock.json')) return true
@@ -28,6 +31,8 @@ module.exports = {
 			if (path.includes('/src/renderer/index.ts')) return true
 			if (path.includes('/src/main.ts')) return true
 			if (path.includes('/src/preload.ts')) return true
+
+			if (path.includes('/dist')) return true
 
 			if (path.includes('/node_modules/typescript')) return true
 			if (path.includes('/node_modules/@types')) return true

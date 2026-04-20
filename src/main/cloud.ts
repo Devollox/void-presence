@@ -1,13 +1,6 @@
-const ENV_DATA =
-	'RklyZWJBU0VfREJfVVJMPWh0dHBzOi8vc3R1ZGlvLTU3MTAzMDA1ODgtMjYyNWItZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tLw=='
-
-export function decodeEnv() {
-	const decoded = Buffer.from(ENV_DATA, 'base64').toString()
-	const lines = decoded.split('\n')
-	lines.forEach(line => {
-		const [key, ...valueParts] = line.split('=')
-		if (key) process.env[key.trim()] = valueParts.join('=').trim()
-	})
+function getBaseUrl() {
+	const raw = process.env.FIREBASE_DB_URL || ''
+	return raw.endsWith('/') ? raw.slice(0, -1) : raw
 }
 
 export type UploadConfigPayload = {
@@ -23,15 +16,11 @@ type UserRecord = {
 	createdAt?: number
 }
 
-function getBaseUrl() {
-	const raw = process.env.FIREBASE_DB_URL || ''
-	return raw.endsWith('/') ? raw.slice(0, -1) : raw
-}
-
 export async function fetchAuthor(
-	authorId: string
+	authorId: string,
 ): Promise<UserRecord | null> {
 	const base = getBaseUrl()
+	if (!base) return null
 	const url = `${base}/users/${authorId}.json`
 	const res = await fetch(url)
 	if (!res.ok) return null
@@ -41,9 +30,11 @@ export async function fetchAuthor(
 }
 
 export async function uploadConfigToCloud(
-	config: UploadConfigPayload
+	config: UploadConfigPayload,
 ): Promise<string> {
 	const base = getBaseUrl()
+	if (!base) throw new Error('FIREBASE_DB_URL is not set')
+
 	const url = `${base}/configs.json`
 
 	const response = await fetch(url, {

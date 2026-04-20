@@ -1,5 +1,16 @@
 import { exec } from 'child_process'
 import rpc from 'discord-rpc'
+import {
+	readActivityTypeConfig,
+	readButtonsConfig,
+	readClientConfig,
+	readCyclesConfig,
+	readFiltersState,
+	readImageCyclesConfig,
+	readPartyConfig,
+	readTimestampConfig,
+	setTimestampConfig,
+} from '../../main/config'
 import { getLastNowPlaying } from '../../main/ipc'
 import { sendLog, sendStatus } from '../../main/logging'
 import {
@@ -14,17 +25,6 @@ import {
 	TimeCycleEntry,
 	TimestampConfig,
 } from '../../types/types'
-import {
-	readActivityTypeConfig,
-	readButtonsConfig,
-	readClientConfig,
-	readCyclesConfig,
-	readFiltersState,
-	readImageCyclesConfig,
-	readPartyConfig,
-	readTimestampConfig,
-	setTimestampConfig,
-} from './config'
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0

@@ -1,4 +1,5 @@
 import { FullState } from '../../../types/types'
+import { setupToasts } from '../config/toasts'
 
 export function importConfigFromFile(file: File): void {
 	const reader = new FileReader()
@@ -38,6 +39,9 @@ export function importConfigFromFile(file: File): void {
 			if (window.addConfigFromState) {
 				window.addConfigFromState(baseName, state)
 			}
+
+			const { showConfigLoadedToast } = setupToasts()
+			showConfigLoadedToast()
 		} catch (err) {
 			console.error('Failed to import config', err)
 		}
