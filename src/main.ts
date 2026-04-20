@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { app } from 'electron'
+import { decodeEnv } from './main/cloud'
 import { readSettings } from './main/config'
 import { getAutoHide, initIpc } from './main/ipc'
 import { createTray } from './main/tray'
@@ -22,6 +23,8 @@ app.on('second-instance', () => {
 		mainWindow.focus()
 	}
 })
+
+decodeEnv()
 
 app.on('before-quit', () => {
 	isQuitting = true
