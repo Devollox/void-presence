@@ -828,8 +828,8 @@ export default function startDiscordRich(
 			lastReadyAt = Date.now()
 			isSearchingDiscord = false
 			if (sendLog) sendLog('RPC ready', 'success')
-			sendStatus('ACTIVE')
 			cycleIndex = 0
+
 			try {
 				const np = await readNowPlayingSafe()
 				const title = np?.title || ''
@@ -837,14 +837,23 @@ export default function startDiscordRich(
 				const posRaw = typeof np?.position === 'number' ? np.position : null
 				const position =
 					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
-				lastJsonSignature = JSON.stringify({ title, status, position })
+
 				currentTitle = title || null
 				lastSmTcStatus = status || null
 				lastSmTcPosition =
 					typeof position === 'number' ? position : lastSmTcPosition
+
+				if (np && (np.playbackStatus || np.title)) {
+					await pushActivity(np)
+					lastJsonSignature = JSON.stringify({ title, status, position })
+					sendStatus('ACTIVE')
+				} else {
+					lastJsonSignature = ''
+				}
 			} catch {
 				lastJsonSignature = ''
 			}
+
 			void pollJsonLoop()
 		})
 

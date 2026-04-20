@@ -1,11 +1,14 @@
-# Timestamp Safety
+# RPC Ready & First Activity Dispatch
 
 ## Improvements
 
-- **Smoother Live Timestamp Editing**
-  Updated the `live-set-timestamp` IPC handler so that switching timestamp modes (`now`, `range`, `persist`) no longer forces a Discord Rich Presence restart. Mode, range, and display settings now apply live without interrupting the active RPC session, making timestamp experimentation feel more responsive in the UI.
+- **Accurate ACTIVE State**
+  The RPC status is now marked as **ACTIVE** only after the first Rich Presence payload has been successfully sent to Discord, instead of immediately on socket readiness. This makes the status indicator reflect real in‑Discord activity rather than just a connected transport.
 
 ## Internal Changes
 
-- **Centralized Timestamp Config Handling**
-  All timestamp-related logic (`mode`, `rangeMin`, `rangeMax`, `persistOffsetSec`, `nowMode`, `timeCycles`) now flows through the shared `setTimestampConfig` helper, ensuring consistent validation, rounding, and safety checks across both regular and live update paths.
+- **`ready` Handler Adjusted**
+  The `localClient.on('ready')` handler now:
+  - Reads the current `NowPlaying` snapshot from SMTC.
+  - If a track/title or playback status is present, calls `pushActivity(np)` once and only then sets `sendStatus('ACTIVE')`.
+  - Updates `lastJsonSignature` based on the initial snapshot so that the polling loop does not immediately re‑send the same payload.
