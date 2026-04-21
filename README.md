@@ -2,10 +2,6 @@
   <a href="https://www.voidpresence.site">Void Presence</a>
 </h1>
 
-<h4 align="center">
-  <a href="http://voidpresence.site/void">Click -> Demo</a>
-</h1>
-
 <p align="center">
  <img width="1920" height="1031" alt="image" src="https://github.com/user-attachments/assets/57e15016-71b1-44cc-9e39-ed1244990d15" />
 </p>
