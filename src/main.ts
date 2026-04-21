@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { app } from 'electron'
 import { decodeEnv } from './main/cloud'
 import { readSettings } from './main/config'

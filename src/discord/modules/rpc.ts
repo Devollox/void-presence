@@ -66,6 +66,13 @@ let isSearchingDiscord = false
 let lastReadyAt = 0
 let lastStoppedAt: number | null = null
 
+function msToDiscordTs(ms: number | null | undefined): number | undefined {
+	if (!Number.isFinite(ms as number)) return undefined
+	const sec = Math.floor((ms as number) / 1000)
+	if (sec < 1) return undefined
+	return sec
+}
+
 function cleanupMemory() {
 	if (coverCache.size > 100) {
 		const keys = Array.from(coverCache.keys())
@@ -363,7 +370,7 @@ export default function startDiscordRich(
 		const filters = await readFiltersState()
 		let activityFilterEnabled = filters.activityFilter === true
 
-		const plainTimestamps = { start: Date.now() }
+		const plainTimestampsMs = { start: Date.now() }
 
 		let timeCycleIndex = 0
 
@@ -375,7 +382,7 @@ export default function startDiscordRich(
 		}
 
 		function getTimestampsForPlain() {
-			return plainTimestamps
+			return plainTimestampsMs
 		}
 
 		function getTimestampsForProgress() {
@@ -494,7 +501,7 @@ export default function startDiscordRich(
 		let buttonIndex = 0
 
 		let hasNowPlaying = false
-		let pausedPlainTimestamps: { start: number } | null = null
+		let pausedPlainTimestampsMs: { start: number } | null = null
 
 		function getNextParty(): PartyCycleEntry | null {
 			if (!partyConfig || !Array.isArray(partyConfig.entries)) return null
@@ -658,18 +665,18 @@ export default function startDiscordRich(
 				cycleForNow = getNextTimeCycle()
 			}
 
-			let timestamps: { start: number; end?: number } =
+			let timestampsMs: { start: number; end?: number } =
 				getTimestampsForActivity(mode, nowMode, cycleForNow)
 
 			let overrideDelayMs: number | null = null
 
 			if (isPlayingLike && smtcPos != null && smtcDur != null && smtcDur > 0) {
-				pausedPlainTimestamps = null
+				pausedPlainTimestampsMs = null
 				const now = Date.now()
-				const start = now - smtcPos * 1000
-				const end = start + smtcDur * 1000
-				timestamps = { start, end }
-				const remaining = end - now
+				const startMs = now - smtcPos * 1000
+				const endMs = startMs + smtcDur * 1000
+				timestampsMs = { start: startMs, end: endMs }
+				const remaining = endMs - now
 				if (remaining > 0 && Number.isFinite(remaining)) {
 					overrideDelayMs = remaining
 				}
@@ -677,16 +684,16 @@ export default function startDiscordRich(
 				nowMode === 'progress' &&
 				(isPlayingLike || isPausedOrStopped)
 			) {
-				timestamps = getTimestampsForProgress()
+				timestampsMs = getTimestampsForProgress()
 			} else if (isPausedOrStopped) {
-				if (!pausedPlainTimestamps) {
-					pausedPlainTimestamps = getTimestampsForActivity(
+				if (!pausedPlainTimestampsMs) {
+					pausedPlainTimestampsMs = getTimestampsForActivity(
 						mode,
 						nowMode,
 						cycleForNow,
 					)
 				}
-				timestamps = pausedPlainTimestamps
+				timestampsMs = pausedPlainTimestampsMs
 			}
 
 			lastSmTcPosition = smtcPos
@@ -701,7 +708,15 @@ export default function startDiscordRich(
 			}
 
 			const finalTimestamps: { start?: number; end?: number } | undefined =
-				timestamps
+				(() => {
+					const startSec = msToDiscordTs(timestampsMs.start)
+					const endSec = msToDiscordTs(timestampsMs.end)
+					if (!startSec && !endSec) return undefined
+					const obj: { start?: number; end?: number } = {}
+					if (startSec) obj.start = startSec
+					if (endSec && (!startSec || endSec > startSec)) obj.end = endSec
+					return obj
+				})()
 
 			let largeImage: string | undefined = current.largeImage || undefined
 			let largeText: string | undefined = current.largeText || undefined

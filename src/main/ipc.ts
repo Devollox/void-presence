@@ -36,10 +36,6 @@ import { downloadFile } from './updates'
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
 let lastNowPlaying: NowPlayingData | null = null
-
-type RpcMode = 'basic' | 'advanced'
-
-let currentRpcMode: RpcMode = 'basic'
 let stopCurrentRpc: (() => void) | null = null
 
 function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
