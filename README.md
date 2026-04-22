@@ -1,15 +1,10 @@
-<h1 align="center">
-  <a href="https://www.voidpresence.site">Void Presence</a>
-</h1>
+<img width="3844" height="793" alt="484064966-2c662772-bca231-4de4-988f-5304d7dfd87d" src="https://github.com/user-attachments/assets/ff426959-a128-41bc-922c-a971a877fce9" />
 
-<p align="center">
- <img width="1920" height="1031" alt="image" src="https://github.com/user-attachments/assets/57e15016-71b1-44cc-9e39-ed1244990d15" />
-</p>
+<img width="1920" height="1080" alt="Композиция2-1_1" src="https://github.com/user-attachments/assets/ad409ce8-4dd0-4d3e-bc16-1d04ea0c4318" />
 
 <p align="center">
   <img width="450" height="493" alt="Void Presence demo" src="https://github.com/user-attachments/assets/b290bd68-2a95-4ac1-844a-f5f446136394" />
   <img width="450" height="493" alt="Void Presence demo animated" src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXAxaWtpM2hxeW96MHJhNWVuZzN4MG4zdGRtZ2QwbnBtcDc1ODFmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ks5t457f2MSwsYWjPV/giphy.gif" />
-  <img width="314" height="166" alt="image" src="https://github.com/user-attachments/assets/0b33c5b4-a2d6-411a-b895-e4d309b51c8a" />
 </p>
 
 > **Void Presence** – Advanced Discord Rich Presence manager with full control over your activity display.
