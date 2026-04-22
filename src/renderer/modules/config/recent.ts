@@ -1,21 +1,7 @@
 import { getRecentApps, removeRecentApp, updateRecentName } from './storage'
+import { setupToasts } from './toasts'
 
 const copyToastId = 'vp-copy-toast'
-
-function showCopyToast(): void {
-	let toast = document.getElementById(copyToastId) as HTMLDivElement | null
-	if (!toast) {
-		toast = document.createElement('div')
-		toast.id = copyToastId
-		toast.className = 'copy-toast'
-		toast.textContent = 'Client ID copied'
-		document.body.appendChild(toast)
-	}
-	toast.dataset.visible = 'true'
-	window.setTimeout(() => {
-		toast && (toast.dataset.visible = 'false')
-	}, 2000)
-}
 
 export function renderRecentApps(recentList: HTMLElement): void {
 	const items = getRecentApps()
@@ -65,7 +51,9 @@ export function renderRecentApps(recentList: HTMLElement): void {
 			try {
 				if (navigator.clipboard && navigator.clipboard.writeText) {
 					await navigator.clipboard.writeText(item.id)
-					showCopyToast()
+
+					const { showConfigCopiedToast } = setupToasts()
+					showConfigCopiedToast()
 				}
 			} catch {}
 		})

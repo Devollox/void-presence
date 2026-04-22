@@ -52,7 +52,16 @@ export function createModeControllers(ctx: VoidPresenceCtx) {
 	const storedNowMode =
 		(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
 
-	function setNowMode(m: NowMode) {
+	function setVisibility(
+		elements: Array<HTMLElement | null>,
+		visible: boolean,
+	): void {
+		elements.forEach(el => {
+			if (el) el.dataset.visible = visible ? 'true' : 'false'
+		})
+	}
+
+	function setNowMode(m: NowMode): void {
 		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
 		if (nowProgress)
 			nowProgress.dataset.active = m === 'progress' ? 'true' : 'false'
@@ -60,20 +69,17 @@ export function createModeControllers(ctx: VoidPresenceCtx) {
 
 		localStorage.setItem('nowMode', m)
 
-		const mode: TimestampMode =
-			(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
+		const mode: TimestampMode = storedMode
 		const isNow = mode === 'now'
 		const showTime = isNow && m === 'cycles'
 
-		if (nowModeRow) nowModeRow.dataset.visible = isNow ? 'true' : 'false'
-		if (timeDivider) timeDivider.dataset.visible = showTime ? 'true' : 'false'
-		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
-		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
+		setVisibility([nowModeRow], isNow)
+		setVisibility([timeDivider, timeHeader, timeList], showTime)
 
 		void pushLiveStateFromCtx(ctx)
 	}
 
-	function setMode(m: TimestampMode) {
+	function setMode(m: TimestampMode): void {
 		if (modeNow) modeNow.dataset.active = m === 'now' ? 'true' : 'false'
 		if (modeRange) modeRange.dataset.active = m === 'range' ? 'true' : 'false'
 		if (modePersist)
@@ -87,15 +93,11 @@ export function createModeControllers(ctx: VoidPresenceCtx) {
 		}
 
 		const isNow = m === 'now'
-		if (nowModeRow) nowModeRow.dataset.visible = isNow ? 'true' : 'false'
+		setVisibility([nowModeRow], isNow)
 
-		const nowModeVal: NowMode =
-			(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+		const nowModeVal: NowMode = storedNowMode
 		const showTime = isNow && nowModeVal === 'cycles'
-
-		if (timeDivider) timeDivider.dataset.visible = showTime ? 'true' : 'false'
-		if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
-		if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
+		setVisibility([timeDivider, timeHeader, timeList], showTime)
 
 		localStorage.setItem('timestampMode', m)
 		void pushLiveStateFromCtx(ctx)

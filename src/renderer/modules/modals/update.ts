@@ -42,7 +42,7 @@ async function openUpdateOverlay(info: UpdateInfo) {
 			: 'New version available'
 
 	setText('update-title', titleText)
-	setText('update-current-version', info.currentVersion || '–')
+	setText('update-current-version', `v${info.currentVersion}` || '–')
 	setText('update-latest-version', info.latestTag || '–')
 
 	const hasChangelog = !!info.changelogMd && info.changelogMd.trim().length > 0

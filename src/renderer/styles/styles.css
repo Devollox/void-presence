@@ -1978,6 +1978,14 @@ textarea::-moz-selection {
 	padding: 16px 20px 18px;
 }
 
+.btn-show {
+	grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+	padding: 0 20px 18px;
+	& > button {
+		margin-top: 0 !important;
+	}
+}
+
 .tutorial-inline-wrapper {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));

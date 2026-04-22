@@ -39,7 +39,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		const alreadyNotified =
 			lastNotified === latestTag && lastNotifiedFor === current
 
-		if (log && !alreadyNotified) {
+		if (log) {
 			sendLog(
 				`New version ${latestTag} available! (current: v${current}). Click the tray icon to install the update.`,
 				'warn',

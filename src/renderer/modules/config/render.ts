@@ -14,6 +14,7 @@ import { appendLog, setActiveView } from '../shell/views'
 import { downloadJson, pushLiveStateFromCtx } from './live'
 import { filterListByExistingInput } from './search'
 import { deepCloneState, getConfigs, setConfigs } from './storage'
+import { setupToasts } from './toasts'
 import { openUploadConfirm } from './upload-сonfirm'
 
 export function addConfigFromState(name: string, state: FullState): void {
@@ -304,17 +305,10 @@ export function renderConfigs() {
 
 	list.innerHTML = ''
 
-	const showConfigToast = () => {
-		const el = document.getElementById('config-toast') as HTMLElement | null
-		if (!el) return
-		el.dataset.visible = 'true'
-		setTimeout(() => {
-			el.dataset.visible = 'false'
-		}, 1800)
-	}
+	const { showConfigSavedToast } = setupToasts()
 
 	configs.forEach(cfg => {
-		createConfigCard(cfg, list, nameInput, showConfigToast)
+		createConfigCard(cfg, list, nameInput, showConfigSavedToast)
 	})
 
 	if (configSearchInput) {

@@ -24,12 +24,14 @@ export function setupToasts() {
 	) as HTMLElement | null
 
 	const showConfigSavedToast = () => showToast(blocksToast, 'config saved')
+	const showConfigCopiedToast = () => showToast(blocksToast, 'client id copied')
 	const showConfigLoadedToast = () => showToast(blocksToast, 'config loaded')
 	const showClientIdToast = () => showToast(blocksToast, 'client id saved')
 	const showBlocksToast = () => showToast(blocksToast, 'changes saved')
 
 	return {
 		showConfigSavedToast,
+		showConfigCopiedToast,
 		showConfigLoadedToast,
 		showClientIdToast,
 		showBlocksToast,

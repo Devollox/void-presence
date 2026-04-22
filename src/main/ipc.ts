@@ -208,10 +208,23 @@ export async function initIpc() {
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win || win.isDestroyed()) return false
 
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+
+		stopDiscordRich()
+
 		resetPersistTimestampValue()
 		const cfg = await readTimestampConfig()
 		cfg.persistOffsetSec = 0
 		await setTimestampConfig(cfg)
+
+		setTimeout(() => {
+			startDiscordRich(payload => {
+				if (win.isDestroyed()) return
+				win.webContents.send('rpc-update', payload)
+			})
+		}, 2000)
 
 		return true
 	})

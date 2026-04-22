@@ -5,14 +5,18 @@ export function attachDnD<T>(
 ): void {
 	let dragIndex: number | null = null
 
-	container.addEventListener('dragstart', e => {
-		const target = e.target as HTMLElement | null
-		if (!target) return
+	const getRow = (target: HTMLElement | null): HTMLElement | null =>
+		target?.closest('[data-index]') as HTMLElement | null
 
-		const row = target.closest<HTMLElement>('[data-index]')
-		if (!row) return
+	const clearClasses = () => {
+		Array.from(container.children).forEach((ch: Element) => {
+			ch.classList.remove('dragging', 'drop-target-top', 'drop-target-bottom')
+		})
+	}
 
-		if (window.getSelection()?.toString()) {
+	container.addEventListener('dragstart', (e: DragEvent) => {
+		const row = getRow(e.target as HTMLElement)
+		if (!row || window.getSelection()?.toString()) {
 			e.preventDefault()
 			return
 		}
@@ -21,56 +25,39 @@ export function attachDnD<T>(
 		row.classList.add('dragging')
 	})
 
-	container.addEventListener('dragend', e => {
-		const target = e.target as HTMLElement | null
-		const row = target?.closest<HTMLElement>('[data-index]')
-		if (row) row.classList.remove('dragging')
-		Array.from(container.children).forEach(ch => {
-			;(ch as HTMLElement).classList.remove(
-				'drop-target-top',
-				'drop-target-bottom',
-			)
-		})
+	container.addEventListener('dragend', () => {
+		clearClasses()
 		dragIndex = null
 	})
 
-	container.addEventListener('dragover', e => {
+	container.addEventListener('dragover', (e: DragEvent) => {
 		e.preventDefault()
-		const target = e.target as HTMLElement | null
-		const row = target?.closest<HTMLElement>('[data-index]')
+		e.dataTransfer!.dropEffect = 'move'
+
+		const row = getRow(e.target as HTMLElement)
 		if (!row || dragIndex === null) return
 
-		Array.from(container.children).forEach(ch => {
-			;(ch as HTMLElement).classList.remove(
-				'drop-target-top',
-				'drop-target-bottom',
-			)
-		})
-
+		clearClasses()
 		const rect = row.getBoundingClientRect()
-		const offset = e.clientY - rect.top
-		if (offset < rect.height / 2) {
-			row.classList.add('drop-target-top')
-		} else {
-			row.classList.add('drop-target-bottom')
-		}
+		const isTop = e.clientY < rect.top + rect.height / 2
+
+		row.classList.add(isTop ? 'drop-target-top' : 'drop-target-bottom')
 	})
 
-	container.addEventListener('drop', e => {
+	container.addEventListener('drop', (e: DragEvent) => {
 		e.preventDefault()
-		const target = e.target as HTMLElement | null
-		const row = target?.closest<HTMLElement>('[data-index]')
+		const row = getRow(e.target as HTMLElement)
 		if (!row || dragIndex === null) return
 
 		const targetIndex = Number(row.dataset.index)
 		const rect = row.getBoundingClientRect()
-		const offset = e.clientY - rect.top
-		let insertIndex = targetIndex
-		if (offset >= rect.height / 2) insertIndex = targetIndex + 1
+		const insertIndex =
+			e.clientY >= rect.top + rect.height / 2 ? targetIndex + 1 : targetIndex
 
 		const [moved] = items.splice(dragIndex, 1)
-		if (insertIndex > items.length) insertIndex = items.length
-		items.splice(insertIndex, 0, moved)
+		items.splice(Math.min(insertIndex, items.length), 0, moved)
+
+		clearClasses()
 		renderFn()
 	})
 }
