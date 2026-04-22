@@ -18,7 +18,7 @@ Void Presence is an advanced Discord Rich Presence manager with **two RPC Modes*
 ---
 
 ## Features
-- **RPC Modes** – `Basic` (lightweight) / `Music and Youtube` (**Spotify + YouTube**)
+- **RPC Modes** – `Basic` (lightweight) / `Music and Video` (**Music + Video**)
 - **Custom button pairs** – Create multiple button sets with labels and URLs  
 - **Custom update interval** – Control how often activity is refreshed (in seconds)  
 - **Status cycles** – Rotate between different status messages (`details` and `state`)  
@@ -32,9 +32,10 @@ Void Presence is an advanced Discord Rich Presence manager with **two RPC Modes*
 - **Minimalist UI** – Dark, clean interface with real-time preview  
 - **System tray** – Quick access while running in the background  
 
----
+## 
+<img width="3844" height="302" alt="2" src="https://github.com/user-attachments/assets/4d1b2728-9b48-4327-862e-b6613cf87e8f" />
 
-## Installation
+## 
 
 ### Quick setup
 
@@ -47,9 +48,10 @@ Void Presence is an advanced Discord Rich Presence manager with **two RPC Modes*
 
 > **⏱️ Initial delay** – On first launch, status may appear in Discord after ~25 seconds. This is normal and only happens on startup.  
 
----
+## 
+<img width="3844" height="302" alt="1" src="https://github.com/user-attachments/assets/f37380e9-d67d-43c9-aaa9-6bcc1f486541" />
 
-## Configuration
+## 
 
 ### Discord Application ID
 
@@ -123,16 +125,12 @@ Recommended user presets:
 - Perfect for backup or sharing setups across machines or accounts  
 - Upload your profiles to the cloud and restore them on any machine using your **Author ID** from the Void Presence profile page: [+ Author ID](https://www.voidpresence.site/profile)  
 
----
-
 ## Presets & Community Configs
 
 Void Presence ships with ready‑to‑use Rich Presence presets and supports importing custom configurations.
 
 You can **browse, search, and download community configs here**:  
 [+ Configs](https://www.voidpresence.site/configs)
-
----
 
 ## Usage
 
@@ -151,15 +149,13 @@ You can **browse, search, and download community configs here**:
 13. Click **Stop Presence** – Disable Rich Presence
 14. Click **Upload Current** – Send the active config to the Void Presence website
 
----
 
 ## Keyboard shortcuts
 
 - `Ctrl+,` – Show / hide window  
 - `Ctrl+R` – Restart Rich Presence  
-- `Ctrl+Q` – Quit application  
-
----
+- `Ctrl+Q` – Quit application
+- `Ctrl+U` – Check Updates
 
 ## Tech stack
 
@@ -167,9 +163,10 @@ You can **browse, search, and download community configs here**:
 - **Backend** – Electron, Node.js  
 - **RPC** – `discord-rpc` library for Discord Rich Presence
 
----
+##
+<img width="3844" height="302" alt="Security   data" src="https://github.com/user-attachments/assets/3d30ecf9-8487-4caf-a281-db079659dea2" />
 
-## Security & data
+##
 
 Void Presence uploads only **Rich Presence configuration data** when you use cloud features or share configs on the website.
 
@@ -187,9 +184,10 @@ What is **not** stored:
 
 Configs are used only to render Rich Presence and to let you share presets between machines or with other users through the Void Presence website.
 
----
+##
+<img width="3844" height="302" alt="Author" src="https://github.com/user-attachments/assets/ac80d92e-eb98-4f3e-85ab-bf354e3b11ea" />
 
-## Author
+##
 
 Made with ❤️ by [Devollox](https://github.com/Devollox)
 
