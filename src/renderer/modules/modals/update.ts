@@ -1,5 +1,6 @@
 import { marked } from 'marked'
 import type { UpdateInfo } from 'src/types/types'
+import { setActiveView } from '../shell/views-nav'
 
 let pendingUpdate: UpdateInfo | null = null
 
@@ -108,6 +109,8 @@ function bindUpdateOverlayControls() {
 			}
 			window.electronAPI.installUpdate(pendingUpdate)
 			hideUpdateOverlay()
+
+			setActiveView('logs')
 		})
 	}
 }

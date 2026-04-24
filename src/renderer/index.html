@@ -699,8 +699,8 @@
 										<li>
 											Optionally add your
 											<span class="tutorial-strong">author ID</span>
-											(from void-presence.com) to link the profile to your
-											account.
+											(from voidpresence.site/profile) to link the profile to
+											your account.
 										</li>
 										<li>
 											Click
@@ -732,10 +732,7 @@
 										</li>
 										<li>
 											Click
-											<span class="tutorial-strong">Upload Current</span>
-											in the
-											<span class="tutorial-strong">Cloud Sync</span>
-											card.
+											<span class="tutorial-strong">upload</span>.
 										</li>
 										<li>
 											Confirm in the
@@ -758,7 +755,13 @@
 									<div class="card-label">save / load presets</div>
 								</div>
 							</div>
-
+							<div class="client-row">
+								<span>author ID</span>
+								<input
+									id="config-author-input"
+									placeholder="Get from voidpresence.site/profile"
+								/>
+							</div>
 							<div class="client-row">
 								<span>name</span>
 								<input id="config-name-input" placeholder="config name" />
@@ -768,27 +771,19 @@
 									</button>
 								</div>
 							</div>
-							<div class="client-row">
-								<span>author ID</span>
-								<input
-									id="config-author-input"
-									placeholder="Get from void-presence.com"
-								/>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="card-header">
-								<div class="card-title-label">Recent Apps</div>
-							</div>
-							<div id="recent-list"></div>
 						</div>
 
 						<div class="card">
 							<div class="card-header">
 								<div class="card-title-label">Cloud Sync</div>
 							</div>
-
+							<div class="client-row">
+								<span>name</span>
+								<input
+									id="config-name-input-current"
+									placeholder="config name"
+								/>
+							</div>
 							<div class="client-row">
 								<button
 									id="cloud-upload-btn"
@@ -819,6 +814,13 @@
 								Upload will overwrite the remote copy of this profile in the
 								cloud.
 							</p>
+						</div>
+
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title-label">Recent Apps</div>
+							</div>
+							<div id="recent-list"></div>
 						</div>
 
 						<div class="card">

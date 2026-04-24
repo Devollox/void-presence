@@ -12,17 +12,17 @@ export function setupCloudUpload(): void {
 		const authorInput = document.getElementById(
 			'config-author-input',
 		) as HTMLInputElement | null
-		if (authorInput) localStorage.setItem('configAuthor', authorInput.value)
+		if (authorInput) localStorage.setItem('authorId', authorInput.value)
 	}
 
 	function loadInputsFromLocalStorage(): void {
 		const nameInput = document.getElementById(
-			'config-name-input',
+			'config-name-input-current',
 		) as HTMLInputElement | null
 		const authorInput = document.getElementById(
 			'config-author-input',
 		) as HTMLInputElement | null
-		const savedAuthor = localStorage.getItem('configAuthor') || ''
+		const savedAuthor = localStorage.getItem('authorId') || ''
 		if (nameInput) nameInput.value = ''
 		if (authorInput) authorInput.value = savedAuthor
 	}
@@ -38,7 +38,7 @@ export function setupCloudUpload(): void {
 	uploadBtn.addEventListener('click', async e => {
 		e.preventDefault()
 		const nameInput = document.getElementById(
-			'config-name-input',
+			'config-name-input-current',
 		) as HTMLInputElement | null
 		const authorInput = document.getElementById(
 			'config-author-input',
@@ -46,7 +46,8 @@ export function setupCloudUpload(): void {
 
 		if (!nameInput?.value.trim() || !authorInput?.value.trim()) {
 			appendLog({
-				message: 'Enter config name and author ID first',
+				message:
+					'Enter config name and author ID(get from voidpresence.site/profile) first',
 				level: 'error',
 			})
 			return
@@ -101,7 +102,7 @@ export function setupCloudUpload(): void {
 			})
 
 			nameInput.value = ''
-			localStorage.setItem('configAuthor', authorId)
+			localStorage.setItem('authorId', authorId)
 		} catch (err) {
 			appendLog({
 				message: `Upload failed: ${err?.message ?? String(err)}`,
