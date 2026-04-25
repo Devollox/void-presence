@@ -170,7 +170,7 @@ function createConfigCard(
 			) as HTMLInputElement | null
 			if (!authorInput?.value.trim()) {
 				appendLog({
-					message: 'Enter author ID first',
+					message: 'Enter author ID(get from voidpresence.site/profile) first',
 					level: 'error',
 				})
 				return
