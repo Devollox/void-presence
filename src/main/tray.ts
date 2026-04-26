@@ -12,7 +12,7 @@ function getAssetPath(...segments: string[]) {
 	return path.join(appPath, ...segments)
 }
 
-const iconPath = getAssetPath('public', 'favicons', 'dark-fav.png')
+const iconPath = getAssetPath('public', 'favicons', 'Group.png')
 
 function showOrCreateWindow(create: () => void) {
 	let win = getMainWindow()
