@@ -1,7 +1,7 @@
 const { MakerZIP } = require('@electron-forge/maker-zip')
 const { VitePlugin } = require('@electron-forge/plugin-vite')
 
-const ICON_BASE = './public/favicons/favicon'
+const ICON_BASE = './public/favicons/Group'
 
 module.exports = {
 	packagerConfig: {
@@ -61,13 +61,13 @@ module.exports = {
 				build: {
 					win: {
 						target: ['nsis'],
-						icon: './public/favicons/favicon256.ico',
+						icon: './public/favicons/Group.ico',
 						publish: [],
 					},
 					nsis: {
-						installerIcon: './public/favicons/favicon256.ico',
-						uninstallerIcon: './public/favicons/favicon256.ico',
-						installerHeaderIcon: './public/favicons/favicon256.ico',
+						installerIcon: './public/favicons/Group.ico',
+						uninstallerIcon: './public/favicons/Group.ico',
+						installerHeaderIcon: './public/favicons/Group.ico',
 						oneClick: true,
 						perMachine: false,
 					},
