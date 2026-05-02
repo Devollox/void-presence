@@ -31,7 +31,7 @@ import {
 	writeSettings,
 } from './config'
 import { sendLog, sendStatus } from './logging'
-import { downloadFile } from './updates'
+import { downloadFile, isPortable } from './updates'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
@@ -281,7 +281,6 @@ export async function initIpc() {
 	ipcMain.handle('set-activity-interval', async (_event, sec: number) => {
 		await setActivityInterval(sec)
 		await setActivityIntervalConfig(sec)
-
 		return true
 	})
 
@@ -538,27 +537,64 @@ export async function initIpc() {
 
 	ipcMain.on('install-update', async (_event, info) => {
 		try {
+			const portable = isPortable()
+			const version = info.latestTag.replace(/^v/i, '')
+
+			sendLog(`Install update requested: ${info.latestTag}`)
+
 			if (!info.downloadUrl) {
 				sendLog('Update install failed: no download URL')
 				return
 			}
 
-			const { filePath } = await downloadFile(
-				info.downloadUrl,
-				info.latestTag.replace(/^v/i, ''),
-			)
+			const { filePath } = await downloadFile(info.downloadUrl, version)
 
-			sendLog(`Launching installer: ${path.basename(filePath)}`)
+			if (portable) {
+				const installDir = path.dirname(process.execPath)
+				const exeName = path.basename(process.execPath)
+				const newExePath = path.join(installDir, exeName)
 
-			const child = spawn(filePath, [], {
-				detached: true,
-				stdio: 'ignore',
-			})
+				sendLog(
+					`Launching portable installer silently to ${installDir}: ${path.basename(
+						filePath,
+					)}`,
+				)
 
-			child.unref()
-			app.quit()
+				const child = spawn(filePath, ['/S', `/D=${installDir}`])
+
+				child.on('close', code => {
+					sendLog(`Installer exited with code ${code ?? 'null'}`)
+
+					try {
+						const restarted = spawn(newExePath, [], {
+							detached: true,
+							stdio: 'ignore',
+						})
+						restarted.unref()
+						sendLog('Restarted Void Presence after portable update')
+					} catch (e: any) {
+						sendLog(
+							`Failed to restart after update: ${e?.message || String(e)}`,
+							'error',
+						)
+					}
+
+					app.quit()
+				})
+			} else {
+				sendLog(`Launching installer: ${path.basename(filePath)}`)
+
+				const child = spawn(filePath, [], {
+					detached: true,
+					stdio: 'ignore',
+				})
+
+				child.unref()
+				app.quit()
+			}
 		} catch (e: any) {
 			sendLog(`Update install failed: ${e?.message || String(e)}`, 'error')
+			console.error('install-update error:', e)
 		}
 	})
 

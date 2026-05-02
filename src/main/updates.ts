@@ -4,13 +4,23 @@ import path from 'path'
 import { readSettings, writeSettings } from './config'
 import { sendLog } from './logging'
 
+type UpdateInfo = {
+	latestTag: string
+	downloadUrl: string | null
+	portableUrl: string | null
+	currentVersion: string
+	changelogMd: string
+}
+
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
 		const res = await fetch(
 			'https://api.github.com/repos/Devollox/void-presence/releases/latest',
 			{ headers: { Accept: 'application/vnd.github+json' } },
 		)
-		if (!res.ok) return null
+		if (!res.ok) {
+			return null
+		}
 
 		const data = await res.json()
 		const latestTag = data.tag_name as string
@@ -27,11 +37,12 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		const lastNotified = settings.lastUpdateNotified || null
 		const lastNotifiedFor = settings.lastUpdateNotifiedVersion || current
 
-		const downloadUrl = getDownloadUrl(data.assets)
+		const downloadUrl = getInstallerUrl(data.assets)
 
-		const info = {
+		const info: UpdateInfo = {
 			latestTag,
 			downloadUrl,
+			portableUrl: null,
 			currentVersion: current,
 			changelogMd,
 		}
@@ -66,7 +77,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 	}
 }
 
-function getDownloadUrl(assets: any[]) {
+function getInstallerUrl(assets: any[]): string | null {
 	return (
 		assets?.find(
 			(a: any) =>
@@ -87,14 +98,18 @@ export async function downloadFile(
 	sendLog(`Downloading updater: ${fileName}...`)
 
 	const response = await fetch(url)
-	if (!response.ok) throw new Error(`HTTP ${response.status}`)
+	if (!response.ok) {
+		throw new Error(`HTTP ${response.status}`)
+	}
 
 	const file = fs.createWriteStream(filePath)
 	const reader = response.body?.getReader()
 	const total = Number(response.headers.get('content-length') || 0)
 	let downloaded = 0
 
-	if (!reader) throw new Error('Failed to get reader from response body')
+	if (!reader) {
+		throw new Error('Failed to get reader from response body')
+	}
 
 	while (true) {
 		const { done, value } = await reader.read()
@@ -118,10 +133,27 @@ export async function downloadFile(
 					if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
 					reject(new Error(`Invalid EXE: ${stats?.size || 0} bytes`))
 				} else {
-					sendLog(`Downloaded ${Math.round(stats.size / 1024 / 1024)}MB`)
+					const mb = Math.round(stats.size / 1024 / 1024)
+					sendLog(`Downloaded ${mb}MB`)
 					resolve({ filePath })
 				}
 			})
 		})
+		file.on('error', err => {
+			reject(err)
+		})
 	})
+}
+
+function getInstallDir() {
+	return path.dirname(process.execPath)
+}
+
+export function isPortable() {
+	const dir = getInstallDir().toLowerCase()
+	const inAppData = dir.includes('\\appdata\\local\\programs\\')
+	const inProgramFiles =
+		dir.includes('\\program files\\') || dir.includes('\\program files (x86)\\')
+	const portable = !(inAppData || inProgramFiles)
+	return portable
 }

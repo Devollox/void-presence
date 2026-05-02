@@ -827,9 +827,7 @@ export default function startDiscordRich(
 					setTimeout(pollJsonLoop, activityIntervalMs)
 					return
 				}
-			} catch (e) {
-				console.log('[VP] pollJsonLoop: error', e)
-			}
+			} catch (e) {}
 
 			setTimeout(pollJsonLoop, activityIntervalMs)
 		}

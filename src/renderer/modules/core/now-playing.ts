@@ -30,7 +30,6 @@ export async function fetchNowPlaying(): Promise<NowPlayingData> {
 			endsAt: typeof raw.endsAt === 'number' ? raw.endsAt : null,
 		}
 	} catch (e) {
-		console.log('[SMTC] fetchNowPlaying error:', e)
 		return null
 	}
 }
