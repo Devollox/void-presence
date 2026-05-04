@@ -69,8 +69,9 @@ export function createModeControllers(ctx: VoidPresenceCtx) {
 
 		localStorage.setItem('nowMode', m)
 
-		const mode: TimestampMode = storedMode
-		const isNow = mode === 'now'
+		const currentMode =
+			(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
+		const isNow = currentMode === 'now'
 		const showTime = isNow && m === 'cycles'
 
 		setVisibility([nowModeRow], isNow)

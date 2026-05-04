@@ -43,7 +43,7 @@ export function createCycleRow(
 		className: 'cycle-row',
 		inputs: [
 			{ placeholder: 'Details', value: entry.details || '' },
-			{ placeholder: 'State', value: entry.state || '' },
+			{ placeholder: 'State (optional)', value: entry.state || '' },
 		],
 		onChange: (values: any) =>
 			onChange({

@@ -627,8 +627,8 @@ export default function startDiscordRich(
 					}
 				}
 			} else {
-				details = current.details || 'Waiting for playback'
-				state = current.state || 'Idle'
+				details = current.details || ''
+				state = current.state || ''
 			}
 
 			if (smtcTitle && smtcTitle !== currentTitle) {

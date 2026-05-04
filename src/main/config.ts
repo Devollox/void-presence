@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { app } from 'electron'
 import { promises as fs } from 'fs'
 import * as path from 'path'
@@ -19,6 +20,41 @@ import {
 
 type Validator<T> = (input: unknown) => T
 
+async function ensureDir(filePath: string): Promise<void> {
+	const dir = path.dirname(filePath)
+	await fs.mkdir(dir, { recursive: true })
+}
+
+async function writeJsonSafe<T>(
+	filePath: string,
+	data: T,
+	retry = 3,
+): Promise<void> {
+	const json = JSON.stringify(data, null, 2)
+	await ensureDir(filePath)
+
+	const dir = path.dirname(filePath)
+	const tmpPath = path.join(
+		dir,
+		`.${path.basename(filePath)}.${process.pid}.${randomUUID()}.tmp`,
+	)
+
+	for (let i = 0; i < retry; i++) {
+		try {
+			await fs.writeFile(tmpPath, json, 'utf-8')
+			await fs.rename(tmpPath, filePath)
+			return
+		} catch (err) {
+			await new Promise(r => setTimeout(r, 50))
+
+			try {
+				await fs.unlink(tmpPath)
+			} catch {}
+		}
+	}
+	throw new Error(`Failed to write ${filePath} after ${retry} attempts`)
+}
+
 async function readJsonWithSchema<T>(
 	filePath: string,
 	validate: Validator<T>,
@@ -31,11 +67,6 @@ async function readJsonWithSchema<T>(
 	} catch {
 		return fallback
 	}
-}
-
-async function writeJsonSafe<T>(filePath: string, data: T): Promise<void> {
-	const json = JSON.stringify(data, null, 2)
-	await fs.writeFile(filePath, json, 'utf-8')
 }
 
 function getConfigPath(name: string) {
@@ -309,6 +340,50 @@ export async function writeTimestampConfig(config: TimestampConfig) {
 	await writeJsonSafe(getTimestampConfigPath(), validateTimestampConfig(config))
 }
 
+export async function setTimestampConfig(config: Partial<TimestampConfig>) {
+	const current = await readTimestampConfig()
+
+	const mode = config.mode || current.mode || 'now'
+	const min =
+		config.rangeMin != null && Number.isFinite(config.rangeMin)
+			? Number(config.rangeMin)
+			: current.rangeMin
+	const max =
+		config.rangeMax != null && Number.isFinite(config.rangeMax)
+			? Number(config.rangeMax)
+			: current.rangeMax
+	const persistOffsetSecRaw =
+		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
+			? Number(config.persistOffsetSec)
+			: current.persistOffsetSec
+
+	let persistOffsetSec =
+		Number.isFinite(persistOffsetSecRaw) && persistOffsetSecRaw > 0
+			? roundToNearest5(persistOffsetSecRaw)
+			: 0
+	if (
+		typeof current.persistOffsetSec === 'number' &&
+		Number.isFinite(current.persistOffsetSec) &&
+		current.persistOffsetSec > 0 &&
+		persistOffsetSec > current.persistOffsetSec + 10
+	) {
+		persistOffsetSec = current.persistOffsetSec
+	}
+	const nowMode = config.nowMode || current.nowMode || 'plain'
+	const timeCycles = Array.isArray(config.timeCycles)
+		? config.timeCycles
+		: current.timeCycles
+
+	await writeTimestampConfig({
+		mode,
+		rangeMin: min,
+		rangeMax: max,
+		persistOffsetSec,
+		nowMode,
+		timeCycles,
+	})
+}
+
 const defaultActivityTypeConfig: ActivityTypeConfig = { type: 'playing' }
 
 const validateActivityTypeConfig: Validator<ActivityTypeConfig> = (
@@ -415,49 +490,6 @@ function roundToNearest5(x: number) {
 	return Math.round(x / 5) * 5
 }
 
-export async function setTimestampConfig(config: Partial<TimestampConfig>) {
-	const current = await readTimestampConfig()
-
-	const mode = config.mode || current.mode || 'now'
-	const min =
-		config.rangeMin != null && Number.isFinite(config.rangeMin)
-			? Number(config.rangeMin)
-			: current.rangeMin
-	const max =
-		config.rangeMax != null && Number.isFinite(config.rangeMax)
-			? Number(config.rangeMax)
-			: current.rangeMax
-	const persistOffsetSecRaw =
-		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
-			? Number(config.persistOffsetSec)
-			: current.persistOffsetSec
-
-	let persistOffsetSec =
-		Number.isFinite(persistOffsetSecRaw) && persistOffsetSecRaw > 0
-			? roundToNearest5(persistOffsetSecRaw)
-			: 0
-	if (
-		typeof current.persistOffsetSec === 'number' &&
-		Number.isFinite(current.persistOffsetSec) &&
-		current.persistOffsetSec > 0 &&
-		persistOffsetSec > current.persistOffsetSec + 10
-	) {
-		persistOffsetSec = current.persistOffsetSec
-	}
-	const nowMode = config.nowMode || current.nowMode || 'plain'
-	const timeCycles = Array.isArray(config.timeCycles)
-		? config.timeCycles
-		: current.timeCycles
-
-	await writeTimestampConfig({
-		mode,
-		rangeMin: min,
-		rangeMax: max,
-		persistOffsetSec,
-		nowMode,
-		timeCycles,
-	})
-}
 export async function readFiltersState(): Promise<ConfigState> {
 	try {
 		const raw = await fs.readFile(getSettingsPath(), 'utf-8')
