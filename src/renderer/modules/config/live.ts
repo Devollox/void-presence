@@ -2,7 +2,6 @@ import {
 	ActivityType,
 	ButtonPair,
 	CycleEntry,
-	FullState,
 	ImageCycleEntry,
 	NowMode,
 	PartyCycleEntry,
@@ -75,21 +74,6 @@ export async function pushLiveStateFromCtx(
 	const timestampPayload = buildTimestampPayloadFromLocal()
 	const timeCycles = Array.isArray(ctx.timeCycles) ? ctx.timeCycles : []
 
-	const state: FullState = {
-		clientId,
-		buttonPairs: ctx.buttonPairs,
-		cycles: ctx.cycles,
-		imageCycles: ctx.imageCycles,
-		updateIntervalSec: intervalSec,
-		party: ctx.party,
-		timestampMode: timestampPayload.mode,
-		timestampRangeMin: timestampPayload.rangeMin,
-		timestampRangeMax: timestampPayload.rangeMax,
-		activityType: timestampPayload.activityType,
-		nowMode: timestampPayload.nowMode,
-		timeCycles,
-	}
-
 	localStorage.setItem('clientId', clientId)
 	localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
 	localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
@@ -102,8 +86,15 @@ export async function pushLiveStateFromCtx(
 	localStorage.setItem('activityType', timestampPayload.activityType)
 	localStorage.setItem('nowMode', timestampPayload.nowMode)
 
-	if (window.electronAPI?.liveSetClientId) {
+	if (window.electronAPI?.liveSetClientId && clientId.length > 18) {
 		await window.electronAPI.liveSetClientId(clientId)
+	}
+	if (
+		!isNaN(intervalSec) &&
+		intervalSec > 0 &&
+		window.electronAPI?.liveSetInterval
+	) {
+		await window.electronAPI.liveSetInterval(intervalSec)
 	}
 	if (window.electronAPI?.liveSetCycles) {
 		await window.electronAPI.liveSetCycles((ctx.cycles || []) as CycleEntry[])

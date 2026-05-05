@@ -58,7 +58,7 @@ export function setupClientIdControls(): void {
 
 	const { showClientIdToast, showBlocksToast } = setupToasts()
 
-	$clientInput.value = localStorage.getItem('clientId') || ''
+	$clientInput.value = localStorage.getItem('clientId')
 	let lastSavedClientId = $clientInput.value.trim()
 	if (lastSavedClientId.length > 18) {
 		window.electronAPI.liveSetClientId(lastSavedClientId)
