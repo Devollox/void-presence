@@ -315,7 +315,18 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('set-timestamp-config', async (_event, cfg) => {
-		await setTimestampConfig(cfg)
+		const current = await readTimestampConfig()
+
+		await setTimestampConfig({
+			...current,
+			...cfg,
+			persistOffsetSec:
+				typeof cfg.persistOffsetSec === 'number' &&
+				Number.isFinite(cfg.persistOffsetSec)
+					? cfg.persistOffsetSec
+					: current.persistOffsetSec,
+		})
+
 		return true
 	})
 

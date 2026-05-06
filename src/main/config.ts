@@ -352,23 +352,30 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 		config.rangeMax != null && Number.isFinite(config.rangeMax)
 			? Number(config.rangeMax)
 			: current.rangeMax
-	const persistOffsetSecRaw =
-		config.persistOffsetSec != null && Number.isFinite(config.persistOffsetSec)
-			? Number(config.persistOffsetSec)
-			: current.persistOffsetSec
+
+	const hasPersistOffset =
+		typeof config.persistOffsetSec === 'number' &&
+		Number.isFinite(config.persistOffsetSec)
+
+	const persistOffsetSecRaw = hasPersistOffset
+		? Number(config.persistOffsetSec)
+		: current.persistOffsetSec
 
 	let persistOffsetSec =
 		Number.isFinite(persistOffsetSecRaw) && persistOffsetSecRaw > 0
 			? roundToNearest5(persistOffsetSecRaw)
 			: 0
+
 	if (
 		typeof current.persistOffsetSec === 'number' &&
 		Number.isFinite(current.persistOffsetSec) &&
 		current.persistOffsetSec > 0 &&
-		persistOffsetSec > current.persistOffsetSec + 10
+		!hasPersistOffset &&
+		persistOffsetSec === 0
 	) {
 		persistOffsetSec = current.persistOffsetSec
 	}
+
 	const nowMode = config.nowMode || current.nowMode || 'plain'
 	const timeCycles = Array.isArray(config.timeCycles)
 		? config.timeCycles

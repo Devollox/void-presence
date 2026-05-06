@@ -145,6 +145,7 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 	localStorage.setItem('timestampMode', timestampMode)
 	localStorage.setItem('activityType', activityType)
 	localStorage.setItem('nowMode', nowMode)
+
 	if (Number.isFinite(intervalSecRaw) && intervalSecRaw > 0) {
 		localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
 	}

@@ -1,5 +1,5 @@
-# UI Fixes
+# Persist Mode Fixes
 
 ## Bug Fixes
 
-- Fixed card header underline overflow — line stays within card boundaries.
+- Fixed `persist` timestamp offset reset on app restart after a power loss — `persistOffsetSec` is now preserved in the config and no longer gets overwritten by renderer state.
