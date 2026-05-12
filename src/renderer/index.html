@@ -553,7 +553,7 @@
 										<div class="list-header">
 											<div class="list-header-label">button pairs</div>
 											<button id="add-button-pair" class="add-btn">
-												<span>Add button pair</span>
+												Add button pair</span>
 											</button>
 										</div>
 										<div class="divider"></div>
@@ -751,27 +751,25 @@
 									<div class="card-label">save / load presets</div>
 								</div>
 							</div>
+						</div>
+
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title-label">Recent Apps</div>
+							</div>
+							<div id="recent-list"></div>
+						</div>
+
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title-label">Cloud Sync</div>
+							</div>
 							<div class="client-row">
 								<span>author ID</span>
 								<input
 									id="config-author-input"
 									placeholder="Get from voidpresence.site/profile"
 								/>
-							</div>
-							<div class="client-row">
-								<span>name</span>
-								<input id="config-name-input" placeholder="config name" />
-								<div class="config-save-btn">
-									<button type="button" id="config-save-btn">
-										save config
-									</button>
-								</div>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="card-header">
-								<div class="card-title-label">Cloud Sync</div>
 							</div>
 							<div class="client-row">
 								<span>name</span>
@@ -814,26 +812,32 @@
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-title-label">Recent Apps</div>
+								<div class="card-title-label">Saved configs</div>
 							</div>
-							<div id="recent-list"></div>
-						</div>
-
-						<div class="card">
-							<div class="list-header">
-								<div class="list-header-label">saved configs</div>
+							<div class="client-row">
+								<span>search</span>
 								<input
 									id="config-search-input"
 									type="text"
-									placeholder="search"
+									placeholder="search configs"
 									class="config-search-input"
 								/>
-								<div class="config-actions-right">
-									<button id="config-export-btn" class="add-btn">export</button>
-									<button id="config-add-btn" class="add-btn">import</button>
+								<div class="config-save-btn">
+									<button id="config-export-btn">export</button>
+								</div>
+								<div class="config-save-btn">
+									<button id="config-add-btn">import</button>
 								</div>
 							</div>
-							<div class="divider"></div>
+							<div class="client-row">
+								<span>name</span>
+								<input id="config-name-input" placeholder="config name" />
+								<div class="config-save-btn">
+									<button type="button" id="config-save-btn">
+										save config
+									</button>
+								</div>
+							</div>
 							<div id="config-list" class="divide-y divide-white/5"></div>
 						</div>
 					</section>
