@@ -473,7 +473,6 @@ input {
 }
 
 .card {
-	overflow: hidden;
 	border-radius: 14px;
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	background: rgba(255, 255, 255, 0.015);
@@ -1001,6 +1000,7 @@ button:active {
 }
 
 .main-grid-row .card {
+	overflow: hidden;
 	margin-bottom: 0;
 	height: auto;
 	display: flex;

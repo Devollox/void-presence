@@ -1,8 +1,6 @@
 import { getRecentApps, removeRecentApp, updateRecentName } from './storage'
 import { setupToasts } from './toasts'
 
-const copyToastId = 'vp-copy-toast'
-
 export function renderRecentApps(recentList: HTMLElement): void {
 	const items = getRecentApps()
 	recentList.innerHTML = ''
@@ -18,7 +16,7 @@ export function renderRecentApps(recentList: HTMLElement): void {
 
 		const nameInput = document.createElement('input')
 		nameInput.placeholder = 'App name'
-		nameInput.value = item.name
+		nameInput.value = item.name || ''
 
 		const idText = document.createElement('input')
 		idText.value = item.id
@@ -29,6 +27,18 @@ export function renderRecentApps(recentList: HTMLElement): void {
 		remove.className = 'remove-btn'
 		remove.type = 'button'
 		remove.textContent = '×'
+
+		if (!item.name) {
+			fetch(`https://discord.com/api/v10/applications/${item.id}/rpc`)
+				.then(res => (res.ok ? res.json() : null))
+				.then(app => {
+					if (app?.name) {
+						nameInput.value = app.name
+						updateRecentName(item.id, app.name)
+					}
+				})
+				.catch(() => {})
+		}
 
 		nameInput.addEventListener('input', () => {
 			updateRecentName(item.id, nameInput.value)
