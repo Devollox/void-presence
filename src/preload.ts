@@ -102,4 +102,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.send('install-update', info)
 	},
 	useReadyClientId: () => ipcRenderer.invoke('use-ready-client-id'),
+	useRecentClientId: (clientId: string) =>
+		ipcRenderer.invoke('use-recent-client-id', clientId),
 })

@@ -634,6 +634,29 @@ export async function initIpc() {
 		return true
 	})
 
+	ipcMain.handle('use-recent-client-id', async (_event, clientId: string) => {
+		await setClientId(clientId)
+
+		const win = BrowserWindow.getAllWindows()[0]
+		if (!win || win.isDestroyed()) return true
+
+		setTimeout(() => {
+			sendStatus('RESTARTING')
+		}, 100)
+
+		stopDiscordRich()
+
+		setTimeout(() => {
+			startDiscordRich(payload => {
+				if (win.isDestroyed()) return
+				win.webContents.send('rpc-update', payload)
+			})
+		}, 2000)
+
+		sendLog(`Used recent Client ID: ${clientId}`)
+		return true
+	})
+
 	const win = BrowserWindow.getAllWindows()[0]
 	if (win && !win.isDestroyed()) {
 		setTimeout(() => {

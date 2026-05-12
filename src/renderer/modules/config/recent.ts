@@ -1,15 +1,27 @@
-import { getRecentApps, removeRecentApp, updateRecentName } from './storage'
+import { setActiveView } from '../shell/views-nav'
+import { updateRecentName } from './storage'
 import { setupToasts } from './toasts'
 
-export function renderRecentApps(recentList: HTMLElement): void {
-	const items = getRecentApps()
+export type RecentApp = {
+	id: string
+	name?: string
+}
+
+export function renderRecentApps(
+	recentList: HTMLElement,
+	items: RecentApp[],
+): void {
 	recentList.innerHTML = ''
 	if (!items.length) return
 
-	items.forEach(item => {
+	const { showConfigCopiedToast } = setupToasts()
+
+	items.forEach((item, index) => {
 		const row = document.createElement('div')
 		row.className = 'cycle-row'
 		row.dataset.id = item.id
+		row.dataset.index = String(index)
+		row.draggable = true
 
 		const inputsWrap = document.createElement('div')
 		inputsWrap.className = 'cycle-inputs'
@@ -28,26 +40,80 @@ export function renderRecentApps(recentList: HTMLElement): void {
 		remove.type = 'button'
 		remove.textContent = '×'
 
-		if (!item.name) {
-			fetch(`https://discord.com/api/v10/applications/${item.id}/rpc`)
-				.then(res => (res.ok ? res.json() : null))
-				.then(app => {
-					if (app?.name) {
-						nameInput.value = app.name
-						updateRecentName(item.id, app.name)
-					}
-				})
-				.catch(() => {})
+		const useBtn = document.createElement('button')
+		useBtn.className = 'btn'
+		useBtn.type = 'button'
+		useBtn.textContent = '↻'
+
+		if (item.name === 'App not found' || item.name === 'Fetch failed') {
+			nameInput.disabled = true
+			nameInput.classList.add('app-not-found')
+			useBtn.disabled = true
+			useBtn.classList.add('app-not-found')
 		}
 
 		nameInput.addEventListener('input', () => {
+			nameInput.disabled = false
+			nameInput.classList.remove('app-not-found')
+			useBtn.disabled = false
+			useBtn.classList.remove('app-not-found')
 			updateRecentName(item.id, nameInput.value)
+			item.name = nameInput.value
 		})
+
+		if (!item.name && !(item as any)._checked) {
+			;(item as any)._checked = true
+
+			const fetchId = item.id
+
+			fetch(`https://discord.com/api/v10/applications/${fetchId}/rpc`)
+				.then(res => res.json().catch(() => null as any))
+				.then(app => {
+					if (fetchId !== item.id) return
+
+					if (app?.name) {
+						nameInput.value = app.name
+						nameInput.title = `Discord app: ${app.name}`
+						nameInput.disabled = false
+						nameInput.classList.remove('app-not-found')
+						useBtn.disabled = false
+						useBtn.classList.remove('app-not-found')
+						updateRecentName(fetchId, app.name)
+						item.name = app.name
+					} else {
+						nameInput.value = 'App not found'
+						nameInput.disabled = true
+						nameInput.classList.add('app-not-found')
+						nameInput.title = `ID ${fetchId} invalid`
+						useBtn.disabled = true
+						useBtn.classList.add('app-not-found')
+						updateRecentName(fetchId, 'App not found')
+						item.name = 'App not found'
+					}
+				})
+				.catch(err => {
+					console.warn(`Failed to fetch app ${item.id}:`, err)
+					if (fetchId !== item.id) return
+					nameInput.value = 'Fetch failed'
+					nameInput.disabled = true
+					nameInput.classList.add('app-not-found')
+					nameInput.title = `Network error for ID ${item.id}`
+					useBtn.disabled = true
+					useBtn.classList.add('app-not-found')
+					updateRecentName(fetchId, 'Fetch failed')
+					item.name = 'Fetch failed'
+				})
+		}
 
 		row.addEventListener('click', async e => {
 			const target = e.target as HTMLElement
 
-			if (target.tagName === 'BUTTON' || target.closest('button') === remove) {
+			if (
+				target === remove ||
+				target.closest('button') === remove ||
+				target === useBtn ||
+				target.closest('button') === useBtn
+			) {
 				return
 			}
 
@@ -61,8 +127,6 @@ export function renderRecentApps(recentList: HTMLElement): void {
 			try {
 				if (navigator.clipboard && navigator.clipboard.writeText) {
 					await navigator.clipboard.writeText(item.id)
-
-					const { showConfigCopiedToast } = setupToasts()
 					showConfigCopiedToast()
 				}
 			} catch {}
@@ -70,11 +134,42 @@ export function renderRecentApps(recentList: HTMLElement): void {
 
 		remove.addEventListener('click', e => {
 			e.preventDefault()
-			removeRecentApp(item.id)
-			renderRecentApps(recentList)
+			row.dispatchEvent(
+				new CustomEvent('recent:remove', {
+					bubbles: true,
+					detail: { id: item.id },
+				}),
+			)
+		})
+
+		useBtn.addEventListener('click', async e => {
+			e.preventDefault()
+
+			if (useBtn.disabled) return
+
+			try {
+				const input = document.getElementById(
+					'client-id-input',
+				) as HTMLInputElement | null
+
+				if (input) {
+					input.value = item.id
+				}
+
+				localStorage.setItem('clientId', item.id)
+
+				if (window.electronAPI?.useRecentClientId) {
+					await window.electronAPI.useRecentClientId(item.id)
+				}
+
+				setActiveView('main')
+			} catch (err) {
+				console.error('Failed to use recent clientId:', err)
+			}
 		})
 
 		row.appendChild(remove)
+		row.appendChild(useBtn)
 		inputsWrap.appendChild(nameInput)
 		inputsWrap.appendChild(idText)
 		row.appendChild(inputsWrap)

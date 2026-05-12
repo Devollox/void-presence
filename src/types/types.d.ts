@@ -228,6 +228,7 @@ export type NowPlayingInfo = {
 export type LogLevel = 'info' | 'warn' | 'error' | 'success'
 
 export interface ElectronAPI {
+	useRecentClientId: (clientId: string) => Promise<unknown>
 	useReadyClientId?: () => Promise<void>
 	onUpdateAvailable?: (callback: (info: UpdateInfo) => void) => void
 	installUpdate?: (info: UpdateInfo) => void

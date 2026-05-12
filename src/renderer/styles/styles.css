@@ -910,6 +910,7 @@ input {
 	min-width: 0;
 }
 
+.btn,
 .remove-btn {
 	width: 32px;
 	height: 34px;
@@ -929,6 +930,11 @@ input {
 		border-color 0.12s ease,
 		color 0.12s ease,
 		transform 0.1s ease;
+}
+
+.btn:hover {
+	color: #ffffff;
+	transform: translateY(-1px) scale(1.03);
 }
 
 .remove-btn:hover {
@@ -2230,4 +2236,15 @@ textarea::-moz-selection {
 	border: none;
 	border-top: 1px solid rgba(255, 255, 255, 0.08);
 	margin: 10px 0;
+}
+
+.app-not-found {
+	cursor: not-allowed;
+	color: #888 !important;
+	opacity: 0.6 !important;
+	background: rgba(255, 255, 255, 0.025) !important;
+}
+
+.app-not-found::placeholder {
+	color: #aaa !important;
 }

@@ -8,8 +8,14 @@ import {
 } from './list-renderers'
 import { pushLiveStateFromCtx } from './live'
 import { createModeControllers } from './mode-сontrols'
-import { renderRecentApps } from './recent'
-import { upsertRecentApp } from './storage'
+import { RecentApp, renderRecentApps } from './recent'
+import {
+	getRecentApps,
+	removeRecentApp,
+	setRecentApps,
+	StoredRecentApp,
+	upsertRecentApp,
+} from './storage'
 import { setupTimeControls } from './time-сontrols'
 import { setupToasts } from './toasts'
 
@@ -58,9 +64,9 @@ export function setupClientIdControls(): void {
 
 	const { showClientIdToast, showBlocksToast } = setupToasts()
 
-	$clientInput.value = localStorage.getItem('clientId')
+	$clientInput.value = localStorage.getItem('clientId') || ''
 	let lastSavedClientId = $clientInput.value.trim()
-	if (lastSavedClientId.length > 18) {
+	if (lastSavedClientId.length > 18 && window.electronAPI?.liveSetClientId) {
 		window.electronAPI.liveSetClientId(lastSavedClientId)
 	}
 
@@ -68,15 +74,26 @@ export function setupClientIdControls(): void {
 		'use-ready-id',
 	) as HTMLButtonElement | null
 
+	const storedRecent: StoredRecentApp[] = getRecentApps()
+
 	useReadyIdBtn?.addEventListener('click', async e => {
 		e.preventDefault()
-		$clientInput.value = '1492470601686847598'
-		localStorage.setItem('clientId', $clientInput.value)
+		const readyId = '1492470601686847598'
+		$clientInput.value = readyId
+		localStorage.setItem('clientId', readyId)
+
 		if (window.electronAPI?.useReadyClientId) {
 			await window.electronAPI.useReadyClientId()
 		}
-		upsertRecentApp('1492470601686847598', '')
-		renderRecentApps(recentList)
+
+		upsertRecentApp(readyId, '')
+
+		storedRecent.splice(0, storedRecent.length, ...getRecentApps())
+
+		renderRecentApps(
+			recentList,
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+		)
 		showClientIdToast()
 	})
 
@@ -96,7 +113,10 @@ export function setupClientIdControls(): void {
 	ctx.renderPartyCycles()
 	ctx.renderTimeCycles?.()
 
-	renderRecentApps(recentList)
+	renderRecentApps(
+		recentList,
+		storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+	)
 
 	const partyList = document.getElementById('party-list') as HTMLElement | null
 	const timeList = document.getElementById('time-list') as HTMLElement | null
@@ -130,6 +150,26 @@ export function setupClientIdControls(): void {
 		})
 	}
 
+	attachDnD<StoredRecentApp>(recentList, storedRecent, () => {
+		setRecentApps(storedRecent)
+		renderRecentApps(
+			recentList,
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+		)
+	})
+
+	recentList.addEventListener('recent:remove', e => {
+		const id = (e as CustomEvent<{ id: string }>).detail.id
+		removeRecentApp(id)
+		const next = getRecentApps()
+		storedRecent.splice(0, storedRecent.length, ...next)
+		setRecentApps(storedRecent)
+		renderRecentApps(
+			recentList,
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+		)
+	})
+
 	let clientIdDebounce: number | undefined
 	let intervalDebounce: number | undefined
 
@@ -137,15 +177,24 @@ export function setupClientIdControls(): void {
 		if (clientIdDebounce) {
 			window.clearTimeout(clientIdDebounce)
 		}
+
 		clientIdDebounce = window.setTimeout(() => {
 			const newClientId = $clientInput.value.trim()
 			void pushLiveStateFromCtx(ctx)
+
 			if (newClientId.length !== 19) return
 			if (newClientId === lastSavedClientId) return
 
 			lastSavedClientId = newClientId
+			localStorage.setItem('clientId', newClientId)
+
 			upsertRecentApp(newClientId, '')
-			renderRecentApps(recentList)
+			const updated = getRecentApps()
+			storedRecent.splice(0, storedRecent.length, ...updated)
+			renderRecentApps(
+				recentList,
+				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+			)
 			showClientIdToast()
 		}, 600)
 	})
@@ -162,6 +211,7 @@ export function setupClientIdControls(): void {
 			if (intervalDebounce) {
 				window.clearTimeout(intervalDebounce)
 			}
+
 			intervalDebounce = window.setTimeout(async () => {
 				const raw = $intervalInput.value.trim()
 				const val = Number(raw)
@@ -180,6 +230,11 @@ export function setupClientIdControls(): void {
 	const initialClientId = $clientInput.value.trim()
 	if (initialClientId) {
 		upsertRecentApp(initialClientId, '')
-		renderRecentApps(recentList)
+		const updated = getRecentApps()
+		storedRecent.splice(0, storedRecent.length, ...updated)
+		renderRecentApps(
+			recentList,
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+		)
 	}
 }

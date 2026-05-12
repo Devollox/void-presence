@@ -32,7 +32,8 @@ export function attachDnD<T>(
 
 	container.addEventListener('dragover', (e: DragEvent) => {
 		e.preventDefault()
-		e.dataTransfer!.dropEffect = 'move'
+		if (!e.dataTransfer) return
+		e.dataTransfer.dropEffect = 'move'
 
 		const row = getRow(e.target as HTMLElement)
 		if (!row || dragIndex === null) return

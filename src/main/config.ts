@@ -431,12 +431,22 @@ export async function setClientId(clientId: string) {
 }
 
 export async function setButtonsConfig(pairs: ButtonPair[]) {
-	const cleaned: ButtonPair[] = (Array.isArray(pairs) ? pairs : []).map(p => ({
-		label1: (p.label1 ?? '').toString(),
-		url1: (p.url1 ?? '').toString(),
-		label2: p.label2 ?? undefined,
-		url2: p.url2 ?? undefined,
-	}))
+	const cleaned: ButtonPair[] = (Array.isArray(pairs) ? pairs : []).map(p => {
+		const rawUrl1 = (p.url1 ?? '').toString().trim()
+		const rawUrl2 = (p.url2 ?? '').toString().trim()
+
+		const url1 = rawUrl1.length > 0 && !rawUrl1.includes(' ') ? rawUrl1 : ''
+		const url2 =
+			rawUrl2.length > 0 && !rawUrl2.includes(' ') ? rawUrl2 : undefined
+
+		return {
+			label1: (p.label1 ?? '').toString(),
+			url1,
+			label2: p.label2 ?? undefined,
+			url2,
+		}
+	})
+
 	await writeButtonsConfig({ pairs: cleaned })
 }
 
@@ -456,26 +466,27 @@ export async function setImageCyclesConfig(
 		smallText: string | null
 	}[],
 ) {
-	const cleaned: ImageCycle[] = (Array.isArray(cycles) ? cycles : []).map(
-		c => ({
-			largeImage:
-				c.largeImage === null || c.largeImage === undefined
-					? null
-					: c.largeImage.toString(),
+	const cleaned: ImageCycle[] = (Array.isArray(cycles) ? cycles : []).map(c => {
+		const li = c.largeImage?.toString().trim() ?? ''
+		const si = c.smallImage?.toString().trim() ?? ''
+
+		const safeLargeImage = li.length > 0 && !li.includes(' ') ? li : null
+		const safeSmallImage = si.length > 0 && !si.includes(' ') ? si : null
+
+		return {
+			largeImage: safeLargeImage,
 			largeText:
 				c.largeText === null || c.largeText === undefined
 					? null
 					: c.largeText.toString(),
-			smallImage:
-				c.smallImage === null || c.smallImage === undefined
-					? null
-					: c.smallImage.toString(),
+			smallImage: safeSmallImage,
 			smallText:
 				c.smallText === null || c.smallText === undefined
 					? null
 					: c.smallText.toString(),
-		}),
-	)
+		}
+	})
+
 	await writeImageCyclesConfig({ cycles: cleaned })
 }
 

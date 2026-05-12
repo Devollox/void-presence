@@ -346,7 +346,7 @@ export default function startDiscordRich(
 
 		sendStatus('CONNECTING RPC')
 		if (!hasLoggedConnectingOnce && sendLog) {
-			sendLog('Connecting RPC with clientId ' + clientId, 'info')
+			sendLog('Connecting RPC Client ID: ' + clientId, 'info')
 			hasLoggedConnectingOnce = true
 		}
 
