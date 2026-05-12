@@ -1,5 +1,5 @@
-# Persist Mode Fixes
+# Stability
 
-## Bug Fixes
+## Dependencies
 
-- Fixed `persist` timestamp offset reset on app restart after a power loss — `persistOffsetSec` is now preserved in the config and no longer gets overwritten by renderer state.
+- Updated **Electron** to 42.0.1 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.
