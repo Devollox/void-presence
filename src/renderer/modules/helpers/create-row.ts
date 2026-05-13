@@ -17,7 +17,6 @@ function createRow<T>(
 	const row = document.createElement('div')
 	row.className = className
 	row.dataset.index = String(index)
-	row.draggable = true
 
 	const inputValues: Record<string, string> = {}
 	inputs.forEach((_, idx) => {
@@ -27,6 +26,10 @@ function createRow<T>(
 	const triggerChange = () => {
 		onChange(inputValues as T)
 	}
+
+	const handle = document.createElement('div')
+	handle.className = 'drag-handle'
+	handle.draggable = true
 
 	const wrap = document.createElement('div')
 
@@ -65,8 +68,9 @@ function createRow<T>(
 		onRemove()
 	})
 
-	row.appendChild(remove)
+	row.appendChild(handle)
 	row.appendChild(wrap)
+	row.appendChild(remove)
 	return row
 }
 

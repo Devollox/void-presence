@@ -21,7 +21,10 @@ export function renderRecentApps(
 		row.className = 'cycle-row'
 		row.dataset.id = item.id
 		row.dataset.index = String(index)
-		row.draggable = true
+
+		const handle = document.createElement('div')
+		handle.className = 'drag-handle'
+		handle.draggable = true
 
 		const inputsWrap = document.createElement('div')
 		inputsWrap.className = 'cycle-inputs'
@@ -168,11 +171,12 @@ export function renderRecentApps(
 			}
 		})
 
-		row.appendChild(remove)
+		row.appendChild(handle)
 		row.appendChild(useBtn)
 		inputsWrap.appendChild(nameInput)
 		inputsWrap.appendChild(idText)
 		row.appendChild(inputsWrap)
+		row.appendChild(remove)
 		recentList.appendChild(row)
 	})
 }

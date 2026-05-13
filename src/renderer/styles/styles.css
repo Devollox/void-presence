@@ -779,8 +779,7 @@ input {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	padding: 0.625rem 1.25rem;
-	cursor: grab;
+	padding: 0.625rem 1.25rem 0.625rem 0.625rem;
 	border-radius: 10px;
 	border: 1px solid transparent;
 	transition-property:
@@ -2231,4 +2230,32 @@ textarea::-moz-selection {
 
 .app-not-found::placeholder {
 	color: #aaa !important;
+}
+
+.drag-handle {
+	width: 10px;
+	height: 18px;
+	cursor: grab;
+	position: sticky;
+	left: 0;
+	opacity: 0.4;
+	transition: opacity 0.2s ease;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	background-image: radial-gradient(
+		circle,
+		var(--text-color, #ffffff) 1.5px,
+		transparent 1.5px
+	);
+	background-size: 4px 4px;
+	background-repeat: repeat-y;
+	background-position: center;
+}
+
+.drag-handle:hover {
+	opacity: 0.7;
 }

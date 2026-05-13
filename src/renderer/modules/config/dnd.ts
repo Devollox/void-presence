@@ -16,7 +16,9 @@ export function attachDnD<T>(
 
 	container.addEventListener('dragstart', (e: DragEvent) => {
 		const row = getRow(e.target as HTMLElement)
-		if (!row || window.getSelection()?.toString()) {
+
+		const handle = (e.target as HTMLElement).closest('.drag-handle')
+		if (!handle || !row || window.getSelection()?.toString()) {
 			e.preventDefault()
 			return
 		}

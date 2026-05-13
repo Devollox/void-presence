@@ -1,8 +1,23 @@
-# Cloud Sync & Saved Configs Layout
+# Drag Handles & List DnD
 
 ## Improvements
 
-- Moved the **Recent Apps** card above Cloud Sync, so the list of recently used Discord applications now sits closer to profile and upload actions for quicker switching.
-- Moved the **Author ID** field into the **Cloud Sync** card next to the upload button, so everything related to your profile is in one place.
-- Cloud Sync now groups author, name, and upload actions in a single section, reducing extra navigation in the UI.
-- Moved the **config name + save** row into the **Saved configs** card, so naming and saving presets now live directly above the saved configs list where they are used.
+- Added **drag handle dots** (`···`) on the left side of all list rows:
+  - Details & State cycles
+  - Image cycles
+  - Button pairs
+  - Party size
+  - Time cycles
+  - Recent apps
+- Visual drag‑handle dots are styled in a minimal “Vercel‑like” style:
+  - Two small dots `··` rotated 90° so they appear vertical on the left.
+  - `draggable` attribute now lives only on `.drag-handle`, not on the whole row.
+- Standardized `drag‑handle` across all list‑rendering helpers:
+  - `createRow` generic helper now includes `.drag-handle`.
+  - `renderRecentApps` now includes `.drag-handle` for recent app entries.
+- Drag‑and‑drop sorting now starts **only when dragging on the dots**, preventing accidental drag from inputs or buttons.
+
+## Fixed
+
+- Fixed drag‑and‑drop not working when `dragstart` was triggered somewhere other than the handle.
+- Ensured drag handle is visually aligned and consistent across all lists and themes.
