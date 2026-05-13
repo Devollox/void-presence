@@ -1,23 +1,14 @@
-# Drag Handles & List DnD
+# Config Load & List DnD
 
 ## Improvements
 
-- Added **drag handle dots** (`···`) on the left side of all list rows:
-  - Details & State cycles
-  - Image cycles
-  - Button pairs
-  - Party size
-  - Time cycles
-  - Recent apps
-- Visual drag‑handle dots are styled in a minimal “Vercel‑like” style:
-  - Two small dots `··` rotated 90° so they appear vertical on the left.
-  - `draggable` attribute now lives only on `.drag-handle`, not on the whole row.
-- Standardized `drag‑handle` across all list‑rendering helpers:
-  - `createRow` generic helper now includes `.drag-handle`.
-  - `renderRecentApps` now includes `.drag-handle` for recent app entries.
-- Drag‑and‑drop sorting now starts **only when dragging on the dots**, preventing accidental drag from inputs or buttons.
+- Centralized drag‑and‑drop re‑attachment into a dedicated helper:
+  - `reattachDnDForProfiles` rebinds DnD for all profile‑related lists after applying a config.
+- Kept list rendering via `createListManager`, but wired it to the shared DnD helper so newly rendered rows automatically participate in sorting.
 
 ## Fixed
 
-- Fixed drag‑and‑drop not working when `dragstart` was triggered somewhere other than the handle.
-- Ensured drag handle is visually aligned and consistent across all lists and themes.
+- Fixed an issue where drag‑and‑drop stopped working after loading a saved config by re‑initializing DnD after `applyStateToUIAndLists`.
+- Resolved state mismatch problems so that, after loading a profile, all profile‑related lists update both their data and drag behavior consistently.
+- Fixed an off‑by‑one bug in list reordering where dragging the first item onto the second would incorrectly place it at index 2 instead of 1.
+- Corrected the drop index calculation so that when dragging an item downwards, the insert index is adjusted after removal, ensuring items land exactly where the drop indicator shows.

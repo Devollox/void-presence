@@ -54,10 +54,15 @@ export function attachDnD<T>(
 
 		const targetIndex = Number(row.dataset.index)
 		const rect = row.getBoundingClientRect()
-		const insertIndex =
+		let insertIndex =
 			e.clientY >= rect.top + rect.height / 2 ? targetIndex + 1 : targetIndex
 
 		const [moved] = items.splice(dragIndex, 1)
+
+		if (insertIndex > dragIndex) {
+			insertIndex -= 1
+		}
+
 		items.splice(Math.min(insertIndex, items.length), 0, moved)
 
 		clearClasses()

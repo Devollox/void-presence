@@ -9,11 +9,18 @@ import {
 	VoidPresenceCtx,
 } from '../../../types/types'
 import { applyStateToUIAndLists } from '../core/state'
+import { reattachDnDForProfiles } from '../helpers/dnd'
 import { openConfigDetails } from '../modals/details'
 import { appendLog, setActiveView } from '../shell/views'
 import { downloadJson, pushLiveStateFromCtx } from './live'
 import { filterListByExistingInput } from './search'
-import { deepCloneState, getConfigs, setConfigs } from './storage'
+import {
+	deepCloneState,
+	getConfigs,
+	getRecentApps,
+	setConfigs,
+	StoredRecentApp,
+} from './storage'
 import { setupToasts } from './toasts'
 import { openUploadConfirm } from './upload-сonfirm'
 
@@ -74,7 +81,7 @@ function createConfigCard(
 	list: HTMLElement,
 	nameInput: HTMLInputElement,
 	showConfigToast: () => void,
-) {
+): void {
 	const state = cfg.state || {}
 	const cycles: CycleEntry[] = Array.isArray(state.cycles) ? state.cycles : []
 	const firstCycle: CycleEntry | undefined = cycles[0]
@@ -127,6 +134,8 @@ function createConfigCard(
 	body.appendChild(imgWrap)
 	body.appendChild(detailsWrap)
 
+	card.appendChild(body)
+
 	const actions = document.createElement('div')
 	actions.className = 'config-activity-actions'
 
@@ -160,6 +169,10 @@ function createConfigCard(
 		await pushLiveStateFromCtx(ctx)
 		nameInput.value = ''
 		setActiveView('main')
+
+		const { showBlocksToast } = setupToasts()
+		const storedRecent: StoredRecentApp[] = getRecentApps()
+		reattachDnDForProfiles(ctx, showBlocksToast, storedRecent)
 	})
 
 	uploadCloudBtn.addEventListener('click', e => {
@@ -280,7 +293,6 @@ function createConfigCard(
 	actions.appendChild(exportBtnCfg)
 	actions.appendChild(delBtn)
 
-	card.appendChild(body)
 	card.appendChild(actions)
 	list.appendChild(card)
 }

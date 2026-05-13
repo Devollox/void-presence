@@ -1,3 +1,5 @@
+import { VoidPresenceCtx } from 'src/types/types'
+import { reattachDnDForProfiles } from '../helpers/dnd'
 import { createInitialCtx } from './ctx'
 import { attachDnD } from './dnd'
 import {
@@ -73,7 +75,6 @@ export function setupClientIdControls(): void {
 	const useReadyIdBtn = document.getElementById(
 		'use-ready-id',
 	) as HTMLButtonElement | null
-
 	const storedRecent: StoredRecentApp[] = getRecentApps()
 
 	useReadyIdBtn?.addEventListener('click', async e => {
@@ -236,5 +237,11 @@ export function setupClientIdControls(): void {
 			recentList,
 			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
 		)
+	}
+
+	;(window as any).__voidPresenceCtx = ctx
+	;(window as any).reattachDnDForProfiles = (state: VoidPresenceCtx) => {
+		const latestRecent: StoredRecentApp[] = getRecentApps()
+		reattachDnDForProfiles(state, showBlocksToast, latestRecent)
 	}
 }
