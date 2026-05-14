@@ -28,6 +28,7 @@ import {
 
 let persistSessionStart = 0
 let persistOffsetSecBase = 0
+let currentTimestampConfig: TimestampConfig | null = null
 
 export function resetPersistTimestampValue() {
 	persistSessionStart = 0
@@ -197,11 +198,32 @@ function createClient() {
 	return client
 }
 
+async function savePersistOffsetIfNeeded() {
+	if (!currentTimestampConfig || currentTimestampConfig.mode !== 'persist')
+		return
+	try {
+		const elapsedMs = Date.now() - persistSessionStart
+		const totalOffsetSec = (persistOffsetSecBase * 1000 + elapsedMs) / 1000
+		currentTimestampConfig.persistOffsetSec = Math.floor(totalOffsetSec)
+		await setTimestampConfig(currentTimestampConfig)
+	} catch (e) {
+		if (sendLog) {
+			sendLog(
+				'Failed to save persist offset: ' + (e?.message || String(e)),
+				'warn',
+			)
+		}
+	}
+}
+
 export function stopDiscordRich() {
 	isStopped = true
 	currentSessionId++
 	intervalLocked = false
 	imageIndex = 0
+
+	void savePersistOffsetIfNeeded()
+
 	if (restartTimer) {
 		clearTimeout(restartTimer)
 		restartTimer = null
@@ -351,6 +373,7 @@ export default function startDiscordRich(
 		}
 
 		let timestampConfig: TimestampConfig = await readTimestampConfig()
+		currentTimestampConfig = timestampConfig
 		let mode = timestampConfig.mode
 		let nowMode: NowMode = timestampConfig.nowMode
 		let timeCycles: TimeCycleEntry[] = Array.isArray(timestampConfig.timeCycles)
@@ -472,7 +495,17 @@ export default function startDiscordRich(
 			const elapsedMs = Date.now() - persistSessionStart
 			const totalOffsetSec = (persistOffsetSecBase * 1000 + elapsedMs) / 1000
 			timestampConfig.persistOffsetSec = Math.floor(totalOffsetSec)
-			await setTimestampConfig(timestampConfig)
+			currentTimestampConfig = timestampConfig
+			try {
+				await setTimestampConfig(timestampConfig)
+			} catch (e) {
+				if (sendLog) {
+					sendLog(
+						'Failed to update persist offset: ' + (e?.message || String(e)),
+						'warn',
+					)
+				}
+			}
 		}
 
 		const localClient = createClient()
@@ -549,6 +582,7 @@ export default function startDiscordRich(
 				}
 				const newFilters = await readFiltersState()
 				timestampConfig = newTs
+				currentTimestampConfig = newTs
 				mode = newTs.mode
 				nowMode = newTs.nowMode
 				timeCycles = Array.isArray(newTs.timeCycles) ? newTs.timeCycles : []
