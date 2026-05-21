@@ -22,13 +22,7 @@ function setActiveButtons(style: BarStyle): void {
 }
 
 function isVisibleByFilters(): boolean {
-	return (
-		localStorage.getItem('automaticActivity') === 'true' ||
-		localStorage.getItem('hardwareMonitorEnabled') === 'true' ||
-		localStorage.getItem('activityFilter') === 'true' ||
-		localStorage.getItem('musicFilter') === 'true' ||
-		localStorage.getItem('videoFilter') === 'true'
-	)
+	return localStorage.getItem('hardwareMonitorEnabled') === 'true'
 }
 
 export function refreshBarStyleVisibility(): void {

@@ -15,6 +15,23 @@ export interface RichPresenceButton {
 	url: string
 }
 
+export type PresencePayload = {
+	source: 'media' | 'hardware'
+	details?: string
+	state?: string
+	timestamps?: { start?: number; end?: number }
+	activityType?: ActivityType
+	buttons?: { label: string; url: string }[]
+	party?: { size: [number, number] }
+	assets?: {
+		large_image?: string
+		large_text?: string
+		small_image?: string
+		small_text?: string
+	}
+	priority?: number
+}
+
 export interface RichPresencePayload {
 	details?: string
 	state?: string

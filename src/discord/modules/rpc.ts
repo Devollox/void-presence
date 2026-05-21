@@ -22,6 +22,7 @@ import {
 	NowMode,
 	NowPlayingInfo,
 	PartyCycleEntry,
+	PresencePayload,
 	RichPresencePayload,
 	RpcPayload,
 	TimeCycleEntry,
@@ -339,7 +340,6 @@ async function bar(p: any): Promise<string> {
 				const filled = Math.max(0, Math.min(10, Math.floor((x / 100) * 10)))
 				return `${cfg.full.repeat(filled)}${cfg.empty.repeat(10 - filled)}`
 			})()
-
 	return style === 'unicode' ? core : `[${core}]`
 }
 
@@ -356,7 +356,6 @@ function buildHardwareEntries(stats: any) {
 		load: number | null
 	}> = []
 	if (!stats || typeof stats !== 'object') return entries
-
 	if (stats.cpu && (stats.cpu.name || stats.cpu.load != null)) {
 		entries.push({
 			label: cleanDeviceName(stats.cpu.name) || 'CPU',
@@ -366,7 +365,6 @@ function buildHardwareEntries(stats: any) {
 				: null,
 		})
 	}
-
 	const gpus = Array.isArray(stats.gpu) ? stats.gpu : []
 	gpus.forEach((gpu: any, idx: number) => {
 		entries.push({
@@ -377,7 +375,6 @@ function buildHardwareEntries(stats: any) {
 			load: Number.isFinite(Number(gpu?.load)) ? Number(gpu.load) : null,
 		})
 	})
-
 	const total = Number(stats.memory?.total)
 	const used = Number(stats.memory?.used)
 	const percent = Number(stats.memory?.percent)
@@ -390,13 +387,11 @@ function buildHardwareEntries(stats: any) {
 				: Math.round((used / total) * 100),
 		})
 	}
-
 	if (!entries.length) {
 		const raw = JSON.stringify(stats)
 		if (raw && raw.length <= 120)
 			entries.push({ label: raw, temp: null, load: null })
 	}
-
 	return entries
 }
 
@@ -415,6 +410,14 @@ async function normalizeHardwareActivity(stats: any) {
 	return { details, state }
 }
 
+let activePayload: PresencePayload | null = null
+let fallbackPayload: PresencePayload | null = null
+let lastSentSignature = ''
+
+function resolveVisiblePayload(): PresencePayload | null {
+	return activePayload || fallbackPayload
+}
+
 export default function startDiscordRich(
 	sendPayload: (payload: RpcPayload) => void,
 ) {
@@ -424,6 +427,9 @@ export default function startDiscordRich(
 	imageIndex = 0
 	hardwareLineIndex = 0
 	hardwareReady = false
+	activePayload = null
+	fallbackPayload = null
+	lastSentSignature = ''
 
 	async function startSession() {
 		if (isStopped || sessionId !== currentSessionId) return
@@ -686,9 +692,6 @@ export default function startDiscordRich(
 				? await normalizeHardwareActivity(hw)
 				: { details: undefined, state: undefined }
 
-			if (hwPick.details) details = hwPick.details
-			if (hwPick.state) state = hwPick.state
-
 			if (isPlayingLike && hasValidTrack) {
 				if (!details) details = smtcTitle
 				if (!state) state = smtcArtist || undefined
@@ -703,9 +706,46 @@ export default function startDiscordRich(
 					else if (isVideo) effectiveActivityType = 'watching'
 					else effectiveActivityType = activityType
 				}
+				activePayload = {
+					source: 'media',
+					details,
+					state,
+					activityType: effectiveActivityType,
+					assets: {
+						large_image: current.largeImage || undefined,
+						large_text: current.largeText || undefined,
+						small_image: current.smallImage || undefined,
+						small_text: current.smallText || undefined,
+					},
+					priority: 100,
+				}
+				fallbackPayload = null
 			} else {
-				if (!details) details = current.details || ''
-				if (!state) state = current.state || ''
+				activePayload = null
+				if (hwPick.details || hwPick.state) {
+					fallbackPayload = {
+						source: 'hardware',
+						details: hwPick.details,
+						state: hwPick.state,
+						priority: 10,
+					}
+				} else {
+					if (!details) details = current.details || ''
+					if (!state) state = current.state || ''
+					fallbackPayload = {
+						source: 'hardware',
+						details,
+						state,
+						activityType: effectiveActivityType,
+						assets: {
+							large_image: current.largeImage || undefined,
+							large_text: current.largeText || undefined,
+							small_image: current.smallImage || undefined,
+							small_text: current.smallText || undefined,
+						},
+						priority: 10,
+					}
+				}
 			}
 
 			if (smtcTitle && smtcTitle !== currentTitle) currentTitle = smtcTitle
@@ -714,9 +754,10 @@ export default function startDiscordRich(
 			const buttons = getNextButtons()
 			const partyEntry = getNextParty()
 
+			const visible = resolveVisiblePayload()
 			const safeState =
-				typeof state === 'string' && state.trim().length >= 2
-					? state
+				typeof visible?.state === 'string' && visible.state.trim().length >= 2
+					? visible.state
 					: undefined
 
 			const party =
@@ -794,21 +835,33 @@ export default function startDiscordRich(
 			}
 
 			const activity: RichPresencePayload = {
-				details,
+				details: visible?.details,
 				state: safeState,
 				assets: {
-					large_image: largeImage,
-					large_text: largeText,
-					small_image: current.smallImage || undefined,
-					small_text: current.smallText || undefined,
+					large_image:
+						visible?.source === 'media'
+							? largeImage
+							: visible?.assets?.large_image || largeImage,
+					large_text:
+						visible?.source === 'media'
+							? largeText
+							: visible?.assets?.large_text || largeText,
+					small_image:
+						visible?.source === 'media'
+							? current.smallImage || undefined
+							: visible?.assets?.small_image || current.smallImage || undefined,
+					small_text:
+						visible?.source === 'media'
+							? current.smallText || undefined
+							: visible?.assets?.small_text || current.smallText || undefined,
 				},
 				timestamps: finalTimestamps,
 				type:
-					effectiveActivityType === 'watching'
+					(visible?.activityType || effectiveActivityType) === 'watching'
 						? 3
-						: effectiveActivityType === 'listening'
+						: (visible?.activityType || effectiveActivityType) === 'listening'
 							? 2
-							: effectiveActivityType === 'competing'
+							: (visible?.activityType || effectiveActivityType) === 'competing'
 								? 5
 								: 0,
 			}
@@ -830,7 +883,7 @@ export default function startDiscordRich(
 
 			sendStatus('ACTIVE')
 			sendPayload({
-				details: details || '',
+				details: visible?.details || '',
 				state: safeState || '',
 				coordinates: '',
 				buttons,
@@ -904,7 +957,7 @@ export default function startDiscordRich(
 			}
 			if (sendLog) sendLog('RPC ready', 'success')
 			sendStatus('ACTIVE')
-			await pushActivity(null)
+			await pushActivity(null as any)
 			void pollJsonLoop()
 		})
 

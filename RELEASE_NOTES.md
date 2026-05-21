@@ -1,17 +1,13 @@
-# Hardware Worker
+# RPC Payload Priority & Bar Style
 
 ## Improvements
 
-- **New hardware worker**: added a separate worker path for CPU, GPU, and RAM monitoring, so hardware stats are handled independently from the main playback flow.
-- **Cleaner rotation**: hardware entries now cycle line by line, letting CPU, GPU, and memory data appear in a consistent order.
-- **Better display formatting**: hardware values are normalized into a compact bar plus label layout, with clearer per-device output.
+- **Explicit media/hardware priority**: Introduced `PresencePayload` with `priority` and split state into `activePayload` (media) and `fallbackPayload` (hardware) — the visible payload is now always `active ?? fallback`, без смешивания.
+- **Cleaner timestamp handling**: Unified timestamp calculation for media, range, persist, and cycle modes so Rich Presence always receives a consistent and sane `start/end` pair.
+- **Adaptive bar style visibility**: The bar style row now reacts to RPC-related toggles (filters, hardware monitor, automatic activity) and only appears when one of these features is actually enabled.
 
 ## Fixed
 
-- **Mixed activity output**: hardware stats no longer compete with playback data in the same branch, reducing overwritten details and state.
-- **Unstable hardware reads**: invalid or partial stats are filtered out more safely before being shown in presence.
-- **Display glitches**: bar rendering and device labels now stay consistent across updates, including memory formatting and GPU naming.
-
-## Result
-
-- **Hardware monitoring now feels like its own worker**, keeping CPU, GPU, and RAM updates readable without interfering with music or video presence.
+- **Media/hardware merge bug**: Fixed a conflict where media updates could be partially merged with hardware data, causing mixed `details/state` in Discord; media presence now fully overrides hardware while playback is active.
+- **TypeScript excess property error**: Resolved `PresencePayload` typing by adding the `priority` field to the shared type, so internal priority logic no longer triggers “object literal may only specify known properties” during build.
+- **Bar style UI desync**: Fixed cases where the bar style section stayed visible or hidden incorrectly by wiring all relevant toggles through `localStorage` and `refreshBarStyleVisibility()`.
