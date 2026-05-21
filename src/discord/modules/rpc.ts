@@ -321,10 +321,10 @@ function formatPct(v: any) {
 
 const BAR_STYLES: Record<BarStyle, { full: string; empty: string }> = {
 	unicode: { full: '▰', empty: '▱' },
-	cmd: { full: '=', empty: '-' },
+	cmd: { full: '#', empty: '-' },
 	block: { full: '█', empty: '░' },
-	soft: { full: '▮', empty: '▯' },
-	retro: { full: '▓', empty: '▒' },
+	soft: { full: '█', empty: '▒' },
+	retro: { full: '●', empty: '○' },
 	cyber: { full: '█', empty: '▁' },
 }
 
@@ -359,7 +359,10 @@ function buildHardwareEntries(stats: any) {
 	if (stats.cpu && (stats.cpu.name || stats.cpu.load != null)) {
 		entries.push({
 			label: cleanDeviceName(stats.cpu.name) || 'CPU',
-			temp: null,
+			temp:
+				Number.isFinite(Number(stats.cpu.temp)) && Number(stats.cpu.temp) !== 0
+					? `${Math.round(Number(stats.cpu.temp))}°C`
+					: null,
 			load: Number.isFinite(Number(stats.cpu.load))
 				? Number(stats.cpu.load)
 				: null,
@@ -369,9 +372,11 @@ function buildHardwareEntries(stats: any) {
 	gpus.forEach((gpu: any, idx: number) => {
 		entries.push({
 			label: cleanDeviceName(gpu?.name || gpu?.model) || `GPU ${idx + 1}`,
-			temp: Number.isFinite(Number(gpu?.temp))
-				? `${Math.round(Number(gpu.temp))}°C`
-				: null,
+			temp:
+				Number.isFinite(Number(gpu?.temp)) && Number(gpu?.temp) > 0
+					? `${Math.round(Number(gpu.temp))}°C`
+					: null,
+
 			load: Number.isFinite(Number(gpu?.load)) ? Number(gpu.load) : null,
 		})
 	})
@@ -447,7 +452,8 @@ export default function startDiscordRich(
 		if (!clientId || !cyclesConfig.entries.length) {
 			isConnecting = false
 			sendStatus('NO_CLIENT_ID')
-			if (sendLog) sendLog('No client ID or no cycles configured', 'warn')
+			if (sendLog)
+				sendLog('No client ID or no details & state configured', 'warn')
 			return
 		}
 

@@ -55,7 +55,7 @@ function renderList(
 			const it = item as ImageCycleEntry
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
-			label.textContent = it.largeText || it.largeImage || 'Large image'
+			label.textContent = it.largeText || 'no large text'
 
 			const largeUrlPill = document.createElement('div')
 			largeUrlPill.className = 'config-details-pill'
@@ -70,7 +70,7 @@ function renderList(
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = it.smallText || it.smallImage || 'Small image'
+			sub.textContent = it.smallText || 'no small text'
 
 			const smallUrlPill = document.createElement('div')
 			smallUrlPill.className = 'config-details-pill'

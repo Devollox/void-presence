@@ -5,11 +5,12 @@ const { execFile } = require('child_process')
 let lastHardware = null
 let lastHardwareTime = 0
 const HARDWARE_CACHE_MS = 3000
-const POLL_INTERVAL_MS = 3000
+const POLL_INTERVAL_MS = 5000
 
 let lastCpuSample = sampleCpu()
 let cpuNamePromise = null
 let gpuQueryPromise = null
+let cpuTempPromise = null
 
 function postHardwareStats(stats) {
 	if (!parentPort) return
@@ -40,7 +41,9 @@ function getCpuLoadPct() {
 	const idleDiff = next.idle - lastCpuSample.idle
 	const totalDiff = next.total - lastCpuSample.total
 	lastCpuSample = next
+
 	if (totalDiff <= 0) return 0
+
 	return Math.max(
 		0,
 		Math.min(100, Math.round((1 - idleDiff / totalDiff) * 100)),
@@ -165,13 +168,41 @@ async function getGpuStats() {
 	return gpuQueryPromise
 }
 
+async function getCpuTemperature() {
+	if (cpuTempPromise) return cpuTempPromise
+	cpuTempPromise = (async () => {
+		if (process.platform !== 'win32') return null
+		try {
+			const cmd =
+				'powershell.exe -NoProfile -Command "Get-CimInstance -Namespace root/WMI -ClassName MSAcpi_ThermalZoneTemperature | Select-Object -ExpandProperty CurrentTemperature"'
+			const { stdout } = await execFileAsync(cmd, [], { windowsHide: true })
+			const ktenth = String(stdout || '').trim()
+			const num = Number(ktenth)
+			if (Number.isFinite(num)) {
+				const tempC = Math.round(num / 10 - 273.15)
+				return tempC >= 0 ? tempC : null
+			}
+			return null
+		} catch {
+			return null
+		} finally {
+			cpuTempPromise = null
+		}
+	})()
+	return cpuTempPromise
+}
+
 function bytesToGb(v) {
 	return v / 1024 / 1024 / 1024
 }
 
 async function readHardware() {
 	try {
-		const [cpuName, gpu] = await Promise.all([getCpuName(), getGpuStats()])
+		const [cpuName, cpuTemp, gpu] = await Promise.all([
+			getCpuName(),
+			getCpuTemperature(),
+			getGpuStats(),
+		])
 		const cpuLoad = getCpuLoadPct()
 		const total = os.totalmem()
 		const free = os.freemem()
@@ -180,7 +211,7 @@ async function readHardware() {
 			cpu: {
 				name: cpuName,
 				load: cpuLoad,
-				temp: null,
+				temp: cpuTemp,
 			},
 			gpu,
 			memory: {

@@ -121,7 +121,10 @@ export function createImageCycleRow(
 				placeholder: 'Large image URL(.png/.jpeg/.gif and etc)',
 				value: entry.largeImage || '',
 			},
-			{ placeholder: 'Large hover text', value: entry.largeText || '' },
+			{
+				placeholder: 'Large hover text (optional)',
+				value: entry.largeText || '',
+			},
 			{
 				placeholder: 'Small image URL(.png/.jpeg/.gif and etc) (optional)',
 				value: entry.smallImage || '',
