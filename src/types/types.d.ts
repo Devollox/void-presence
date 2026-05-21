@@ -118,6 +118,7 @@ export type FullState = {
 	timestampRangeMax?: string
 	activityType?: ActivityType
 	nowMode?: NowMode
+	barStyle?: string
 }
 
 export interface StoredConfig {
@@ -188,6 +189,7 @@ export type ConfigState = {
 	videoFilter?: boolean
 	activityFilter?: boolean
 	coverFetchEnabled?: boolean
+	hardwareMonitorEnabled?: boolean
 }
 
 export type UpdateInfo = {
@@ -197,14 +199,18 @@ export type UpdateInfo = {
 	changelogMd: string
 }
 
-export type Settings = {
-	autoHideOnStart?: boolean
-	musicFilter?: boolean
-	videoFilter?: boolean
-	activityFilter?: boolean
-	coverFetchEnabled?: boolean
-	lastUpdateNotified?: string | null
-	lastUpdateNotifiedVersion?: string | null
+export type BarStyle = 'unicode' | 'cmd' | 'block' | 'soft' | 'retro' | 'cyber'
+
+export interface Settings {
+	autoHideOnStart: boolean
+	musicFilter: boolean
+	videoFilter: boolean
+	activityFilter: boolean
+	coverFetchEnabled: boolean
+	hardwareMonitorEnabled: boolean
+	barStyle: BarStyle
+	lastUpdateNotified: string | null
+	lastUpdateNotifiedVersion: string | null
 }
 
 export type NowPlayingInfo = {
@@ -228,6 +234,8 @@ export type NowPlayingInfo = {
 export type LogLevel = 'info' | 'warn' | 'error' | 'success'
 
 export interface ElectronAPI {
+	setBarStyleConfig: (barStyle: BarStyle) => Promise<void> | void
+	setHardwareMonitor?: (on: boolean) => Promise<void> | void
 	useRecentClientId: (clientId: string) => Promise<unknown>
 	useReadyClientId?: () => Promise<void>
 	onUpdateAvailable?: (callback: (info: UpdateInfo) => void) => void

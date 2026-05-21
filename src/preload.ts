@@ -104,4 +104,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	useReadyClientId: () => ipcRenderer.invoke('use-ready-client-id'),
 	useRecentClientId: (clientId: string) =>
 		ipcRenderer.invoke('use-recent-client-id', clientId),
+	setHardwareMonitor: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-hardware-monitor', enabled),
+	setBarStyleConfig: (barStyle: string) =>
+		ipcRenderer.invoke('set-bar-style-config', barStyle),
 })

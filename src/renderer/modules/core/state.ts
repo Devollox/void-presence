@@ -11,6 +11,8 @@ import {
 	VoidPresenceCtx,
 } from '../../../types/types'
 
+type BarStyle = 'unicode' | 'cmd' | 'block' | 'soft' | 'retro' | 'cyber'
+
 export async function setupIntervalControl(): Promise<void> {
 	const input = document.getElementById(
 		'update-interval-input',
@@ -84,6 +86,8 @@ export function loadCurrentState(): FullState {
 	const activityType =
 		(localStorage.getItem('activityType') as ActivityType | null) || 'playing'
 	const nowMode = (localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+	const barStyle =
+		(localStorage.getItem('barStyle') as BarStyle | null) || 'unicode'
 
 	return {
 		clientId,
@@ -98,6 +102,7 @@ export function loadCurrentState(): FullState {
 		activityType,
 		nowMode,
 		timeCycles,
+		barStyle,
 	}
 }
 
@@ -136,6 +141,11 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 		(localStorage.getItem('nowMode') as NowMode | null) ||
 		'plain'
 
+	const barStyle: BarStyle =
+		(state as any).barStyle ||
+		(localStorage.getItem('barStyle') as BarStyle | null) ||
+		'unicode'
+
 	localStorage.setItem('clientId', clientId)
 	localStorage.setItem('buttonPairs', JSON.stringify(buttonPairs))
 	localStorage.setItem('cycles', JSON.stringify(cycles))
@@ -145,6 +155,7 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 	localStorage.setItem('timestampMode', timestampMode)
 	localStorage.setItem('activityType', activityType)
 	localStorage.setItem('nowMode', nowMode)
+	localStorage.setItem('barStyle', barStyle)
 
 	if (Number.isFinite(intervalSecRaw) && intervalSecRaw > 0) {
 		localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
@@ -242,6 +253,12 @@ export async function applyStateToUIAndLists(
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
 	const timeListEl = document.getElementById('time-list') as HTMLElement | null
 
+	const barStyleRow = document.getElementById(
+		'bar-style-row',
+	) as HTMLElement | null
+	const barButtons =
+		document.querySelectorAll<HTMLButtonElement>('[data-bar-style]')
+
 	if (!clientInput || !updateInput) return
 
 	clientInput.value = state.clientId || ''
@@ -284,6 +301,11 @@ export async function applyStateToUIAndLists(
 		(localStorage.getItem('nowMode') as NowMode | null) ||
 		'plain'
 
+	const barStyle =
+		(state as any).barStyle ||
+		(localStorage.getItem('barStyle') as BarStyle | null) ||
+		'unicode'
+
 	localStorage.setItem('clientId', state.clientId || '')
 	localStorage.setItem('buttonPairs', JSON.stringify(state.buttonPairs || []))
 	localStorage.setItem('cycles', JSON.stringify(state.cycles || []))
@@ -292,12 +314,14 @@ export async function applyStateToUIAndLists(
 	localStorage.setItem('timestampMode', mode)
 	localStorage.setItem('nowMode', nowMode)
 	localStorage.setItem('timeCycles', JSON.stringify(state.timeCycles || []))
+	localStorage.setItem('barStyle', barStyle)
 
 	ctx.buttonPairs = Array.isArray(state.buttonPairs) ? state.buttonPairs : []
 	ctx.cycles = Array.isArray(state.cycles) ? state.cycles : []
 	ctx.imageCycles = Array.isArray(state.imageCycles) ? state.imageCycles : []
 	ctx.party = Array.isArray(state.party) ? state.party : []
 	ctx.timeCycles = Array.isArray(state.timeCycles) ? state.timeCycles : []
+	;(ctx as any).barStyle = barStyle
 
 	const applyNowMode = (m: NowMode) => {
 		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
@@ -316,23 +340,20 @@ export async function applyStateToUIAndLists(
 
 	applyNowMode(nowMode)
 
+	barButtons.forEach(btn => {
+		btn.dataset.active = btn.dataset.barStyle === barStyle ? 'true' : 'false'
+	})
+	if (barStyleRow) {
+		const showBarStyle =
+			localStorage.getItem('automaticActivity') === 'true' ||
+			localStorage.getItem('hardwareMonitorEnabled') === 'true' ||
+			mode === 'now'
+		barStyleRow.dataset.visible = showBarStyle ? 'true' : 'false'
+	}
+
 	ctx.renderButtonPairs()
 	ctx.renderCycles()
 	ctx.renderImageCycles()
 	ctx.renderPartyCycles()
 	ctx.renderTimeCycles?.()
 }
-
-document.getElementById('get-author-id').addEventListener('click', async () => {
-	if (window.electronAPI?.openDiscordDeveloperAuthorId) {
-		await window.electronAPI.openDiscordDeveloperAuthorId()
-	}
-})
-
-document
-	.getElementById('tutorial-inline-open-dev')
-	.addEventListener('click', async () => {
-		if (window.electronAPI?.openDiscordDeveloperPortal) {
-			await window.electronAPI.openDiscordDeveloperPortal()
-		}
-	})

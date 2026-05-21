@@ -681,7 +681,8 @@ input {
 .now-mode-row[data-visible='false'],
 .time-cycles-divider[data-visible='false'],
 .time-cycles-header[data-visible='false'],
-.time-cycles-list[data-visible='false'] {
+.time-cycles-list[data-visible='false'],
+#bar-style-row[data-visible='false'] {
 	display: none;
 }
 

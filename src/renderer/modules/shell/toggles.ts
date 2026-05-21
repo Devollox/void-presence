@@ -1,3 +1,4 @@
+import { refreshBarStyleVisibility } from '../config/bar-style-controls'
 import { updateInfo, updateStatus } from './views'
 
 type ToggleKey =
@@ -7,6 +8,7 @@ type ToggleKey =
 	| 'videoFilter'
 	| 'activityFilter'
 	| 'coverFetchEnabled'
+	| 'hardwareMonitorEnabled'
 
 type ToggleApi =
 	| 'setAutoLaunch'
@@ -15,6 +17,7 @@ type ToggleApi =
 	| 'setVideoFilter'
 	| 'setAutomaticActivity'
 	| 'setCoverFetch'
+	| 'setHardwareMonitor'
 
 type ToggleConfig<K extends ToggleKey, A extends ToggleApi> = {
 	id: string
@@ -41,6 +44,8 @@ function setupGenericToggle<K extends ToggleKey, A extends ToggleApi>(
 		if (api?.[cfg.apiMethod]) {
 			api[cfg.apiMethod](next)
 		}
+
+		refreshBarStyleVisibility()
 	})
 }
 
@@ -89,6 +94,14 @@ export function setupCoverFetchToggle(): void {
 		id: 'cover-fetch-toggle',
 		storageKey: 'coverFetchEnabled',
 		apiMethod: 'setCoverFetch',
+	})
+}
+
+export function setupHardwareFilterToggle(): void {
+	setupGenericToggle({
+		id: 'hardware-filter-toggle',
+		storageKey: 'hardwareMonitorEnabled',
+		apiMethod: 'setHardwareMonitor',
 	})
 }
 

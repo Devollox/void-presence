@@ -4,6 +4,7 @@ import { promises as fs } from 'fs'
 import * as path from 'path'
 import {
 	ActivityTypeConfig,
+	BarStyle,
 	ButtonPair,
 	ButtonsConfig,
 	ClientConfig,
@@ -516,12 +517,14 @@ export async function readFiltersState(): Promise<ConfigState> {
 			videoFilter?: boolean
 			activityFilter?: boolean
 			coverFetchEnabled?: boolean
+			hardwareMonitorEnabled?: boolean
 		}
 		return {
 			musicFilter: parsed.musicFilter === true,
 			videoFilter: parsed.videoFilter === true,
 			activityFilter: parsed.activityFilter === true,
 			coverFetchEnabled: parsed.coverFetchEnabled === true,
+			hardwareMonitorEnabled: parsed.hardwareMonitorEnabled === true,
 		}
 	} catch {
 		return {
@@ -529,6 +532,7 @@ export async function readFiltersState(): Promise<ConfigState> {
 			videoFilter: false,
 			activityFilter: false,
 			coverFetchEnabled: false,
+			hardwareMonitorEnabled: false,
 		}
 	}
 }
@@ -539,18 +543,31 @@ const defaultSettings: Settings = {
 	videoFilter: false,
 	activityFilter: false,
 	coverFetchEnabled: false,
+	hardwareMonitorEnabled: false,
+	barStyle: 'unicode',
 	lastUpdateNotified: null,
 	lastUpdateNotifiedVersion: null,
 }
 
 const validateSettings: Validator<Settings> = (input): Settings => {
 	const obj = (input ?? {}) as Partial<Settings>
+	const barStyle =
+		obj.barStyle === 'cmd' ||
+		obj.barStyle === 'block' ||
+		obj.barStyle === 'soft' ||
+		obj.barStyle === 'retro' ||
+		obj.barStyle === 'cyber'
+			? obj.barStyle
+			: 'unicode'
+
 	return {
 		autoHideOnStart: obj.autoHideOnStart === true,
 		musicFilter: obj.musicFilter === true,
 		videoFilter: obj.videoFilter === true,
 		activityFilter: obj.activityFilter === true,
 		coverFetchEnabled: obj.coverFetchEnabled === true,
+		hardwareMonitorEnabled: obj.hardwareMonitorEnabled === true,
+		barStyle,
 		lastUpdateNotified:
 			typeof obj.lastUpdateNotified === 'string' &&
 			obj.lastUpdateNotified.trim().length > 0
@@ -575,4 +592,17 @@ export async function readSettings(): Promise<Settings> {
 export async function writeSettings(data: Settings): Promise<void> {
 	const safe = validateSettings(data)
 	await writeJsonSafe(getSettingsPath(), safe)
+}
+
+export async function setBarStyle(style: BarStyle) {
+	const cfg = await readSettings()
+	cfg.barStyle =
+		style === 'cmd' ||
+		style === 'block' ||
+		style === 'soft' ||
+		style === 'retro' ||
+		style === 'cyber'
+			? style
+			: 'unicode'
+	await writeSettings(cfg)
 }

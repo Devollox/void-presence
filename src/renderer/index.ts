@@ -1,4 +1,5 @@
 import { setupActivityTypeControls } from './modules/config/activity'
+import { initBarStyleControls } from './modules/config/bar-style-controls'
 import { setupClientIdControls } from './modules/config/clientId-controls'
 import { setupConfigPage } from './modules/config/page'
 import { setupCloudUpload } from './modules/config/upload'
@@ -15,6 +16,7 @@ import {
 	setupAutoLaunchToggle,
 	setupAutomaticActivityToggle,
 	setupCoverFetchToggle,
+	setupHardwareFilterToggle,
 	setupMusicFilterToggle,
 	setupRestartButton,
 	setupStopButton,
@@ -36,6 +38,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	void setupMusicFilterToggle()
 	void setupVideoFilterToggle()
 	void setupCoverFetchToggle()
+	void setupHardwareFilterToggle()
 	void setupAutomaticActivityToggle()
 	void setupIntervalControl()
 	void initUpdateOverlay()
@@ -43,6 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	void setupGlobalDrop()
 	void setupCloudUpload()
 	void setupTutorials()
+	void initBarStyleControls()
 	void updateInfo(null)
 	void updateStatus('DISABLED')
 
