@@ -1,9 +1,10 @@
-# New Hardware Temperature & Logging Improvements
+# Discord RPC Now Starts After Workers Initialize
 
 ## Added
 
-- **CPU/GPU temperature support**: Implemented hardware temperature display via RPC — CPU and GPU temps are now shown in the status when `hardwareMonitorEnabled` is enabled, using the same style as other stats.
+- **Worker-first RPC initialization**: Discord Rich Presence now starts only after SMTC or hardware worker sends its first message, ensuring workers are fully initialized before RPC begins.
 
 ## Improvements
 
-- **Minor log improvements**: Refined logging in the RPC and hardware modules to make errors and status changes clearer and more consistent.
+- **Deterministic startup order**: RPC no longer starts in parallel with workers — it waits for `nowPlaying` (SMTC) or `hardwareStats` (hardware) message first.
+- **Duplicate RPC prevention**: Added `rpcStarted` flag to guarantee RPC initializes exactly once, even if multiple worker messages arrive.

@@ -41,13 +41,13 @@ let hardwareWorker: Worker | null = null
 let lastNowPlaying: NowPlayingData | null = null
 let lastHardwareStats: any | null = null
 let stopCurrentRpc: (() => void) | null = null
+let rpcStarted = false
 
 function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
 	if (stopCurrentRpc) {
 		stopCurrentRpc()
 		stopCurrentRpc = null
 	}
-
 	stopCurrentRpc = stopDiscordRichAdvanced
 	startDiscordRichAdvanced(sendPayload)
 }
@@ -99,15 +99,10 @@ function startSmtcWorker() {
 
 	smtcWorker.on('message', async msg => {
 		if (!msg || typeof msg !== 'object') return
-
-		if (msg.type === 'smtcError') {
-			return
-		}
-
+		if (msg.type === 'smtcError') return
 		if (msg.type !== 'nowPlaying') return
 
 		const { musicFilter, videoFilter } = await readFiltersState()
-
 		const haveAnyFilter = !!musicFilter || !!videoFilter
 		if (!haveAnyFilter) {
 			lastNowPlaying = null
@@ -130,6 +125,20 @@ function startSmtcWorker() {
 		}
 
 		lastNowPlaying = msg.data
+
+		if (!rpcStarted) {
+			rpcStarted = true
+			const win = BrowserWindow.getAllWindows()[0]
+			if (win && !win.isDestroyed()) {
+				setTimeout(() => {
+					sendStatus('RESTARTING')
+				}, 100)
+				startDiscordRich(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
+			}
+		}
 	})
 
 	smtcWorker.on('error', err => {
@@ -168,9 +177,22 @@ function startHardwareWorker() {
 
 	hardwareWorker.on('message', msg => {
 		if (!msg || typeof msg !== 'object') return
-
 		if (msg.type === 'hardwareStats') {
 			lastHardwareStats = msg.data
+		}
+
+		if (!rpcStarted) {
+			rpcStarted = true
+			const win = BrowserWindow.getAllWindows()[0]
+			if (win && !win.isDestroyed()) {
+				setTimeout(() => {
+					sendStatus('RESTARTING')
+				}, 100)
+				startDiscordRich(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
+			}
 		}
 	})
 
@@ -232,6 +254,20 @@ export async function initIpc() {
 
 	if (s.hardwareMonitorEnabled && !hardwareWorker) {
 		startHardwareWorker()
+	}
+
+	if (!shouldUseSmtc && !s.hardwareMonitorEnabled) {
+		rpcStarted = true
+		const win = BrowserWindow.getAllWindows()[0]
+		if (win && !win.isDestroyed()) {
+			setTimeout(() => {
+				sendStatus('RESTARTING')
+			}, 100)
+			startDiscordRich(payload => {
+				if (win.isDestroyed()) return
+				win.webContents.send('rpc-update', payload)
+			})
+		}
 	}
 
 	ipcMain.handle('get-now-playing', async () => {
@@ -560,9 +596,7 @@ export async function initIpc() {
 				const newExePath = path.join(installDir, exeName)
 
 				sendLog(
-					`Launching portable installer silently to ${installDir}: ${path.basename(
-						filePath,
-					)}`,
+					`Launching portable installer silently to ${installDir}: ${path.basename(filePath)}`,
 				)
 
 				const child = spawn(filePath, ['/S', `/D=${installDir}`])
@@ -654,15 +688,4 @@ export async function initIpc() {
 	ipcMain.handle('set-bar-style-config', async (_event, barStyle: BarStyle) => {
 		await setBarStyle(barStyle)
 	})
-
-	const win = BrowserWindow.getAllWindows()[0]
-	if (win && !win.isDestroyed()) {
-		setTimeout(() => {
-			sendStatus('RESTARTING')
-		}, 100)
-		startDiscordRich(payload => {
-			if (win.isDestroyed()) return
-			win.webContents.send('rpc-update', payload)
-		})
-	}
 }

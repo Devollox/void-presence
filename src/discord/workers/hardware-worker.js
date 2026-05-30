@@ -4,8 +4,8 @@ const { execFile } = require('child_process')
 
 let lastHardware = null
 let lastHardwareTime = 0
-const HARDWARE_CACHE_MS = 3000
-const POLL_INTERVAL_MS = 5000
+const HARDWARE_CACHE_MS = 4000
+const POLL_INTERVAL_MS = 4000
 
 let lastCpuSample = sampleCpu()
 let cpuNamePromise = null
