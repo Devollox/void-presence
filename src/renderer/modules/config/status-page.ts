@@ -112,6 +112,8 @@ function createStatusCard(
 			}
 
 			await applyStateToUIAndLists(nextState, ctx)
+			ctx.statusCycles = statusCycles
+
 			await pushLiveStateFromCtx(ctx)
 
 			const profiles = getStatusProfiles()

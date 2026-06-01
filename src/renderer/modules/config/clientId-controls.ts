@@ -16,7 +16,7 @@ import {
 	setupParty,
 	setupStatusCycles,
 } from './list-renderers'
-import { pushLiveStateFromCtx, pushStatusFromCtx } from './live'
+import { pushLiveStateFromCtx } from './live'
 import { createModeControllers } from './mode-сontrols'
 import { RecentApp, renderRecentApps } from './recent'
 import { setupTimeControls } from './time-сontrols'
@@ -36,6 +36,7 @@ export function setupClientIdControls(): void {
 		imagesList,
 		addImage,
 		recentList,
+		statusList,
 	] = getRequiredElements(
 		'client-id-input',
 		'buttons-list',
@@ -45,6 +46,7 @@ export function setupClientIdControls(): void {
 		'images-list',
 		'add-image',
 		'recent-list',
+		'status-list',
 	)
 
 	const $clientInput = clientInput as HTMLInputElement | null
@@ -54,9 +56,7 @@ export function setupClientIdControls(): void {
 	const $discordTokenInput = document.getElementById(
 		'discord-token-input',
 	) as HTMLInputElement | null
-	const $statusList = document.getElementById(
-		'status-list',
-	) as HTMLElement | null
+	const $statusList = statusList as HTMLElement | null
 	const $addStatus = document.getElementById(
 		'add-status',
 	) as HTMLButtonElement | null
@@ -182,11 +182,7 @@ export function setupClientIdControls(): void {
 		const isStatus = list === $statusList
 		attachDnD<unknown>(list, items, () => {
 			render()
-			if (isStatus) {
-				void pushStatusFromCtx(ctx)
-			} else {
-				void pushLiveStateFromCtx(ctx)
-			}
+			void pushLiveStateFromCtx(ctx)
 			showBlocksToast()
 		})
 	}
@@ -299,7 +295,7 @@ export function setupClientIdControls(): void {
 				}
 
 				localStorage.setItem('updateIntervalSecStatus', String(val))
-				void pushStatusFromCtx(ctx)
+				void pushLiveStateFromCtx(ctx)
 				showBlocksToast()
 			}, 600)
 		})

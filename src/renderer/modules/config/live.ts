@@ -69,36 +69,6 @@ function buildStatusCyclesPayload(
 	}))
 }
 
-export async function pushStatusFromCtx(ctx: VoidPresenceCtx): Promise<void> {
-	const statusIntervalInput = document.getElementById(
-		'status-update-interval-input',
-	) as HTMLInputElement | null
-
-	const statusIntervalSec = statusIntervalInput
-		? parseInt(statusIntervalInput.value.trim(), 10)
-		: NaN
-
-	const statusCycles = Array.isArray(ctx.statusCycles) ? ctx.statusCycles : []
-
-	localStorage.setItem('statusCycles', JSON.stringify(statusCycles))
-
-	if (!isNaN(statusIntervalSec) && statusIntervalSec > 0) {
-		localStorage.setItem('updateIntervalSecStatus', String(statusIntervalSec))
-	}
-
-	if (
-		!isNaN(statusIntervalSec) &&
-		statusIntervalSec > 0 &&
-		window.electronAPI?.liveSetStatusInterval
-	) {
-		await window.electronAPI.liveSetStatusInterval(statusIntervalSec)
-	}
-	if (window.electronAPI?.liveSetStatusCycles) {
-		const payload = buildStatusCyclesPayload(statusCycles)
-		await window.electronAPI.liveSetStatusCycles(payload)
-	}
-}
-
 export async function pushLiveStateFromCtx(
 	ctx: VoidPresenceCtx,
 ): Promise<void> {
@@ -111,6 +81,9 @@ export async function pushLiveStateFromCtx(
 	const tokenInput = document.getElementById(
 		'discord-token-input',
 	) as HTMLInputElement | null
+	const statusIntervalInput = document.getElementById(
+		'status-update-interval-input',
+	) as HTMLInputElement | null
 
 	const clientId = clientInput ? clientInput.value.trim() : ''
 	const intervalSec = intervalInput
@@ -118,8 +91,13 @@ export async function pushLiveStateFromCtx(
 		: NaN
 	const discordToken = tokenInput ? tokenInput.value.trim() : ''
 
+	const statusIntervalSec = statusIntervalInput
+		? parseInt(statusIntervalInput.value.trim(), 10)
+		: NaN
+
 	const timestampPayload = buildTimestampPayloadFromLocal()
 	const timeCycles = Array.isArray(ctx.timeCycles) ? ctx.timeCycles : []
+	const statusCycles = Array.isArray(ctx.statusCycles) ? ctx.statusCycles : []
 
 	localStorage.setItem('clientId', clientId)
 	localStorage.setItem('discordToken', discordToken)
@@ -128,11 +106,16 @@ export async function pushLiveStateFromCtx(
 	localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
 	localStorage.setItem('party', JSON.stringify(ctx.party))
 	localStorage.setItem('timeCycles', JSON.stringify(timeCycles))
+	localStorage.setItem('statusCycles', JSON.stringify(statusCycles))
 	localStorage.setItem('timestampMode', timestampPayload.mode)
 	localStorage.setItem('timestampRangeMin', timestampPayload.rangeMin)
 	localStorage.setItem('timestampRangeMax', timestampPayload.rangeMax)
 	localStorage.setItem('activityType', timestampPayload.activityType)
 	localStorage.setItem('nowMode', timestampPayload.nowMode)
+
+	if (!isNaN(statusIntervalSec) && statusIntervalSec > 0) {
+		localStorage.setItem('updateIntervalSecStatus', String(statusIntervalSec))
+	}
 
 	if (window.electronAPI?.liveSetClientId && clientId.length > 18) {
 		await window.electronAPI.liveSetClientId(clientId)
@@ -167,6 +150,17 @@ export async function pushLiveStateFromCtx(
 	if (window.electronAPI?.liveSetTimeCycles) {
 		const timePayload = buildTimeCyclesPayload(timeCycles)
 		await window.electronAPI.liveSetTimeCycles(timePayload)
+	}
+	if (
+		!isNaN(statusIntervalSec) &&
+		statusIntervalSec > 0 &&
+		window.electronAPI?.liveSetStatusInterval
+	) {
+		await window.electronAPI.liveSetStatusInterval(statusIntervalSec)
+	}
+	if (window.electronAPI?.liveSetStatusCycles) {
+		const statusPayload = buildStatusCyclesPayload(statusCycles)
+		await window.electronAPI.liveSetStatusCycles(statusPayload)
 	}
 	if (window.electronAPI?.liveSetTimestamp) {
 		await window.electronAPI.liveSetTimestamp({

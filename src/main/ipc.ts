@@ -513,10 +513,14 @@ export async function initIpc() {
 		return true
 	})
 
-	ipcMain.handle('live-set-status-cycles', async (_event, cycles: any) => {
-		await setStatusCyclesConfig(cycles)
-		return true
-	})
+	ipcMain.handle(
+		'live-set-status-cycles',
+		async (_event, cycles: StatusCycleEntry[]) => {
+			const normalized = normalizeStatuses(cycles)
+			await setStatusCyclesConfig(normalized)
+			return true
+		},
+	)
 
 	ipcMain.handle(
 		'settings:set-status-enabled',
