@@ -10,13 +10,14 @@ https://github.com/user-attachments/assets/57fffa33-626d-467f-80a1-0df338f0f65a
 
 ## Overview
 
-Void Presence is an advanced Discord Rich Presence manager with **three RPC Modes** (`Basic` / `Music and Video` / `Hardware monitoring`), customizable button pairs, text cycles, image rotation, drag‑and‑drop profile management, and easy config transfer between machines. **Advanced mode** intelligently detects **Music** + **Video** and **Hardware monitoring** activity!
+Void Presence is an advanced Discord Rich Presence manager with three RPC modes: `Basic`, `Music and Video`, and `Hardware monitoring`. It also supports custom button pairs, dynamic status cycling, rotating images, drag-and-drop profile management, config import/export, auto-launch, tray hiding, and a minimalist dark UI.
 
 ---
 
 ## Features
 
 - **RPC Modes** – `Basic` (lightweight) / `Music and Video` (**Music + Video**) / `Hardware overlay` (**CPU + GPU + RAM**)
+- **Dynamic status** – cyclic switching between statuses
 - **Custom button pairs** – Create multiple button sets with labels and URLs
 - **Custom update interval** – Control how often activity is refreshed (in seconds)
 - **Status cycles** – Rotate between different status messages (`details` and `state`)

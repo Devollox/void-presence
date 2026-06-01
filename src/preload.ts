@@ -115,7 +115,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('settings:set-cover-fetch', enabled),
 	setStatusEnabled: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-status-enabled', enabled),
-
 	setStatusCyclesConfig: (cycles: StatusCycleEntry[]) =>
 		ipcRenderer.invoke('settings:set-status-cycles', cycles),
 	statusGetCurrent: () => ipcRenderer.invoke('status:get-current'),
