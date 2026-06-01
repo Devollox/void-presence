@@ -113,7 +113,7 @@ export function loadCurrentState(): FullState {
 		!Number.isNaN(Number(rawStatusUpdate)) &&
 		Number(rawStatusUpdate) > 0
 			? rawStatusUpdate
-			: '30'
+			: ''
 
 	return {
 		clientId,
