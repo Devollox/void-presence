@@ -113,6 +113,12 @@ Recommended user presets:
 - Use Discord asset keys from your application or external URLs
 - Add several images and enable rotation for more dynamic presence
 
+### Dynamic Status cycles
+
+- Add multiple status items with `Text`, `Emoji`
+- Items rotate every N seconds by default, with `30` seconds as the standard interval.
+- Use it to dynamically switch what Dynamic Status shows, such as gaming, coding, streaming, or other live activity.
+
 ### Profiles (drag & drop)
 
 - Create separate profiles for gaming, work, streaming, etc.
@@ -132,23 +138,6 @@ Void Presence ships with ready‑to‑use Rich Presence presets and supports imp
 
 You can **browse, search, and download community configs here**:
 [+ Configs](https://www.voidpresence.site/configs)
-
-## Usage
-
-1. Set **client ID** – Enter your Discord Application ID
-2. Set **update interval** – Choose how often to refresh activity (seconds)
-3. Add **images** – Configure large and small image rotation
-4. Add **buttons** – Create button pairs with labels and URLs
-5. Add **status cycles** – Define messages to rotate
-6. Create **profiles** – Combine buttons, statuses, and images into presets
-7. Use **drag & drop** – Reorder profiles in the list
-8. Use **config import/export** – Save or load JSON presets
-9. Toggle **auto start** – Enable/disable on system startup
-10. Toggle **auto hide** – Start minimized to tray
-11. Click **save** – Apply all changes and start Rich Presence
-12. Click **restart presence** – Reload the current configuration
-13. Click **stop presence** – Disable Rich Presence
-14. Click **upload current** – Send the active config to the Void Presence website
 
 ## Keyboard shortcuts
 
