@@ -1,7 +1,13 @@
 import { VoidPresenceCtx } from 'src/types/types'
 import { pushLiveStateFromCtx } from '../config/live'
 
-type ListKey = 'buttonPairs' | 'cycles' | 'imageCycles' | 'party' | 'timeCycles'
+type ListKey =
+	| 'buttonPairs'
+	| 'cycles'
+	| 'imageCycles'
+	| 'party'
+	| 'timeCycles'
+	| 'statusCycles'
 
 type ListConfig<T> = {
 	listId: string

@@ -45,6 +45,15 @@
 						</button>
 						<button
 							class="tab-btn"
+							data-page="status"
+							data-active="false"
+							id="nav-status"
+						>
+							<div class="tab-indicator"></div>
+							<span>status</span>
+						</button>
+						<button
+							class="tab-btn"
 							data-page="logs"
 							data-active="false"
 							id="nav-logs"
@@ -69,7 +78,7 @@
 						<div class="top-bar">
 							<div class="status-chip">
 								<div class="status-dot"></div>
-								<span>ACTIVE SESSION</span>
+								<span>ACTIVE</span>
 							</div>
 						</div>
 
@@ -134,6 +143,11 @@
 														Step 2 — Start your presence
 													</div>
 													<ul class="tutorial-inline-list">
+													<li>
+														Click
+														<span class="tutorial-strong">Presence activity</span>
+														tumbler to enable RPC.
+														</li>
 														<li>
 															Set
 															<span class="tutorial-strong">update(sec)</span>
@@ -176,36 +190,12 @@
 											id="use-ready-id"
 											class="rpc-button tutorial-inline-btn"
 										>
-											<svg
-												width="12"
-												height="12"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-											>
-												<path
-													d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-												></path>
-											</svg>
 											Use Ready Client ID
 										</button>
 										<button
 											id="tutorial-inline-open-dev"
 											class="rpc-button tutorial-inline-btn secondary"
 										>
-											<svg
-												width="12"
-												height="12"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-											>
-												<path
-													d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-												></path>
-											</svg>
 											Open Discord Developer Portal
 										</button>
 									</div>
@@ -227,12 +217,38 @@
 										</div>
 									</div>
 									<div class="client-row">
+										<span>rpc enabled</span>
+										<div class="advanced-toggles-wrap">
+											<div class="wrapper-auto-label">
+												<div class="auto-label">
+													<span>Presence activity</span>
+													<div class="hint-text">enable rpc</div>
+												</div>
+												<div
+													id="rpc-enabled-toggle"
+													class="auto-toggle"
+													data-on="true"
+												>
+													<div class="auto-toggle-knob"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="client-row">
 										<span>client id</span>
 										<input
 											id="client-id-input"
 											placeholder="APPLICATION ID"
 											class="font-mono tracking-tight"
 											value="1459645961512161331"
+										/>
+									</div>
+									<div class="client-row">
+										<span>update(sec)</span>
+										<input
+											id="update-interval-input"
+											placeholder="UPDATE ACTIVITY (SEC) MIN 5 SEC"
+											value="30"
 										/>
 									</div>
 									<div id="advanced-interval-hint" class="client-row">
@@ -327,14 +343,6 @@
 											<button class="timestamp-mode-btn" data-bar-style="retro" data-active="false">retro</button>
 											<button class="timestamp-mode-btn" data-bar-style="cyber" data-active="false">cyber</button>
 										</div>
-									</div>
-									<div class="client-row">
-										<span>update(sec)</span>
-										<input
-											id="update-interval-input"
-											placeholder="UPDATE ACTIVITY (SEC) MIN 5 SEC"
-											value="5"
-										/>
 									</div>
 
 									<div class="client-row">
@@ -663,6 +671,302 @@
 						</div>
 					</section>
 
+					<section class="view content-scroll" data-view="status" data-active="false">
+						<div class="top-bar">
+							<div class="status-chip-status">
+								<div class="status-dot-status"></div>
+								<span>ACTIVE</span>
+							</div>
+						</div>
+
+						<div
+							class="card tutorial-inline"
+							id="status-tutorial-card"
+							data-visible="true"
+						>
+							<div class="card-header tutorial-inline-header">
+								<div>
+									<div class="card-label">tutorial</div>
+									<div class="card-title">Custom status</div>
+								</div>
+								<button
+									id="status-tutorial-close"
+									class="tutorial-inline-close"
+									type="button"
+								>
+									skip
+								</button>
+							</div>
+							<div class=" tutorial-inline-header">
+								<p class="hint-text">
+										Use this feature with caution. It relies on a user token and behaves like a
+										third‑party client, which is against Discord’s Terms of Service, so you use
+										it at your own risk.
+									</p>
+									<p class="hint-text">
+										We do not accept any responsibility for possible consequences, including
+										warnings or account restrictions, although we have not observed bans for
+										this specific use case so far.
+									</p>
+							</div>
+
+
+							<div class='divider'></div>
+							<div class="tutorial-inline-body">
+								<div class="tutorial-inline-col">
+									<div class="tutorial-inline-step-label">
+										Step 1 — Enable worker
+									</div>
+									<ol class="tutorial-inline-list">
+										<li>
+											Toggle
+											<span class="tutorial-strong">Custom status</span>
+											to turn the worker on.
+										</li>
+										<li>
+											Set
+											<span class="tutorial-strong">Discord token</span>
+											in the field below.
+										</li>
+										<li>
+											Set
+											<span class="tutorial-strong">update(sec)</span>
+											— how often the status should change (minimum 5 seconds).
+										</li>
+										<li>
+											Add one or more
+											<span class="tutorial-strong">status cycles</span>
+											with text and optional emoji.
+										</li>
+									</ol>
+
+								</div>
+
+								<div class='tutorial-inline-wrapper'>
+									<div class="tutorial-inline-col">
+									<div class="tutorial-inline-step-label">
+										Step 2 — Get Discord token
+									</div>
+									<ul class="tutorial-inline-list">
+										<li>
+											Open Discord in a desktop browser and log in to your account.
+										</li>
+										<li>
+											Open DevTools with
+											<span class="tutorial-strong">F12</span>
+											or
+											<span class="tutorial-strong">Ctrl+Shift+I</span>.
+										</li>
+										<li>
+											Switch to the
+											<span class="tutorial-strong">Network</span>
+											tab and in the lower panel select the
+											<span class="tutorial-strong">science</span>
+											request.
+										</li>
+										<li>
+											Inside the
+											<span class="tutorial-strong">science</span>
+											request, find the
+											<span class="tutorial-strong">authorization</span>
+											header and copy its full value.
+										</li>
+										<li>
+											Paste the copied
+											<span class="tutorial-strong">user token</span>
+											into the
+											<span class="tutorial-strong">DISCORD TOKEN</span>
+											field below.
+										</li>
+										<li>
+											Click
+											<span class="tutorial-strong">RESTART STATUS</span>
+											to restart the worker with the new token and cycles.
+										</li>
+									</ul>
+								</div>
+								<div class="tutorial-inline-col">
+									<div class="tutorial-inline-step-label">
+										Step 3 — Important notes
+									</div>
+									<ul class="tutorial-inline-list">
+										<li>
+											We do not store your
+											<span class="tutorial-strong">Discord token</span>
+											on any server. It is used locally on your machine only.
+										</li>
+										<li>
+											For most setups we recommend an update interval between
+											<span class="tutorial-strong">10 and 30 seconds</span>
+											to keep your status responsive without spamming Discord.
+										</li>
+										<li>
+											If your main RPC presence already updates every
+											<span class="tutorial-strong">5 seconds</span>,
+											it is not recommended to set the status interval
+											lower than
+											<span class="tutorial-strong">10 seconds</span>.
+										</li>
+									</ul>
+								</div>
+								</div>
+							</div>
+							<div class="tutorial-inline-wrapper btn-wrapper">
+									<button
+										id="get-video-id"
+										class="rpc-button tutorial-inline-btn"
+									>
+										Open Video Guide
+									</button>
+									<button
+										id="get-video-error-id"
+										class="rpc-button tutorial-inline-btn"
+									>
+										If it doesn't open the console
+									</button>
+									</div>
+									<div class="tutorial-inline-wrapper btn-wrapper btn-show">
+										<button id="status-tutorial-dont-show" class="add-btn" type="button">
+											<span>Do not show this status tutorial again</span>
+									</button>
+									</div>
+						</div>
+
+						<div class="card">
+							<div class="card-header">
+								<div class="card-label">status</div>
+								<div class="card-title-block">
+									<div class="card-title" id="status-page-info-text-title-block">
+										Status settings
+									</div>
+									<div class="card-label">custom status</div>
+								</div>
+							</div>
+
+							<div class="divider"></div>
+
+							<div class="client-row">
+								<span>status enabled</span>
+								<div class="advanced-toggles-wrap">
+									<div class="wrapper-auto-label">
+										<div class="auto-label">
+											<span>Custom status</span>
+											<div class="hint-text">enable status</div>
+										</div>
+										<div
+											id="status-custom-enabled-toggle"
+											class="auto-toggle"
+											data-on="false"
+										>
+											<div class="auto-toggle-knob"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="client-row">
+								<span>DISCORD TOKEN</span>
+								<input
+									id="discord-token-input"
+									placeholder="Paste Discord token here"
+									value=""
+									type="password"
+									autocomplete="off"
+									spellcheck="false"
+								/>
+							</div>
+
+							<div class="client-row">
+								<span>update(sec)</span>
+								<input
+									id="status-update-interval-input"
+									placeholder="STATUS UPDATE (SEC) MIN 5 SEC"
+									value="30"
+								/>
+							</div>
+
+							<div class="list-header status-cycles-header" data-visible="false">
+								<div class="list-header-label">status cycles</div>
+								<button id="add-status" class="add-btn" type="button">status</button>
+							</div>
+							<div id="status-list" data-visible="false"></div>
+
+							<div class="button-row-container">
+								<div class="button-row-buttons">
+									<button
+										id="custom-status-restart"
+										class="rpc-button rpc-button-primary"
+										type="button"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="12"
+											height="12"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											class="rpc-button-icon-svg"
+										>
+											<path
+												d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+											></path>
+											<path d="M3 3v5h5"></path>
+										</svg>
+										RESTART STATUS
+									</button>
+									<button
+										id="custom-status-stop"
+										class="rpc-button rpc-button-destructive"
+										type="button"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="12"
+											height="12"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											class="rpc-button-icon-svg"
+										>
+											<rect
+												width="18"
+												height="18"
+												x="3"
+												y="3"
+												rx="2"
+											></rect>
+										</svg>
+										STOP STATUS
+									</button>
+								</div>
+							</div>
+
+							<div class="divider"></div>
+
+							<p class="hint-text">
+								Status filters are isolated from the main presence logic and use unique IDs
+								for separate handling.
+							</p>
+						</div>
+
+						<div class="status-payload">
+							<div class="payload-title">current payload</div>
+							<div class="payload-grid">
+								<div class="payload-label">Status Text</div>
+								<div class="payload-value" id="status-page-info-text">–</div>
+							</div>
+							<div class="payload-status" id="status-page-info-status">
+								Waiting for first update…
+							</div>
+						</div>
+					</section>
+
 					<section class="view" data-view="logs" data-active="false">
 						<div class="logs-view-wrapper">
 							<div class="logs-view-header">
@@ -868,6 +1172,37 @@
 								</div>
 							</div>
 							<div id="config-list" class="divide-y divide-white/5"></div>
+						</div>
+
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title-label">Saved statuses</div>
+							</div>
+							<div class="client-row">
+								<span>search</span>
+								<input
+									id="status-search-input"
+									type="text"
+									placeholder="search statuses"
+									class="config-search-input"
+								/>
+								<div class="config-save-btn">
+									<button id="status-export-btn">export</button>
+								</div>
+								<div class="config-save-btn">
+									<button id="status-import-btn">import</button>
+								</div>
+							</div>
+							<div class="client-row">
+								<span>name</span>
+								<input id="status-name-input" placeholder="status profile name" />
+								<div class="config-save-btn">
+									<button type="button" id="status-save-btn">
+										save status profile
+									</button>
+								</div>
+							</div>
+							<div id="status-list-config" class="divide-y divide-white/5"></div>
 						</div>
 					</section>
 				</main>
@@ -1188,6 +1523,117 @@
 										dashed border will appear when ready to drop.
 									</div>
 								</div>
+							</div>
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
+
+
+
+		<div id="status-import-overlay" data-open="false">
+			<div class="config-details-modal">
+				<main class="config-details-main">
+					<div class="config-details-inner-scroll">
+						<div class="config-details-animate">
+							<button
+								id="status-import-close-btn"
+								class="config-details-back-btn"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-chevron-left"
+								>
+									<path d="m15 18-6-6 6-6"></path>
+								</svg>
+								Back to status profiles
+							</button>
+							<div class="card config-details-card">
+								<div class="card-header config-details-card-header">
+									<div>
+										<div class="card-label">Import status profile</div>
+										<div class="card-title config-details-title">
+											Drop a JSON file anywhere or choose it here
+										</div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div class="config-details-body import-body">
+									<div>Only status items (text/emoji) will be imported.</div>
+									<div class="import-input-row">
+										<input
+											type="file"
+											id="status-import-file-input"
+											accept="application/json,.json"
+										/>
+									</div>
+									<div class="import-hint">
+										You can also drag and drop a .json file onto the window;
+										dashed border will appear when ready to drop.
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
+
+		<div id="status-details-overlay" data-open="false">
+			<div class="config-details-modal">
+				<main class="config-details-main">
+					<div class="config-details-inner-scroll">
+						<div class="config-details-animate">
+							<button
+								id="status-details-close"
+								class="config-details-back-btn"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="12"
+									height="12"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-chevron-left"
+								>
+									<path d="m15 18-6-6 6-6"></path>
+								</svg>
+								Back to status profiles
+							</button>
+							<div class="card config-details-card">
+								<div class="card-header config-details-card-header">
+									<div>
+										<div class="card-label">Status profile details</div>
+										<div
+											id="status-details-name"
+											class="card-title config-details-title"
+										></div>
+									</div>
+								</div>
+
+								<div class="divider"></div>
+
+								<div
+									id="status-details-list"
+									class="config-details-body"
+								></div>
 							</div>
 						</div>
 					</div>

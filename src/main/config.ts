@@ -10,12 +10,14 @@ import {
 	ClientConfig,
 	ConfigState,
 	CyclesConfig,
+	DiscordTokenConfig,
 	ImageCycle,
 	ImageCyclesConfig,
 	NowMode,
 	PartyConfig,
 	PartyCycleEntry,
 	Settings,
+	TimerConfig,
 	TimestampConfig,
 } from '../types/types'
 
@@ -33,7 +35,6 @@ async function writeJsonSafe<T>(
 ): Promise<void> {
 	const json = JSON.stringify(data, null, 2)
 	await ensureDir(filePath)
-
 	const dir = path.dirname(filePath)
 	const tmpPath = path.join(
 		dir,
@@ -45,14 +46,14 @@ async function writeJsonSafe<T>(
 			await fs.writeFile(tmpPath, json, 'utf-8')
 			await fs.rename(tmpPath, filePath)
 			return
-		} catch (err) {
+		} catch {
 			await new Promise(r => setTimeout(r, 50))
-
 			try {
 				await fs.unlink(tmpPath)
 			} catch {}
 		}
 	}
+
 	throw new Error(`Failed to write ${filePath} after ${retry} attempts`)
 }
 
@@ -79,12 +80,24 @@ function getClientConfigPath() {
 	return getConfigPath('client-config.json')
 }
 
+function getTimerConfigPath() {
+	return getConfigPath('timer-config.json')
+}
+
+function getDiscordTokenConfigPath() {
+	return getConfigPath('discord-token-config.json')
+}
+
 function getButtonsConfigPath() {
 	return getConfigPath('buttons-config.json')
 }
 
 function getCyclesConfigPath() {
 	return getConfigPath('cycles-config.json')
+}
+
+function getStatusConfigPath() {
+	return getConfigPath('status-config.json')
 }
 
 function getImageCyclesConfigPath() {
@@ -109,7 +122,6 @@ function getSettingsPath() {
 
 const defaultClientConfig: ClientConfig = {
 	clientId: null,
-	updateIntervalSec: null,
 }
 
 const validateClientConfig: Validator<ClientConfig> = (input): ClientConfig => {
@@ -118,13 +130,7 @@ const validateClientConfig: Validator<ClientConfig> = (input): ClientConfig => {
 		typeof obj.clientId === 'string' && obj.clientId.trim().length > 0
 			? obj.clientId.trim()
 			: null
-	const updateIntervalSec =
-		typeof obj.updateIntervalSec === 'number' &&
-		Number.isFinite(obj.updateIntervalSec) &&
-		obj.updateIntervalSec > 0
-			? obj.updateIntervalSec
-			: null
-	return { clientId, updateIntervalSec }
+	return { clientId }
 }
 
 export async function readClientConfig(): Promise<ClientConfig> {
@@ -139,14 +145,100 @@ export async function writeClientConfig(config: ClientConfig) {
 	await writeJsonSafe(getClientConfigPath(), validateClientConfig(config))
 }
 
-export async function setActivityIntervalConfig(sec: number | null) {
+export async function setClientId(clientId: string) {
 	const cfg = await readClientConfig()
-	let safe: number | null = null
-	if (typeof sec === 'number' && Number.isFinite(sec) && sec > 0) {
-		safe = Math.max(5, Math.floor(sec))
-	}
-	cfg.updateIntervalSec = safe
+	cfg.clientId = clientId.trim() || null
 	await writeClientConfig(cfg)
+}
+
+const defaultTimerConfig: TimerConfig = {
+	updateIntervalSec: null,
+	updateIntervalSecStatus: null,
+}
+
+const validateTimerConfig: Validator<TimerConfig> = (input): TimerConfig => {
+	const obj = (input ?? {}) as Partial<TimerConfig> & {
+		updateIntervalSecStatus?: unknown
+	}
+	const updateIntervalSec =
+		typeof obj.updateIntervalSec === 'number' &&
+		Number.isFinite(obj.updateIntervalSec) &&
+		obj.updateIntervalSec > 0
+			? Math.max(5, Math.floor(obj.updateIntervalSec))
+			: null
+	const updateIntervalSecStatus =
+		typeof obj.updateIntervalSecStatus === 'number' &&
+		Number.isFinite(obj.updateIntervalSecStatus) &&
+		obj.updateIntervalSecStatus > 0
+			? Math.max(5, Math.floor(obj.updateIntervalSecStatus))
+			: null
+	return { updateIntervalSec, updateIntervalSecStatus }
+}
+
+export async function readTimerConfig(): Promise<TimerConfig> {
+	return readJsonWithSchema(
+		getTimerConfigPath(),
+		validateTimerConfig,
+		defaultTimerConfig,
+	)
+}
+
+export async function writeTimerConfig(config: TimerConfig) {
+	await writeJsonSafe(getTimerConfigPath(), validateTimerConfig(config))
+}
+
+export async function setActivityIntervalConfig(sec: number | null) {
+	const cfg = await readTimerConfig()
+	cfg.updateIntervalSec =
+		typeof sec === 'number' && Number.isFinite(sec) && sec > 0
+			? Math.max(5, Math.floor(sec))
+			: null
+	await writeTimerConfig(cfg)
+}
+
+export async function setActivityIntervalStatusConfig(sec: number | null) {
+	const cfg = await readTimerConfig()
+	cfg.updateIntervalSecStatus =
+		typeof sec === 'number' && Number.isFinite(sec) && sec > 0
+			? Math.max(5, Math.floor(sec))
+			: null
+	await writeTimerConfig(cfg)
+}
+
+const defaultDiscordTokenConfig: DiscordTokenConfig = {
+	discordToken: null,
+}
+
+const validateDiscordTokenConfig: Validator<DiscordTokenConfig> = (
+	input,
+): DiscordTokenConfig => {
+	const obj = (input ?? {}) as Partial<DiscordTokenConfig>
+	const discordToken =
+		typeof obj.discordToken === 'string' && obj.discordToken.trim().length > 0
+			? obj.discordToken.trim()
+			: null
+	return { discordToken }
+}
+
+export async function readDiscordTokenConfig(): Promise<DiscordTokenConfig> {
+	return readJsonWithSchema(
+		getDiscordTokenConfigPath(),
+		validateDiscordTokenConfig,
+		defaultDiscordTokenConfig,
+	)
+}
+
+export async function writeDiscordTokenConfig(config: DiscordTokenConfig) {
+	await writeJsonSafe(
+		getDiscordTokenConfigPath(),
+		validateDiscordTokenConfig(config),
+	)
+}
+
+export async function setDiscordTokenConfig(token: string | null) {
+	await writeDiscordTokenConfig({
+		discordToken: token && token.trim().length > 0 ? token.trim() : null,
+	})
 }
 
 const normalizeButtonPairLoose = (p: ButtonPair): ButtonPair => ({
@@ -204,6 +296,52 @@ export async function readCyclesConfig(): Promise<CyclesConfig> {
 
 export async function writeCyclesConfig(config: CyclesConfig) {
 	await writeJsonSafe(getCyclesConfigPath(), validateCyclesConfig(config))
+}
+
+const defaultStatusConfig: {
+	cycles: { text: string; emoji: string | null }[]
+} = {
+	cycles: [],
+}
+
+const validateStatusConfig: Validator<{
+	cycles: { text: string; emoji: string | null }[]
+}> = (input): { cycles: { text: string; emoji: string | null }[] } => {
+	const obj = (input ?? {}) as { cycles?: unknown[] }
+	const cycles = Array.isArray(obj.cycles) ? obj.cycles : []
+	return {
+		cycles: cycles
+			.map((c: any) => ({
+				text: typeof c?.text === 'string' ? c.text.trim() : '',
+				emoji:
+					typeof c?.emoji === 'string' && c.emoji.trim().length > 0
+						? c.emoji.trim()
+						: null,
+			}))
+			.filter(c => c.text.length > 0),
+	}
+}
+
+export async function readStatusConfig(): Promise<{
+	cycles: { text: string; emoji: string | null }[]
+}> {
+	return readJsonWithSchema(
+		getStatusConfigPath(),
+		validateStatusConfig,
+		defaultStatusConfig,
+	)
+}
+
+export async function writeStatusConfig(config: {
+	cycles: { text: string; emoji: string | null }[]
+}) {
+	await writeJsonSafe(getStatusConfigPath(), validateStatusConfig(config))
+}
+
+export async function setStatusConfig(
+	cycles: { text: string; emoji: string | null }[],
+) {
+	await writeStatusConfig({ cycles: Array.isArray(cycles) ? cycles : [] })
 }
 
 const defaultImageCyclesConfig: ImageCyclesConfig = { cycles: [] }
@@ -425,21 +563,13 @@ export async function setActivityType(type: ActivityTypeConfig['type']) {
 	await writeActivityTypeConfig({ type: safeType })
 }
 
-export async function setClientId(clientId: string) {
-	const cfg = await readClientConfig()
-	cfg.clientId = clientId.trim() || cfg.clientId
-	await writeClientConfig(cfg)
-}
-
 export async function setButtonsConfig(pairs: ButtonPair[]) {
 	const cleaned: ButtonPair[] = (Array.isArray(pairs) ? pairs : []).map(p => {
 		const rawUrl1 = (p.url1 ?? '').toString().trim()
 		const rawUrl2 = (p.url2 ?? '').toString().trim()
-
 		const url1 = rawUrl1.length > 0 && !rawUrl1.includes(' ') ? rawUrl1 : ''
 		const url2 =
 			rawUrl2.length > 0 && !rawUrl2.includes(' ') ? rawUrl2 : undefined
-
 		return {
 			label1: (p.label1 ?? '').toString(),
 			url1,
@@ -518,6 +648,8 @@ export async function readFiltersState(): Promise<ConfigState> {
 			activityFilter?: boolean
 			coverFetchEnabled?: boolean
 			hardwareMonitorEnabled?: boolean
+			statusEnabled?: boolean
+			rpcEnabled?: boolean
 		}
 		return {
 			musicFilter: parsed.musicFilter === true,
@@ -525,6 +657,8 @@ export async function readFiltersState(): Promise<ConfigState> {
 			activityFilter: parsed.activityFilter === true,
 			coverFetchEnabled: parsed.coverFetchEnabled === true,
 			hardwareMonitorEnabled: parsed.hardwareMonitorEnabled === true,
+			statusEnabled: parsed.statusEnabled === true,
+			rpcEnabled: parsed.rpcEnabled === true,
 		}
 	} catch {
 		return {
@@ -533,6 +667,8 @@ export async function readFiltersState(): Promise<ConfigState> {
 			activityFilter: false,
 			coverFetchEnabled: false,
 			hardwareMonitorEnabled: false,
+			statusEnabled: false,
+			rpcEnabled: false,
 		}
 	}
 }
@@ -544,6 +680,8 @@ const defaultSettings: Settings = {
 	activityFilter: false,
 	coverFetchEnabled: false,
 	hardwareMonitorEnabled: false,
+	statusEnabled: false,
+	rpcEnabled: true,
 	barStyle: 'unicode',
 	lastUpdateNotified: null,
 	lastUpdateNotifiedVersion: null,
@@ -567,6 +705,8 @@ const validateSettings: Validator<Settings> = (input): Settings => {
 		activityFilter: obj.activityFilter === true,
 		coverFetchEnabled: obj.coverFetchEnabled === true,
 		hardwareMonitorEnabled: obj.hardwareMonitorEnabled === true,
+		statusEnabled: obj.statusEnabled === true,
+		rpcEnabled: obj.rpcEnabled === true,
 		barStyle,
 		lastUpdateNotified:
 			typeof obj.lastUpdateNotified === 'string' &&
@@ -604,5 +744,94 @@ export async function setBarStyle(style: BarStyle) {
 		style === 'cyber'
 			? style
 			: 'unicode'
+	await writeSettings(cfg)
+}
+
+export async function setStatusEnabled(enabled: boolean) {
+	const cfg = await readSettings()
+	cfg.statusEnabled = !!enabled
+	await writeSettings(cfg)
+}
+
+export async function setStatusIntervalConfig(sec: number | null) {
+	const cfg = await readTimerConfig()
+	cfg.updateIntervalSecStatus =
+		typeof sec === 'number' && Number.isFinite(sec) && sec > 0
+			? Math.max(5, Math.floor(sec))
+			: null
+	await writeTimerConfig(cfg)
+}
+
+import { StatusCycleEntry } from '../types/types'
+
+const defaultStatusCyclesConfig = {
+	cycles: [] as StatusCycleEntry[],
+}
+
+function validateStatusCyclesConfig(input: unknown) {
+	const obj = (input ?? {}) as { cycles?: unknown }
+	const cycles = Array.isArray(obj.cycles) ? obj.cycles : []
+
+	return {
+		cycles: cycles.map((c: any) => ({
+			text: typeof c?.text === 'string' ? c.text : '',
+			emoji:
+				typeof c?.emoji === 'string' && c.emoji.trim().length > 0
+					? c.emoji
+					: null,
+		})),
+	}
+}
+function getStatusCyclesConfigPath() {
+	return getConfigPath('status-cycles.json')
+}
+
+export async function readStatusCyclesConfig() {
+	return readJsonWithSchema(
+		getStatusCyclesConfigPath(),
+		validateStatusCyclesConfig,
+		defaultStatusCyclesConfig,
+	)
+}
+
+export async function writeStatusCyclesConfig(config: {
+	cycles: StatusCycleEntry[]
+}) {
+	await writeJsonSafe(
+		getStatusCyclesConfigPath(),
+		validateStatusCyclesConfig(config),
+	)
+}
+
+export async function setStatusCyclesConfig(cycles: StatusCycleEntry[]) {
+	const cleaned = Array.isArray(cycles)
+		? cycles.map(c => ({
+				text: c.text?.toString() ?? '',
+				emoji:
+					c.emoji === null || c.emoji === undefined ? null : c.emoji.toString(),
+			}))
+		: []
+
+	await writeStatusCyclesConfig({ cycles: cleaned })
+}
+
+export function normalizeStatuses(
+	list: any[] | undefined | null,
+): StatusCycleEntry[] {
+	if (!Array.isArray(list)) return []
+	return list
+		.map(x => ({
+			text: typeof x?.text === 'string' ? (x.text as string).trim() : '',
+			emoji:
+				typeof x?.emoji === 'string' && (x.emoji as string).trim() !== ''
+					? (x.emoji as string).trim()
+					: null,
+		}))
+		.filter((x): x is StatusCycleEntry => x.text.length > 0)
+}
+
+export async function setRpcEnabled(enabled: boolean) {
+	const cfg = await readSettings()
+	cfg.rpcEnabled = !!enabled
 	await writeSettings(cfg)
 }

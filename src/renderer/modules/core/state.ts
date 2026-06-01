@@ -6,6 +6,7 @@ import {
 	ImageCycleEntry,
 	NowMode,
 	PartyCycleEntry,
+	StatusCycleEntry,
 	TimeCycleEntry,
 	TimestampMode,
 	VoidPresenceCtx,
@@ -73,11 +74,21 @@ export function loadCurrentState(): FullState {
 		timeCycles = []
 	}
 
+	let statusCycles: StatusCycleEntry[] = []
+	try {
+		statusCycles = JSON.parse(
+			localStorage.getItem('statusCycles') || '[]',
+		) as StatusCycleEntry[]
+	} catch {
+		statusCycles = []
+	}
+
 	if (!Array.isArray(buttonPairs)) buttonPairs = []
 	if (!Array.isArray(cycles)) cycles = []
 	if (!Array.isArray(imageCycles)) imageCycles = []
 	if (!Array.isArray(party)) party = []
 	if (!Array.isArray(timeCycles)) timeCycles = []
+	if (!Array.isArray(statusCycles)) statusCycles = []
 
 	const timestampMode =
 		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
@@ -88,10 +99,25 @@ export function loadCurrentState(): FullState {
 	const nowMode = (localStorage.getItem('nowMode') as NowMode | null) || 'plain'
 	const barStyle =
 		(localStorage.getItem('barStyle') as BarStyle | null) || 'unicode'
+	const discordToken = localStorage.getItem('discordToken') || ''
+
+	const rawUpdate = localStorage.getItem('updateIntervalSec')
+	const updateIntervalSec =
+		rawUpdate && !Number.isNaN(Number(rawUpdate)) && Number(rawUpdate) > 0
+			? rawUpdate
+			: ''
+
+	const rawStatusUpdate = localStorage.getItem('updateIntervalSecStatus')
+	const updateIntervalSecStatus =
+		rawStatusUpdate &&
+		!Number.isNaN(Number(rawStatusUpdate)) &&
+		Number(rawStatusUpdate) > 0
+			? rawStatusUpdate
+			: '30'
 
 	return {
 		clientId,
-		updateIntervalSec: localStorage.getItem('updateIntervalSec') || '',
+		updateIntervalSec,
 		buttonPairs,
 		cycles,
 		imageCycles,
@@ -103,7 +129,10 @@ export function loadCurrentState(): FullState {
 		nowMode,
 		timeCycles,
 		barStyle,
-	}
+		discordToken,
+		statusCycles,
+		updateIntervalSecStatus,
+	} as FullState
 }
 
 export async function applyAndPushState(state: FullState): Promise<void> {
@@ -113,8 +142,22 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 	const imageCycles = Array.isArray(state.imageCycles) ? state.imageCycles : []
 	const partyEntries = Array.isArray(state.party) ? state.party : []
 	const timeCycles = Array.isArray(state.timeCycles) ? state.timeCycles : []
+	const statusCycles = Array.isArray((state as any).statusCycles)
+		? ((state as any).statusCycles as StatusCycleEntry[])
+		: []
+	const discordToken = (state as any).discordToken || ''
 
 	const intervalSecRaw = Number(state.updateIntervalSec)
+
+	let updateIntervalSecStatus = Number(
+		(state as any).updateIntervalSecStatus || '',
+	)
+	if (
+		!Number.isFinite(updateIntervalSecStatus) ||
+		updateIntervalSecStatus <= 0
+	) {
+		updateIntervalSecStatus = 30
+	}
 
 	const timestampMode: TimestampMode =
 		(state.timestampMode as TimestampMode) ||
@@ -147,11 +190,13 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 		'unicode'
 
 	localStorage.setItem('clientId', clientId)
+	localStorage.setItem('discordToken', discordToken)
 	localStorage.setItem('buttonPairs', JSON.stringify(buttonPairs))
 	localStorage.setItem('cycles', JSON.stringify(cycles))
 	localStorage.setItem('imageCycles', JSON.stringify(imageCycles))
 	localStorage.setItem('party', JSON.stringify(partyEntries))
 	localStorage.setItem('timeCycles', JSON.stringify(timeCycles))
+	localStorage.setItem('statusCycles', JSON.stringify(statusCycles))
 	localStorage.setItem('timestampMode', timestampMode)
 	localStorage.setItem('activityType', activityType)
 	localStorage.setItem('nowMode', nowMode)
@@ -160,6 +205,11 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 	if (Number.isFinite(intervalSecRaw) && intervalSecRaw > 0) {
 		localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
 	}
+
+	localStorage.setItem(
+		'updateIntervalSecStatus',
+		String(updateIntervalSecStatus),
+	)
 
 	if (Number.isFinite(timestampRangeMinRaw)) {
 		localStorage.setItem('timestampRangeMin', String(timestampRangeMinRaw))
@@ -201,6 +251,12 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 			timeCycles,
 		})
 	}
+	if (window.electronAPI?.setStatusIntervalConfig) {
+		await window.electronAPI.setStatusIntervalConfig(updateIntervalSecStatus)
+	}
+	if (window.electronAPI?.setStatusCyclesConfig) {
+		await window.electronAPI.setStatusCyclesConfig(statusCycles)
+	}
 }
 
 export async function applyStateToUIAndLists(
@@ -212,6 +268,12 @@ export async function applyStateToUIAndLists(
 	) as HTMLInputElement | null
 	const updateInput = document.getElementById(
 		'update-interval-input',
+	) as HTMLInputElement | null
+	const tokenInput = document.getElementById(
+		'discord-token-input',
+	) as HTMLInputElement | null
+	const statusUpdateInput = document.getElementById(
+		'status-update-interval-input',
 	) as HTMLInputElement | null
 
 	const modeNow = document.getElementById(
@@ -235,7 +297,6 @@ export async function applyStateToUIAndLists(
 	const persistRow = document.querySelector<HTMLElement>(
 		'.timestamp-persist-row',
 	)
-
 	const nowPlain = document.getElementById(
 		'now-mode-plain',
 	) as HTMLButtonElement | null
@@ -245,14 +306,12 @@ export async function applyStateToUIAndLists(
 	const nowCycles = document.getElementById(
 		'now-mode-cycles',
 	) as HTMLButtonElement | null
-
 	const nowModeRow = document.querySelector<HTMLElement>('.now-mode-row')
 	const timeDivider = document.querySelector<HTMLElement>(
 		'.time-cycles-divider',
 	)
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
 	const timeListEl = document.getElementById('time-list') as HTMLElement | null
-
 	const barStyleRow = document.getElementById(
 		'bar-style-row',
 	) as HTMLElement | null
@@ -266,6 +325,13 @@ export async function applyStateToUIAndLists(
 		typeof state.updateIntervalSec === 'number'
 			? String(state.updateIntervalSec)
 			: (state.updateIntervalSec as string) || ''
+	if (tokenInput) tokenInput.value = (state as any).discordToken || ''
+
+	const su =
+		typeof (state as any).updateIntervalSecStatus === 'number'
+			? String((state as any).updateIntervalSecStatus)
+			: (state as any).updateIntervalSecStatus || '30'
+	if (statusUpdateInput) statusUpdateInput.value = su
 
 	const mode: TimestampMode = (state.timestampMode as TimestampMode) || 'now'
 	const setModeActive = (m: TimestampMode) => {
@@ -307,6 +373,7 @@ export async function applyStateToUIAndLists(
 		'unicode'
 
 	localStorage.setItem('clientId', state.clientId || '')
+	localStorage.setItem('discordToken', (state as any).discordToken || '')
 	localStorage.setItem('buttonPairs', JSON.stringify(state.buttonPairs || []))
 	localStorage.setItem('cycles', JSON.stringify(state.cycles || []))
 	localStorage.setItem('imageCycles', JSON.stringify(state.imageCycles || []))
@@ -315,13 +382,20 @@ export async function applyStateToUIAndLists(
 	localStorage.setItem('nowMode', nowMode)
 	localStorage.setItem('timeCycles', JSON.stringify(state.timeCycles || []))
 	localStorage.setItem('barStyle', barStyle)
+	localStorage.setItem(
+		'statusCycles',
+		JSON.stringify((state as any).statusCycles || []),
+	)
+	localStorage.setItem('updateIntervalSecStatus', su)
 
 	ctx.buttonPairs = Array.isArray(state.buttonPairs) ? state.buttonPairs : []
 	ctx.cycles = Array.isArray(state.cycles) ? state.cycles : []
 	ctx.imageCycles = Array.isArray(state.imageCycles) ? state.imageCycles : []
 	ctx.party = Array.isArray(state.party) ? state.party : []
 	ctx.timeCycles = Array.isArray(state.timeCycles) ? state.timeCycles : []
-	;(ctx as any).barStyle = barStyle
+	;(ctx as any).statusCycles = Array.isArray((state as any).statusCycles)
+		? (state as any).statusCycles
+		: []
 
 	const applyNowMode = (m: NowMode) => {
 		if (nowPlain) nowPlain.dataset.active = m === 'plain' ? 'true' : 'false'
@@ -356,4 +430,5 @@ export async function applyStateToUIAndLists(
 	ctx.renderImageCycles()
 	ctx.renderPartyCycles()
 	ctx.renderTimeCycles?.()
+	ctx.renderStatusCycles?.()
 }

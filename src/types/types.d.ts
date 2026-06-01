@@ -1,7 +1,7 @@
 export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
 export type TimestampMode = 'now' | 'range' | 'persist'
 export type NowMode = 'plain' | 'progress' | 'cycles'
-export type ViewName = 'main' | 'logs' | 'config'
+export type ViewName = 'main' | 'logs' | 'config' | 'status'
 
 export type RpcPayload = {
 	details: string
@@ -92,8 +92,22 @@ export interface PartyCycleEntry {
 
 export type ClientConfig = {
 	clientId: string | null
-	updateIntervalSec?: number | null
 }
+
+export type StatusCycleEntry = {
+	text: string
+	emoji: string | null
+}
+
+export type TimerConfig = {
+	updateIntervalSec: number | null
+	updateIntervalSecStatus: number | null
+}
+
+export type DiscordTokenConfig = {
+	discordToken: string | null
+}
+
 export type ButtonsConfig = { pairs: ButtonPair[] }
 export type CyclesConfig = { entries: CycleEntry[] }
 export type ImageCyclesConfig = { cycles: ImageCycle[] }
@@ -115,6 +129,12 @@ export interface TimestampConfig {
 	timeCycles?: TimeCycleEntry[]
 }
 
+export type StatusSourceMode = 'auto' | 'dynamic' | 'rpc' | 'manual'
+
+export type StatusConfig = {
+	cycles: StatusCycleEntry[]
+}
+
 export type LinksConfig = {
 	largeImage: string | null
 	largeText: string | null
@@ -125,6 +145,8 @@ export type LinksConfig = {
 export type FullState = {
 	clientId?: string
 	updateIntervalSec?: number | string
+	updateIntervalSecStatus?: number | string
+	discordToken?: string
 	buttonPairs?: ButtonPair[]
 	cycles?: CycleEntry[]
 	imageCycles?: ImageCycleEntry[]
@@ -136,6 +158,11 @@ export type FullState = {
 	activityType?: ActivityType
 	nowMode?: NowMode
 	barStyle?: string
+	statusEnabled?: boolean
+	statusSourceMode?: StatusSourceMode
+	manualStatusText?: string | null
+	manualStatusEmoji?: string | null
+	statusCycles?: StatusCycleEntry[]
 }
 
 export interface StoredConfig {
@@ -148,6 +175,7 @@ export type AppSettings = {
 	autoHideOnStart?: boolean
 	musicFilter?: boolean
 	videoFilter?: boolean
+	statusEnabled?: boolean
 }
 
 export interface LogEntry {
@@ -165,12 +193,14 @@ export interface VoidPresenceCtx {
 	cycles: CycleEntry[]
 	imageCycles: ImageCycleEntry[]
 	timeCycles?: TimeCycleEntry[]
+	statusCycles?: StatusCycleEntry[]
 	showBlocksToast: () => void
 	renderButtonPairs: () => void
 	renderCycles: () => void
 	renderImageCycles: () => void
 	renderPartyCycles: () => void
 	renderTimeCycles?: () => void
+	renderStatusCycles?: () => void
 }
 
 export interface DiscordClient {
@@ -207,6 +237,8 @@ export type ConfigState = {
 	activityFilter?: boolean
 	coverFetchEnabled?: boolean
 	hardwareMonitorEnabled?: boolean
+	statusEnabled?: boolean
+	rpcEnabled?: boolean
 }
 
 export type UpdateInfo = {
@@ -225,6 +257,8 @@ export interface Settings {
 	activityFilter: boolean
 	coverFetchEnabled: boolean
 	hardwareMonitorEnabled: boolean
+	statusEnabled: boolean
+	rpcEnabled: boolean
 	barStyle: BarStyle
 	lastUpdateNotified: string | null
 	lastUpdateNotifiedVersion: string | null
@@ -250,7 +284,25 @@ export type NowPlayingInfo = {
 
 export type LogLevel = 'info' | 'warn' | 'error' | 'success'
 
+export interface CustomStatusItem {
+	text: string
+	emoji: string | null
+}
+
+export interface StoredStatusProfile {
+	name: string
+	items: CustomStatusItem[]
+	createdAt: string
+}
+
 export interface ElectronAPI {
+	setRpcEnabled?: () => Promise<void>
+	openDiscordGetTokenVideoError?: () => Promise<void>
+	setupStatusTutorialButtons?: () => Promise<void>
+	customStatusRestart?: () => Promise<void>
+	customStatusStop?: () => Promise<void>
+	setStatusIntervalConfig?: (sec: number | null) => Promise<void> | void
+	setStatusCyclesConfig?: (cycles: StatusCycleEntry[]) => Promise<void> | void
 	setBarStyleConfig: (barStyle: BarStyle) => Promise<void> | void
 	setHardwareMonitor?: (on: boolean) => Promise<void> | void
 	useRecentClientId: (clientId: string) => Promise<unknown>
@@ -263,6 +315,7 @@ export interface ElectronAPI {
 	setVideoFilter?: (on: boolean) => Promise<void> | void
 	openDiscordDeveloperPortal?: () => Promise<void>
 	openDiscordDeveloperAuthorId?: () => Promise<void>
+	openDiscordGetTokenVideo?: () => Promise<void>
 	liveSetClientId?: (clientId: string) => Promise<unknown> | unknown
 	liveSetButtons?: (pairs: ButtonPair[]) => Promise<unknown> | unknown
 	liveSetCycles?: (cycles: CycleEntry[]) => Promise<unknown> | unknown
@@ -277,6 +330,11 @@ export interface ElectronAPI {
 		nowMode: NowMode
 	}) => Promise<unknown> | unknown
 	liveSetInterval?: (sec: number) => Promise<unknown> | unknown
+	liveSetDiscordToken?: (token: string) => Promise<unknown> | unknown
+	liveSetStatusInterval?: (sec: number) => Promise<unknown> | unknown
+	liveSetStatusCycles?: (
+		cycles: StatusCycleEntry[],
+	) => Promise<unknown> | unknown
 	liveSetTimeCycles?: (
 		cycles: { label: string; seconds: string }[],
 	) => Promise<unknown> | unknown
@@ -309,6 +367,8 @@ export interface ElectronAPI {
 	onLogMessage?: (handler: (entry: LogEntry) => void) => void
 	onRpcUpdate?: (handler: (payload: RichPresencePayload) => void) => void
 	onRpcStatus?: (handler: (status: string) => void) => void
+	onStatusStatus?: (handler: (status: string) => void) => void
+	onStatusPayload?: (handler: (text: string | null) => void) => void
 	invoke: <T = unknown>(channel: string, ...args: unknown[]) => Promise<T>
 	uploadConfig?: (config: {
 		title: string
@@ -317,6 +377,8 @@ export interface ElectronAPI {
 		description: string
 		configData: FullState
 	}) => Promise<unknown>
+	statusGetCurrent?: () => Promise<StatusCycleEntry[]>
+	statusSetCurrent?: (cycles: StatusCycleEntry[]) => Promise<boolean>
 }
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string

@@ -4,6 +4,7 @@ import {
 	ImageCycleEntry,
 	NowMode,
 	PartyCycleEntry,
+	StatusCycleEntry,
 	TimeCycleEntry,
 	TimestampMode,
 	VoidPresenceCtx,
@@ -18,12 +19,14 @@ export function createInitialCtx(): VoidPresenceCtx {
 		imageCycles: [],
 		party: [],
 		timeCycles: [],
+		statusCycles: [],
 		showBlocksToast: () => {},
 		renderButtonPairs: () => {},
 		renderCycles: () => {},
 		renderImageCycles: () => {},
 		renderPartyCycles: () => {},
 		renderTimeCycles: () => {},
+		renderStatusCycles: () => {},
 	}
 
 	try {
@@ -53,6 +56,12 @@ export function createInitialCtx(): VoidPresenceCtx {
 		if (rawParty) ctx.party = JSON.parse(rawParty) as PartyCycleEntry[]
 	} catch {}
 
+	try {
+		const rawStatus = localStorage.getItem('statusCycles')
+		if (rawStatus)
+			ctx.statusCycles = JSON.parse(rawStatus) as StatusCycleEntry[]
+	} catch {}
+
 	if (!Array.isArray(ctx.buttonPairs)) ctx.buttonPairs = []
 	if (!Array.isArray(ctx.cycles) || !ctx.cycles.length) {
 		ctx.cycles = [
@@ -63,6 +72,7 @@ export function createInitialCtx(): VoidPresenceCtx {
 	}
 	if (!Array.isArray(ctx.imageCycles)) ctx.imageCycles = []
 	if (!Array.isArray(ctx.party)) ctx.party = []
+	if (!Array.isArray(ctx.statusCycles)) ctx.statusCycles = []
 	;(window as any).__voidPresenceCtx = ctx
 	return ctx
 }

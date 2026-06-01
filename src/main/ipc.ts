@@ -14,6 +14,9 @@ import {
 	startDiscordRichAdvanced,
 	stopDiscordRichAdvanced,
 } from '../discord'
+import startCustomStatusWorker, {
+	stopCustomStatusWorker,
+} from '../discord/modules/status'
 import {
 	ActivityType,
 	BarStyle,
@@ -21,18 +24,26 @@ import {
 	NowPlayingData,
 	PartyConfig,
 	RpcPayload,
+	StatusCycleEntry,
 } from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import {
+	normalizeStatuses,
 	readFiltersState,
 	readSettings,
+	readStatusCyclesConfig,
 	readTimestampConfig,
 	setActivityIntervalConfig,
 	setActivityType,
 	setBarStyle,
+	setDiscordTokenConfig,
+	setRpcEnabled,
+	setStatusCyclesConfig,
+	setStatusIntervalConfig,
 	writeSettings,
+	writeStatusCyclesConfig,
 } from './config'
-import { sendLog, sendStatus } from './logging'
+import { sendLog, sendStatus, sendStatusCustom } from './logging'
 import { downloadFile, isPortable } from './updates'
 
 let autoHideOnStart = false
@@ -247,6 +258,11 @@ export async function initIpc() {
 	const s = await readSettings()
 	autoHideOnStart = !!s.autoHideOnStart
 
+	if (s.statusEnabled) {
+		sendStatusCustom('CUSTOM_STATUS_RESTART')
+		startCustomStatusWorker()
+	}
+
 	const shouldUseSmtc = s.musicFilter || s.videoFilter
 	if (shouldUseSmtc && !smtcWorker) {
 		startSmtcWorker()
@@ -256,7 +272,7 @@ export async function initIpc() {
 		startHardwareWorker()
 	}
 
-	if (!shouldUseSmtc && !s.hardwareMonitorEnabled) {
+	if (s.rpcEnabled && !shouldUseSmtc && !s.hardwareMonitorEnabled) {
 		rpcStarted = true
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win && !win.isDestroyed()) {
@@ -275,6 +291,9 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('restart-discord-rich', async () => {
+		const s = await readSettings()
+		if (!s.rpcEnabled) return false
+
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win || win.isDestroyed()) return false
 
@@ -309,6 +328,9 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('reset-persist-timestamp', async () => {
+		const s = await readSettings()
+		if (!s.rpcEnabled) return true
+
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win || win.isDestroyed()) return false
 
@@ -481,6 +503,38 @@ export async function initIpc() {
 		return true
 	})
 
+	ipcMain.handle('live-set-discord-token', async (_event, token: string) => {
+		await setDiscordTokenConfig(token)
+		return true
+	})
+
+	ipcMain.handle('live-set-status-interval', async (_event, sec: number) => {
+		await setStatusIntervalConfig(sec)
+		return true
+	})
+
+	ipcMain.handle('live-set-status-cycles', async (_event, cycles: any) => {
+		await setStatusCyclesConfig(cycles)
+		return true
+	})
+
+	ipcMain.handle(
+		'settings:set-status-enabled',
+		async (_event, enabled: boolean) => {
+			const current = await readSettings()
+			const next = { ...current, statusEnabled: !!enabled }
+			await writeSettings(next)
+
+			if (next.statusEnabled) {
+				startCustomStatusWorker()
+			} else {
+				stopCustomStatusWorker()
+			}
+
+			return true
+		},
+	)
+
 	ipcMain.handle('live-set-timestamp', async (_event, cfg: any) => {
 		const current = await readTimestampConfig()
 		const oldMode = current.mode
@@ -523,6 +577,24 @@ export async function initIpc() {
 	ipcMain.handle('open-discord-client-id', async () => {
 		try {
 			await shell.openExternal('https://discord.com/developers/applications')
+		} catch (error) {
+			console.error('Failed to open browser:', error)
+		}
+	})
+
+	ipcMain.handle('open-discord-token-id', async () => {
+		try {
+			await shell.openExternal('https://www.youtube.com/watch?v=LnBnm_tZlyU')
+		} catch (error) {
+			console.error('Failed to open browser:', error)
+		}
+	})
+
+	ipcMain.handle('open-discord-token-error-id', async () => {
+		try {
+			await shell.openExternal(
+				'https://www.reddit.com/r/discordapp/comments/sc61n3/comment/hu4fw5x/',
+			)
 		} catch (error) {
 			console.error('Failed to open browser:', error)
 		}
@@ -663,6 +735,9 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('use-recent-client-id', async (_event, clientId: string) => {
+		const s = await readSettings()
+		if (!s.rpcEnabled) return true
+
 		await setClientId(clientId)
 
 		const win = BrowserWindow.getAllWindows()[0]
@@ -687,5 +762,46 @@ export async function initIpc() {
 
 	ipcMain.handle('set-bar-style-config', async (_event, barStyle: BarStyle) => {
 		await setBarStyle(barStyle)
+	})
+
+	ipcMain.handle('status:get-current', async () => {
+		const statusCfg = await readStatusCyclesConfig()
+		const fromFile = normalizeStatuses(statusCfg?.cycles)
+		if (fromFile.length) return fromFile
+
+		const settings = await readSettings()
+		const fromSettings = normalizeStatuses(
+			(settings as any)?.statusCycles || (settings as any)?.customStatuses,
+		)
+		return fromSettings
+	})
+
+	ipcMain.handle(
+		'status:set-current',
+		async (_event, cycles: StatusCycleEntry[]) => {
+			const normalized = normalizeStatuses(cycles)
+			await writeStatusCyclesConfig({ cycles: normalized })
+			return true
+		},
+	)
+
+	ipcMain.handle('settings:set-rpc-enabled', async (_e, enabled: boolean) => {
+		await setRpcEnabled(enabled)
+	})
+
+	ipcMain.handle('custom-status:restart', async () => {
+		stopCustomStatusWorker()
+
+		sendStatusCustom('CUSTOM_STATUS_RESTART')
+
+		startCustomStatusWorker()
+		return true
+	})
+
+	ipcMain.handle('custom-status:stop', async () => {
+		stopCustomStatusWorker()
+
+		sendStatusCustom('CUSTOM_STATUS_DISABLED')
+		return true
 	})
 }

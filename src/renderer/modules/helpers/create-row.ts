@@ -10,7 +10,7 @@ type RowConfig<T> = {
 	onRemove: () => void
 }
 
-function createRow<T>(
+function createRow<T extends Record<string, string>>(
 	index: number,
 	{ className, inputs, onChange, onRemove }: RowConfig<T>,
 ): HTMLDivElement {
@@ -18,21 +18,13 @@ function createRow<T>(
 	row.className = className
 	row.dataset.index = String(index)
 
-	const inputValues: Record<string, string> = {}
-	inputs.forEach((_, idx) => {
-		inputValues[`input${idx + 1}`] = ''
-	})
-
-	const triggerChange = () => {
-		onChange(inputValues as T)
-	}
+	const values: Record<string, string> = {}
 
 	const handle = document.createElement('div')
 	handle.className = 'drag-handle'
 	handle.draggable = true
 
 	const wrap = document.createElement('div')
-
 	wrap.className =
 		className === 'pair-row'
 			? 'pair-inputs'
@@ -49,13 +41,14 @@ function createRow<T>(
 		const key = `input${idx + 1}`
 
 		el.placeholder = input.placeholder
-		el.value = input.value
-		inputValues[key] = el.value
+		el.value = input.value ?? ''
+		values[key] = el.value
 
 		el.addEventListener('input', () => {
-			inputValues[key] = el.value
-			triggerChange()
+			values[key] = el.value
+			onChange(values as T)
 		})
+
 		wrap.appendChild(el)
 	})
 

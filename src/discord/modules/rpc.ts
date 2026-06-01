@@ -9,6 +9,7 @@ import {
 	readImageCyclesConfig,
 	readPartyConfig,
 	readSettings,
+	readTimerConfig,
 	readTimestampConfig,
 	setTimestampConfig,
 } from '../../main/config'
@@ -441,7 +442,8 @@ export default function startDiscordRich(
 		if (isConnecting) return
 		isConnecting = true
 
-		const { clientId, updateIntervalSec } = await readClientConfig()
+		const { clientId } = await readClientConfig()
+		const { updateIntervalSec } = await readTimerConfig()
 		const buttonsConfig = await readButtonsConfig()
 		const cyclesConfig = await readCyclesConfig()
 		const imageCyclesConfig = await readImageCyclesConfig()

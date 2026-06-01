@@ -4,6 +4,7 @@ import {
 	FullState,
 	ImageCycleEntry,
 	NowMode,
+	StatusCycleEntry,
 	StoredConfig,
 	TimestampMode,
 	VoidPresenceCtx,
@@ -12,15 +13,15 @@ import { applyStateToUIAndLists } from '../core/state'
 import { reattachDnDForProfiles } from '../helpers/dnd'
 import { openConfigDetails } from '../modals/details'
 import { appendLog, setActiveView } from '../shell/views'
-import { downloadJson, pushLiveStateFromCtx } from './live'
-import { filterListByExistingInput } from './search'
+import { filterListByExistingInput } from './config-search'
 import {
 	deepCloneState,
 	getConfigs,
 	getRecentApps,
 	setConfigs,
 	StoredRecentApp,
-} from './storage'
+} from './config-storage'
+import { downloadJson, pushLiveStateFromCtx } from './live'
 import { setupToasts } from './toasts'
 import { openUploadConfirm } from './upload-сonfirm'
 
@@ -163,10 +164,46 @@ function createConfigCard(
 		e.preventDefault()
 		const ctx = window.__voidPresenceCtx as VoidPresenceCtx | undefined
 		if (!ctx) return
+
 		const base = buildBaseStateFromConfig(state)
-		const st = deepCloneState(base)
+		const currentStatusCyclesRaw = localStorage.getItem('statusCycles')
+		const currentStatusCycles: StatusCycleEntry[] = (() => {
+			if (!currentStatusCyclesRaw) return []
+			try {
+				const parsed = JSON.parse(currentStatusCyclesRaw)
+				return Array.isArray(parsed) ? parsed : []
+			} catch {
+				return []
+			}
+		})()
+
+		const currentStatusInterval =
+			localStorage.getItem('updateIntervalSecStatus') || '30'
+
+		const currentDiscordToken = localStorage.getItem('discordToken') || ''
+
+		const currentCyclesRaw = localStorage.getItem('cycles')
+		const currentCycles: CycleEntry[] = (() => {
+			if (!currentCyclesRaw) return []
+			try {
+				const parsed = JSON.parse(currentCyclesRaw)
+				return Array.isArray(parsed) ? parsed : []
+			} catch {
+				return []
+			}
+		})()
+
+		const st: FullState = {
+			...base,
+			statusCycles: currentStatusCycles,
+			updateIntervalSecStatus: currentStatusInterval,
+			discordToken: currentDiscordToken,
+			cycles: currentCycles,
+		}
+
 		applyStateToUIAndLists(st, ctx)
 		await pushLiveStateFromCtx(ctx)
+
 		nameInput.value = ''
 		setActiveView('main')
 
@@ -211,6 +248,11 @@ function createConfigCard(
 				timeCycles: Array.isArray(cfg.state?.timeCycles)
 					? cfg.state!.timeCycles
 					: [],
+				timestampMode: cfg.state?.timestampMode ?? 'now',
+				timestampRangeMin: cfg.state?.timestampRangeMin ?? '',
+				timestampRangeMax: cfg.state?.timestampRangeMax ?? '',
+				activityType: cfg.state?.activityType ?? 'playing',
+				nowMode: cfg.state?.nowMode ?? 'plain',
 			}
 
 			try {

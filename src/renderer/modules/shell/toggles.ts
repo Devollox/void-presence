@@ -9,6 +9,8 @@ type ToggleKey =
 	| 'activityFilter'
 	| 'coverFetchEnabled'
 	| 'hardwareMonitorEnabled'
+	| 'statusEnabled'
+	| 'rpcEnabled'
 
 type ToggleApi =
 	| 'setAutoLaunch'
@@ -18,6 +20,8 @@ type ToggleApi =
 	| 'setAutomaticActivity'
 	| 'setCoverFetch'
 	| 'setHardwareMonitor'
+	| 'setStatusEnabled'
+	| 'setRpcEnabled'
 
 type ToggleConfig<K extends ToggleKey, A extends ToggleApi> = {
 	id: string
@@ -31,7 +35,16 @@ function setupGenericToggle<K extends ToggleKey, A extends ToggleApi>(
 	const toggle = document.getElementById(cfg.id) as HTMLElement | null
 	if (!toggle) return
 
-	const saved = localStorage.getItem(cfg.storageKey) === 'true'
+	const raw = localStorage.getItem(cfg.storageKey)
+
+	let saved: boolean
+
+	if (cfg.storageKey === 'rpcEnabled') {
+		saved = raw === null ? true : raw === 'true'
+	} else {
+		saved = raw === 'true'
+	}
+
 	toggle.dataset.on = saved ? 'true' : 'false'
 
 	toggle.addEventListener('click', () => {
@@ -105,6 +118,22 @@ export function setupHardwareFilterToggle(): void {
 	})
 }
 
+export function setupStatusEnabledToggle(): void {
+	setupGenericToggle({
+		id: 'status-custom-enabled-toggle',
+		storageKey: 'statusEnabled',
+		apiMethod: 'setStatusEnabled',
+	})
+}
+
+export function setupRpcEnabledToggle(): void {
+	setupGenericToggle({
+		id: 'rpc-enabled-toggle',
+		storageKey: 'rpcEnabled',
+		apiMethod: 'setRpcEnabled',
+	})
+}
+
 export function setupStopButton(): void {
 	const btn = document.getElementById(
 		'stop-discord',
@@ -134,4 +163,21 @@ export function setupRestartButton(): void {
 			window.electronAPI.restartDiscordRich()
 		}
 	})
+}
+
+export function setupCustomStatusControls() {
+	const btnRestart = document.getElementById('custom-status-restart')
+	const btnStop = document.getElementById('custom-status-stop')
+
+	if (btnRestart && window.electronAPI?.customStatusRestart) {
+		btnRestart.addEventListener('click', () => {
+			window.electronAPI.customStatusRestart()
+		})
+	}
+
+	if (btnStop && window.electronAPI?.customStatusStop) {
+		btnStop.addEventListener('click', () => {
+			window.electronAPI.customStatusStop()
+		})
+	}
 }

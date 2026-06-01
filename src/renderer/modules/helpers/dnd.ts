@@ -1,8 +1,8 @@
 import { VoidPresenceCtx } from 'src/types/types'
+import { StoredRecentApp, setRecentApps } from '../config/config-storage'
 import { attachDnD } from '../config/dnd'
 import { pushLiveStateFromCtx } from '../config/live'
 import { RecentApp, renderRecentApps } from '../config/recent'
-import { StoredRecentApp, setRecentApps } from '../config/storage'
 
 export function reattachDnDForProfiles(
 	ctx: VoidPresenceCtx,

@@ -172,6 +172,19 @@ function mapStatusToText(status: string): { chip: string; sub: string } {
 	}
 }
 
+function mapStatusCustomToText(status: string): { chip: string; sub: string } {
+	switch (status) {
+		case 'CUSTOM_STATUS_DISABLED':
+			return { chip: 'DISABLED', sub: 'Custom status worker is off' }
+		case 'CUSTOM_STATUS_CONNECTING':
+			return { chip: 'CONNECTING', sub: 'Updating Discord status' }
+		case 'CUSTOM_STATUS_READY':
+			return { chip: 'ACTIVE', sub: 'Custom status is rotating' }
+		default:
+			return { chip: 'UNKNOWN', sub: status || '' }
+	}
+}
+
 function formatDuration(ms: number): string {
 	const totalSeconds = Math.floor(ms / 1000)
 	const hours = Math.floor(totalSeconds / 3600)
@@ -323,4 +336,59 @@ export function updateStatus(status: string): void {
 		activityStartMs = null
 		stopUptimeTimer()
 	}
+}
+
+export function updateStatusPageStatus(status: string): void {
+	const chip = document.querySelector(
+		'.status-chip-status span',
+	) as HTMLElement | null
+	const dot = document.querySelector('.status-dot-status') as HTMLElement | null
+	const textEl = document.getElementById(
+		'status-page-info-status',
+	) as HTMLElement | null
+	const mapped = mapStatusCustomToText(status)
+
+	if (chip) chip.textContent = mapped.chip
+	if (textEl) textEl.textContent = mapped.sub
+
+	if (dot) {
+		if (status === 'CUSTOM_STATUS_READY') {
+			dot.style.background =
+				'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
+		} else if (status === 'CUSTOM_STATUS_DISABLED') {
+			dot.style.background =
+				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+		} else if (status === 'CUSTOM_STATUS_RESTART') {
+			dot.style.background =
+				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+		} else {
+			dot.style.background =
+				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+		}
+	}
+}
+
+export function updateStatusPageText(text: string | null): void {
+	const el = document.getElementById(
+		'status-page-info-text',
+	) as HTMLElement | null
+	const elTitleBlock = document.getElementById(
+		'status-page-info-text-title-block',
+	) as HTMLElement | null
+	if (!el || !elTitleBlock) return
+
+	elTitleBlock.textContent = text && text.length > 0 ? text : 'Status settings'
+	el.textContent = text && text.length > 0 ? text : '–'
+}
+
+if (window.electronAPI?.onStatusStatus) {
+	window.electronAPI.onStatusStatus(status => {
+		updateStatusPageStatus(status)
+	})
+}
+
+if (window.electronAPI?.onStatusPayload) {
+	window.electronAPI.onStatusPayload(text => {
+		updateStatusPageText(text)
+	})
 }

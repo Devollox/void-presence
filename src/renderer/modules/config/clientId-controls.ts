@@ -1,5 +1,12 @@
 import { VoidPresenceCtx } from 'src/types/types'
 import { reattachDnDForProfiles } from '../helpers/dnd'
+import {
+	getRecentApps,
+	removeRecentApp,
+	setRecentApps,
+	StoredRecentApp,
+	upsertRecentApp,
+} from './config-storage'
 import { createInitialCtx } from './ctx'
 import { attachDnD } from './dnd'
 import {
@@ -7,17 +14,11 @@ import {
 	setupCycles,
 	setupImageCycles,
 	setupParty,
+	setupStatusCycles,
 } from './list-renderers'
-import { pushLiveStateFromCtx } from './live'
+import { pushLiveStateFromCtx, pushStatusFromCtx } from './live'
 import { createModeControllers } from './mode-сontrols'
 import { RecentApp, renderRecentApps } from './recent'
-import {
-	getRecentApps,
-	removeRecentApp,
-	setRecentApps,
-	StoredRecentApp,
-	upsertRecentApp,
-} from './storage'
 import { setupTimeControls } from './time-сontrols'
 import { setupToasts } from './toasts'
 
@@ -50,6 +51,18 @@ export function setupClientIdControls(): void {
 	const $intervalInput = document.getElementById(
 		'update-interval-input',
 	) as HTMLInputElement | null
+	const $discordTokenInput = document.getElementById(
+		'discord-token-input',
+	) as HTMLInputElement | null
+	const $statusList = document.getElementById(
+		'status-list',
+	) as HTMLElement | null
+	const $addStatus = document.getElementById(
+		'add-status',
+	) as HTMLButtonElement | null
+	const $statusIntervalInput = document.getElementById(
+		'status-update-interval-input',
+	) as HTMLInputElement | null
 
 	if (
 		!$clientInput ||
@@ -59,7 +72,9 @@ export function setupClientIdControls(): void {
 		!addCycle ||
 		!imagesList ||
 		!addImage ||
-		!recentList
+		!recentList ||
+		!$statusList ||
+		!$addStatus
 	) {
 		return
 	}
@@ -70,6 +85,21 @@ export function setupClientIdControls(): void {
 	let lastSavedClientId = $clientInput.value.trim()
 	if (lastSavedClientId.length > 18 && window.electronAPI?.liveSetClientId) {
 		window.electronAPI.liveSetClientId(lastSavedClientId)
+	}
+
+	if ($discordTokenInput) {
+		$discordTokenInput.value = localStorage.getItem('discordToken') || ''
+	}
+
+	if ($statusIntervalInput) {
+		const rawStatusInterval = localStorage.getItem('updateIntervalSecStatus')
+		const savedStatusInterval =
+			rawStatusInterval != null ? Number(rawStatusInterval) : NaN
+
+		$statusIntervalInput.value =
+			Number.isFinite(savedStatusInterval) && savedStatusInterval > 0
+				? String(savedStatusInterval)
+				: ''
 	}
 
 	const useReadyIdBtn = document.getElementById(
@@ -88,9 +118,7 @@ export function setupClientIdControls(): void {
 		}
 
 		upsertRecentApp(readyId, '')
-
 		storedRecent.splice(0, storedRecent.length, ...getRecentApps())
-
 		renderRecentApps(
 			recentList,
 			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
@@ -107,12 +135,14 @@ export function setupClientIdControls(): void {
 	setupCycles(ctx, showBlocksToast)
 	setupImageCycles(ctx, showBlocksToast)
 	setupParty(ctx, showBlocksToast)
+	setupStatusCycles(ctx, showBlocksToast)
 
 	ctx.renderButtonPairs()
 	ctx.renderCycles()
 	ctx.renderImageCycles()
 	ctx.renderPartyCycles()
 	ctx.renderTimeCycles?.()
+	ctx.renderStatusCycles?.()
 
 	renderRecentApps(
 		recentList,
@@ -140,13 +170,23 @@ export function setupClientIdControls(): void {
 			ctx.timeCycles,
 			ctx.renderTimeCycles as (() => void) | undefined,
 		],
+		[
+			$statusList,
+			ctx.statusCycles,
+			ctx.renderStatusCycles as (() => void) | undefined,
+		],
 	] as const
 
 	for (const [list, items, render] of lists) {
 		if (!list || !items || !render) continue
+		const isStatus = list === $statusList
 		attachDnD<unknown>(list, items, () => {
 			render()
-			void pushLiveStateFromCtx(ctx)
+			if (isStatus) {
+				void pushStatusFromCtx(ctx)
+			} else {
+				void pushLiveStateFromCtx(ctx)
+			}
 			showBlocksToast()
 		})
 	}
@@ -173,11 +213,11 @@ export function setupClientIdControls(): void {
 
 	let clientIdDebounce: number | undefined
 	let intervalDebounce: number | undefined
+	let tokenDebounce: number | undefined
+	let statusIntervalDebounce: number | undefined
 
 	$clientInput.addEventListener('input', () => {
-		if (clientIdDebounce) {
-			window.clearTimeout(clientIdDebounce)
-		}
+		if (clientIdDebounce) window.clearTimeout(clientIdDebounce)
 
 		clientIdDebounce = window.setTimeout(() => {
 			const newClientId = $clientInput.value.trim()
@@ -209,9 +249,7 @@ export function setupClientIdControls(): void {
 				: ''
 
 		$intervalInput.addEventListener('input', () => {
-			if (intervalDebounce) {
-				window.clearTimeout(intervalDebounce)
-			}
+			if (intervalDebounce) window.clearTimeout(intervalDebounce)
 
 			intervalDebounce = window.setTimeout(async () => {
 				const raw = $intervalInput.value.trim()
@@ -223,6 +261,45 @@ export function setupClientIdControls(): void {
 					await window.electronAPI.liveSetInterval(val)
 				}
 				void pushLiveStateFromCtx(ctx)
+				showBlocksToast()
+			}, 600)
+		})
+	}
+
+	if ($discordTokenInput) {
+		const rawToken = localStorage.getItem('discordToken') || ''
+		$discordTokenInput.value = rawToken
+
+		$discordTokenInput.addEventListener('input', () => {
+			if (tokenDebounce) window.clearTimeout(tokenDebounce)
+
+			tokenDebounce = window.setTimeout(() => {
+				const token = $discordTokenInput.value.trim()
+				localStorage.setItem('discordToken', token)
+				if (window.electronAPI?.liveSetDiscordToken) {
+					void window.electronAPI.liveSetDiscordToken(token)
+				}
+				void pushLiveStateFromCtx(ctx)
+				showBlocksToast()
+			}, 600)
+		})
+	}
+
+	if ($statusIntervalInput) {
+		$statusIntervalInput.addEventListener('input', () => {
+			if (statusIntervalDebounce) window.clearTimeout(statusIntervalDebounce)
+
+			statusIntervalDebounce = window.setTimeout(() => {
+				const raw = $statusIntervalInput.value.trim()
+				const val = Number(raw)
+
+				if (!Number.isFinite(val) || val <= 0) {
+					localStorage.removeItem('updateIntervalSecStatus')
+					return
+				}
+
+				localStorage.setItem('updateIntervalSecStatus', String(val))
+				void pushStatusFromCtx(ctx)
 				showBlocksToast()
 			}, 600)
 		})

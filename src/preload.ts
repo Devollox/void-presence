@@ -7,6 +7,7 @@ import {
 	LogEntry,
 	PartyConfig,
 	RpcPayload,
+	StatusCycleEntry,
 	UpdateInfo,
 } from './types/types'
 
@@ -25,6 +26,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('live-set-time-cycles', cycles),
 	liveSetInterval: (sec: number) =>
 		ipcRenderer.invoke('live-set-interval', sec),
+	liveSetDiscordToken: (token: string) =>
+		ipcRenderer.invoke('live-set-discord-token', token),
+	liveSetStatusInterval: (sec: number) =>
+		ipcRenderer.invoke('live-set-status-interval', sec),
+	liveSetStatusCycles: (cycles: StatusCycleEntry[]) =>
+		ipcRenderer.invoke('live-set-status-cycles', cycles),
 	liveSetTimestamp: (cfg: {
 		mode: string
 		rangeMin: string
@@ -38,6 +45,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	},
 	onRpcStatus: (callback: (status: string) => void) => {
 		ipcRenderer.on('rpc-status', (_event, status) => callback(status))
+	},
+	onStatusStatus: (callback: (status: string) => void) => {
+		ipcRenderer.on('status-status', (_event, status) => callback(status))
+	},
+	onStatusPayload: (callback: (text: string | null) => void) => {
+		ipcRenderer.on('status-payload', (_event, text) => callback(text))
 	},
 	setClientId: (clientId: string) =>
 		ipcRenderer.invoke('set-client-id', clientId),
@@ -80,12 +93,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	resetPersistTimestamp: () => ipcRenderer.invoke('reset-persist-timestamp'),
 	setActivityType: (type: string) =>
 		ipcRenderer.invoke('set-activity-type', type),
-
 	openDiscordDeveloperAuthorId: () => {
 		ipcRenderer.invoke('open-discord-author-id')
 	},
 	openDiscordDeveloperPortal: () => {
 		ipcRenderer.invoke('open-discord-client-id')
+	},
+	openDiscordGetTokenVideo: () => {
+		ipcRenderer.invoke('open-discord-token-id')
+	},
+	openDiscordGetTokenVideoError: () => {
+		ipcRenderer.invoke('open-discord-token-error-id')
 	},
 	setMusicFilter: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-music-filter', enabled),
@@ -95,6 +113,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('settings:set-automatic-activity', enabled),
 	setCoverFetch: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-cover-fetch', enabled),
+	setStatusEnabled: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-status-enabled', enabled),
+
+	setStatusCyclesConfig: (cycles: StatusCycleEntry[]) =>
+		ipcRenderer.invoke('settings:set-status-cycles', cycles),
+	statusGetCurrent: () => ipcRenderer.invoke('status:get-current'),
+	statusSetCurrent: (cycles: StatusCycleEntry[]) =>
+		ipcRenderer.invoke('status:set-current', cycles),
+	setRpcEnabled: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-rpc-enabled', enabled),
 	onUpdateAvailable: (callback: (info: UpdateInfo) => void) => {
 		ipcRenderer.on('update-available', (_event, info) => callback(info))
 	},
@@ -108,4 +136,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('settings:set-hardware-monitor', enabled),
 	setBarStyleConfig: (barStyle: string) =>
 		ipcRenderer.invoke('set-bar-style-config', barStyle),
+	customStatusRestart: () => ipcRenderer.invoke('custom-status:restart'),
+	customStatusStop: () => ipcRenderer.invoke('custom-status:stop'),
 })

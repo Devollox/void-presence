@@ -1,13 +1,13 @@
 import { FullState } from '../../../types/types'
 import { loadCurrentState } from '../core/state'
-import { downloadJson } from './live'
 import {
 	addConfigFromState,
 	attachAddConfigGlobal,
 	renderConfigs,
-} from './render'
+} from './config-render'
+import { downloadJson } from './live'
 
-import { attachSearchToList } from './search'
+import { attachSearchToList } from './config-search'
 import { setupToasts } from './toasts'
 
 export function setupConfigPage(): void {
@@ -55,11 +55,19 @@ export function setupConfigPage(): void {
 		const state = loadCurrentState()
 		const data: FullState = {
 			clientId: undefined,
-			cycles: state.cycles || [],
-			imageCycles: state.imageCycles || [],
-			buttonPairs: state.buttonPairs || [],
-			party: state.party || [],
-			timeCycles: state.timeCycles || [],
+			cycles: (state.cycles && state.cycles.slice()) || [],
+			imageCycles: (state.imageCycles && state.imageCycles.slice()) || [],
+			buttonPairs: (state.buttonPairs && state.buttonPairs.slice()) || [],
+			party: Array.isArray(state.party) ? state.party.slice() : undefined,
+			timeCycles: Array.isArray(state.timeCycles)
+				? state.timeCycles.slice()
+				: [],
+			timestampMode: state.timestampMode,
+			timestampRangeMin: state.timestampRangeMin,
+			timestampRangeMax: state.timestampRangeMax,
+			activityType: state.activityType,
+			nowMode: state.nowMode,
+			updateIntervalSec: state.updateIntervalSec,
 		}
 		const name =
 			nameInput.value.trim() ||

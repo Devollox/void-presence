@@ -3,6 +3,7 @@ import {
 	CycleEntry,
 	ImageCycleEntry,
 	PartyCycleEntry,
+	StatusCycleEntry,
 	TimeCycleEntry,
 } from '../../../types/types'
 
@@ -140,6 +141,27 @@ export function createImageCycleRow(
 				largeText: values.input2,
 				smallImage: values.input3,
 				smallText: values.input4,
+			}),
+		onRemove,
+	})
+}
+
+export function createStatusRow(
+	entry: StatusCycleEntry,
+	index: number,
+	onChange: (entry: StatusCycleEntry) => void,
+	onRemove: () => void,
+): HTMLDivElement {
+	return createRow(index, {
+		className: 'cycle-row',
+		inputs: [
+			{ placeholder: 'Text', value: entry.text || '' },
+			{ placeholder: 'Emoji (optional)', value: entry.emoji || '' },
+		],
+		onChange: (values: any) =>
+			onChange({
+				text: values.input1,
+				emoji: values.input2 || null,
 			}),
 		onRemove,
 	})

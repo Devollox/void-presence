@@ -1,5 +1,5 @@
 import { setActiveView } from '../shell/views-nav'
-import { updateRecentName } from './storage'
+import { updateRecentName } from './config-storage'
 import { setupToasts } from './toasts'
 
 export type RecentApp = {

@@ -5,6 +5,7 @@ import {
 	ImageCycleEntry,
 	NowMode,
 	PartyCycleEntry,
+	StatusCycleEntry,
 	TimeCycleEntry,
 	TimestampMode,
 	VoidPresenceCtx,
@@ -56,6 +57,48 @@ function buildTimestampPayloadFromLocal(): {
 	}
 }
 
+function buildStatusCyclesPayload(
+	statusCycles: StatusCycleEntry[],
+): { text: string; emoji: string | null }[] {
+	return (statusCycles || []).map(s => ({
+		text: s.text || '',
+		emoji:
+			typeof s.emoji === 'string' && s.emoji.trim().length > 0
+				? s.emoji.trim()
+				: null,
+	}))
+}
+
+export async function pushStatusFromCtx(ctx: VoidPresenceCtx): Promise<void> {
+	const statusIntervalInput = document.getElementById(
+		'status-update-interval-input',
+	) as HTMLInputElement | null
+
+	const statusIntervalSec = statusIntervalInput
+		? parseInt(statusIntervalInput.value.trim(), 10)
+		: NaN
+
+	const statusCycles = Array.isArray(ctx.statusCycles) ? ctx.statusCycles : []
+
+	localStorage.setItem('statusCycles', JSON.stringify(statusCycles))
+
+	if (!isNaN(statusIntervalSec) && statusIntervalSec > 0) {
+		localStorage.setItem('updateIntervalSecStatus', String(statusIntervalSec))
+	}
+
+	if (
+		!isNaN(statusIntervalSec) &&
+		statusIntervalSec > 0 &&
+		window.electronAPI?.liveSetStatusInterval
+	) {
+		await window.electronAPI.liveSetStatusInterval(statusIntervalSec)
+	}
+	if (window.electronAPI?.liveSetStatusCycles) {
+		const payload = buildStatusCyclesPayload(statusCycles)
+		await window.electronAPI.liveSetStatusCycles(payload)
+	}
+}
+
 export async function pushLiveStateFromCtx(
 	ctx: VoidPresenceCtx,
 ): Promise<void> {
@@ -65,16 +108,21 @@ export async function pushLiveStateFromCtx(
 	const intervalInput = document.getElementById(
 		'update-interval-input',
 	) as HTMLInputElement | null
+	const tokenInput = document.getElementById(
+		'discord-token-input',
+	) as HTMLInputElement | null
 
 	const clientId = clientInput ? clientInput.value.trim() : ''
 	const intervalSec = intervalInput
 		? parseInt(intervalInput.value.trim(), 10)
 		: NaN
+	const discordToken = tokenInput ? tokenInput.value.trim() : ''
 
 	const timestampPayload = buildTimestampPayloadFromLocal()
 	const timeCycles = Array.isArray(ctx.timeCycles) ? ctx.timeCycles : []
 
 	localStorage.setItem('clientId', clientId)
+	localStorage.setItem('discordToken', discordToken)
 	localStorage.setItem('buttonPairs', JSON.stringify(ctx.buttonPairs))
 	localStorage.setItem('cycles', JSON.stringify(ctx.cycles))
 	localStorage.setItem('imageCycles', JSON.stringify(ctx.imageCycles))
@@ -95,6 +143,9 @@ export async function pushLiveStateFromCtx(
 		window.electronAPI?.liveSetInterval
 	) {
 		await window.electronAPI.liveSetInterval(intervalSec)
+	}
+	if (window.electronAPI?.liveSetDiscordToken) {
+		await window.electronAPI.liveSetDiscordToken(discordToken)
 	}
 	if (window.electronAPI?.liveSetCycles) {
 		await window.electronAPI.liveSetCycles((ctx.cycles || []) as CycleEntry[])

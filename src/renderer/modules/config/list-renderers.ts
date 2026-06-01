@@ -3,6 +3,7 @@ import {
 	CycleEntry,
 	ImageCycleEntry,
 	PartyCycleEntry,
+	StatusCycleEntry,
 	VoidPresenceCtx,
 } from '../../../types/types'
 import { createListManager } from '../helpers/list'
@@ -11,6 +12,7 @@ import {
 	createCycleRow,
 	createImageCycleRow,
 	createPartyRow,
+	createStatusRow,
 } from './rows'
 
 export function setupButtonPairs(
@@ -78,6 +80,26 @@ export function setupParty(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
 			getDefaultItem: () => ({
 				sizeCurrent: '',
 				sizeMax: '',
+			}),
+		},
+	)
+}
+
+export function setupStatusCycles(
+	ctx: VoidPresenceCtx,
+	showBlocksToast: () => void,
+) {
+	ctx.renderStatusCycles = createListManager<StatusCycleEntry>(
+		ctx,
+		showBlocksToast,
+		{
+			listId: 'status-list',
+			addBtnId: 'add-status',
+			storageKey: 'statusCycles',
+			createRowFn: createStatusRow,
+			getDefaultItem: () => ({
+				text: '',
+				emoji: '',
 			}),
 		},
 	)
