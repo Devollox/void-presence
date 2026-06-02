@@ -127,14 +127,14 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 async function applyCustomStatus(
 	item: CustomStatusItem,
 	token: string | null,
-): Promise<boolean> {
+): Promise<{ ok: boolean; retryAfter?: number }> {
 	if (!token || !token.trim()) {
 		if (sendLog) sendLog('Custom status: no Discord token set', 'warn')
-		return false
+		return { ok: false }
 	}
 
 	const signature = `${item.text}::${item.emoji || ''}`
-	if (signature === lastSignature) return true
+	if (signature === lastSignature) return { ok: true }
 	lastSignature = signature
 
 	try {
@@ -164,17 +164,13 @@ async function applyCustomStatus(
 		})
 
 		if (response.ok) {
-			return true
+			return { ok: true }
 		} else if (response.status === 429) {
 			const errData = await response.json()
+			const retryAfter = errData?.retry_after ?? 10
 			if (sendLog)
-				sendLog(
-					`Custom status rate limit. Retry after: ${
-						errData?.retry_after ?? '?'
-					}s`,
-					'warn',
-				)
-			return false
+				sendLog(`Custom status rate limit. Retry after: ${retryAfter}s`, 'warn')
+			return { ok: false, retryAfter }
 		} else {
 			const errData = await response.json()
 			if (sendLog)
@@ -183,7 +179,7 @@ async function applyCustomStatus(
 						JSON.stringify(errData),
 					'error',
 				)
-			return false
+			return { ok: false }
 		}
 	} catch (e: any) {
 		if (sendLog)
@@ -191,7 +187,7 @@ async function applyCustomStatus(
 				'Custom status apply error: ' + (e?.message || String(e)),
 				'error',
 			)
-		return false
+		return { ok: false }
 	}
 }
 
@@ -358,9 +354,9 @@ export default function startCustomStatusWorker(): void {
 			const item = currentStatuses[currentIndex % currentStatuses.length]
 			currentIndex = (currentIndex + 1) % currentStatuses.length
 
-			const ok = await applyCustomStatus(item, token)
+			const result = await applyCustomStatus(item, token)
 
-			if (ok) {
+			if (result.ok) {
 				if (!hasEverBeenReady) {
 					hasEverBeenReady = true
 					if (sendStatusCustom) sendStatusCustom('CUSTOM_STATUS_READY')
@@ -378,10 +374,22 @@ export default function startCustomStatusWorker(): void {
 				if (sendStatusCustomPayload) {
 					sendStatusCustomPayload(item.text)
 				}
-			} else if (!hasEverBeenReady) {
-				if (sendStatusCustom) {
-					sendStatusCustom('CUSTOM_STATUS_CONNECTING')
+
+				if (isStopped || sessionId !== currentSessionId) return
+				scheduleNext(activityIntervalMs)
+			} else {
+				const waitMs = result.retryAfter
+					? result.retryAfter * 1000
+					: activityIntervalMs
+
+				if (!hasEverBeenReady) {
+					if (sendStatusCustom) {
+						sendStatusCustom('CUSTOM_STATUS_CONNECTING')
+					}
 				}
+
+				if (isStopped || sessionId !== currentSessionId) return
+				scheduleNext(waitMs)
 			}
 		} catch (e: any) {
 			if (sendLog)
@@ -392,10 +400,10 @@ export default function startCustomStatusWorker(): void {
 			if (sendStatusCustom) {
 				sendStatusCustom('CUSTOM_STATUS_ERROR')
 			}
-		}
 
-		if (isStopped || sessionId !== currentSessionId) return
-		scheduleNext(activityIntervalMs)
+			if (isStopped || sessionId !== currentSessionId) return
+			scheduleNext(activityIntervalMs)
+		}
 	}
 
 	if (isConnecting) return
