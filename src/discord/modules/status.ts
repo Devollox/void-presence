@@ -65,6 +65,20 @@ function checkDiscordRunning(
 	})
 }
 
+async function isDiscordTokenValid(token: string): Promise<boolean> {
+	try {
+		const res = await fetch('https://discord.com/api/v10/users/@me', {
+			method: 'GET',
+			headers: {
+				Authorization: token.trim(),
+			},
+		})
+		return res.status === 200
+	} catch {
+		return false
+	}
+}
+
 async function readCustomStatusState(): Promise<StatusStateResult> {
 	try {
 		const settings = (await readSettings()) as any
@@ -174,7 +188,7 @@ async function applyCustomStatus(
 	} catch (e: any) {
 		if (sendLog)
 			sendLog(
-				'Custom status status apply error: ' + (e?.message || String(e)),
+				'Custom status apply error: ' + (e?.message || String(e)),
 				'error',
 			)
 		return false
@@ -245,11 +259,6 @@ export default function startCustomStatusWorker(): void {
 				return
 			}
 
-			if (!isRunning) {
-				setTimeout(findAndRestartProcess, 5000)
-				return
-			}
-
 			isSearchingDiscord = false
 
 			if (sendStatusCustom) {
@@ -274,7 +283,7 @@ export default function startCustomStatusWorker(): void {
 					sendStatusCustom('CUSTOM_STATUS_SEARCHING_DISCORD')
 					sendStatusCustomPayload('Idle')
 				}
-				if (sendLog && !err) sendLog('Custom status disconnected', 'warn')
+
 				setTimeout(findAndRestartProcess, 5000)
 				return
 			}
@@ -296,6 +305,12 @@ export default function startCustomStatusWorker(): void {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
 					sendStatusCustomPayload(null)
 				}
+
+				currentIndex = 0
+				lastSignature = ''
+				hasEverBeenReady = false
+				hasLoggedReadyOnce = false
+
 				scheduleNext(activityIntervalMs)
 				return
 			}
@@ -310,6 +325,32 @@ export default function startCustomStatusWorker(): void {
 					if (sendLog) sendLog('Custom status: no Discord token set', 'warn')
 					sendStatusCustomPayload('Discord token is not set')
 				}
+
+				currentIndex = 0
+				lastSignature = ''
+				hasEverBeenReady = false
+				hasLoggedReadyOnce = false
+
+				scheduleNext(activityIntervalMs)
+				return
+			}
+
+			if (!(await isDiscordTokenValid(token))) {
+				if (sendLog)
+					sendLog(
+						'Custom status: Discord token is invalid (logged out?), stopping.',
+						'warn',
+					)
+				if (sendStatusCustom) {
+					sendStatusCustom('CUSTOM_STATUS_DISABLED')
+					sendStatusCustomPayload('Token invalid (logged out)')
+				}
+
+				currentIndex = 0
+				lastSignature = ''
+				hasEverBeenReady = false
+				hasLoggedReadyOnce = false
+
 				scheduleNext(activityIntervalMs)
 				return
 			}
@@ -387,7 +428,7 @@ export default function startCustomStatusWorker(): void {
 			isConnecting = false
 			if (sendLog)
 				sendLog(
-					'Custom status init error: ' + (e?.message || String(e)),
+					'custom status init error: ' + (e?.message || String(e)),
 					'error',
 				)
 			if (sendStatusCustom) {
