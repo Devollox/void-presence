@@ -1,24 +1,23 @@
-# Security Update: Enhanced Discord Token Safety in Tutorial
+# Cloud Configs: Discord Token Excluded from Cloud Uploads
 
-## Security improvements
+## Security fix
 
-- Added prominent security warning in the Custom status tutorial: users are now explicitly told to **never share their Discord token with anyone**, never show it, never send it, and never paste it anywhere except the dedicated token field.
-- The warning emphasizes that the Discord token gives **full access to your Discord account**, making the risk clear and immediate.
-- Security warning is visually highlighted with orange-yellow gradient text for maximum visibility.
+- **Discord token is now automatically excluded** when uploading configurations to the cloud. The token never leaves your local machine and is never stored in Firebase.
+- When you upload a config to share with others, the `discordToken` field is automatically removed from `configData` before uploading.
+- This prevents accidental token leaks when sharing presets, status cycles, or RPC configurations with other users.
 
-## Tutorial updates
+## What changes
 
-- Updated Custom status tutorial with clearer security messaging in the hints section.
-- All important terms in the tutorial (Discord token, Custom status, F12, Network, authorization, user token, RESTART STATUS, update intervals) are now highlighted with gradient text for better readability.
-- Security warning placed alongside existing Terms of Service disclaimer for complete context.
+- Config uploads now strip the Discord token automatically in the main process.
+- Users can safely share configs without worrying about exposing their account token.
+- The token remains stored locally only at `\AppData\Roaming\Void Presence\discord-token-config`.
 
-## Local storage clarification
+## What stays the same
 
-- Your Discord token is stored **locally only** on your machine at:
-  `\AppData\Roaming\Void Presence\discord-token-config`
-- The token is **never sent to any server**, never stored in the cloud, and never accessed by anyone except your local application.
-- This file contains only your token configuration and is never transmitted over the network.
+- All other config data (title, description, cycles, intervals, RPC settings, etc.) uploads normally.
+- Downloaded configs will apply all settings except the token — users must set their own token separately.
+- Your local token storage is unchanged.
 
-## What this means
+## Why this matters
 
-Your Discord token is now safer — the tutorial makes it crystal clear that this sensitive credential should never be shared. The app continues to store your token locally on your machine only, with no server storage.
+Your Discord token gives full access to your account. This fix ensures that even if you share a config publicly, your token stays private and local.

@@ -393,7 +393,24 @@ export async function initIpc() {
 				throw new Error('Author not found')
 			}
 			const authorName = user.name
-			return uploadConfigToCloud({ ...payload, authorName })
+
+			const configWithoutToken = JSON.parse(
+				JSON.stringify(payload.configData),
+			) as any
+
+			if (configWithoutToken.discordToken) {
+				delete configWithoutToken.discordToken
+			}
+
+			if (configWithoutToken.statusSettings?.discordToken) {
+				delete configWithoutToken.statusSettings.discordToken
+			}
+
+			return uploadConfigToCloud({
+				...payload,
+				authorName,
+				configData: configWithoutToken,
+			})
 		},
 	)
 
