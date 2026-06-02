@@ -138,6 +138,9 @@ function startSmtcWorker() {
 
 		lastNowPlaying = msg.data
 
+		const settings = await readSettings()
+		if (!settings.rpcEnabled) return
+
 		if (!rpcStarted) {
 			rpcStarted = true
 			const win = BrowserWindow.getAllWindows()[0]
@@ -187,11 +190,14 @@ function startHardwareWorker() {
 
 	hardwareWorker.removeAllListeners('message')
 
-	hardwareWorker.on('message', msg => {
+	hardwareWorker.on('message', async msg => {
 		if (!msg || typeof msg !== 'object') return
 		if (msg.type === 'hardwareStats') {
 			lastHardwareStats = msg.data
 		}
+
+		const settings = await readSettings()
+		if (!settings.rpcEnabled) return
 
 		if (!rpcStarted) {
 			rpcStarted = true
@@ -822,6 +828,29 @@ export async function initIpc() {
 
 	ipcMain.handle('settings:set-rpc-enabled', async (_e, enabled: boolean) => {
 		await setRpcEnabled(enabled)
+
+		if (enabled) {
+			const win = BrowserWindow.getAllWindows()[0]
+			if (!win || win.isDestroyed()) return true
+
+			setTimeout(() => {
+				sendStatus('RESTARTING')
+			}, 100)
+
+			stopDiscordRich()
+
+			setTimeout(() => {
+				startDiscordRich(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
+			}, 2000)
+		} else {
+			stopDiscordRich()
+			sendStatus('DISABLED')
+
+			rpcStarted = false
+		}
 	})
 
 	ipcMain.handle('custom-status:restart', async () => {

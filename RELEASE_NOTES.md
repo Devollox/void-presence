@@ -1,9 +1,13 @@
-# Custom Status Controls Relocation & Stability
+# RPC Auto-Start Fix for Hardware/SMTC Workers
 
 ## Improvements
 
-- **Moved Custom Status Restart and Stop buttons** - relocated above the Status Cycles block for better UX
+- **Fixed RPC auto-start issue** - RPC no longer immediately re-enables after being manually toggled on
+- **Added `rpcEnabled` check in SMTC worker** - worker now verifies RPC is enabled before auto-starting
+- **Added `rpcEnabled` check in Hardware worker** - worker now verifies RPC is enabled before auto-starting
+- **Added `rpcStarted = false` reset** - flag reset when toggling RPC on to prevent duplicate starts
 
-## Dependencies
+## Bug Fixed
 
-- Updated **Electron** to 42.3.2 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.
+**Issue:** RPC would immediately turn back on after being toggled off due to hardware/SMTC workers auto-starting it
+**Fix:** Workers now respect `rpcEnabled` setting and won't start RPC if it's disabled
