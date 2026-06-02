@@ -175,11 +175,18 @@ function mapStatusToText(status: string): { chip: string; sub: string } {
 function mapStatusCustomToText(status: string): { chip: string; sub: string } {
 	switch (status) {
 		case 'CUSTOM_STATUS_DISABLED':
-			return { chip: 'DISABLED', sub: 'Custom status worker is off' }
+			return { chip: 'IDLE', sub: 'Waiting to start' }
 		case 'CUSTOM_STATUS_CONNECTING':
 			return { chip: 'CONNECTING', sub: 'Updating Discord status' }
+		case 'CUSTOM_STATUS_RESTART':
+			return { chip: 'RESTARTING', sub: 'Custom status is restarting' }
 		case 'CUSTOM_STATUS_READY':
 			return { chip: 'ACTIVE', sub: 'Custom status is rotating' }
+		case 'CUSTOM_STATUS_SEARCHING_DISCORD':
+			return {
+				chip: 'SEARCHING DISCORD PROCESS',
+				sub: 'Looking for Discord process',
+			}
 		default:
 			return { chip: 'UNKNOWN', sub: status || '' }
 	}
@@ -361,6 +368,9 @@ export function updateStatusPageStatus(status: string): void {
 		} else if (status === 'CUSTOM_STATUS_RESTART') {
 			dot.style.background =
 				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+		} else if (status === 'CUSTOM_STATUS_SEARCHING_DISCORD') {
+			dot.style.background =
+				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		} else {
 			dot.style.background =
 				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'

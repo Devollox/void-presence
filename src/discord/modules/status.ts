@@ -1,3 +1,4 @@
+import { exec } from 'child_process'
 import {
 	readDiscordTokenConfig,
 	readFiltersState,
@@ -21,6 +22,7 @@ interface StatusStateResult {
 }
 
 const DISCORD_API_URL = 'https://discord.com/api/v10/users/@me/settings'
+const processName = 'Discord.exe'
 
 let isStopped = true
 let currentSessionId = 0
@@ -32,16 +34,13 @@ let activityIntervalMs = 30000
 let lastSignature = ''
 let hasEverBeenReady = false
 let hasLoggedReadyOnce = false
+let isSearchingDiscord = false
 
 const DEFAULT_STATUSES: CustomStatusItem[] = [
 	{ text: ':(', emoji: null },
 	{ text: ':/', emoji: null },
 	{ text: ':)', emoji: null },
 ]
-
-function sleep(ms: number): Promise<void> {
-	return new Promise(resolve => setTimeout(resolve, ms))
-}
 
 function normalizeStatuses(list: any[] | undefined | null): CustomStatusItem[] {
 	if (!Array.isArray(list)) return []
@@ -56,6 +55,16 @@ function normalizeStatuses(list: any[] | undefined | null): CustomStatusItem[] {
 		.filter((x): x is CustomStatusItem => x.text.length > 0)
 }
 
+function checkDiscordRunning(
+	cb: (err: { message: string } | null, isRunning: boolean) => void,
+) {
+	exec('tasklist', (err, stdout) => {
+		if (err) return cb(err, false)
+		const found = stdout.toLowerCase().includes(processName.toLowerCase())
+		cb(null, found)
+	})
+}
+
 async function readCustomStatusState(): Promise<StatusStateResult> {
 	try {
 		const settings = (await readSettings()) as any
@@ -65,9 +74,7 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 
 		const statusCycles = await readStatusCyclesConfig()
 		const statusesFromFile = normalizeStatuses(statusCycles?.cycles)
-
 		const statusesFromSettings = normalizeStatuses(settings?.customStatuses)
-
 		const statuses =
 			statusesFromFile.length > 0 ? statusesFromFile : statusesFromSettings
 
@@ -167,7 +174,7 @@ async function applyCustomStatus(
 	} catch (e: any) {
 		if (sendLog)
 			sendLog(
-				'Custom status apply error: ' + (e?.message || String(e)),
+				'Custom status status apply error: ' + (e?.message || String(e)),
 				'error',
 			)
 		return false
@@ -208,8 +215,75 @@ export default function startCustomStatusWorker(): void {
 	lastSignature = ''
 	hasEverBeenReady = false
 	hasLoggedReadyOnce = false
+	isSearchingDiscord = false
+
+	function scheduleNext(ms: number) {
+		if (isStopped || sessionId !== currentSessionId) return
+		loopTimer = setTimeout(tick, ms)
+	}
+
+	function findAndRestartProcess(): void {
+		if (isStopped || sessionId !== currentSessionId) return
+		isSearchingDiscord = true
+
+		if (sendStatusCustom) {
+			sendStatusCustom('CUSTOM_STATUS_SEARCHING_DISCORD')
+			sendStatusCustomPayload('Idle')
+		}
+
+		checkDiscordRunning((err, isRunning) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
+			if (err) {
+				if (sendLog)
+					sendLog(
+						'Custom status: Discord process check error: ' +
+							(err.message || String(err)),
+						'warn',
+					)
+				setTimeout(findAndRestartProcess, 5000)
+				return
+			}
+
+			if (!isRunning) {
+				setTimeout(findAndRestartProcess, 5000)
+				return
+			}
+
+			isSearchingDiscord = false
+
+			if (sendStatusCustom) {
+				sendStatusCustom('CUSTOM_STATUS_CONNECTING')
+				sendStatusCustomPayload(
+					'Discord detected, initializing custom status...',
+				)
+			}
+
+			tick()
+		})
+	}
 
 	async function tick(): Promise<void> {
+		if (isStopped || sessionId !== currentSessionId) return
+
+		checkDiscordRunning((err, isRunning) => {
+			if (isStopped || sessionId !== currentSessionId) return
+
+			if (err || !isRunning) {
+				if (sendStatusCustom) {
+					sendStatusCustom('CUSTOM_STATUS_SEARCHING_DISCORD')
+					sendStatusCustomPayload('Idle')
+				}
+				if (sendLog && !err) sendLog('Custom status disconnected', 'warn')
+				setTimeout(findAndRestartProcess, 5000)
+				return
+			}
+
+			void tickInner()
+		})
+	}
+
+	async function tickInner(): Promise<void> {
 		if (isStopped || sessionId !== currentSessionId) return
 
 		try {
@@ -222,7 +296,7 @@ export default function startCustomStatusWorker(): void {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
 					sendStatusCustomPayload(null)
 				}
-				loopTimer = setTimeout(tick, activityIntervalMs)
+				scheduleNext(activityIntervalMs)
 				return
 			}
 
@@ -236,7 +310,7 @@ export default function startCustomStatusWorker(): void {
 					if (sendLog) sendLog('Custom status: no Discord token set', 'warn')
 					sendStatusCustomPayload('Discord token is not set')
 				}
-				loopTimer = setTimeout(tick, activityIntervalMs)
+				scheduleNext(activityIntervalMs)
 				return
 			}
 
@@ -248,13 +322,11 @@ export default function startCustomStatusWorker(): void {
 			if (ok) {
 				if (!hasEverBeenReady) {
 					hasEverBeenReady = true
-					if (sendStatusCustom) {
-						sendStatusCustom('CUSTOM_STATUS_READY')
-					}
+					if (sendStatusCustom) sendStatusCustom('CUSTOM_STATUS_READY')
 				}
 
 				if (!hasLoggedReadyOnce && sendLog) {
-					sendLog('Status ready', 'success')
+					sendLog('Custom status ready', 'success')
 					hasLoggedReadyOnce = true
 				}
 
@@ -282,7 +354,7 @@ export default function startCustomStatusWorker(): void {
 		}
 
 		if (isStopped || sessionId !== currentSessionId) return
-		loopTimer = setTimeout(tick, activityIntervalMs)
+		scheduleNext(activityIntervalMs)
 	}
 
 	if (isConnecting) return
@@ -296,24 +368,26 @@ export default function startCustomStatusWorker(): void {
 	readCustomStatusState()
 		.then(state => {
 			isConnecting = false
+
 			if (!state.enabled) {
 				if (sendStatusCustom) {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
 					sendStatusCustomPayload(null)
 				}
 				return
-			} else {
-				if (sendStatusCustom) {
-					sendStatusCustom('CUSTOM_STATUS_CONNECTING')
-				}
 			}
-			tick()
+
+			if (sendStatusCustom) {
+				sendStatusCustom('CUSTOM_STATUS_CONNECTING')
+			}
+
+			findAndRestartProcess()
 		})
 		.catch(e => {
 			isConnecting = false
 			if (sendLog)
 				sendLog(
-					'custom status init error: ' + (e?.message || String(e)),
+					'Custom status init error: ' + (e?.message || String(e)),
 					'error',
 				)
 			if (sendStatusCustom) {
