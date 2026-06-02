@@ -280,17 +280,17 @@ export async function setupStatusIntervalControl(): Promise<void> {
 				await window.electronAPI.setStatusIntervalConfig(saved)
 			}
 		} else {
-			input.value = '30'
-			localStorage.setItem('updateIntervalSecStatus', '30')
+			input.value = '60'
+			localStorage.setItem('updateIntervalSecStatus', '60')
 			if (window.electronAPI?.setStatusIntervalConfig) {
-				await window.electronAPI.setStatusIntervalConfig(30)
+				await window.electronAPI.setStatusIntervalConfig(60)
 			}
 		}
 	} else {
-		input.value = '30'
-		localStorage.setItem('updateIntervalSecStatus', '30')
+		input.value = '60'
+		localStorage.setItem('updateIntervalSecStatus', '60')
 		if (window.electronAPI?.setStatusIntervalConfig) {
-			await window.electronAPI.setStatusIntervalConfig(30)
+			await window.electronAPI.setStatusIntervalConfig(60)
 		}
 	}
 }

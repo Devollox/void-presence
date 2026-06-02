@@ -30,7 +30,7 @@ let isConnecting = false
 let loopTimer: NodeJS.Timeout | null = null
 let currentIndex = 0
 let currentStatuses: CustomStatusItem[] = []
-let activityIntervalMs = 30000
+let activityIntervalMs = 60000
 let lastSignature = ''
 let hasEverBeenReady = false
 let hasLoggedReadyOnce = false
@@ -112,7 +112,7 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 		activityIntervalMs =
 			typeof sec === 'number' && Number.isFinite(sec) && sec >= 5
 				? sec * 1000
-				: 30000
+				: 60000
 
 		return { enabled }
 	} catch (e: any) {
@@ -159,6 +159,10 @@ async function applyCustomStatus(
 			headers: {
 				Authorization: token.trim(),
 				'Content-Type': 'application/json',
+				'User-Agent':
+					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.9006 Chrome/108.0.5359.215 Electron/22.3.26 Safari/537.36',
+				Accept: '*/*',
+				'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
 			},
 			body: JSON.stringify(payload),
 		})
