@@ -174,8 +174,8 @@
 													<ul class="tutorial-inline-list">
 														<li>
 															If you see
-															<span class="tutorial-strong"
-																>"Connection closed"</span
+															<span class="tutorial-strong hint-warning"
+																>Connection closed</span
 															>, very long connecting, or frequent disconnects
 															in the log console, but Discord itself works fine,
 															try restarting Discord.
@@ -552,7 +552,7 @@
 									</div>
 									<div class="divider"></div>
 									<p class="hint-text">
-										The “RESTART PRESENCE” button should be pressed only when
+										The <span class="tutorial-strong">RESTART PRESENCE</span> button should be pressed only when
 										you change the Client ID or Update, in all other cases it is
 										not necessary.
 									</p>
@@ -696,25 +696,27 @@
 									skip
 								</button>
 							</div>
-							<div class=" tutorial-inline-header">
+							<div class="tutorial-inline-header">
 								<p class="hint-text">
-										Use this feature with caution. It relies on a user token and behaves like a
-										third‑party client, which is against Discord’s Terms of Service, so you use
-										it at your own risk.
-									</p>
-									<p class="hint-text">
-										We do not accept any responsibility for possible consequences, including
-										warnings or account restrictions, although we have not observed bans for
-										this specific use case so far.
-									</p>
+									Use this feature with caution. It relies on a user token and behaves like a
+									third‑party client, which is against Discord's Terms of Service, so you use
+									it at your own risk.
+								</p>
+								<p class="hint-text">
+									We do not accept any responsibility for possible consequences, including
+									warnings or account restrictions, although we have not observed bans for
+									this specific use case so far.
+								</p>
+								<p class="hint-text hint-warning">
+									<span class="gradient-text">Never share your Discord token with anyone!</span> Never show it to anyone, never send it to anyone, and never paste it anywhere except this field. Your token gives full access to your Discord account.
+								</p>
 							</div>
-
 
 							<div class='divider'></div>
 							<div class="tutorial-inline-body">
 								<div class="tutorial-inline-col">
 									<div class="tutorial-inline-step-label">
-										Step 1 — Enable worker
+										Step 1 — Enable status and set up cycles
 									</div>
 									<ol class="tutorial-inline-list">
 										<li>
@@ -742,92 +744,92 @@
 
 								<div class='tutorial-inline-wrapper'>
 									<div class="tutorial-inline-col">
-									<div class="tutorial-inline-step-label">
-										Step 2 — Get Discord token
+										<div class="tutorial-inline-step-label">
+											Step 2 — Get Discord token
+										</div>
+										<ul class="tutorial-inline-list">
+											<li>
+												Open Discord in a desktop browser and log in to your account.
+											</li>
+											<li>
+												Open DevTools with
+												<span class="tutorial-strong">F12</span>
+												or
+												<span class="tutorial-strong">Ctrl+Shift+I</span>.
+											</li>
+											<li>
+												Switch to the
+												<span class="tutorial-strong">Network</span>
+												tab and in the lower panel select the
+												<span class="tutorial-strong">science</span>
+												request.
+											</li>
+											<li>
+												Inside the
+												<span class="tutorial-strong">science</span>
+												request, find the
+												<span class="tutorial-strong">authorization</span>
+												header and copy its full value.
+											</li>
+											<li>
+												Paste the copied
+												<span class="tutorial-strong">user token</span>
+												into the
+												<span class="tutorial-strong">DISCORD TOKEN</span>
+												field below.
+											</li>
+											<li>
+												Click
+												<span class="tutorial-strong">RESTART STATUS</span>
+												to restart the worker with the new token and cycles.
+											</li>
+										</ul>
 									</div>
-									<ul class="tutorial-inline-list">
-										<li>
-											Open Discord in a desktop browser and log in to your account.
-										</li>
-										<li>
-											Open DevTools with
-											<span class="tutorial-strong">F12</span>
-											or
-											<span class="tutorial-strong">Ctrl+Shift+I</span>.
-										</li>
-										<li>
-											Switch to the
-											<span class="tutorial-strong">Network</span>
-											tab and in the lower panel select the
-											<span class="tutorial-strong">science</span>
-											request.
-										</li>
-										<li>
-											Inside the
-											<span class="tutorial-strong">science</span>
-											request, find the
-											<span class="tutorial-strong">authorization</span>
-											header and copy its full value.
-										</li>
-										<li>
-											Paste the copied
-											<span class="tutorial-strong">user token</span>
-											into the
-											<span class="tutorial-strong">DISCORD TOKEN</span>
-											field below.
-										</li>
-										<li>
-											Click
-											<span class="tutorial-strong">RESTART STATUS</span>
-											to restart the worker with the new token and cycles.
-										</li>
-									</ul>
-								</div>
-								<div class="tutorial-inline-col">
-									<div class="tutorial-inline-step-label">
-										Step 3 — Important notes
+									<div class="tutorial-inline-col">
+										<div class="tutorial-inline-step-label">
+											Step 3 — Important notes
+										</div>
+										<ul class="tutorial-inline-list">
+											<li>
+												We do not store your
+												<span class="tutorial-strong">Discord token</span>
+												on any server. It is used locally on your machine only.
+											</li>
+											<li>
+												For most setups we recommend an update interval between
+												<span class="tutorial-strong">10 and 30 seconds</span>
+												to keep your status responsive without spamming Discord.
+											</li>
+											<li>
+												If your main RPC presence already updates every
+												<span class="tutorial-strong">5 seconds</span>,
+												it is not recommended to set the status interval
+												lower than
+												<span class="tutorial-strong hint-warning">30 seconds</span>.
+											</li>
+										</ul>
 									</div>
-									<ul class="tutorial-inline-list">
-										<li>
-											We do not store your
-											<span class="tutorial-strong">Discord token</span>
-											on any server. It is used locally on your machine only.
-										</li>
-										<li>
-											For most setups we recommend an update interval between
-											<span class="tutorial-strong">10 and 30 seconds</span>
-											to keep your status responsive without spamming Discord.
-										</li>
-										<li>
-											If your main RPC presence already updates every
-											<span class="tutorial-strong">5 seconds</span>,
-											it is not recommended to set the status interval
-											lower than
-											<span class="tutorial-strong">10 seconds</span>.
-										</li>
-									</ul>
-								</div>
 								</div>
 							</div>
 							<div class="tutorial-inline-wrapper btn-wrapper">
-									<button
-										id="get-video-id"
-										class="rpc-button tutorial-inline-btn"
-									>
-										Open Video Guide
-									</button>
-									<button
-										id="get-video-error-id"
-										class="rpc-button tutorial-inline-btn"
-									>
-										If it doesn't open the console
-									</button>
-									</div>
-									<div class="tutorial-inline-wrapper btn-wrapper btn-show">
-										<button id="status-tutorial-dont-show" class="add-btn" type="button">
-											<span>Do not show this status tutorial again</span>
-									</button>
-									</div>
+								<button
+									id="get-video-id"
+									class="rpc-button tutorial-inline-btn"
+								>
+									Open Video Guide
+								</button>
+								<button
+									id="get-video-error-id"
+									class="rpc-button tutorial-inline-btn"
+								>
+									If it doesn't open the console
+								</button>
+							</div>
+							<div class="tutorial-inline-wrapper btn-wrapper btn-show">
+								<button id="status-tutorial-dont-show" class="add-btn" type="button">
+									<span>Do not show this status tutorial again</span>
+								</button>
+							</div>
 						</div>
 
 						<div class="card">

@@ -588,7 +588,7 @@ export async function initIpc() {
 
 	ipcMain.handle('open-discord-token-id', async () => {
 		try {
-			await shell.openExternal('https://www.youtube.com/watch?v=LnBnm_tZlyU')
+			await shell.openExternal('https://www.youtube.com/watch?v=GUqSNoJ28aU')
 		} catch (error) {
 			console.error('Failed to open browser:', error)
 		}

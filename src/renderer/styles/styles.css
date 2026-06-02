@@ -2275,3 +2275,7 @@ textarea::-moz-selection {
 .drag-handle:hover {
 	opacity: 0.7;
 }
+
+.hint-warning {
+	color: #fbbf24;
+}
