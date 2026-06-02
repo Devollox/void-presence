@@ -238,6 +238,7 @@ export type ConfigState = {
 	coverFetchEnabled?: boolean
 	hardwareMonitorEnabled?: boolean
 	statusEnabled?: boolean
+	statusEnabledBrowser: boolean
 	rpcEnabled?: boolean
 }
 
@@ -260,6 +261,7 @@ export interface Settings {
 	statusEnabled: boolean
 	rpcEnabled: boolean
 	barStyle: BarStyle
+	statusEnabledBrowser: boolean
 	lastUpdateNotified: string | null
 	lastUpdateNotifiedVersion: string | null
 }
@@ -296,6 +298,7 @@ export interface StoredStatusProfile {
 }
 
 export interface ElectronAPI {
+	setStatusEnabledBrowser?: (on: boolean) => Promise<void> | void
 	setRpcEnabled?: () => Promise<void>
 	openDiscordGetTokenVideoError?: () => Promise<void>
 	setupStatusTutorialButtons?: () => Promise<void>

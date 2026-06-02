@@ -19,6 +19,7 @@ interface CustomStatusItem {
 
 interface StatusStateResult {
 	enabled: boolean
+	enabledBrowser: boolean
 }
 
 const DISCORD_API_URL = 'https://discord.com/api/v10/users/@me/settings'
@@ -35,6 +36,7 @@ let lastSignature = ''
 let hasEverBeenReady = false
 let hasLoggedReadyOnce = false
 let isSearchingDiscord = false
+let enabledBrowser = false
 
 const DEFAULT_STATUSES: CustomStatusItem[] = [
 	{ text: ':(', emoji: null },
@@ -65,26 +67,13 @@ function checkDiscordRunning(
 	})
 }
 
-async function isDiscordTokenValid(token: string): Promise<boolean> {
-	try {
-		const res = await fetch('https://discord.com/api/v10/users/@me', {
-			method: 'GET',
-			headers: {
-				Authorization: token.trim(),
-			},
-		})
-		return res.status === 200
-	} catch {
-		return false
-	}
-}
-
 async function readCustomStatusState(): Promise<StatusStateResult> {
 	try {
 		const settings = (await readSettings()) as any
 		await readFiltersState()
 
 		const enabled: boolean = !!settings?.statusEnabled
+		const browserEnabled: boolean = !!settings?.statusEnabledBrowser
 
 		const statusCycles = await readStatusCyclesConfig()
 		const statusesFromFile = normalizeStatuses(statusCycles?.cycles)
@@ -114,13 +103,16 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 				? sec * 1000
 				: 60000
 
-		return { enabled }
+		return {
+			enabled: enabled || browserEnabled,
+			enabledBrowser: browserEnabled,
+		}
 	} catch (e: any) {
 		if (sendLog)
 			sendLog('Custom status read error: ' + (e?.message || String(e)), 'error')
 		currentStatuses = DEFAULT_STATUSES
 		activityIntervalMs = 5000
-		return { enabled: false }
+		return { enabled: false, enabledBrowser: false }
 	}
 }
 
@@ -203,6 +195,7 @@ export function stopCustomStatusWorker(): void {
 	hasLoggedReadyOnce = false
 	currentIndex = 0
 	lastSignature = ''
+	enabledBrowser = false
 
 	if (loopTimer) {
 		clearTimeout(loopTimer)
@@ -230,10 +223,13 @@ export default function startCustomStatusWorker(): void {
 	hasEverBeenReady = false
 	hasLoggedReadyOnce = false
 	isSearchingDiscord = false
+	enabledBrowser = false
 
 	function scheduleNext(ms: number) {
 		if (isStopped || sessionId !== currentSessionId) return
-		loopTimer = setTimeout(tick, ms)
+		loopTimer = setTimeout(() => {
+			void tick()
+		}, ms)
 	}
 
 	function findAndRestartProcess(): void {
@@ -268,12 +264,17 @@ export default function startCustomStatusWorker(): void {
 				)
 			}
 
-			tick()
+			void tick()
 		})
 	}
 
 	async function tick(): Promise<void> {
 		if (isStopped || sessionId !== currentSessionId) return
+
+		if (enabledBrowser) {
+			void tickInner()
+			return
+		}
 
 		checkDiscordRunning((err, isRunning) => {
 			if (isStopped || sessionId !== currentSessionId) return
@@ -310,6 +311,7 @@ export default function startCustomStatusWorker(): void {
 				lastSignature = ''
 				hasEverBeenReady = false
 				hasLoggedReadyOnce = false
+				enabledBrowser = false
 
 				scheduleNext(activityIntervalMs)
 				return
@@ -330,26 +332,7 @@ export default function startCustomStatusWorker(): void {
 				lastSignature = ''
 				hasEverBeenReady = false
 				hasLoggedReadyOnce = false
-
-				scheduleNext(activityIntervalMs)
-				return
-			}
-
-			if (!(await isDiscordTokenValid(token))) {
-				if (sendLog)
-					sendLog(
-						'Custom status: Discord token is invalid (logged out?), stopping.',
-						'warn',
-					)
-				if (sendStatusCustom) {
-					sendStatusCustom('CUSTOM_STATUS_DISABLED')
-					sendStatusCustomPayload('Token invalid (logged out)')
-				}
-
-				currentIndex = 0
-				lastSignature = ''
-				hasEverBeenReady = false
-				hasLoggedReadyOnce = false
+				enabledBrowser = false
 
 				scheduleNext(activityIntervalMs)
 				return
@@ -434,10 +417,17 @@ export default function startCustomStatusWorker(): void {
 				sendStatusCustom('CUSTOM_STATUS_CONNECTING')
 			}
 
-			findAndRestartProcess()
+			enabledBrowser = state.enabledBrowser
+
+			if (state.enabledBrowser) {
+				void tick()
+			} else {
+				findAndRestartProcess()
+			}
 		})
 		.catch(e => {
 			isConnecting = false
+			enabledBrowser = false
 			if (sendLog)
 				sendLog(
 					'custom status init error: ' + (e?.message || String(e)),

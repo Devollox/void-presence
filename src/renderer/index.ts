@@ -32,6 +32,7 @@ import {
 	setupMusicFilterToggle,
 	setupRestartButton,
 	setupRpcEnabledToggle,
+	setupStatusEnabledBrowserToggle,
 	setupStatusEnabledToggle,
 	setupStopButton,
 	setupVideoFilterToggle,
@@ -65,6 +66,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	void setupCloudUpload()
 	void setupTutorials()
 	void setupRpcEnabledToggle()
+	void setupStatusEnabledBrowserToggle()
 	void renderStatusProfiles()
 	void setupStatusImportOverlay()
 	void setupStatusDetailsOverlay()

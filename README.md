@@ -3,7 +3,6 @@
 <img width="1920" height="1080" alt="Композиция2-1_1" src="https://github.com/user-attachments/assets/ad409ce8-4dd0-4d3e-bc16-1d04ea0c4318" />
 <img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/daba103b-8fdf-4153-99ab-18d8bb019da8" />
 
-
 https://github.com/user-attachments/assets/57fffa33-626d-467f-80a1-0df338f0f65a
 
 > **Void Presence** – Advanced Discord Rich Presence manager with full control over your activity display.
@@ -19,7 +18,7 @@ Void Presence is an advanced Discord Rich Presence manager with three RPC modes:
 ## Features
 
 - **RPC Modes** – `Basic` (lightweight) / `Music and Video` (**Music + Video**) / `Hardware overlay` (**CPU + GPU + RAM**)
-- **Dynamic status** – cyclic switching between statuses
+- **Dynamic status** – cyclic switching between statuses (work in browser (no Discord.exe check)
 - **Custom button pairs** – Create multiple button sets with labels and URLs
 - **Custom update interval** – Control how often activity is refreshed (in seconds)
 - **Status cycles** – Rotate between different status messages (`details` and `state`)

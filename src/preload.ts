@@ -137,4 +137,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('set-bar-style-config', barStyle),
 	customStatusRestart: () => ipcRenderer.invoke('custom-status:restart'),
 	customStatusStop: () => ipcRenderer.invoke('custom-status:stop'),
+	setStatusEnabledBrowser: (enabled: boolean) =>
+		ipcRenderer.invoke('settings:set-status-enabled-browser', enabled),
 })

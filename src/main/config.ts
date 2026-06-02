@@ -649,6 +649,7 @@ export async function readFiltersState(): Promise<ConfigState> {
 			coverFetchEnabled?: boolean
 			hardwareMonitorEnabled?: boolean
 			statusEnabled?: boolean
+			statusEnabledBrowser?: boolean
 			rpcEnabled?: boolean
 		}
 		return {
@@ -658,6 +659,7 @@ export async function readFiltersState(): Promise<ConfigState> {
 			coverFetchEnabled: parsed.coverFetchEnabled === true,
 			hardwareMonitorEnabled: parsed.hardwareMonitorEnabled === true,
 			statusEnabled: parsed.statusEnabled === true,
+			statusEnabledBrowser: parsed.statusEnabledBrowser === true,
 			rpcEnabled: parsed.rpcEnabled === true,
 		}
 	} catch {
@@ -668,6 +670,7 @@ export async function readFiltersState(): Promise<ConfigState> {
 			coverFetchEnabled: false,
 			hardwareMonitorEnabled: false,
 			statusEnabled: false,
+			statusEnabledBrowser: false,
 			rpcEnabled: false,
 		}
 	}
@@ -682,6 +685,7 @@ const defaultSettings: Settings = {
 	hardwareMonitorEnabled: false,
 	statusEnabled: false,
 	rpcEnabled: true,
+	statusEnabledBrowser: false,
 	barStyle: 'unicode',
 	lastUpdateNotified: null,
 	lastUpdateNotifiedVersion: null,
@@ -706,6 +710,7 @@ const validateSettings: Validator<Settings> = (input): Settings => {
 		coverFetchEnabled: obj.coverFetchEnabled === true,
 		hardwareMonitorEnabled: obj.hardwareMonitorEnabled === true,
 		statusEnabled: obj.statusEnabled === true,
+		statusEnabledBrowser: obj.statusEnabledBrowser === true,
 		rpcEnabled: obj.rpcEnabled === true,
 		barStyle,
 		lastUpdateNotified:
@@ -833,5 +838,11 @@ export function normalizeStatuses(
 export async function setRpcEnabled(enabled: boolean) {
 	const cfg = await readSettings()
 	cfg.rpcEnabled = !!enabled
+	await writeSettings(cfg)
+}
+
+export async function setStatusEnabledBrowser(enabled: boolean) {
+	const cfg = await readSettings()
+	cfg.statusEnabledBrowser = !!enabled
 	await writeSettings(cfg)
 }

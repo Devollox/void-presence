@@ -10,6 +10,7 @@ type ToggleKey =
 	| 'coverFetchEnabled'
 	| 'hardwareMonitorEnabled'
 	| 'statusEnabled'
+	| 'statusEnabledBrowser'
 	| 'rpcEnabled'
 
 type ToggleApi =
@@ -21,6 +22,7 @@ type ToggleApi =
 	| 'setCoverFetch'
 	| 'setHardwareMonitor'
 	| 'setStatusEnabled'
+	| 'setStatusEnabledBrowser'
 	| 'setRpcEnabled'
 
 type ToggleConfig<K extends ToggleKey, A extends ToggleApi> = {
@@ -131,6 +133,14 @@ export function setupRpcEnabledToggle(): void {
 		id: 'rpc-enabled-toggle',
 		storageKey: 'rpcEnabled',
 		apiMethod: 'setRpcEnabled',
+	})
+}
+
+export function setupStatusEnabledBrowserToggle(): void {
+	setupGenericToggle({
+		id: 'status-custom-browser-toggle',
+		storageKey: 'statusEnabledBrowser',
+		apiMethod: 'setStatusEnabledBrowser',
 	})
 }
 

@@ -1,20 +1,14 @@
-# Custom Status Rate Limit Fix
+# Custom Status Token Validation Fix & Added Browser Mode Toggle
+
+## New Feature
+
+- **Added `statusEnabledBrowser` toggle** - new setting to enable Custom Status in browser mode
+- **When enabled, completely skips Discord.exe process check** - Custom Status runs without verifying Discord is running
+- **Added `setStatusEnabledBrowser()` IPC method** - new Electron API method for browser mode toggle
+- **Added `statusEnabledBrowser` to settings** - stored in localStorage and persisted across restarts
 
 ## Improvements
 
-- Added comprehensive JSDoc documentation to all functions and file header
-- Added Discord User-Agent header to API requests for better spoofing:
-  - `User-Agent`: discord/1.0.9006 Chrome/108.0.5359.215 Electron/22.3.26
-  - `Accept`: `*/*`
-  - `Accept-Language`: `ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7`
-- Improved rate limit handling with proper retry_after respect
-- Maintains signature-based change detection (skips if status unchanged)
-- Token validation on each cycle (stops if logged out)
-- Smart Discord process detection (checks Discord.exe before starting)
-
-**Rate Limits**:
-
-- Minimum interval: 5 seconds (5000ms)
-- Recommended interval: 60-90 seconds for smooth animation
-- On 429: waits `retry_after` seconds before next attempt
-- Global rate limit bucket: ~60 seconds for `/users/@me/settings`
+- **Removed Discord token validation check** - token is no longer validated on each cycle, preventing premature worker stoppage
+- **Removed `isDiscordTokenValid()` function** - eliminated unnecessary API call that caused "token invalid" errors after ~1 minute
+- **Custom status now runs continuously** - loop doesn't stop due to false "logged out" detections

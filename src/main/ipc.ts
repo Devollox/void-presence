@@ -39,6 +39,7 @@ import {
 	setDiscordTokenConfig,
 	setRpcEnabled,
 	setStatusCyclesConfig,
+	setStatusEnabledBrowser,
 	setStatusIntervalConfig,
 	writeSettings,
 	writeStatusCyclesConfig,
@@ -729,6 +730,19 @@ export async function initIpc() {
 			console.error('install-update error:', e)
 		}
 	})
+
+	ipcMain.handle(
+		'settings:set-status-enabled-browser',
+		async (event, enabled) => {
+			await setStatusEnabledBrowser(enabled)
+
+			stopCustomStatusWorker()
+
+			sendStatusCustom('CUSTOM_STATUS_RESTART')
+
+			startCustomStatusWorker()
+		},
+	)
 
 	ipcMain.handle('use-ready-client-id', async () => {
 		const readyId = '1492470601686847598'
