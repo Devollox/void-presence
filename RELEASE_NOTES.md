@@ -1,14 +1,9 @@
-# Custom Status Token Validation Fix & Added Browser Mode Toggle
-
-## New Feature
-
-- **Added `statusEnabledBrowser` toggle** - new setting to enable Custom Status in browser mode
-- **When enabled, completely skips Discord.exe process check** - Custom Status runs without verifying Discord is running
-- **Added `setStatusEnabledBrowser()` IPC method** - new Electron API method for browser mode toggle
-- **Added `statusEnabledBrowser` to settings** - stored in localStorage and persisted across restarts
+# Custom Status Controls Relocation & Stability
 
 ## Improvements
 
-- **Removed Discord token validation check** - token is no longer validated on each cycle, preventing premature worker stoppage
-- **Removed `isDiscordTokenValid()` function** - eliminated unnecessary API call that caused "token invalid" errors after ~1 minute
-- **Custom status now runs continuously** - loop doesn't stop due to false "logged out" detections
+- **Moved Custom Status Restart and Stop buttons** - relocated above the Status Cycles block for better UX
+
+## Dependencies
+
+- Updated **Electron** to 42.3.2 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.
