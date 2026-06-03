@@ -21,7 +21,10 @@ import {
 } from './modules/modals/tutorials'
 import './modules/modals/update'
 import { initUpdateOverlay } from './modules/modals/update'
-import { updateStatusPageStatus } from './modules/shell/runtime-status'
+import {
+	updateStatusStatus,
+	updateStatusText,
+} from './modules/shell/runtime-status'
 import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
@@ -73,9 +76,8 @@ window.addEventListener('DOMContentLoaded', () => {
 	void setupStatusIntervalControl()
 	void initBarStyleControls()
 
-	updateInfo(null)
-	updateStatusPageStatus('CUSTOM_STATUS_DISABLED')
-	updateStatus('DISABLED')
+	updateStatusStatus('CUSTOM_STATUS_DISABLED')
+	updateStatus('RPC_DISABLED')
 
 	if (window.electronAPI?.onRpcUpdate) {
 		window.electronAPI.onRpcUpdate(payload => {
@@ -86,6 +88,18 @@ window.addEventListener('DOMContentLoaded', () => {
 	if (window.electronAPI?.onRpcStatus) {
 		window.electronAPI.onRpcStatus(status => {
 			updateStatus(status)
+		})
+	}
+
+	if (window.electronAPI?.onStatusStatus) {
+		window.electronAPI.onStatusStatus(status => {
+			updateStatusStatus(status)
+		})
+	}
+
+	if (window.electronAPI?.onStatusPayload) {
+		window.electronAPI.onStatusPayload(payload => {
+			updateStatusText(payload)
 		})
 	}
 

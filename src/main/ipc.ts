@@ -1,4 +1,3 @@
-import { spawn } from 'child_process'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import { Worker } from 'worker_threads'
@@ -44,8 +43,12 @@ import {
 	writeSettings,
 	writeStatusCyclesConfig,
 } from './config'
-import { sendLog, sendStatus, sendStatusCustom } from './logging'
-import { downloadFile, isPortable } from './updates'
+import {
+	sendLog,
+	sendStatus,
+	sendStatusCustom,
+	sendStatusCustomPayload,
+} from './logging'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
@@ -146,7 +149,7 @@ function startSmtcWorker() {
 			const win = BrowserWindow.getAllWindows()[0]
 			if (win && !win.isDestroyed()) {
 				setTimeout(() => {
-					sendStatus('RESTARTING')
+					sendStatus('RPC_RESTARTING')
 				}, 100)
 				startDiscordRich(payload => {
 					if (win.isDestroyed()) return
@@ -195,6 +198,9 @@ function startHardwareWorker() {
 		if (msg.type === 'hardwareStats') {
 			lastHardwareStats = msg.data
 		}
+		if (msg.type === 'hardwareError') {
+			return
+		}
 
 		const settings = await readSettings()
 		if (!settings.rpcEnabled) return
@@ -204,7 +210,7 @@ function startHardwareWorker() {
 			const win = BrowserWindow.getAllWindows()[0]
 			if (win && !win.isDestroyed()) {
 				setTimeout(() => {
-					sendStatus('RESTARTING')
+					sendStatus('RPC_RESTARTING')
 				}, 100)
 				startDiscordRich(payload => {
 					if (win.isDestroyed()) return
@@ -267,7 +273,11 @@ export async function initIpc() {
 
 	if (s.statusEnabled) {
 		sendStatusCustom('CUSTOM_STATUS_RESTART')
-		startCustomStatusWorker()
+		sendStatusCustomPayload('RESTARTING')
+
+		setTimeout(() => {
+			startCustomStatusWorker()
+		}, 2000)
 	}
 
 	const shouldUseSmtc = s.musicFilter || s.videoFilter
@@ -284,7 +294,7 @@ export async function initIpc() {
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win && !win.isDestroyed()) {
 			setTimeout(() => {
-				sendStatus('RESTARTING')
+				sendStatus('RPC_RESTARTING')
 			}, 100)
 			startDiscordRich(payload => {
 				if (win.isDestroyed()) return
@@ -305,7 +315,7 @@ export async function initIpc() {
 		if (!win || win.isDestroyed()) return false
 
 		setTimeout(() => {
-			sendStatus('RESTARTING')
+			sendStatus('RPC_RESTARTING')
 		}, 100)
 
 		try {
@@ -319,14 +329,14 @@ export async function initIpc() {
 			return true
 		} catch (error) {
 			console.error('Restart failed:', error)
-			sendStatus('ERROR')
+			sendStatus('RPC_ERROR')
 			return false
 		}
 	})
 
 	ipcMain.handle('stop-discord-rich', async () => {
 		stopDiscordRich()
-		sendStatus('DISABLED')
+		sendStatus('RPC_DISABLED')
 	})
 
 	ipcMain.handle('set-client-id', async (_event, clientId: string) => {
@@ -342,7 +352,7 @@ export async function initIpc() {
 		if (!win || win.isDestroyed()) return false
 
 		setTimeout(() => {
-			sendStatus('RESTARTING')
+			sendStatus('RPC_RESTARTING')
 		}, 100)
 
 		stopDiscordRich()
@@ -676,77 +686,18 @@ export async function initIpc() {
 		},
 	)
 
-	ipcMain.on('install-update', async (_event, info: any) => {
-		try {
-			const portable = isPortable()
-			const version = info.latestTag.replace(/^v/i, '')
-
-			sendLog(`Install update requested: ${info.latestTag}`)
-
-			if (!info.downloadUrl) {
-				sendLog('Update install failed: no download URL')
-				return
-			}
-
-			const { filePath } = await downloadFile(info.downloadUrl, version)
-
-			if (portable) {
-				const installDir = path.dirname(process.execPath)
-				const exeName = path.basename(process.execPath)
-				const newExePath = path.join(installDir, exeName)
-
-				sendLog(
-					`Launching portable installer silently to ${installDir}: ${path.basename(filePath)}`,
-				)
-
-				const child = spawn(filePath, ['/S', `/D=${installDir}`])
-
-				child.on('close', code => {
-					sendLog(`Installer exited with code ${code ?? 'null'}`)
-
-					try {
-						const restarted = spawn(newExePath, [], {
-							detached: true,
-							stdio: 'ignore',
-						})
-						restarted.unref()
-						sendLog('Restarted Void Presence after portable update')
-					} catch (e: any) {
-						sendLog(
-							`Failed to restart after update: ${e?.message || String(e)}`,
-							'error',
-						)
-					}
-
-					app.quit()
-				})
-			} else {
-				sendLog(`Launching installer: ${path.basename(filePath)}`)
-
-				const child = spawn(filePath, [], {
-					detached: true,
-					stdio: 'ignore',
-				})
-
-				child.unref()
-				app.quit()
-			}
-		} catch (e: any) {
-			sendLog(`Update install failed: ${e?.message || String(e)}`, 'error')
-			console.error('install-update error:', e)
-		}
-	})
-
 	ipcMain.handle(
 		'settings:set-status-enabled-browser',
-		async (event, enabled) => {
+		async (_event, enabled) => {
 			await setStatusEnabledBrowser(enabled)
-
 			stopCustomStatusWorker()
 
 			sendStatusCustom('CUSTOM_STATUS_RESTART')
+			sendStatusCustomPayload('RESTARTING')
 
-			startCustomStatusWorker()
+			setTimeout(() => {
+				startCustomStatusWorker()
+			}, 2000)
 		},
 	)
 
@@ -759,7 +710,7 @@ export async function initIpc() {
 		if (!win || win.isDestroyed()) return true
 
 		setTimeout(() => {
-			sendStatus('RESTARTING')
+			sendStatus('RPC_RESTARTING')
 		}, 100)
 
 		stopDiscordRich()
@@ -785,7 +736,7 @@ export async function initIpc() {
 		if (!win || win.isDestroyed()) return true
 
 		setTimeout(() => {
-			sendStatus('RESTARTING')
+			sendStatus('RPC_RESTARTING')
 		}, 100)
 
 		stopDiscordRich()
@@ -834,7 +785,7 @@ export async function initIpc() {
 			if (!win || win.isDestroyed()) return true
 
 			setTimeout(() => {
-				sendStatus('RESTARTING')
+				sendStatus('RPC_RESTARTING')
 			}, 100)
 
 			stopDiscordRich()
@@ -847,7 +798,7 @@ export async function initIpc() {
 			}, 2000)
 		} else {
 			stopDiscordRich()
-			sendStatus('DISABLED')
+			sendStatus('RPC_DISABLED')
 
 			rpcStarted = false
 		}
@@ -857,8 +808,12 @@ export async function initIpc() {
 		stopCustomStatusWorker()
 
 		sendStatusCustom('CUSTOM_STATUS_RESTART')
+		sendStatusCustomPayload('RESTARTING')
 
-		startCustomStatusWorker()
+		setTimeout(() => {
+			startCustomStatusWorker()
+		}, 2000)
+
 		return true
 	})
 
@@ -866,6 +821,8 @@ export async function initIpc() {
 		stopCustomStatusWorker()
 
 		sendStatusCustom('CUSTOM_STATUS_DISABLED')
+		sendStatusCustomPayload('IDLE')
+
 		return true
 	})
 }

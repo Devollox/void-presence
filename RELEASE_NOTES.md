@@ -1,12 +1,15 @@
-# Error Logging Fix
+# Custom Status: UI Fix & Retry Fix
 
 ## Improvements
 
-- **Fixed log spam for Custom Status errors** - errors now update in place instead of creating new log entries
-- **Added `updateExistingLogItem` helper function** - extracts common log update logic for reuse
-- **Improved log readability** - same behavior as download progress updates
+- **Added double retry on send failure** - custom status now retries one more time before showing an error
+- **Improved error logging** - repeated apply failures are now consolidated into a single log entry
+- **Refined status display** - status labels and idle states are now shown more clearly in the UI
 
-## Bug Fixed
+## Fixed
 
-**Issue:** Log spam with repeated `Custom status apply error: fetch failed` messages every few seconds
-**Fix:** Errors now consolidate into a single line that updates with the latest error message using the new helper function
+**Fix:** The app now attempts a second send before logging the failure, and status updates were cleaned up to match the new flow
+
+## Dependencies
+
+- Updated **Electron** to 42.3.3 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.

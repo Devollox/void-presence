@@ -12,6 +12,32 @@ let activityStartMs: number | null = null
 let uptimeTimer: number | null = null
 let lastErrorItem: HTMLElement | null = null
 
+const STATUS_TEXT_MAP: Record<
+	string,
+	{ title: string; second: string; value: string }
+> = {
+	IDLE: {
+		title: 'Idle',
+		second: 'Waiting to start',
+		value: '-',
+	},
+	CONNECTING: {
+		title: 'Idle',
+		second: 'Updating Discord status',
+		value: '-',
+	},
+	RESTARTING: {
+		title: 'Idle',
+		second: 'Custom status is restarting',
+		value: '-',
+	},
+	SEARCHING: {
+		title: 'Idle',
+		second: 'Looking for Discord process',
+		value: '-',
+	},
+}
+
 function updateExistingLogItem(
 	item: HTMLElement | null,
 	rawText: string,
@@ -175,22 +201,22 @@ if (window.electronAPI?.onLogMessage) {
 
 function mapStatusToText(status: string): { chip: string; sub: string } {
 	switch (status) {
-		case 'DISABLED':
+		case 'RPC_DISABLED':
 			return { chip: 'IDLE', sub: 'Waiting to start' }
-		case 'SEARCHING DISCORD':
+		case 'RPC_SEARCHING_DISCORD':
 			return {
 				chip: 'SEARCHING DISCORD PROCESS',
 				sub: 'Looking for Discord process',
 			}
-		case 'CONNECTING RPC':
+		case 'RPC_CONNECTING':
 			return { chip: 'CONNECTING', sub: 'Attaching Rich Presence' }
-		case 'ACTIVE':
+		case 'RPC_ACTIVE':
 			return { chip: 'ACTIVE', sub: 'Presence is broadcasting' }
-		case 'RESTARTING':
+		case 'RPC_RESTARTING':
 			return { chip: 'RESTARTING', sub: 'Restarting Rich Presence' }
-		case 'DISCONNECTED':
+		case 'RPC_DISCONNECTED':
 			return { chip: 'DISCONNECTED', sub: 'Lost connection to Discord' }
-		case 'NO_CLIENT_ID':
+		case 'RPC_NO_CLIENT_ID':
 			return { chip: 'NO CLIENT', sub: 'Set ID, cycles, update' }
 		default:
 			return { chip: 'UNKNOWN', sub: status || '' }
@@ -206,7 +232,7 @@ function mapStatusCustomToText(status: string): { chip: string; sub: string } {
 		case 'CUSTOM_STATUS_RESTART':
 			return { chip: 'RESTARTING', sub: 'Custom status is restarting' }
 		case 'CUSTOM_STATUS_READY':
-			return { chip: 'ACTIVE', sub: 'Custom status is rotating' }
+			return { chip: 'ACTIVE', sub: 'ACTIVE' }
 		case 'CUSTOM_STATUS_SEARCHING_DISCORD':
 			return {
 				chip: 'SEARCHING DISCORD PROCESS',
@@ -306,7 +332,7 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		infoButtons.textContent = '–'
 		infoObject.textContent = '–'
 		infoDetails.textContent = '–'
-		infoStatus.textContent = 'No active rich presence'
+		infoStatus.textContent = 'Waiting to start'
 		metaObject.textContent = 'DETAILS: —'
 		metaButtons.textContent = 'BUTTONS: —'
 		if (infoUptime) infoUptime.textContent = '–'
@@ -346,16 +372,16 @@ export function updateStatus(status: string): void {
 	if (subLabel) subLabel.textContent = mapped.sub
 
 	if (statusDot) {
-		if (status === 'ACTIVE') {
+		if (status === 'RPC_ACTIVE') {
 			statusDot.style.background =
 				'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
-		} else if (status === 'DISCONNECTED') {
+		} else if (status === 'RPC_DISCONNECTED') {
 			statusDot.style.background =
 				'radial-gradient(circle, #fb7185 0, #f97373 50%, #000000 100%)'
-		} else if (status === 'RESTARTING' || status === 'CONNECTING RPC') {
+		} else if (status === 'RPC_RESTARTING' || status === 'CONNECTING RPC') {
 			statusDot.style.background =
 				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
-		} else if (status === 'NO_CLIENT_ID') {
+		} else if (status === 'RPC_NO_CLIENT_ID') {
 			statusDot.style.background =
 				'radial-gradient(circle, #f97316 0, #ea580c 50%, #000000 100%)'
 		} else {
@@ -364,13 +390,13 @@ export function updateStatus(status: string): void {
 		}
 	}
 
-	if (status !== 'ACTIVE') {
+	if (status !== 'RPC_ACTIVE') {
 		activityStartMs = null
 		stopUptimeTimer()
 	}
 }
 
-export function updateStatusPageStatus(status: string): void {
+export function updateStatusStatus(status: string): void {
 	const chip = document.querySelector(
 		'.status-chip-status span',
 	) as HTMLElement | null
@@ -398,32 +424,35 @@ export function updateStatusPageStatus(status: string): void {
 				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		} else {
 			dot.style.background =
-				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		}
 	}
 }
 
-export function updateStatusPageText(text: string | null): void {
+export function updateStatusText(text: string | null): void {
 	const el = document.getElementById(
 		'status-page-info-text',
 	) as HTMLElement | null
 	const elTitleBlock = document.getElementById(
 		'status-page-info-text-title-block',
 	) as HTMLElement | null
-	if (!el || !elTitleBlock) return
+	const elSecondBlock = document.getElementById(
+		'status-page-info-text-second-block',
+	) as HTMLElement | null
 
-	elTitleBlock.textContent = text && text.length > 0 ? text : 'Status settings'
-	el.textContent = text && text.length > 0 ? text : '–'
-}
+	if (!el || !elTitleBlock || !elSecondBlock) return
 
-if (window.electronAPI?.onStatusStatus) {
-	window.electronAPI.onStatusStatus(status => {
-		updateStatusPageStatus(status)
-	})
-}
+	const value = text && text.length > 0 ? text : 'IDLE'
+	const mapped = STATUS_TEXT_MAP[value]
 
-if (window.electronAPI?.onStatusPayload) {
-	window.electronAPI.onStatusPayload(text => {
-		updateStatusPageText(text)
-	})
+	if (mapped) {
+		elTitleBlock.textContent = mapped.title
+		elSecondBlock.textContent = mapped.second
+		el.textContent = mapped.value
+		return
+	}
+
+	elTitleBlock.textContent = 'Status settings'
+	elSecondBlock.textContent = value
+	el.textContent = value
 }

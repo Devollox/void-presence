@@ -129,62 +129,85 @@ async function applyCustomStatus(
 	if (signature === lastSignature) return { ok: true }
 	lastSignature = signature
 
-	try {
-		const payload: {
-			custom_status: {
-				text: string
-				emoji_name: string | null
-				emoji_id: string | null
-				expires_at: string | null
+	let lastError: any = null
+
+	for (let attempt = 1; attempt <= 2; attempt++) {
+		try {
+			const payload: {
+				custom_status: {
+					text: string
+					emoji_name: string | null
+					emoji_id: string | null
+					expires_at: string | null
+				}
+			} = {
+				custom_status: {
+					text: item.text,
+					emoji_name: item.emoji,
+					emoji_id: null,
+					expires_at: null,
+				},
 			}
-		} = {
-			custom_status: {
-				text: item.text,
-				emoji_name: item.emoji,
-				emoji_id: null,
-				expires_at: null,
-			},
-		}
 
-		const response = await fetch(DISCORD_API_URL, {
-			method: 'PATCH',
-			headers: {
-				Authorization: token.trim(),
-				'Content-Type': 'application/json',
-				'User-Agent':
-					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.9006 Chrome/108.0.5359.215 Electron/22.3.26 Safari/537.36',
-				Accept: '*/*',
-				'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-			},
-			body: JSON.stringify(payload),
-		})
+			const response = await fetch(DISCORD_API_URL, {
+				method: 'PATCH',
+				headers: {
+					Authorization: token.trim(),
+					'Content-Type': 'application/json',
+					'User-Agent':
+						'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.9006 Chrome/108.0.5359.215 Electron/22.3.26 Safari/537.36',
+					Accept: '*/*',
+					'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+				},
+				body: JSON.stringify(payload),
+			})
 
-		if (response.ok) {
-			return { ok: true }
-		} else if (response.status === 429) {
-			const errData = await response.json()
-			const retryAfter = errData?.retry_after ?? 10
-			if (sendLog)
-				sendLog(`Custom status rate limit. Retry after: ${retryAfter}s`, 'warn')
-			return { ok: false, retryAfter }
-		} else {
-			const errData = await response.json()
+			if (response.ok) {
+				return { ok: true }
+			} else if (response.status === 429) {
+				const errData = await response.json()
+				const retryAfter = errData?.retry_after ?? 10
+				if (sendLog)
+					sendLog(
+						`Custom status rate limit. Retry after: ${retryAfter}s`,
+						'warn',
+					)
+				return { ok: false, retryAfter }
+			} else {
+				const errData = await response.json()
+				lastError = errData
+				if (attempt === 1) {
+					continue
+				}
+				if (sendLog)
+					sendLog(
+						`Custom status API error (${response.status}): ` +
+							JSON.stringify(errData),
+						'error',
+					)
+				return { ok: false }
+			}
+		} catch (e: any) {
+			lastError = e
+			if (attempt === 1) {
+				continue
+			}
 			if (sendLog)
 				sendLog(
-					`Custom status API error (${response.status}): ` +
-						JSON.stringify(errData),
+					'Custom status apply error: ' + (e?.message || String(e)),
 					'error',
 				)
 			return { ok: false }
 		}
-	} catch (e: any) {
-		if (sendLog)
-			sendLog(
-				'Custom status apply error: ' + (e?.message || String(e)),
-				'error',
-			)
-		return { ok: false }
 	}
+
+	if (sendLog)
+		sendLog(
+			'Custom status apply error: ' +
+				(lastError?.message || JSON.stringify(lastError) || 'unknown error'),
+			'error',
+		)
+	return { ok: false }
 }
 
 export function stopCustomStatusWorker(): void {
@@ -204,7 +227,7 @@ export function stopCustomStatusWorker(): void {
 
 	if (sendStatusCustom) {
 		sendStatusCustom('CUSTOM_STATUS_DISABLED')
-		sendStatusCustomPayload(null)
+		sendStatusCustomPayload('IDLE')
 	}
 }
 
@@ -238,7 +261,7 @@ export default function startCustomStatusWorker(): void {
 
 		if (sendStatusCustom) {
 			sendStatusCustom('CUSTOM_STATUS_SEARCHING_DISCORD')
-			sendStatusCustomPayload('Idle')
+			sendStatusCustomPayload('SEARCHING')
 		}
 
 		checkDiscordRunning((err, isRunning) => {
@@ -259,9 +282,7 @@ export default function startCustomStatusWorker(): void {
 
 			if (sendStatusCustom) {
 				sendStatusCustom('CUSTOM_STATUS_CONNECTING')
-				sendStatusCustomPayload(
-					'Discord detected, initializing custom status...',
-				)
+				sendStatusCustomPayload('CONNECTING')
 			}
 
 			void tick()
@@ -282,7 +303,7 @@ export default function startCustomStatusWorker(): void {
 			if (err || !isRunning) {
 				if (sendStatusCustom) {
 					sendStatusCustom('CUSTOM_STATUS_SEARCHING_DISCORD')
-					sendStatusCustomPayload('Idle')
+					sendStatusCustomPayload('SEARCHING')
 				}
 
 				setTimeout(findAndRestartProcess, 5000)
@@ -304,7 +325,7 @@ export default function startCustomStatusWorker(): void {
 			if (!state.enabled) {
 				if (sendStatusCustom && hasEverBeenReady) {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
-					sendStatusCustomPayload(null)
+					sendStatusCustomPayload('IDLE')
 				}
 
 				currentIndex = 0
@@ -324,8 +345,8 @@ export default function startCustomStatusWorker(): void {
 			if (!token || !token.trim()) {
 				if (sendStatusCustom) {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
+					sendStatusCustomPayload('IDLE')
 					if (sendLog) sendLog('Custom status: no Discord token set', 'warn')
-					sendStatusCustomPayload('Discord token is not set')
 				}
 
 				currentIndex = 0
@@ -372,6 +393,7 @@ export default function startCustomStatusWorker(): void {
 				if (!hasEverBeenReady) {
 					if (sendStatusCustom) {
 						sendStatusCustom('CUSTOM_STATUS_CONNECTING')
+						sendStatusCustomPayload('CONNECTING')
 					}
 				}
 
@@ -385,7 +407,8 @@ export default function startCustomStatusWorker(): void {
 					'error',
 				)
 			if (sendStatusCustom) {
-				sendStatusCustom('CUSTOM_STATUS_ERROR')
+				sendStatusCustom('CUSTOM_STATUS_DISABLED')
+				sendStatusCustomPayload('IDLE')
 			}
 
 			if (isStopped || sessionId !== currentSessionId) return
@@ -398,7 +421,7 @@ export default function startCustomStatusWorker(): void {
 
 	if (sendStatusCustom) {
 		sendStatusCustom('CUSTOM_STATUS_CONNECTING')
-		sendStatusCustomPayload('Connecting custom status...')
+		sendStatusCustomPayload('CONNECTING')
 	}
 
 	readCustomStatusState()
@@ -408,17 +431,17 @@ export default function startCustomStatusWorker(): void {
 			if (!state.enabled) {
 				if (sendStatusCustom) {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
-					sendStatusCustomPayload(null)
+					sendStatusCustomPayload('IDLE')
 				}
 				return
 			}
 
 			if (sendStatusCustom) {
 				sendStatusCustom('CUSTOM_STATUS_CONNECTING')
+				sendStatusCustomPayload('CONNECTING')
 			}
 
 			enabledBrowser = state.enabledBrowser
-
 			if (state.enabledBrowser) {
 				void tick()
 			} else {
@@ -435,7 +458,7 @@ export default function startCustomStatusWorker(): void {
 				)
 			if (sendStatusCustom) {
 				sendStatusCustom('CUSTOM_STATUS_DISABLED')
-				sendStatusCustomPayload('Init error, custom status disabled')
+				sendStatusCustomPayload('IDLE')
 			}
 		})
 }

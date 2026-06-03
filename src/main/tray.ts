@@ -46,7 +46,7 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 				const win = getMainWindow() || BrowserWindow.getAllWindows()[0]
 				if (!win || win.isDestroyed()) return
 				win.webContents.send('restart-discord-rich')
-				setTimeout(() => sendStatus('RESTARTING'), 100)
+				setTimeout(() => sendStatus('RPC_RESTARTING'), 100)
 			},
 		},
 		{ type: 'separator' },

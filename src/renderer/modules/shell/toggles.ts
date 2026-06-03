@@ -152,7 +152,7 @@ export function setupStopButton(): void {
 	btn.addEventListener('click', e => {
 		e.preventDefault()
 		if (window.electronAPI?.stopDiscordRich) {
-			updateStatus('DISABLED')
+			updateStatus('RPC_DISABLED')
 			updateInfo(null)
 			void window.electronAPI.stopDiscordRich()
 		}
@@ -168,7 +168,7 @@ export function setupRestartButton(): void {
 		e.preventDefault()
 		if (window.electronAPI?.restartDiscordRich) {
 			setTimeout(() => {
-				updateStatus('RESTARTING')
+				updateStatus('RPC_RESTARTING')
 			}, 100)
 			window.electronAPI.restartDiscordRich()
 		}

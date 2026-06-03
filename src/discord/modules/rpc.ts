@@ -453,13 +453,13 @@ export default function startDiscordRich(
 
 		if (!clientId || !cyclesConfig.entries.length) {
 			isConnecting = false
-			sendStatus('NO_CLIENT_ID')
+			sendStatus('RPC_NO_CLIENT_ID')
 			if (sendLog)
 				sendLog('No client ID or no details & state configured', 'warn')
 			return
 		}
 
-		sendStatus('CONNECTING RPC')
+		sendStatus('RPC_CONNECTING')
 		if (!hasLoggedConnectingOnce && sendLog) {
 			sendLog('Connecting RPC Client ID: ' + clientId, 'info')
 			hasLoggedConnectingOnce = true
@@ -889,7 +889,7 @@ export default function startDiscordRich(
 
 			await updatePersistOffsetIfNeeded()
 
-			sendStatus('ACTIVE')
+			sendStatus('RPC_ACTIVE')
 			sendPayload({
 				details: visible?.details || '',
 				state: safeState || '',
@@ -964,7 +964,7 @@ export default function startDiscordRich(
 				lastJsonSignature = ''
 			}
 			if (sendLog) sendLog('RPC ready', 'success')
-			sendStatus('ACTIVE')
+			sendStatus('RPC_ACTIVE')
 			await pushActivity(null as any)
 			void pollJsonLoop()
 		})
@@ -972,7 +972,7 @@ export default function startDiscordRich(
 		localClient.on('disconnected', () => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
-			sendStatus('DISCONNECTED')
+			sendStatus('RPC_DISCONNECTED')
 			if (hasEverBeenReady && sendLog) sendLog('RPC disconnected', 'warn')
 			if (restartTimer) clearTimeout(restartTimer)
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
@@ -981,7 +981,7 @@ export default function startDiscordRich(
 		localClient.on('error', (e: any) => {
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
-			sendStatus('DISCONNECTED')
+			sendStatus('RPC_DISCONNECTED')
 			if (hasEverBeenReady && sendLog)
 				sendLog('RPC error: ' + (e?.message || String(e)), 'error')
 			if (restartTimer) clearTimeout(restartTimer)
@@ -1017,7 +1017,7 @@ export default function startDiscordRich(
 				return
 			}
 			if (!isRunning) {
-				sendStatus('SEARCHING DISCORD')
+				sendStatus('RPC_SEARCHING_DISCORD')
 				if (restartTimer) clearTimeout(restartTimer)
 				restartTimer = setTimeout(findAndRestartProcess, 5000)
 			} else {
