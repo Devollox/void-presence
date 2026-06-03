@@ -10,6 +10,31 @@ const maxLogs = 120
 
 let activityStartMs: number | null = null
 let uptimeTimer: number | null = null
+let lastErrorItem: HTMLElement | null = null
+
+function updateExistingLogItem(
+	item: HTMLElement | null,
+	rawText: string,
+	level: string,
+	time: string,
+): boolean {
+	if (!item) return false
+
+	const msgEl = item.querySelector('.log-item-message') as HTMLElement | null
+	const metaEl = item.querySelector('.log-item-meta') as HTMLElement | null
+
+	if (!msgEl || !metaEl) return false
+
+	msgEl.textContent = ''
+	rawText.split('\n').forEach(line => {
+		const lineEl = document.createElement('div')
+		lineEl.textContent = line
+		msgEl.appendChild(lineEl)
+	})
+
+	metaEl.textContent = `${level.toUpperCase()} · ${time}`
+	return true
+}
 
 export function appendLog(entry: LogEntry | string): void {
 	if (!logsViewList) return
@@ -31,27 +56,23 @@ export function appendLog(entry: LogEntry | string): void {
 		(typeof entry === 'string' ? entry : JSON.stringify(entry))
 
 	const isDownloadProgress = rawText.startsWith('Downloading update…')
+	const isCustomStatusError =
+		rawText.includes('Custom status apply error') ||
+		rawText.includes('Custom status API error') ||
+		rawText.includes('Custom status rate limit')
 
 	if (isDownloadProgress) {
 		const first = logsViewList.firstChild as HTMLElement | null
-		if (first) {
-			const msgEl = first.querySelector(
-				'.log-item-message',
-			) as HTMLElement | null
-			const metaEl = first.querySelector('.log-item-meta') as HTMLElement | null
-
-			if (msgEl && metaEl) {
-				msgEl.textContent = ''
-				rawText.split('\n').forEach(line => {
-					const lineEl = document.createElement('div')
-					lineEl.textContent = line
-					msgEl.appendChild(lineEl)
-				})
-
-				metaEl.textContent = `${level.toUpperCase()} · ${time}`
-				return
-			}
+		if (updateExistingLogItem(first, rawText, level, time)) {
+			return
 		}
+	}
+
+	if (isCustomStatusError) {
+		if (updateExistingLogItem(lastErrorItem, rawText, level, time)) {
+			return
+		}
+		lastErrorItem = null
 	}
 
 	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
@@ -98,6 +119,10 @@ export function appendLog(entry: LogEntry | string): void {
 
 	item.appendChild(dot)
 	item.appendChild(body)
+
+	if (isCustomStatusError) {
+		lastErrorItem = item
+	}
 
 	logsViewList.insertBefore(item, logsViewList.firstChild)
 

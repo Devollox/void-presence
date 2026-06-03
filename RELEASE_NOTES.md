@@ -1,13 +1,12 @@
-# RPC Auto-Start Fix for Hardware/SMTC Workers
+# Error Logging Fix
 
 ## Improvements
 
-- **Fixed RPC auto-start issue** - RPC no longer immediately re-enables after being manually toggled on
-- **Added `rpcEnabled` check in SMTC worker** - worker now verifies RPC is enabled before auto-starting
-- **Added `rpcEnabled` check in Hardware worker** - worker now verifies RPC is enabled before auto-starting
-- **Added `rpcStarted = false` reset** - flag reset when toggling RPC on to prevent duplicate starts
+- **Fixed log spam for Custom Status errors** - errors now update in place instead of creating new log entries
+- **Added `updateExistingLogItem` helper function** - extracts common log update logic for reuse
+- **Improved log readability** - same behavior as download progress updates
 
 ## Bug Fixed
 
-**Issue:** RPC would immediately turn back on after being toggled off due to hardware/SMTC workers auto-starting it
-**Fix:** Workers now respect `rpcEnabled` setting and won't start RPC if it's disabled
+**Issue:** Log spam with repeated `Custom status apply error: fetch failed` messages every few seconds
+**Fix:** Errors now consolidate into a single line that updates with the latest error message using the new helper function
