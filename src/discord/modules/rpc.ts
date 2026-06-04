@@ -15,6 +15,7 @@ import {
 } from '../../main/config'
 import { getLastHardwareStats, getLastNowPlaying } from '../../main/ipc'
 import { sendLog, sendStatus } from '../../main/logging'
+import { t } from '../../main/translations'
 import {
 	ActivityType,
 	BarStyle,
@@ -193,7 +194,7 @@ async function savePersistOffsetIfNeeded() {
 	} catch (e) {
 		if (sendLog)
 			sendLog(
-				'Failed to save persist offset: ' + (e?.message || String(e)),
+				t('persistOffsetSaveError', { error: e?.message || String(e) }),
 				'warn',
 			)
 	}
@@ -377,7 +378,6 @@ function buildHardwareEntries(stats: any) {
 				Number.isFinite(Number(gpu?.temp)) && Number(gpu?.temp) > 0
 					? `${Math.round(Number(gpu.temp))}°C`
 					: null,
-
 			load: Number.isFinite(Number(gpu?.load)) ? Number(gpu.load) : null,
 		})
 	})
@@ -454,14 +454,13 @@ export default function startDiscordRich(
 		if (!clientId || !cyclesConfig.entries.length) {
 			isConnecting = false
 			sendStatus('RPC_NO_CLIENT_ID')
-			if (sendLog)
-				sendLog('No client ID or no details & state configured', 'warn')
+			if (sendLog) sendLog(t('rpcNoClientId'), 'warn')
 			return
 		}
 
 		sendStatus('RPC_CONNECTING')
 		if (!hasLoggedConnectingOnce && sendLog) {
-			sendLog('Connecting RPC Client ID: ' + clientId, 'info')
+			sendLog(t('rpcConnecting', { clientId }), 'info')
 			hasLoggedConnectingOnce = true
 		}
 
@@ -569,7 +568,7 @@ export default function startDiscordRich(
 			} catch (e) {
 				if (sendLog)
 					sendLog(
-						'Failed to update persist offset: ' + (e?.message || String(e)),
+						t('persistOffsetUpdateError', { error: e?.message || String(e) }),
 						'warn',
 					)
 			}
@@ -651,7 +650,7 @@ export default function startDiscordRich(
 			} catch (e: any) {
 				if (sendLog)
 					sendLog(
-						'Config refresh error: ' + (e?.message || String(e) || ''),
+						t('configRefreshError', { error: e?.message || String(e) || '' }),
 						'error',
 					)
 			}
@@ -882,7 +881,9 @@ export default function startDiscordRich(
 				.catch((e: any) => {
 					if (sendLog)
 						sendLog(
-							'SET_ACTIVITY error: ' + (e?.message || JSON.stringify(e) || ''),
+							t('rpcActivityError', {
+								error: e?.message || JSON.stringify(e) || '',
+							}),
 							'error',
 						)
 				})
@@ -963,7 +964,7 @@ export default function startDiscordRich(
 			} catch {
 				lastJsonSignature = ''
 			}
-			if (sendLog) sendLog('RPC ready', 'success')
+			if (sendLog) sendLog(t('rpcReady'), 'success')
 			sendStatus('RPC_ACTIVE')
 			await pushActivity(null as any)
 			void pollJsonLoop()
@@ -973,7 +974,7 @@ export default function startDiscordRich(
 			if (isStopped || sessionId !== currentSessionId) return
 			isConnecting = false
 			sendStatus('RPC_DISCONNECTED')
-			if (hasEverBeenReady && sendLog) sendLog('RPC disconnected', 'warn')
+			if (hasEverBeenReady && sendLog) sendLog(t('rpcDisconnected'), 'warn')
 			if (restartTimer) clearTimeout(restartTimer)
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
 		})
@@ -983,7 +984,7 @@ export default function startDiscordRich(
 			isConnecting = false
 			sendStatus('RPC_DISCONNECTED')
 			if (hasEverBeenReady && sendLog)
-				sendLog('RPC error: ' + (e?.message || String(e)), 'error')
+				sendLog(t('rpcLoginError', { error: e?.message || String(e) }), 'error')
 			if (restartTimer) clearTimeout(restartTimer)
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
 		})
@@ -1000,7 +1001,7 @@ export default function startDiscordRich(
 			const shouldSuppress =
 				suppressFirstLoginError || (isCouldNotConnect && justAfterSearch)
 			if (!shouldSuppress && sendLog)
-				sendLog('RPC login error: ' + (msg || String(e)), 'error')
+				sendLog(t('rpcLoginError', { error: msg || String(e) }), 'error')
 			if (restartTimer) clearTimeout(restartTimer)
 			restartTimer = setTimeout(findAndRestartProcess, 5000)
 		})

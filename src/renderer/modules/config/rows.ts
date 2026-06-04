@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import {
 	ButtonPair,
 	CycleEntry,
@@ -6,7 +7,6 @@ import {
 	StatusCycleEntry,
 	TimeCycleEntry,
 } from '../../../types/types'
-
 import { createRow } from '../helpers/create-row'
 
 export function createButtonPairRow(
@@ -18,10 +18,10 @@ export function createButtonPairRow(
 	return createRow(index, {
 		className: 'pair-row',
 		inputs: [
-			{ placeholder: 'Button Name #1', value: pair.label1 || '' },
-			{ placeholder: 'URL #1', value: pair.url1 || '' },
-			{ placeholder: 'Button Name #2 (optional)', value: pair.label2 || '' },
-			{ placeholder: 'URL #2 (optional)', value: pair.url2 || '' },
+			{ placeholder: t('buttonName1'), value: pair.label1 || '' },
+			{ placeholder: t('url1'), value: pair.url1 || '' },
+			{ placeholder: t('buttonName2Optional'), value: pair.label2 || '' },
+			{ placeholder: t('url2Optional'), value: pair.url2 || '' },
 		],
 		onChange: (values: any) =>
 			onChange({
@@ -43,8 +43,8 @@ export function createCycleRow(
 	return createRow(index, {
 		className: 'cycle-row',
 		inputs: [
-			{ placeholder: 'Details', value: entry.details || '' },
-			{ placeholder: 'State (optional)', value: entry.state || '' },
+			{ placeholder: t('detailsPlaceholder'), value: entry.details || '' },
+			{ placeholder: t('stateOptional'), value: entry.state || '' },
 		],
 		onChange: (values: any) =>
 			onChange({
@@ -64,9 +64,9 @@ export function createTimeRow(
 	return createRow(index, {
 		className: 'cycle-row',
 		inputs: [
-			{ placeholder: 'Label (optional)', value: entry.label || '' },
+			{ placeholder: t('labelOptional'), value: entry.label || '' },
 			{
-				placeholder: 'Duration (sec)',
+				placeholder: t('durationSec'),
 				value:
 					typeof entry.seconds === 'number'
 						? String(entry.seconds)
@@ -92,11 +92,11 @@ export function createPartyRow(
 		className: 'party-row',
 		inputs: [
 			{
-				placeholder: 'Current party size (optional)',
+				placeholder: t('current_party_size_optional'),
 				value: party.sizeCurrent?.toString() ?? '',
 			},
 			{
-				placeholder: 'Max party size (optional)',
+				placeholder: t('max_party_size_optional'),
 				value: party.sizeMax?.toString() ?? '',
 			},
 		],
@@ -119,19 +119,19 @@ export function createImageCycleRow(
 		className: 'image-row',
 		inputs: [
 			{
-				placeholder: 'Large image URL(.png/.jpeg/.gif and etc)',
+				placeholder: t('large_image_url'),
 				value: entry.largeImage || '',
 			},
 			{
-				placeholder: 'Large hover text (optional)',
+				placeholder: t('large_hover_text_optional'),
 				value: entry.largeText || '',
 			},
 			{
-				placeholder: 'Small image URL(.png/.jpeg/.gif and etc) (optional)',
+				placeholder: t('small_image_url_optional'),
 				value: entry.smallImage || '',
 			},
 			{
-				placeholder: 'Small hover text (optional)',
+				placeholder: t('small_hover_text_optional'),
 				value: entry.smallText || '',
 			},
 		],
@@ -155,8 +155,8 @@ export function createStatusRow(
 	return createRow(index, {
 		className: 'cycle-row',
 		inputs: [
-			{ placeholder: 'Text', value: entry.text || '' },
-			{ placeholder: 'Emoji (optional)', value: entry.emoji || '' },
+			{ placeholder: t('text'), value: entry.text || '' },
+			{ placeholder: t('emoji_optional'), value: entry.emoji || '' },
 		],
 		onChange: (values: any) =>
 			onChange({

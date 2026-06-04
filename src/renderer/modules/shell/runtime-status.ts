@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import { LogEntry, RichPresencePayload } from '../../../types/types'
 
 const logsViewList = document.getElementById(
@@ -17,23 +18,23 @@ const STATUS_TEXT_MAP: Record<
 	{ title: string; second: string; value: string }
 > = {
 	IDLE: {
-		title: 'Idle',
-		second: 'Waiting to start',
+		title: t('idle'),
+		second: t('waitingToStart'),
 		value: '-',
 	},
 	CONNECTING: {
-		title: 'Idle',
-		second: 'Updating Discord status',
+		title: t('idle'),
+		second: t('updatingDiscordStatus'),
 		value: '-',
 	},
 	RESTARTING: {
-		title: 'Idle',
-		second: 'Custom status is restarting',
+		title: t('idle'),
+		second: t('customStatusRestarting'),
 		value: '-',
 	},
 	SEARCHING: {
-		title: 'Idle',
-		second: 'Looking for Discord process',
+		title: t('idle'),
+		second: t('lookingForDiscordProcess'),
 		value: '-',
 	},
 }
@@ -58,7 +59,19 @@ function updateExistingLogItem(
 		msgEl.appendChild(lineEl)
 	})
 
-	metaEl.textContent = `${level.toUpperCase()} · ${time}`
+	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
+	const isError = level === 'error' || isErrorText
+	const isSuccess = level === 'success'
+	const isWarn = level === 'warn'
+
+	const levelText = isError
+		? t('logLevelError')
+		: isSuccess
+			? t('logLevelSuccess')
+			: isWarn
+				? t('logLevelWarn')
+				: t('logLevelInfo')
+	metaEl.textContent = `${levelText} · ${time}`
 	return true
 }
 
@@ -81,11 +94,11 @@ export function appendLog(entry: LogEntry | string): void {
 		obj.error ||
 		(typeof entry === 'string' ? entry : JSON.stringify(entry))
 
-	const isDownloadProgress = rawText.startsWith('Downloading update…')
+	const isDownloadProgress = rawText.startsWith(`${t('updateDownloadingLog')}`)
 	const isCustomStatusError =
-		rawText.includes('Custom status apply error') ||
-		rawText.includes('Custom status API error') ||
-		rawText.includes('Custom status rate limit')
+		rawText.includes(`${t('customStatus.rateLimitLog')}`) ||
+		rawText.includes(`${t('customStatus.apiErrorLog')}`) ||
+		rawText.includes(`${t('customStatus.applyErrorLog')}`)
 
 	if (isDownloadProgress) {
 		const first = logsViewList.firstChild as HTMLElement | null
@@ -138,7 +151,14 @@ export function appendLog(entry: LogEntry | string): void {
 
 	const meta = document.createElement('div')
 	meta.className = 'log-item-meta'
-	meta.textContent = `${level.toUpperCase()} · ${time}`
+	const levelText = isError
+		? t('logLevelError')
+		: isSuccess
+			? t('logLevelSuccess')
+			: isWarn
+				? t('logLevelWarn')
+				: t('logLevelInfo')
+	meta.textContent = `${levelText} · ${time}`
 
 	body.appendChild(msg)
 	body.appendChild(meta)
@@ -158,7 +178,7 @@ export function appendLog(entry: LogEntry | string): void {
 
 	if (logsCounter) {
 		const count = logsViewList.children.length
-		logsCounter.textContent = count + ' entries'
+		logsCounter.textContent = count + t('entries')
 	}
 
 	const navLogs = document.getElementById('nav-logs') as HTMLElement | null
@@ -202,44 +222,44 @@ if (window.electronAPI?.onLogMessage) {
 function mapStatusToText(status: string): { chip: string; sub: string } {
 	switch (status) {
 		case 'RPC_DISABLED':
-			return { chip: 'IDLE', sub: 'Waiting to start' }
+			return { chip: t('idle'), sub: t('waitingToStart') }
 		case 'RPC_SEARCHING_DISCORD':
 			return {
-				chip: 'SEARCHING DISCORD PROCESS',
-				sub: 'Looking for Discord process',
+				chip: t('searchingDiscordProcess'),
+				sub: t('lookingForDiscordProcess'),
 			}
 		case 'RPC_CONNECTING':
-			return { chip: 'CONNECTING', sub: 'Attaching Rich Presence' }
+			return { chip: t('connecting'), sub: t('attachingRichPresence') }
 		case 'RPC_ACTIVE':
-			return { chip: 'ACTIVE', sub: 'Presence is broadcasting' }
+			return { chip: t('active'), sub: t('presenceIsBroadcasting') }
 		case 'RPC_RESTARTING':
-			return { chip: 'RESTARTING', sub: 'Restarting Rich Presence' }
+			return { chip: t('restarting'), sub: t('customStatusRestarting') }
 		case 'RPC_DISCONNECTED':
-			return { chip: 'DISCONNECTED', sub: 'Lost connection to Discord' }
+			return { chip: t('disconnected'), sub: t('lostConnectionToDiscord') }
 		case 'RPC_NO_CLIENT_ID':
-			return { chip: 'NO CLIENT', sub: 'Set ID, cycles, update' }
+			return { chip: t('noClient'), sub: t('noClientId') }
 		default:
-			return { chip: 'UNKNOWN', sub: status || '' }
+			return { chip: t('unknown'), sub: status || '' }
 	}
 }
 
 function mapStatusCustomToText(status: string): { chip: string; sub: string } {
 	switch (status) {
 		case 'CUSTOM_STATUS_DISABLED':
-			return { chip: 'IDLE', sub: 'Waiting to start' }
+			return { chip: t('idle'), sub: t('waitingToStart') }
 		case 'CUSTOM_STATUS_CONNECTING':
-			return { chip: 'CONNECTING', sub: 'Updating Discord status' }
+			return { chip: t('connecting'), sub: t('updatingDiscordStatus') }
 		case 'CUSTOM_STATUS_RESTART':
-			return { chip: 'RESTARTING', sub: 'Custom status is restarting' }
+			return { chip: t('restarting'), sub: t('customStatusRestarting') }
 		case 'CUSTOM_STATUS_READY':
-			return { chip: 'ACTIVE', sub: 'ACTIVE' }
+			return { chip: t('active'), sub: t('active') }
 		case 'CUSTOM_STATUS_SEARCHING_DISCORD':
 			return {
-				chip: 'SEARCHING DISCORD PROCESS',
-				sub: 'Looking for Discord process',
+				chip: t('searchingDiscordProcess'),
+				sub: t('lookingForDiscordProcess'),
 			}
 		default:
-			return { chip: 'UNKNOWN', sub: status || '' }
+			return { chip: t('unknown'), sub: status || '' }
 	}
 }
 
@@ -327,34 +347,34 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	}
 
 	if (!payload) {
-		title.textContent = 'Idle'
-		sub.textContent = 'Waiting for Discord'
+		title.textContent = t('idle')
+		sub.textContent = t('waitingForDiscord')
 		infoButtons.textContent = '–'
 		infoObject.textContent = '–'
 		infoDetails.textContent = '–'
-		infoStatus.textContent = 'Waiting to start'
-		metaObject.textContent = 'DETAILS: —'
-		metaButtons.textContent = 'BUTTONS: —'
+		infoStatus.textContent = t('waitingToStart')
+		metaObject.textContent = `${t('details')}: —`
+		metaButtons.textContent = `${t('buttons')}: —`
 		if (infoUptime) infoUptime.textContent = '–'
 		activityStartMs = null
 		stopUptimeTimer()
 		return
 	}
 
-	title.textContent = payload.details || 'Rich Presence'
+	title.textContent = payload.details || t('richPresence')
 	sub.textContent = payload.state || ''
 
 	const buttonsText =
 		payload.buttons && payload.buttons.length
-			? payload.buttons.map(b => b.label).join(' -  ')
-			: 'None'
+			? payload.buttons.map(b => b.label).join(' - ')
+			: t('none')
 
 	infoButtons.textContent = buttonsText
 	infoObject.textContent = payload.details || '–'
 	infoDetails.textContent = payload.state || '–'
-	infoStatus.textContent = 'Active'
-	metaObject.textContent = `DETAILS: ${payload.details || '—'}`
-	metaButtons.textContent = `BUTTONS: ${buttonsText}`
+	infoStatus.textContent = t('active')
+	metaObject.textContent = `${t('details')}: ${payload.details || '—'}`
+	metaButtons.textContent = `${t('buttons')}: ${buttonsText}`
 
 	if (!activityStartMs) {
 		activityStartMs = Date.now()
@@ -452,7 +472,7 @@ export function updateStatusText(text: string | null): void {
 		return
 	}
 
-	elTitleBlock.textContent = 'Status settings'
+	elTitleBlock.textContent = t('statusSettings')
 	elSecondBlock.textContent = value
 	el.textContent = value
 }

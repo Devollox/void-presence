@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { UploadConfigPayload } from './main/cloud'
+import { Language } from './main/translations'
 import {
 	ButtonPair,
 	CycleEntry,
@@ -139,4 +140,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	customStatusStop: () => ipcRenderer.invoke('custom-status:stop'),
 	setStatusEnabledBrowser: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-status-enabled-browser', enabled),
+	getLanguage: () => ipcRenderer.invoke('get-language'),
+	setLanguage: (lang: Language) => ipcRenderer.invoke('set-language', lang),
 })

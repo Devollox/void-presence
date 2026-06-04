@@ -4,6 +4,9 @@ const navMain = document.getElementById('nav-main') as HTMLElement | null
 const navLogs = document.getElementById('nav-logs') as HTMLElement | null
 const navConfig = document.getElementById('nav-config') as HTMLElement | null
 const navStatus = document.getElementById('nav-status') as HTMLElement | null
+const navSettings = document.getElementById(
+	'nav-settings',
+) as HTMLElement | null
 const views = document.querySelectorAll<HTMLElement>('.view')
 
 export function setActiveView(viewName: ViewName): void {
@@ -33,9 +36,17 @@ export function setActiveView(viewName: ViewName): void {
 			viewName === 'status' ? 'true' : 'false',
 		)
 	}
+
+	if (navSettings) {
+		navSettings.setAttribute(
+			'data-active',
+			viewName === 'settings' ? 'true' : 'false',
+		)
+	}
 }
 
 navMain?.addEventListener('click', () => setActiveView('main'))
 navLogs?.addEventListener('click', () => setActiveView('logs'))
 navConfig?.addEventListener('click', () => setActiveView('config'))
 navStatus?.addEventListener('click', () => setActiveView('status'))
+navSettings?.addEventListener('click', () => setActiveView('settings'))

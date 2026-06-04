@@ -13,6 +13,7 @@ import {
 	DiscordTokenConfig,
 	ImageCycle,
 	ImageCyclesConfig,
+	LanguageConfig,
 	NowMode,
 	PartyConfig,
 	PartyCycleEntry,
@@ -118,6 +119,10 @@ function getActivityTypeConfigPath() {
 
 function getSettingsPath() {
 	return getConfigPath('settings.json')
+}
+
+function getLanguageConfigPath(): string {
+	return getConfigPath('language.json')
 }
 
 const defaultClientConfig: ClientConfig = {
@@ -768,6 +773,7 @@ export async function setStatusIntervalConfig(sec: number | null) {
 }
 
 import { StatusCycleEntry } from '../types/types'
+import { Language } from './translations'
 
 const defaultStatusCyclesConfig = {
 	cycles: [] as StatusCycleEntry[],
@@ -845,4 +851,42 @@ export async function setStatusEnabledBrowser(enabled: boolean) {
 	const cfg = await readSettings()
 	cfg.statusEnabledBrowser = !!enabled
 	await writeSettings(cfg)
+}
+
+const defaultLanguageConfig: LanguageConfig = {
+	language: 'ru',
+}
+
+const validateLanguageConfig: Validator<LanguageConfig> = (
+	input,
+): LanguageConfig => {
+	const obj = (input ?? {}) as Partial<LanguageConfig>
+	const lang = obj.language
+	if (lang === 'ru' || lang === 'en' || lang === 'tr') {
+		return { language: lang }
+	}
+	return defaultLanguageConfig
+}
+
+export async function readLanguageConfig(): Promise<LanguageConfig> {
+	return readJsonWithSchema(
+		getLanguageConfigPath(),
+		validateLanguageConfig,
+		defaultLanguageConfig,
+	)
+}
+
+export async function writeLanguageConfig(
+	config: LanguageConfig,
+): Promise<void> {
+	await writeJsonSafe(getLanguageConfigPath(), validateLanguageConfig(config))
+}
+
+export async function getLanguage(): Promise<Language> {
+	const config = await readLanguageConfig()
+	return config.language
+}
+
+export async function setLanguage(lang: Language): Promise<void> {
+	await writeLanguageConfig({ language: lang })
 }

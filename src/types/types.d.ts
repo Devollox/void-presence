@@ -1,7 +1,7 @@
 export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
 export type TimestampMode = 'now' | 'range' | 'persist'
 export type NowMode = 'plain' | 'progress' | 'cycles'
-export type ViewName = 'main' | 'logs' | 'config' | 'status'
+export type ViewName = 'main' | 'logs' | 'config' | 'status' | 'settings'
 
 export interface CustomStatusItem {
 	text: string
@@ -261,6 +261,10 @@ export type UpdateInfo = {
 
 export type BarStyle = 'unicode' | 'cmd' | 'block' | 'soft' | 'retro' | 'cyber'
 
+export interface LanguageConfig {
+	language: Language
+}
+
 export interface Settings {
 	autoHideOnStart: boolean
 	musicFilter: boolean
@@ -308,6 +312,8 @@ export interface StoredStatusProfile {
 }
 
 export interface ElectronAPI {
+	getLanguage?: () => Promise<void>
+	setLanguage?: () => Promise<void>
 	onStatusPayload?: (handler: (text: string | null) => void) => void
 	setStatusEnabledBrowser?: (on: boolean) => Promise<void> | void
 	setRpcEnabled?: () => Promise<void>

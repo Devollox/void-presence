@@ -41,7 +41,7 @@
 							id="nav-main"
 						>
 							<div class="tab-indicator"></div>
-							<span>main</span>
+							<span data-i18n="tabs.main">main</span>
 						</button>
 						<button
 							class="tab-btn"
@@ -50,7 +50,7 @@
 							id="nav-status"
 						>
 							<div class="tab-indicator"></div>
-							<span>status</span>
+							<span data-i18n="tabs.status">status</span>
 						</button>
 						<button
 							class="tab-btn"
@@ -59,7 +59,7 @@
 							id="nav-logs"
 						>
 							<div class="tab-indicator"></div>
-							<span>logs</span>
+							<span data-i18n="tabs.logs">logs</span>
 						</button>
 						<button
 							class="tab-btn"
@@ -68,7 +68,16 @@
 							id="nav-config"
 						>
 							<div class="tab-indicator"></div>
-							<span>config</span>
+							<span data-i18n="tabs.config">config</span>
+						</button>
+						<button
+							class="tab-btn"
+							data-page="settings"
+							data-active="false"
+							id="nav-settings"
+						>
+							<div class="tab-indicator"></div>
+							<span data-i18n="tabs.settings">settings</span>
 						</button>
 					</div>
 				</div>
@@ -91,15 +100,22 @@
 								>
 									<div class="card-header tutorial-inline-header">
 										<div>
-											<div class="card-label">tutorial</div>
-											<div class="card-title">First‑time setup</div>
+											<div class="card-label" data-i18n="tutorial.title">
+												tutorial
+											</div>
+											<div
+												class="card-title"
+												data-i18n="tutorial.firstTimeSetup"
+											>
+												First‑time setup
+											</div>
 										</div>
 										<button
 											id="tutorial-inline-close"
 											class="tutorial-inline-close"
 											type="button"
 										>
-											skip
+											<span data-i18n="tutorial.skip">skip</span>
 										</button>
 									</div>
 
@@ -107,81 +123,158 @@
 
 									<div class="tutorial-inline-body">
 										<div class="tutorial-inline-col">
-											<div class="tutorial-inline-step-label">
+											<div
+												class="tutorial-inline-step-label"
+												data-i18n="tutorial.step1"
+											>
 												Step 1 — Discord Client ID
 											</div>
 											<ol class="tutorial-inline-list">
 												<li>
-													Open
+													<span data-i18n="tutorial.step1Li1Open">Open</span>
 													<span class="tutorial-code"
 														>https://discord.com/developers/applications</span
 													>.
 												</li>
-												<li>Create or select an existing application.</li>
+												<li data-i18n="tutorial.step1Li2">
+													Create or select an existing application.
+												</li>
 												<li>
-													Add an app icon
+													<span data-i18n="tutorial.step1Li3Add"
+														>Add an app icon</span
+													>
 													<span class="tutorial-strong">1024×1024</span>
-													(PNG / JPG / GIF / WEBP, up to 10 MB).
+													<span data-i18n="tutorial.step1Li3Format"
+														>(PNG / JPG / GIF / WEBP, up to 10 MB).</span
+													>
 												</li>
 												<li>
-													Copy the
-													<span class="tutorial-strong">Application ID</span>
-													from the overview page.
+													<span data-i18n="tutorial.step1Li4Copy"
+														>Copy the</span
+													>
+													<span
+														class="tutorial-strong"
+														data-i18n="tutorial.applicationId"
+														>Application ID</span
+													>
+													<span data-i18n="tutorial.step1Li4From"
+														>from the overview page.</span
+													>
 												</li>
 												<li>
-													Paste it into the
-													<span class="tutorial-strong">client id</span>
-													field above.
+													<span data-i18n="tutorial.step1Li5Paste"
+														>Paste it into the</span
+													>
+													<span
+														class="tutorial-strong"
+														data-i18n="activity.clientId"
+														>client id</span
+													>
+													<span data-i18n="tutorial.step1Li5Field"
+														>field above.</span
+													>
 												</li>
 											</ol>
 										</div>
 
 										<div class="tutorial-inline-col">
-											<div class="tutorial-inline-wrapper">
-												<div class="tutorial-inline-col">
-													<div class="tutorial-inline-step-label">
-														Step 2 — Start your presence
-													</div>
-													<ul class="tutorial-inline-list">
+											<div class="tutorial-inline-col">
+												<div
+													class="tutorial-inline-step-label"
+													data-i18n="tutorial.step2"
+												>
+													Step 2 — Start your presence
+												</div>
+												<ul class="tutorial-inline-list">
 													<li>
-														Click
-														<span class="tutorial-strong">Presence activity</span>
-														tumbler to enable RPC.
-														</li>
-														<li>
-															Set
-															<span class="tutorial-strong">update(sec)</span>
-															to how often presence should refresh.
-														</li>
-														<li>
-															Pick an
-															<span class="tutorial-strong">activity</span>
-															type: playing / watching / listening / competing.
-														</li>
-														<li>
-															Click
-															<span class="tutorial-strong"
-																>RESTART PRESENCE</span
-															>
-															to apply your settings.
-														</li>
-													</ul>
+														<span data-i18n="tutorial.step2Li1Click"
+															>Click</span
+														>
+														<span
+															class="tutorial-strong"
+															data-i18n="activity.presenceActivity"
+															>Presence activity</span
+														>
+														<span data-i18n="tutorial.step2Li1Tumbler"
+															>tumbler to enable RPC.</span
+														>
+													</li>
+													<li>
+														<span data-i18n="tutorial.step2Li2Set">Set</span>
+														<span
+															class="tutorial-strong"
+															data-i18n="activity.updateSec"
+															>update(sec)</span
+														>
+														<span data-i18n="tutorial.step2Li2To"
+															>to how often presence should refresh.</span
+														>
+													</li>
+													<li>
+														<span data-i18n="tutorial.step2Li3Pick"
+															>Pick an</span
+														>
+														<span
+															class="tutorial-strong"
+															data-i18n="activity.activity"
+															>activity</span
+														>
+														<span data-i18n="tutorial.step2Li3Type">type:</span>
+														<span data-i18n="activity.playing">playing</span> /
+														<span data-i18n="activity.watching">watching</span>
+														/
+														<span data-i18n="activity.listening"
+															>listening</span
+														>
+														/
+														<span data-i18n="activity.competing">competing</span
+														>.
+													</li>
+													<li>
+														<span data-i18n="tutorial.step2Li4Click"
+															>Click</span
+														>
+														<span
+															class="tutorial-strong"
+															data-i18n="activity.restartPresence"
+															>RESTART PRESENCE</span
+														>
+														<span data-i18n="tutorial.step2Li4ToApply"
+															>to apply your settings.</span
+														>
+													</li>
+												</ul>
+											</div>
+											<div class="tutorial-inline-col">
+												<div
+													class="tutorial-inline-step-label"
+													data-i18n="tutorial.step3"
+												>
+													Step 3 — Troubleshooting
 												</div>
-												<div class="tutorial-inline-col">
-													<div class="tutorial-inline-step-label">
-														Step 3 — Troubleshooting
-													</div>
-													<ul class="tutorial-inline-list">
-														<li>
-															If you see
-															<span class="tutorial-strong hint-warning"
-																>Connection closed</span
-															>, very long connecting, or frequent disconnects
-															in the log console, but Discord itself works fine,
-															try restarting Discord.
-														</li>
-													</ul>
-												</div>
+												<ul class="tutorial-inline-list">
+													<li>
+														<span data-i18n="tutorial.step3Li1If"
+															>If you see</span
+														>
+														<span
+															class="tutorial-strong hint-warning"
+															data-i18n="tutorial.connectionClosed"
+															>Connection closed</span
+														>,
+														<span data-i18n="tutorial.step3Li1VeryLong"
+															>very long connecting, or frequent disconnects
+															in</span
+														>
+														<span data-i18n="tutorial.step3Li1TheLog"
+															>the log console, but Discord itself works fine,
+															try</span
+														>
+														<span data-i18n="tutorial.step3Li1Restarting"
+															>restarting Discord.</span
+														>
+													</li>
+												</ul>
 											</div>
 										</div>
 									</div>
@@ -190,39 +283,61 @@
 											id="use-ready-id"
 											class="rpc-button tutorial-inline-btn"
 										>
-											Use Ready Client ID
+											<span data-i18n="tutorial.useReadyClientId"
+												>Use Ready Client ID</span
+											>
 										</button>
 										<button
 											id="tutorial-inline-open-dev"
 											class="rpc-button tutorial-inline-btn secondary"
 										>
-											Open Discord Developer Portal
+											<span data-i18n="tutorial.openDiscordPortal"
+												>Open Discord Developer Portal</span
+											>
 										</button>
 									</div>
 									<div class="tutorial-inline-wrapper btn-wrapper btn-show">
 										<button id="tutorial-inline-dont-show" class="add-btn">
-											<span>Do not show this tutorial again</span>
+											<span data-i18n="tutorial.dontShowAgain"
+												>Do not show this tutorial again</span
+											>
 										</button>
 									</div>
 								</div>
 
 								<div class="card">
 									<div class="card-header">
-										<div class="card-label">activity</div>
+										<div class="card-label" data-i18n="activity.title">
+											activity
+										</div>
 										<div class="card-title-block">
-											<div class="card-title" id="activity-title">
+											<div
+												class="card-title"
+												id="activity-title"
+												data-i18n="activity.title"
+											>
 												Main Menu
 											</div>
-											<div class="card-label" id="activity-sub">Idle</div>
+											<div
+												class="card-label"
+												id="activity-sub"
+												data-i18n="activity.idle"
+											>
+												Idle
+											</div>
 										</div>
 									</div>
 									<div class="client-row">
-										<span>rpc enabled</span>
+										<span data-i18n="activity.rpcEnabled">rpc enabled</span>
 										<div class="advanced-toggles-wrap">
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>Presence activity</span>
-													<div class="hint-text">enable rpc</div>
+													<span data-i18n="activity.presenceActivity"
+														>Presence activity</span
+													>
+													<div class="hint-text" data-i18n="activity.enableRpc">
+														enable rpc
+													</div>
 												</div>
 												<div
 													id="rpc-enabled-toggle"
@@ -235,7 +350,7 @@
 										</div>
 									</div>
 									<div class="client-row">
-										<span>client id</span>
+										<span data-i18n="activity.clientId">client id</span>
 										<input
 											id="client-id-input"
 											placeholder="APPLICATION ID"
@@ -244,19 +359,28 @@
 										/>
 									</div>
 									<div class="client-row">
-										<span>update(sec)</span>
+										<span data-i18n="activity.updateSec">update(sec)</span>
 										<input
 											id="update-interval-input"
 											placeholder="UPDATE ACTIVITY (SEC) MIN 5 SEC"
 										/>
 									</div>
 									<div id="advanced-interval-hint" class="client-row">
-										<span>rpc mode filter</span>
+										<span data-i18n="activity.rpcModeFilter"
+											>rpc mode filter</span
+										>
 										<div class="advanced-toggles-wrap">
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>Music filter</span>
-													<div class="hint-text">smart music detection</div>
+													<span data-i18n="activity.musicFilter"
+														>Music filter</span
+													>
+													<div
+														class="hint-text"
+														data-i18n="activity.smartMusicDetection"
+													>
+														smart music detection
+													</div>
 												</div>
 												<div
 													id="music-filter-toggle"
@@ -268,8 +392,15 @@
 											</div>
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>Video filter</span>
-													<div class="hint-text">smart video detection</div>
+													<span data-i18n="activity.videoFilter"
+														>Video filter</span
+													>
+													<div
+														class="hint-text"
+														data-i18n="activity.smartVideoDetection"
+													>
+														smart video detection
+													</div>
 												</div>
 												<div
 													id="video-filter-toggle"
@@ -280,13 +411,19 @@
 												</div>
 											</div>
 										</div>
-										<span>Automatic</span>
+										<span data-i18n="activity.automatic">Automatic</span>
 										<div class="advanced-toggles-wrap">
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>Automatic activity</span>
+													<span data-i18n="activity.automaticActivity"
+														>Automatic activity</span
+													>
 													<div class="hint-text">
-														we substitute the activity by type
+														<span
+															class="hint-text"
+															data-i18n="activity.weSubstituteActivity"
+															>we substitute the activity by type</span
+														>
 													</div>
 												</div>
 												<div
@@ -299,9 +436,15 @@
 											</div>
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>Fetch covers</span>
+													<span data-i18n="activity.fetchCovers"
+														>Fetch covers</span
+													>
 													<div class="hint-text">
-														use album art when available
+														<span
+															class="hint-text"
+															data-i18n="activity.useAlbumArt"
+															>use album art when available</span
+														>
 													</div>
 												</div>
 												<div
@@ -319,8 +462,15 @@
 										<div class="advanced-toggles-wrap">
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>Hardware filter</span>
-													<div class="hint-text">hardware detection</div>
+													<span data-i18n="activity.hardwareFilter"
+														>Hardware filter</span
+													>
+													<div
+														class="hint-text"
+														data-i18n="activity.hardwareDetection"
+													>
+														hardware detection
+													</div>
 												</div>
 												<div
 													id="hardware-filter-toggle"
@@ -332,20 +482,61 @@
 											</div>
 										</div>
 									</div>
-									<div class="client-row" id="bar-style-row" data-visible="false">
-										<span>bar style</span>
+									<div
+										class="client-row"
+										id="bar-style-row"
+										data-visible="false"
+									>
+										<span data-i18n="activity.barStyle">bar style</span>
 										<div class="timestamp-mode-wrap">
-											<button class="timestamp-mode-btn" data-bar-style="unicode" data-active="true">unicode</button>
-											<button class="timestamp-mode-btn" data-bar-style="cmd" data-active="false">cmd</button>
-											<button class="timestamp-mode-btn" data-bar-style="block" data-active="false">block</button>
-											<button class="timestamp-mode-btn" data-bar-style="soft" data-active="false">soft</button>
-											<button class="timestamp-mode-btn" data-bar-style="retro" data-active="false">retro</button>
-											<button class="timestamp-mode-btn" data-bar-style="cyber" data-active="false">cyber</button>
+											<button
+												class="timestamp-mode-btn"
+												data-bar-style="unicode"
+												data-active="true"
+												data-i18n="activity.plain"
+											>
+												unicode
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-bar-style="cmd"
+												data-active="false"
+											>
+												cmd
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-bar-style="block"
+												data-active="false"
+											>
+												block
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-bar-style="soft"
+												data-active="false"
+											>
+												soft
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-bar-style="retro"
+												data-active="false"
+											>
+												retro
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-bar-style="cyber"
+												data-active="false"
+											>
+												cyber
+											</button>
 										</div>
 									</div>
 
 									<div class="client-row">
-										<span>activity</span>
+										<span data-i18n="activity.activity">activity</span>
 										<div
 											class="timestamp-mode-wrap_activity"
 											id="activity-type-modes"
@@ -354,6 +545,7 @@
 												id="activity-type-playing"
 												class="timestamp-mode-btn"
 												data-active="true"
+												data-i18n="activity.playing"
 											>
 												playing
 											</button>
@@ -361,6 +553,7 @@
 												id="activity-type-watching"
 												class="timestamp-mode-btn"
 												data-active="false"
+												data-i18n="activity.watching"
 											>
 												watching
 											</button>
@@ -368,6 +561,7 @@
 												id="activity-type-listening"
 												class="timestamp-mode-btn"
 												data-active="false"
+												data-i18n="activity.listening"
 											>
 												listening
 											</button>
@@ -375,6 +569,7 @@
 												id="activity-type-competing"
 												class="timestamp-mode-btn"
 												data-active="false"
+												data-i18n="activity.competing"
 											>
 												competing
 											</button>
@@ -382,13 +577,14 @@
 									</div>
 
 									<div class="client-row">
-										<span>timestamp</span>
+										<span data-i18n="activity.timestamp">timestamp</span>
 										<div class="timestamp-mode-wrap">
 											<button
 												class="timestamp-mode-btn"
 												data-mode="now"
 												data-active="true"
 												id="timestamp-mode-now"
+												data-i18n="activity.now"
 											>
 												now
 											</button>
@@ -397,6 +593,7 @@
 												data-mode="range"
 												data-active="false"
 												id="timestamp-mode-range"
+												data-i18n="activity.range"
 											>
 												range
 											</button>
@@ -405,6 +602,7 @@
 												data-mode="persist"
 												data-active="false"
 												id="timestamp-mode-persist"
+												data-i18n="activity.persist"
 											>
 												persist
 											</button>
@@ -415,7 +613,7 @@
 										class="client-row timestamp-range-row"
 										data-visible="false"
 									>
-										<span>range(min)</span>
+										<span data-i18n="activity.rangeMin">range(min)</span>
 										<input
 											id="timestamp-range-min"
 											placeholder="Seconds ago (min)"
@@ -426,7 +624,7 @@
 										class="client-row timestamp-range-row"
 										data-visible="false"
 									>
-										<span>range(max)</span>
+										<span data-i18n="activity.rangeMax">range(max)</span>
 										<input
 											id="timestamp-range-max"
 											placeholder="Seconds ago (max)"
@@ -437,12 +635,13 @@
 										class="client-row timestamp-persist-row"
 										data-visible="false"
 									>
-										<span>persist</span>
+										<span data-i18n="activity.persist">persist</span>
 										<div class="timestamp-mode-wrap">
 											<button
 												type="button"
 												class="timestamp-mode-btn"
 												id="timestamp-persist-reset"
+												data-i18n="activity.persistReset"
 											>
 												reset saved timestamp
 											</button>
@@ -450,13 +649,14 @@
 									</div>
 
 									<div class="client-row now-mode-row" data-visible="true">
-										<span>now mode</span>
+										<span data-i18n="activity.nowMode">now mode</span>
 										<div class="timestamp-mode-wrap">
 											<button
 												type="button"
 												class="timestamp-mode-btn"
 												id="now-mode-plain"
 												data-active="true"
+												data-i18n="activity.plain"
 											>
 												plain
 											</button>
@@ -465,6 +665,7 @@
 												class="timestamp-mode-btn"
 												id="now-mode-progress"
 												data-active="false"
+												data-i18n="activity.progress"
 											>
 												progress
 											</button>
@@ -473,6 +674,7 @@
 												class="timestamp-mode-btn"
 												id="now-mode-cycles"
 												data-active="false"
+												data-i18n="activity.cycles"
 											>
 												cycles
 											</button>
@@ -488,8 +690,19 @@
 										class="list-header time-cycles-header"
 										data-visible="false"
 									>
-										<div class="list-header-label">time cycles</div>
-										<button id="add-time" class="add-btn">time</button>
+										<div
+											class="list-header-label"
+											data-i18n="activity.timeCycles"
+										>
+											time cycles
+										</div>
+										<button
+											id="add-time"
+											class="add-btn"
+											data-i18n="activity.addTime"
+										>
+											time
+										</button>
 									</div>
 									<div
 										id="time-list"
@@ -520,7 +733,9 @@
 													></path>
 													<path d="M3 3v5h5"></path>
 												</svg>
-												RESTART PRESENCE
+												<span data-i18n="activity.restartPresence"
+													>RESTART PRESENCE</span
+												>
 											</button>
 											<button
 												id="stop-discord"
@@ -546,17 +761,30 @@
 														rx="2"
 													></rect>
 												</svg>
-												STOP PRESENCE
+												<span data-i18n="activity.stopPresence"
+													>STOP PRESENCE</span
+												>
 											</button>
 										</div>
 									</div>
 									<div class="divider"></div>
 									<p class="hint-text">
-										The <span class="tutorial-strong">RESTART PRESENCE</span> button should be pressed only when
-										you change the Client ID or Update, in all other cases it is
-										not necessary.
+										<span data-i18n="activity.restartHint">The</span>
+										<span
+											class="tutorial-strong"
+											data-i18n="activity.restartPresence"
+											>RESTART PRESENCE</span
+										>
+										<span data-i18n="activity.restartHintButton"
+											>button should be pressed only when you change the Client
+											ID or Update, in all other cases it is not
+											necessary.</span
+										>
 									</p>
-									<p class="hint-text last-child">
+									<p
+										class="hint-text last-child"
+										data-i18n="activity.connectionHint"
+									>
 										If the connection is going on indefinitely, but the discord
 										is running, try restarting the discord.
 									</p>
@@ -565,9 +793,11 @@
 								<div class="main-grid-row">
 									<div class="card">
 										<div class="list-header">
-											<div class="list-header-label">Details & State</div>
+											<div class="list-header-label" data-i18n="details.title">
+												Details & State
+											</div>
 											<button id="add-cycle" class="add-btn">
-												<span>Add details &amp; state</span>
+												<span data-i18n="details.add">Add details & state</span>
 											</button>
 										</div>
 										<div class="divider"></div>
@@ -576,9 +806,11 @@
 
 									<div class="card">
 										<div class="list-header">
-											<div class="list-header-label">images</div>
+											<div class="list-header-label" data-i18n="images.title">
+												images
+											</div>
 											<button id="add-image" class="add-btn">
-												<span>Add image</span>
+												<span data-i18n="images.add">Add image</span>
 											</button>
 										</div>
 										<div class="divider"></div>
@@ -587,9 +819,11 @@
 
 									<div class="card">
 										<div class="list-header">
-											<div class="list-header-label">button pairs</div>
+											<div class="list-header-label" data-i18n="buttons.title">
+												button pairs
+											</div>
 											<button id="add-button-pair" class="add-btn">
-												Add button pair</span>
+												<span data-i18n="buttons.add">Add button pair</span>
 											</button>
 										</div>
 										<div class="divider"></div>
@@ -601,9 +835,11 @@
 
 									<div class="card">
 										<div class="list-header">
-											<div class="list-header-label">party size</div>
+											<div class="list-header-label" data-i18n="party.title">
+												party size
+											</div>
 											<button id="add-party" class="add-btn">
-												<span>Add party</span>
+												<span data-i18n="party.add">Add party</span>
 											</button>
 										</div>
 										<div class="divider"></div>
@@ -615,8 +851,13 @@
 									<div class="auto-row">
 										<div class="wrapper-auto-label">
 											<div class="auto-label">
-												<span>AUTO START</span>
-												<div class="hint-text">launch app with Windows</div>
+												<span data-i18n="settings.autoStart">AUTO START</span>
+												<div
+													class="hint-text"
+													data-i18n="settings.autoStartHint"
+												>
+													launch app with Windows
+												</div>
 											</div>
 											<div
 												id="auto-launch-toggle"
@@ -630,8 +871,13 @@
 										<div>
 											<div class="wrapper-auto-label">
 												<div class="auto-label">
-													<span>AUTO HIDE</span>
-													<div class="hint-text">minimize to tray on start</div>
+													<span data-i18n="settings.autoHide">AUTO HIDE</span>
+													<div
+														class="hint-text"
+														data-i18n="settings.autoHideHint"
+													>
+														minimize to tray on start
+													</div>
 												</div>
 												<div
 													id="auto-hide-toggle"
@@ -645,32 +891,52 @@
 									</div>
 									<div class="divider"></div>
 									<div class="auto-row meta-row">
-										<span id="meta-object">DETAILS: —</span>
-										<span id="meta-buttons">BUTTONS: —</span>
+										<span id="meta-object" data-i18n="activity.details"
+											>DETAILS: —</span
+										>
+										<span id="meta-buttons" data-i18n="activity.buttons"
+											>BUTTONS: —</span
+										>
 									</div>
 								</div>
 
 								<div class="payload">
-									<div class="payload-title">current payload</div>
+									<div class="payload-title" data-i18n="payload.title">
+										current payload
+									</div>
 									<div class="payload-grid">
-										<div class="payload-label">Buttons</div>
+										<div class="payload-label" data-i18n="payload.buttons">
+											Buttons
+										</div>
 										<div class="payload-value" id="info-buttons">–</div>
-										<div class="payload-label">DETAILS</div>
+										<div class="payload-label" data-i18n="payload.details">
+											DETAILS
+										</div>
 										<div class="payload-value" id="info-object">–</div>
-										<div class="payload-label">State</div>
+										<div class="payload-label" data-i18n="payload.state">
+											State
+										</div>
 										<div class="payload-value" id="info-details">–</div>
-										<div class="payload-label">Uptime</div>
+										<div class="payload-label" data-i18n="payload.uptime">
+											Uptime
+										</div>
 										<div class="payload-value" id="info-uptime">–</div>
 									</div>
 									<div class="payload-status" id="info-status">
-										Waiting for first update…
+										<span data-i18n="payload.waiting"
+											>Waiting for first update…</span
+										>
 									</div>
 								</div>
 							</div>
 						</div>
 					</section>
 
-					<section class="view content-scroll" data-view="status" data-active="false">
+					<section
+						class="view content-scroll"
+						data-view="status"
+						data-active="false"
+					>
 						<div class="top-bar">
 							<div class="status-chip-status">
 								<div class="status-dot-status"></div>
@@ -685,127 +951,249 @@
 						>
 							<div class="card-header tutorial-inline-header">
 								<div>
-									<div class="card-label">tutorial</div>
-									<div class="card-title">Custom status</div>
+									<div class="card-label" data-i18n="tutorial.title">
+										tutorial
+									</div>
+									<div class="card-title" data-i18n="status.tutorialTitle">
+										Custom status
+									</div>
 								</div>
 								<button
 									id="status-tutorial-close"
 									class="tutorial-inline-close"
 									type="button"
 								>
-									skip
+									<span data-i18n="tutorial.skip">skip</span>
 								</button>
 							</div>
 							<div class="tutorial-inline-header">
-								<p class="hint-text">
-									Use this feature with caution. It relies on a user token and behaves like a
-									third‑party client, which is against Discord's Terms of Service, so you use
-									it at your own risk.
+								<p class="hint-text" data-i18n="status.tutorialWarning1">
+									Use this feature with caution. It relies on a user token and
+									behaves like a third‑party client, which is against Discord's
+									Terms of Service, so you use it at your own risk.
 								</p>
-								<p class="hint-text">
-									We do not accept any responsibility for possible consequences, including
-									warnings or account restrictions, although we have not observed bans for
-									this specific use case so far.
+								<p class="hint-text" data-i18n="status.tutorialWarning2">
+									We do not accept any responsibility for possible consequences,
+									including warnings or account restrictions, although we have
+									not observed bans for this specific use case so far.
 								</p>
 								<p class="hint-text hint-warning">
-									<span class="gradient-text">Never share your Discord token with anyone!</span> Never show it to anyone, never send it to anyone, and never paste it anywhere except this field. Your token gives full access to your Discord account.
+									<span
+										class="gradient-text"
+										data-i18n="status.tutorialWarning3"
+										>Never share your Discord token with anyone!</span
+									>
+									<span data-i18n="status.tutorialWarning4"
+										>Never show it to anyone, never send it to anyone, and never
+										paste it anywhere except this field. Your token gives full
+										access to your Discord account.</span
+									>
 								</p>
 							</div>
 
-							<div class='divider'></div>
+							<div class="divider"></div>
 							<div class="tutorial-inline-body">
 								<div class="tutorial-inline-col">
-									<div class="tutorial-inline-step-label">
+									<div
+										class="tutorial-inline-step-label"
+										data-i18n="status.tutorialStep1"
+									>
 										Step 1 — Enable status and set up cycles
 									</div>
 									<ol class="tutorial-inline-list">
 										<li>
-											Toggle
-											<span class="tutorial-strong">Custom status</span>
-											to turn the worker on.
+											<span data-i18n="status.toggle">Toggle</span>
+											<span
+												class="tutorial-strong"
+												data-i18n="status.customStatus"
+												>Custom status</span
+											>
+											<span data-i18n="status.toTurnWorkerOn"
+												>to turn the worker on.</span
+											>
 										</li>
 										<li>
-											Set
-											<span class="tutorial-strong">Discord token</span>
-											in the field below.
+											<span data-i18n="status.set">Set</span>
+											<span
+												class="tutorial-strong"
+												data-i18n="status.discordToken"
+												>Discord token</span
+											>
+											<span data-i18n="status.inFieldBelow"
+												>in the field below.</span
+											>
 										</li>
 										<li>
-											Set
-											<span class="tutorial-strong">update(sec)</span>
-											— how often the status should change (minimum 5 seconds).
+											<span data-i18n="status.set">Set</span>
+											<span
+												class="tutorial-strong"
+												data-i18n="activity.updateSec"
+												>update(sec)</span
+											>
+											<span data-i18n="status.howOftenStatusChange"
+												>— how often the status should change (minimum 5
+												seconds).</span
+											>
 										</li>
 										<li>
-											Add one or more
-											<span class="tutorial-strong">status cycles</span>
-											with text and optional emoji.
+											<span data-i18n="status.addOneOrMore"
+												>Add one or more</span
+											>
+											<span
+												class="tutorial-strong"
+												data-i18n="status.statusCycles"
+												>status cycles</span
+											>
+											<span data-i18n="status.withTextAndEmoji"
+												>with text and optional emoji.</span
+											>
 										</li>
 									</ol>
 								</div>
 
-								<div class='tutorial-inline-wrapper'>
+								<div class="tutorial-inline-wrapper">
 									<div class="tutorial-inline-col">
-										<div class="tutorial-inline-step-label">
+										<div
+											class="tutorial-inline-step-label"
+											data-i18n="status.tutorialStep2"
+										>
 											Step 2 — Get Discord token
 										</div>
 										<ul class="tutorial-inline-list">
-											<li>
-												Open Discord in a desktop browser and log in to your account.
+											<li data-i18n="status.step2Li1">
+												Open Discord in a desktop browser and log in to your
+												account.
 											</li>
 											<li>
-												Open DevTools with
+												<span data-i18n="status.step2Li2Open"
+													>Open DevTools with</span
+												>
 												<span class="tutorial-strong">F12</span>
-												or
+												<span data-i18n="status.step2Li2Or">or</span>
 												<span class="tutorial-strong">Ctrl+Shift+I</span>.
 											</li>
 											<li>
-												Switch to the
-												<span class="tutorial-strong">Network</span>
-												tab and in the lower panel select the
-												<span class="tutorial-strong">science</span>
-												request.
+												<span data-i18n="status.step2Li3Switch"
+													>Switch to the</span
+												>
+												<span class="tutorial-strong" data-i18n="status.network"
+													>Network</span
+												>
+												<span data-i18n="status.step2Li3Tab"
+													>tab and in the lower panel select the</span
+												>
+												<span class="tutorial-strong" data-i18n="status.science"
+													>science</span
+												>
+												<span data-i18n="status.step2Li3Request">request.</span>
 											</li>
 											<li>
-												Inside the
-												<span class="tutorial-strong">science</span>
-												request, find the
-												<span class="tutorial-strong">authorization</span>
-												header and copy its full value.
+												<span data-i18n="status.step2Li4Inside"
+													>Inside the</span
+												>
+												<span class="tutorial-strong" data-i18n="status.science"
+													>science</span
+												>
+												<span data-i18n="status.step2Li4Request"
+													>request, find the</span
+												>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.authorization"
+													>authorization</span
+												>
+												<span data-i18n="status.step2Li4Header"
+													>header and copy its full value.</span
+												>
 											</li>
 											<li>
-												Paste the copied
-												<span class="tutorial-strong">user token</span>
-												into the
-												<span class="tutorial-strong">DISCORD TOKEN</span>
-												field below.
+												<span data-i18n="status.step2Li5Paste"
+													>Paste the copied</span
+												>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.userToken"
+													>user token</span
+												>
+												<span data-i18n="status.step2Li5Into">into the</span>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.discordToken"
+													>DISCORD TOKEN</span
+												>
+												<span data-i18n="status.step2Li5Field"
+													>field below.</span
+												>
 											</li>
 											<li>
-												Click
-												<span class="tutorial-strong">RESTART STATUS</span>
-												to restart the worker with the new token and cycles.
+												<span data-i18n="status.step2Li6Click">Click</span>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.restartStatus"
+													>RESTART STATUS</span
+												>
+												<span data-i18n="status.step2Li6ToRestart"
+													>to restart the worker with the new token and
+													cycles.</span
+												>
 											</li>
 										</ul>
 									</div>
 									<div class="tutorial-inline-col">
-										<div class="tutorial-inline-step-label">
+										<div
+											class="tutorial-inline-step-label"
+											data-i18n="status.tutorialStep3"
+										>
 											Step 3 — Important notes
 										</div>
 										<ul class="tutorial-inline-list">
 											<li>
-												We do not store your
-												<span class="tutorial-strong">Discord token</span>
-												on any server. It is used locally on your machine only.
+												<span data-i18n="status.step3Li1WeDoNot"
+													>We do not store your</span
+												>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.discordToken"
+													>Discord token</span
+												>
+												<span data-i18n="status.step3Li1OnAnyServer"
+													>on any server. It is used locally on your machine
+													only.</span
+												>
 											</li>
 											<li>
-												For most setups we recommend an update interval between
-												<span class="tutorial-strong">60 and 90 seconds</span>
-												to keep your status responsive without spamming Discord.
+												<span data-i18n="status.step3Li2ForMost"
+													>For most setups we recommend an update interval
+													between</span
+												>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.sixtyToNinety"
+													>60 and 90 seconds</span
+												>
+												<span data-i18n="status.step3Li2ToKeep"
+													>to keep your status responsive without spamming
+													Discord.</span
+												>
 											</li>
 											<li>
-												If your main RPC presence already updates every
-												<span class="tutorial-strong">5 seconds</span>,
-												it is not recommended to set the status interval
-												lower than
-												<span class="tutorial-strong hint-warning">60 seconds</span>.
+												<span data-i18n="status.step3Li3IfYour"
+													>If your main RPC presence already updates every</span
+												>
+												<span
+													class="tutorial-strong"
+													data-i18n="status.fiveSeconds"
+													>5 seconds</span
+												>,
+												<span data-i18n="status.step3Li3ItIsNot"
+													>it is not recommended to set the status interval
+													lower than</span
+												>
+												<span
+													class="tutorial-strong hint-warning"
+													data-i18n="status.sixtySeconds"
+													>60 seconds</span
+												>.
 											</li>
 										</ul>
 									</div>
@@ -816,30 +1204,50 @@
 									id="get-video-id"
 									class="rpc-button tutorial-inline-btn"
 								>
-									Open Video Guide
+									<span data-i18n="status.openVideoGuide"
+										>Open Video Guide</span
+									>
 								</button>
 								<button
 									id="get-video-error-id"
 									class="rpc-button tutorial-inline-btn"
 								>
-									If it doesn't open the console
+									<span data-i18n="status.ifItDoesntOpen"
+										>If it doesn't open the console</span
+									>
 								</button>
 							</div>
 							<div class="tutorial-inline-wrapper btn-wrapper btn-show">
-								<button id="status-tutorial-dont-show" class="add-btn" type="button">
-									<span>Do not show this status tutorial again</span>
+								<button
+									id="status-tutorial-dont-show"
+									class="add-btn"
+									type="button"
+								>
+									<span data-i18n="status.dontShowAgain"
+										>Do not show this status tutorial again</span
+									>
 								</button>
 							</div>
 						</div>
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-label">status</div>
+								<div class="card-label" data-i18n="status.statusEnabled">
+									status
+								</div>
 								<div class="card-title-block">
-									<div class="card-title" id="status-page-info-text-title-block">
+									<div
+										class="card-title"
+										id="status-page-info-text-title-block"
+										data-i18n="status.customStatus"
+									>
 										Status settings
 									</div>
-									<div class="card-label" id="status-page-info-text-second-block">
+									<div
+										class="card-label"
+										id="status-page-info-text-second-block"
+										data-i18n="status.customStatus"
+									>
 										custom status
 									</div>
 								</div>
@@ -848,12 +1256,14 @@
 							<div class="divider"></div>
 
 							<div class="client-row">
-								<span>status enabled</span>
+								<span data-i18n="status.statusEnabled">status enabled</span>
 								<div class="advanced-toggles-wrap">
 									<div class="wrapper-auto-label">
 										<div class="auto-label">
-											<span>Custom status</span>
-											<div class="hint-text">enable status</div>
+											<span data-i18n="status.customStatus">Custom status</span>
+											<div class="hint-text" data-i18n="status.enableStatus">
+												enable status
+											</div>
 										</div>
 										<div
 											id="status-custom-enabled-toggle"
@@ -863,21 +1273,23 @@
 											<div class="auto-toggle-knob"></div>
 										</div>
 									</div>
-<div class="auto-label">
-									<span>Browser mode</span>
-									<div class="hint-text">work in browser (no Discord.exe check)</div>
-								</div>
-								<div
-									id="status-custom-browser-toggle"
-									class="auto-toggle"
-									data-on="false"
-								>
-									<div class="auto-toggle-knob"></div>
-								</div>
+									<div class="auto-label">
+										<span data-i18n="status.browserMode">Browser mode</span>
+										<div class="hint-text" data-i18n="status.browserModeHint">
+											work in browser (no Discord.exe check)
+										</div>
+									</div>
+									<div
+										id="status-custom-browser-toggle"
+										class="auto-toggle"
+										data-on="false"
+									>
+										<div class="auto-toggle-knob"></div>
+									</div>
 								</div>
 							</div>
 							<div class="client-row">
-								<span>DISCORD TOKEN</span>
+								<span data-i18n="status.discordToken">DISCORD TOKEN</span>
 								<input
 									id="discord-token-input"
 									placeholder="Paste Discord token here"
@@ -889,14 +1301,16 @@
 							</div>
 
 							<div class="client-row">
-								<span>update(sec)</span>
+								<span data-i18n="activity.updateSec">update(sec)</span>
 								<input
 									id="status-update-interval-input"
 									placeholder="STATUS UPDATE (SEC) MIN 5 SEC"
 								/>
 							</div>
 							<p class="hint-text">
-								The recommended update frequency is 60-90 seconds.
+								<span data-i18n="status.recommendedFrequency"
+									>The recommended update frequency is 60-90 seconds.</span
+								>
 							</p>
 
 							<div class="divider"></div>
@@ -925,7 +1339,7 @@
 											></path>
 											<path d="M3 3v5h5"></path>
 										</svg>
-										RESTART STATUS
+										<span data-i18n="status.restartStatus">RESTART STATUS</span>
 									</button>
 									<button
 										id="custom-status-stop"
@@ -944,41 +1358,55 @@
 											stroke-linejoin="round"
 											class="rpc-button-icon-svg"
 										>
-											<rect
-												width="18"
-												height="18"
-												x="3"
-												y="3"
-												rx="2"
-											></rect>
+											<rect width="18" height="18" x="3" y="3" rx="2"></rect>
 										</svg>
-										STOP STATUS
+										<span data-i18n="status.stopStatus">STOP STATUS</span>
 									</button>
 								</div>
 							</div>
 							<div class="divider"></div>
-							<div class="list-header status-cycles-header" data-visible="false">
-								<div class="list-header-label">status cycles</div>
-								<button id="add-status" class="add-btn" type="button">status</button>
+							<div
+								class="list-header status-cycles-header"
+								data-visible="false"
+							>
+								<div class="list-header-label" data-i18n="status.statusCycles">
+									status cycles
+								</div>
+								<button
+									id="add-status"
+									class="add-btn"
+									type="button"
+									data-i18n="status.statusItem"
+								>
+									status
+								</button>
 							</div>
 							<div class="divider"></div>
 							<div id="status-list" data-visible="false"></div>
 							<div class="divider"></div>
 
 							<p class="hint-text">
-								Status filters are isolated from the main presence logic and use unique IDs
-								for separate handling.
+								<span data-i18n="status.hintFilters"
+									>Status filters are isolated from the main presence logic and
+									use unique IDs</span
+								>
 							</p>
 						</div>
 
 						<div class="status-payload">
-							<div class="payload-title">current payload</div>
+							<div class="payload-title" data-i18n="payload.title">
+								current payload
+							</div>
 							<div class="payload-grid">
-								<div class="payload-label">Status Text</div>
+								<div class="payload-label" data-i18n="status.statusText">
+									Status Text
+								</div>
 								<div class="payload-value" id="status-page-info-text">–</div>
 							</div>
 							<div class="payload-status" id="status-page-info-status">
-								Waiting for first update…
+								<span data-i18n="status.waiting"
+									>Waiting for first update…</span
+								>
 							</div>
 						</div>
 					</section>
@@ -987,13 +1415,19 @@
 						<div class="logs-view-wrapper">
 							<div class="logs-view-header">
 								<div class="card-header-config">
-									<div class="card-label">Logs</div>
+									<div class="card-label" data-i18n="logs.title">Logs</div>
 									<div class="card-title-block">
-										<div class="card-title">Session events</div>
-										<div class="card-label">Events history</div>
+										<div class="card-title" data-i18n="logs.subtitle">
+											Session events
+										</div>
+										<div class="card-label" data-i18n="logs.subtitle2">
+											Events history
+										</div>
 									</div>
 								</div>
-								<div class="logs-view-counter" id="logs-counter">0 entries</div>
+								<div class="logs-view-counter" id="logs-counter">
+									<span data-i18n="logs.entries">0 entries</span>
+								</div>
 							</div>
 							<div class="divider"></div>
 							<div id="logs-view-list" class="logs-view-list"></div>
@@ -1012,15 +1446,19 @@
 						>
 							<div class="card-header tutorial-inline-header">
 								<div>
-									<div class="card-label">tutorial</div>
-									<div class="card-title">Cloud profiles</div>
+									<div class="card-label" data-i18n="tutorial.title">
+										tutorial
+									</div>
+									<div class="card-title" data-i18n="config.tutorialTitle">
+										Cloud profiles
+									</div>
 								</div>
 								<button
 									id="cloud-tutorial-close"
 									class="tutorial-inline-close"
 									type="button"
 								>
-									skip
+									<span data-i18n="tutorial.skip">skip</span>
 								</button>
 							</div>
 
@@ -1028,65 +1466,117 @@
 
 							<div class="tutorial-inline-body">
 								<div class="tutorial-inline-col">
-									<div class="tutorial-inline-step-label">
+									<div
+										class="tutorial-inline-step-label"
+										data-i18n="config.step1"
+									>
 										Step 1 — Prepare your profile
 									</div>
 									<ol class="tutorial-inline-list">
-										<li>
+										<li data-i18n="config.step1Li1">
 											Set up your presence, details, images and buttons the way
 											you like.
 										</li>
 										<li>
-											Enter a short
-											<span class="tutorial-strong">config name</span>
-											in the field above.
+											<span data-i18n="config.step1Li2Enter"
+												>Enter a short</span
+											>
+											<span
+												class="tutorial-strong"
+												data-i18n="config.configName"
+												>config name</span
+											>
+											<span data-i18n="config.step1Li2InField"
+												>in the field above.</span
+											>
 										</li>
 										<li>
-											Optionally add your
-											<span class="tutorial-strong">author ID</span>
-											(from voidpresence.site/profile) to link the profile to
-											your account.
+											<span data-i18n="config.step1Li3Optionally"
+												>Optionally add your</span
+											>
+											<span class="tutorial-strong" data-i18n="config.authorId"
+												>author ID</span
+											>
+											<span data-i18n="config.step1Li3From"
+												>(from voidpresence.site/profile)</span
+											>
+											<span data-i18n="config.step1Li3ToLink"
+												>to link the profile to your account.</span
+											>
 										</li>
 										<li>
-											Click
-											<span class="tutorial-strong">save config</span>
-											to store this setup locally.
+											<span data-i18n="config.step1Li4Click">Click</span>
+											<span
+												class="tutorial-strong"
+												data-i18n="config.saveConfig"
+												>save config</span
+											>
+											<span data-i18n="config.step1Li4ToStore"
+												>to store this setup locally.</span
+											>
 										</li>
 									</ol>
 									<button
 										id="get-author-id"
 										class="rpc-button tutorial-inline-btn"
 									>
-										Open profile & get author ID
+										<span data-i18n="config.openProfile"
+											>Open profile & get author ID</span
+										>
 									</button>
 								</div>
 
 								<div class="tutorial-inline-col">
-									<div class="tutorial-inline-step-label">
+									<div
+										class="tutorial-inline-step-label"
+										data-i18n="config.step2"
+									>
 										Step 2 — Upload to cloud
 									</div>
 									<ul class="tutorial-inline-list">
 										<li>
-											Select the profile you want in
-											<span class="tutorial-strong">saved configs</span>.
+											<span data-i18n="config.step2Li1Select"
+												>Select the profile you want in</span
+											>
+											<span
+												class="tutorial-strong"
+												data-i18n="config.savedConfigs"
+												>saved configs</span
+											>.
 										</li>
 										<li>
-											Make sure
-											<span class="tutorial-strong">author ID</span>
-											is set for this profile.
+											<span data-i18n="config.step2Li2MakeSure">Make sure</span>
+											<span class="tutorial-strong" data-i18n="config.authorId"
+												>author ID</span
+											>
+											<span data-i18n="config.step2Li2IsSet"
+												>is set for this profile.</span
+											>
 										</li>
 										<li>
-											Click
-											<span class="tutorial-strong">upload</span>.
+											<span data-i18n="config.step2Li3Click">Click</span>
+											<span class="tutorial-strong" data-i18n="config.upload"
+												>upload</span
+											>.
 										</li>
 										<li>
-											Confirm in the
-											<span class="tutorial-strong">Upload config?</span>
-											dialog to overwrite the cloud copy.
+											<span data-i18n="config.step2Li4Confirm"
+												>Confirm in the</span
+											>
+											<span
+												class="tutorial-strong"
+												data-i18n="modal.uploadConfig"
+												>Upload config?</span
+											>
+											<span data-i18n="config.step2Li4Dialog"
+												>dialog to overwrite the cloud copy.</span
+											>
 										</li>
 									</ul>
 									<button id="cloud-tutorial-dont-show" class="add-btn">
-										<span>Do not show this cloud tutorial again</span>
+										<span data-i18n="config.dontShowAgain"
+											>Do not show this cloud tutorial again</span
+										>
 									</button>
 								</div>
 							</div>
@@ -1094,34 +1584,42 @@
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-label">config</div>
+								<div class="card-label" data-i18n="config.config">config</div>
 								<div class="card-title-block">
-									<div class="card-title">Profiles</div>
-									<div class="card-label">save / load presets</div>
+									<div class="card-title" data-i18n="config.title">
+										Profiles
+									</div>
+									<div class="card-label" data-i18n="config.subtitle">
+										save / load presets
+									</div>
 								</div>
 							</div>
 						</div>
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-title-label">Recent Apps</div>
+								<div class="card-title-label" data-i18n="config.recentApps">
+									Recent Apps
+								</div>
 							</div>
 							<div id="recent-list"></div>
 						</div>
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-title-label">Cloud Sync</div>
+								<div class="card-title-label" data-i18n="config.cloudSync">
+									Cloud Sync
+								</div>
 							</div>
 							<div class="client-row">
-								<span>author ID</span>
+								<span data-i18n="config.authorId">author ID</span>
 								<input
 									id="config-author-input"
-									placeholder="Get from voidpresence.site/profile"
+									data-i18n-placeholder="config.authorIdPlaceholder"
 								/>
 							</div>
 							<div class="client-row">
-								<span>name</span>
+								<span data-i18n="config.name">name</span>
 								<input
 									id="config-name-input-current"
 									placeholder="config name"
@@ -1149,22 +1647,27 @@
 										<polyline points="17 8 12 3 7 8"></polyline>
 										<line x1="12" y1="3" x2="12" y2="15"></line>
 									</svg>
-									Upload Current
+									<span data-i18n="config.uploadCurrent">Upload Current</span>
 								</button>
 							</div>
 
 							<p class="hint-text">
-								Upload will overwrite the remote copy of this profile in the
+								<span data-i18n="config.uploadHint"
+									>Upload will overwrite the remote copy of this profile in
+									the</span
+								>
 								cloud.
 							</p>
 						</div>
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-title-label">Saved configs</div>
+								<div class="card-title-label" data-i18n="config.savedConfigs">
+									Saved configs
+								</div>
 							</div>
 							<div class="client-row">
-								<span>search</span>
+								<span data-i18n="config.searchPlaceholder">search</span>
 								<input
 									id="config-search-input"
 									type="text"
@@ -1172,18 +1675,22 @@
 									class="config-search-input"
 								/>
 								<div class="config-save-btn">
-									<button id="config-export-btn">export</button>
+									<button id="config-export-btn" data-i18n="config.export">
+										export
+									</button>
 								</div>
 								<div class="config-save-btn">
-									<button id="config-add-btn">import</button>
+									<button id="config-add-btn" data-i18n="config.import">
+										import
+									</button>
 								</div>
 							</div>
 							<div class="client-row">
-								<span>name</span>
+								<span data-i18n="config.name">name</span>
 								<input id="config-name-input" placeholder="config name" />
 								<div class="config-save-btn">
 									<button type="button" id="config-save-btn">
-										save config
+										<span data-i18n="config.saveConfigBtn">save config</span>
 									</button>
 								</div>
 							</div>
@@ -1192,10 +1699,12 @@
 
 						<div class="card">
 							<div class="card-header">
-								<div class="card-title-label">Saved statuses</div>
+								<div class="card-title-label" data-i18n="config.savedStatuses">
+									Saved statuses
+								</div>
 							</div>
 							<div class="client-row">
-								<span>search</span>
+								<span data-i18n="config.searchStatusPlaceholder">search</span>
 								<input
 									id="status-search-input"
 									type="text"
@@ -1203,22 +1712,91 @@
 									class="config-search-input"
 								/>
 								<div class="config-save-btn">
-									<button id="status-export-btn">export</button>
+									<button id="status-export-btn" data-i18n="config.export">
+										export
+									</button>
 								</div>
 								<div class="config-save-btn">
-									<button id="status-import-btn">import</button>
-								</div>
-							</div>
-							<div class="client-row">
-								<span>name</span>
-								<input id="status-name-input" placeholder="status profile name" />
-								<div class="config-save-btn">
-									<button type="button" id="status-save-btn">
-										save status
+									<button id="status-import-btn" data-i18n="config.import">
+										import
 									</button>
 								</div>
 							</div>
-							<div id="status-list-config" class="divide-y divide-white/5"></div>
+							<div class="client-row">
+								<span data-i18n="config.name">name</span>
+								<input
+									id="status-name-input"
+									placeholder="status profile name"
+								/>
+								<div class="config-save-btn">
+									<button type="button" id="status-save-btn">
+										<span data-i18n="config.saveStatus">save status</span>
+									</button>
+								</div>
+							</div>
+							<div
+								id="status-list-config"
+								class="divide-y divide-white/5"
+							></div>
+						</div>
+					</section>
+
+					<section class="view" data-view="settings" data-active="false">
+						<div class="content-scroll wrapper">
+							<div class="main-content-block">
+								<div class="card">
+									<div class="card-header">
+										<div class="card-label" data-i18n="settingsPage.label">
+											settings
+										</div>
+										<div class="card-title-block">
+											<div class="card-title" data-i18n="settingsPage.title">
+												Void Settings
+											</div>
+											<div class="card-label" data-i18n="settingsPage.subtitle">
+												settings the void presence
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="card">
+									<div class="card-header">
+										<div
+											class="card-title-label"
+											data-i18n="settingsPage.settingsTitle"
+										>
+											Settings
+										</div>
+									</div>
+									<div class="client-row">
+										<span data-i18n="settingsPage.languageLabel">Language</span>
+										<div class="timestamp-mode-wrap">
+											<button
+												class="timestamp-mode-btn"
+												data-language="en"
+												data-active="false"
+											>
+												en
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-language="ru"
+												data-active="false"
+											>
+												ru
+											</button>
+											<button
+												class="timestamp-mode-btn"
+												data-language="tr"
+												data-active="false"
+											>
+												tr
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</section>
 				</main>
@@ -1249,13 +1827,18 @@
 								>
 									<path d="m15 18-6-6 6-6"></path>
 								</svg>
-								Back to profiles
+								<span data-i18n="modal.backToProfiles">Back to profiles</span>
 							</button>
 
 							<div class="card config-details-card">
 								<div class="card-header config-details-card-header">
 									<div>
-										<div class="card-label">Profile configuration</div>
+										<div
+											class="card-label"
+											data-i18n="modal.profileConfiguration"
+										>
+											Profile configuration
+										</div>
 										<div
 											class="card-title config-details-title"
 											id="config-details-name"
@@ -1267,8 +1850,11 @@
 
 								<div class="config-details-body">
 									<div>
-										<div class="config-details-section-label">
-											Details &amp; State
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.detailsState"
+										>
+											Details & State
 										</div>
 										<div
 											class="config-details-section-block"
@@ -1282,7 +1868,12 @@
 									</div>
 
 									<div>
-										<div class="config-details-section-label">Images</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.images"
+										>
+											Images
+										</div>
 										<div class="config-details-section-block">
 											<div
 												class="config-details-list"
@@ -1292,7 +1883,12 @@
 									</div>
 
 									<div>
-										<div class="config-details-section-label">Buttons</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.buttons"
+										>
+											Buttons
+										</div>
 										<div class="config-details-section-block">
 											<div
 												class="config-details-list"
@@ -1302,7 +1898,12 @@
 									</div>
 
 									<div>
-										<div class="config-details-section-label">Party</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.party"
+										>
+											Party
+										</div>
 										<div class="config-details-section-block">
 											<div
 												class="config-details-list"
@@ -1342,15 +1943,17 @@
 								>
 									<path d="m15 18-6-6 6-6"></path>
 								</svg>
-								Back to profiles
+								<span data-i18n="modal.backToProfiles">Back to profiles</span>
 							</button>
 
 							<div class="card config-details-card">
 								<div class="card-header config-details-card-header">
 									<div>
-										<div class="card-label">Cloud sync</div>
+										<div class="card-label" data-i18n="modal.cloudSync">
+											Cloud sync
+										</div>
 										<div class="card-title config-details-title">
-											Upload config?
+											<span data-i18n="modal.uploadConfig">Upload config?</span>
 										</div>
 									</div>
 								</div>
@@ -1359,7 +1962,12 @@
 
 								<div class="config-details-body">
 									<div class="config-details-section">
-										<div class="config-details-section-label">Profile</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.actions"
+										>
+											Profile
+										</div>
 										<div
 											class="config-details-list"
 											id="upload-confirm-profile-info"
@@ -1367,9 +1975,16 @@
 									</div>
 
 									<div class="config-details-section">
-										<div class="config-details-section-label">Actions</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.actions"
+										>
+											Actions
+										</div>
 										<button id="upload-confirm-ok" class="rpc-button">
-											confirm upload
+											<span data-i18n="modal.confirmUpload"
+												>confirm upload</span
+											>
 										</button>
 									</div>
 								</div>
@@ -1404,17 +2019,21 @@
 								>
 									<path d="m15 18-6-6 6-6"></path>
 								</svg>
-								Back to profiles
+								<span data-i18n="modal.backToProfiles">Back to profiles</span>
 							</button>
 							<div class="card config-details-card">
 								<div class="card-header config-details-card-header">
 									<div>
-										<div class="card-label">Update available</div>
+										<div class="card-label" data-i18n="modal.updateAvailable">
+											Update available
+										</div>
 										<div
 											class="card-title config-details-title"
 											id="update-title"
 										>
-											New version available
+											<span data-i18n="modal.updateAvailable"
+												>New version available</span
+											>
 										</div>
 									</div>
 								</div>
@@ -1423,12 +2042,22 @@
 
 								<div class="config-details-body">
 									<div class="config-details-section">
-										<div class="config-details-section-label">Version</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.version"
+										>
+											Version
+										</div>
 										<div class="config-details-list">
 											<div class="config-details-item">
 												<div class="config-details-item-main">
 													<div>
-														<div class="config-details-item-label">Current</div>
+														<div
+															class="config-details-item-label"
+															data-i18n="modal.current"
+														>
+															Current
+														</div>
 														<div
 															class="config-details-item-sub"
 															id="update-current-version"
@@ -1437,7 +2066,12 @@
 														</div>
 													</div>
 													<div>
-														<div class="config-details-item-label">Latest</div>
+														<div
+															class="config-details-item-label"
+															data-i18n="modal.latest"
+														>
+															Latest
+														</div>
 														<div
 															class="config-details-item-sub"
 															id="update-latest-version"
@@ -1447,7 +2081,10 @@
 													</div>
 												</div>
 												<div class="config-details-item-meta">
-													<span class="config-details-pill">
+													<span
+														class="config-details-pill"
+														data-i18n="modal.updatesInstallViaWindows"
+													>
 														Updates are installed via a Windows setup file.
 													</span>
 												</div>
@@ -1456,9 +2093,16 @@
 									</div>
 
 									<div class="config-details-section">
-										<div class="config-details-section-label">Actions</div>
+										<div
+											class="config-details-section-label"
+											data-i18n="modal.actions"
+										>
+											Actions
+										</div>
 										<button id="update-install-btn" class="rpc-button">
-											Install update and restart
+											<span data-i18n="modal.installUpdateAndRestart"
+												>Install update and restart</span
+											>
 										</button>
 									</div>
 
@@ -1469,7 +2113,12 @@
 									>
 										<div>
 											<div>
-												<div class="config-details-item-label">What’s new</div>
+												<div
+													class="config-details-item-label"
+													data-i18n="modal.whatIsNew"
+												>
+													What's new
+												</div>
 												<div
 													class="config-details-item-sub"
 													id="update-changelog"
@@ -1511,14 +2160,18 @@
 								>
 									<path d="m15 18-6-6 6-6"></path>
 								</svg>
-								Back to profiles
+								<span data-i18n="modal.backToProfiles">Back to profiles</span>
 							</button>
 							<div class="card config-details-card">
 								<div class="card-header config-details-card-header">
 									<div>
-										<div class="card-label">Import profile</div>
+										<div class="card-label" data-i18n="modal.importProfile">
+											Import profile
+										</div>
 										<div class="card-title config-details-title">
-											Drop a JSON file anywhere or choose it here
+											<span data-i18n="modal.dropJsonFile"
+												>Drop a JSON file anywhere or choose it here</span
+											>
 										</div>
 									</div>
 								</div>
@@ -1526,7 +2179,9 @@
 								<div class="divider"></div>
 
 								<div class="config-details-body import-body">
-									<div>Only button, cycles and image will be imported.</div>
+									<div data-i18n="modal.importHint">
+										Only button, cycles and image will be imported.
+									</div>
 									<div class="import-input-row">
 										<input
 											type="file"
@@ -1534,7 +2189,7 @@
 											accept="application/json,.json"
 										/>
 									</div>
-									<div class="import-hint">
+									<div class="import-hint" data-i18n="modal.dragAndDropHint">
 										You can also drag and drop a .json file onto the window;
 										dashed border will appear when ready to drop.
 									</div>
@@ -1545,8 +2200,6 @@
 				</main>
 			</div>
 		</div>
-
-
 
 		<div id="status-import-overlay" data-open="false">
 			<div class="config-details-modal">
@@ -1572,14 +2225,23 @@
 								>
 									<path d="m15 18-6-6 6-6"></path>
 								</svg>
-								Back to status profiles
+								<span data-i18n="modal.backToStatusProfiles"
+									>Back to status profiles</span
+								>
 							</button>
 							<div class="card config-details-card">
 								<div class="card-header config-details-card-header">
 									<div>
-										<div class="card-label">Import status profile</div>
+										<div
+											class="card-label"
+											data-i18n="modal.importStatusProfile"
+										>
+											Import status profile
+										</div>
 										<div class="card-title config-details-title">
-											Drop a JSON file anywhere or choose it here
+											<span data-i18n="modal.dropJsonFile"
+												>Drop a JSON file anywhere or choose it here</span
+											>
 										</div>
 									</div>
 								</div>
@@ -1587,7 +2249,9 @@
 								<div class="divider"></div>
 
 								<div class="config-details-body import-body">
-									<div>Only status items (text/emoji) will be imported.</div>
+									<div data-i18n="modal.importStatusHint">
+										Only status items (text/emoji) will be imported.
+									</div>
 									<div class="import-input-row">
 										<input
 											type="file"
@@ -1595,7 +2259,7 @@
 											accept="application/json,.json"
 										/>
 									</div>
-									<div class="import-hint">
+									<div class="import-hint" data-i18n="modal.dragAndDropHint">
 										You can also drag and drop a .json file onto the window;
 										dashed border will appear when ready to drop.
 									</div>
@@ -1631,12 +2295,19 @@
 								>
 									<path d="m15 18-6-6 6-6"></path>
 								</svg>
-								Back to status profiles
+								<span data-i18n="modal.backToStatusProfiles"
+									>Back to status profiles</span
+								>
 							</button>
 							<div class="card config-details-card">
 								<div class="card-header config-details-card-header">
 									<div>
-										<div class="card-label">Status profile details</div>
+										<div
+											class="card-label"
+											data-i18n="modal.statusProfileDetails"
+										>
+											Status profile details
+										</div>
 										<div
 											id="status-details-name"
 											class="card-title config-details-title"
@@ -1646,10 +2317,7 @@
 
 								<div class="divider"></div>
 
-								<div
-									id="status-details-list"
-									class="config-details-body"
-								></div>
+								<div id="status-details-list" class="config-details-body"></div>
 							</div>
 						</div>
 					</div>

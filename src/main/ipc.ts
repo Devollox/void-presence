@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import { Worker } from 'worker_threads'
@@ -27,6 +28,7 @@ import {
 } from '../types/types'
 import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
 import {
+	getLanguage,
 	normalizeStatuses,
 	readFiltersState,
 	readSettings,
@@ -36,6 +38,7 @@ import {
 	setActivityType,
 	setBarStyle,
 	setDiscordTokenConfig,
+	setLanguage,
 	setRpcEnabled,
 	setStatusCyclesConfig,
 	setStatusEnabledBrowser,
@@ -49,6 +52,8 @@ import {
 	sendStatusCustom,
 	sendStatusCustomPayload,
 } from './logging'
+import { t } from './translations'
+import { downloadFile, isPortable } from './updates'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
@@ -160,11 +165,11 @@ function startSmtcWorker() {
 	})
 
 	smtcWorker.on('error', err => {
-		console.error('SMTC worker error:', err)
+		sendLog(t('rpcError', { error: String(err) }), 'error')
 	})
 
 	smtcWorker.on('exit', code => {
-		console.error('SMTC worker exited with code', code)
+		sendLog(t('smtcWorkerExited', { code: String(code ?? 'null') }))
 		smtcWorker = null
 	})
 }
@@ -221,11 +226,11 @@ function startHardwareWorker() {
 	})
 
 	hardwareWorker.on('error', err => {
-		console.error('Hardware worker error:', err)
+		sendLog(t('hardwareWorkerError', { error: String(err) }), 'error')
 	})
 
 	hardwareWorker.on('exit', code => {
-		console.error('Hardware worker exited with code', code)
+		sendLog(t('hardwareWorkerExited', { code: String(code ?? 'null') }))
 		hardwareWorker = null
 	})
 }
@@ -328,7 +333,7 @@ export async function initIpc() {
 
 			return true
 		} catch (error) {
-			console.error('Restart failed:', error)
+			sendLog(t('rpcRestartFailed', { error: String(error) }), 'error')
 			sendStatus('RPC_ERROR')
 			return false
 		}
@@ -400,6 +405,75 @@ export async function initIpc() {
 		await setActivityInterval(sec)
 		await setActivityIntervalConfig(sec)
 		return true
+	})
+
+	ipcMain.on('install-update', async (_event, info: any) => {
+		try {
+			const portable = isPortable()
+			const version = info.latestTag.replace(/^v/i, '')
+
+			sendLog(t('updateInstallRequested', { tag: info.latestTag }))
+
+			if (!info.downloadUrl) {
+				sendLog(t('updateInstallFailedNoUrl'))
+				return
+			}
+
+			const { filePath } = await downloadFile(info.downloadUrl, version)
+
+			if (portable) {
+				const installDir = path.dirname(process.execPath)
+				const exeName = path.basename(process.execPath)
+				const newExePath = path.join(installDir, exeName)
+
+				sendLog(
+					t('updateLaunchingPortableInstaller', {
+						dir: installDir,
+						fileName: path.basename(filePath),
+					}),
+				)
+
+				const child = spawn(filePath, ['/S', `/D=${installDir}`])
+
+				child.on('close', code => {
+					sendLog(t('updateInstallerExited', { code: String(code ?? 'null') }))
+
+					try {
+						const restarted = spawn(newExePath, [], {
+							detached: true,
+							stdio: 'ignore',
+						})
+						restarted.unref()
+						sendLog(t('updateRestartedAfterPortable'))
+					} catch (e: any) {
+						sendLog(
+							t('updateFailedToRestart', { error: e?.message || String(e) }),
+							'error',
+						)
+					}
+
+					app.quit()
+				})
+			} else {
+				sendLog(
+					t('updateLaunchingInstaller', { fileName: path.basename(filePath) }),
+				)
+
+				const child = spawn(filePath, [], {
+					detached: true,
+					stdio: 'ignore',
+				})
+
+				child.unref()
+				app.quit()
+			}
+		} catch (e: any) {
+			sendLog(
+				t('updateInstallFailed', { error: e?.message || String(e) }),
+				'error',
+			)
+			console.error('install-update error:', e)
+		}
 	})
 
 	ipcMain.handle(
@@ -608,7 +682,7 @@ export async function initIpc() {
 		try {
 			await shell.openExternal('https://voidpresence.site/profile')
 		} catch (error) {
-			console.error('Failed to open browser:', error)
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
 	})
 
@@ -616,7 +690,7 @@ export async function initIpc() {
 		try {
 			await shell.openExternal('https://discord.com/developers/applications')
 		} catch (error) {
-			console.error('Failed to open browser:', error)
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
 	})
 
@@ -624,7 +698,7 @@ export async function initIpc() {
 		try {
 			await shell.openExternal('https://www.youtube.com/watch?v=GUqSNoJ28aU')
 		} catch (error) {
-			console.error('Failed to open browser:', error)
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
 	})
 
@@ -634,7 +708,7 @@ export async function initIpc() {
 				'https://www.reddit.com/r/discordapp/comments/sc61n3/comment/hu4fw5x/',
 			)
 		} catch (error) {
-			console.error('Failed to open browser:', error)
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
 	})
 
@@ -722,7 +796,7 @@ export async function initIpc() {
 			})
 		}, 2000)
 
-		sendLog(`Used ready Client ID: ${readyId}`)
+		sendLog(t('usedReadyClientId', { clientId: readyId }))
 		return true
 	})
 
@@ -748,7 +822,7 @@ export async function initIpc() {
 			})
 		}, 2000)
 
-		sendLog(`Used recent Client ID: ${clientId}`)
+		sendLog(t('usedRecentClientId', { clientId }))
 		return true
 	})
 
@@ -776,6 +850,24 @@ export async function initIpc() {
 			return true
 		},
 	)
+
+	ipcMain.handle('get-language', async () => {
+		return await getLanguage()
+	})
+
+	ipcMain.handle('set-language', async (_event, lang: string) => {
+		if (lang === 'ru' || lang === 'en' || lang === 'tr') {
+			await setLanguage(lang)
+
+			BrowserWindow.getAllWindows().forEach(win => {
+				if (!win.isDestroyed()) {
+					win.webContents.send('language-changed', lang)
+				}
+			})
+			return lang
+		}
+		return await getLanguage()
+	})
 
 	ipcMain.handle('settings:set-rpc-enabled', async (_e, enabled: boolean) => {
 		await setRpcEnabled(enabled)
