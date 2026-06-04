@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { readSettings, writeSettings } from './config'
 import { sendLog } from './logging'
+import { t } from './translations'
 
 type UpdateInfo = {
 	latestTag: string
@@ -29,7 +30,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		const changelogMd: string = (data.body || '').trim()
 
 		if (latest === current) {
-			sendLog(`Void Presence v${current}`)
+			sendLog(t('currentVersion', { version: current }))
 			return null
 		}
 
@@ -51,10 +52,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 			lastNotified === latestTag && lastNotifiedFor === current
 
 		if (log) {
-			sendLog(
-				`New version ${latestTag} available! (current: v${current}). Click the tray icon to install the update.`,
-				'warn',
-			)
+			sendLog(t('updateAvailable', { tag: latestTag, current }), 'warn')
 		}
 
 		if (!alreadyNotified) {
@@ -72,7 +70,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 
 		return info
 	} catch (e: any) {
-		sendLog(`Update failed: ${e?.message || String(e)}`)
+		sendLog(t('updateCheckFailed', { error: e?.message || String(e) }))
 		return null
 	}
 }
@@ -95,11 +93,11 @@ export async function downloadFile(
 	const fileName = `Void.Presence.Setup.${version}.exe`
 	const filePath = path.join(app.getPath('temp'), fileName)
 
-	sendLog(`Downloading updater: ${fileName}...`)
+	sendLog(t('updateDownloadStarted', { fileName }))
 
 	const response = await fetch(url)
 	if (!response.ok) {
-		throw new Error(`HTTP ${response.status}`)
+		throw new Error(t('updateHttpError', { status: String(response.status) }))
 	}
 
 	const file = fs.createWriteStream(filePath)
@@ -108,7 +106,7 @@ export async function downloadFile(
 	let downloaded = 0
 
 	if (!reader) {
-		throw new Error('Failed to get reader from response body')
+		throw new Error(t('updateFailedReader'))
 	}
 
 	while (true) {
@@ -121,7 +119,9 @@ export async function downloadFile(
 		if (total) {
 			const mb = Math.round(downloaded / 1024 / 1024)
 			const percent = Math.round((downloaded / total) * 100)
-			sendLog(`Downloading update… ${mb}MB (${percent}%)`)
+			sendLog(
+				t('updateDownloading', { mb: String(mb), percent: String(percent) }),
+			)
 		}
 	}
 
@@ -131,10 +131,14 @@ export async function downloadFile(
 			fs.stat(filePath, (err, stats) => {
 				if (err || stats.size < 50 * 1024 * 1024) {
 					if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
-					reject(new Error(`Invalid EXE: ${stats?.size || 0} bytes`))
+					reject(
+						new Error(
+							t('updateInvalidExe', { size: String(stats?.size || 0) }),
+						),
+					)
 				} else {
 					const mb = Math.round(stats.size / 1024 / 1024)
-					sendLog(`Downloaded ${mb}MB`)
+					sendLog(t('updateDownloaded', { mb: String(mb) }))
 					resolve({ filePath })
 				}
 			})

@@ -1,4 +1,5 @@
 import { exec } from 'child_process'
+import { CustomStatusItem, StatusStateResult } from 'src/types/types'
 import {
 	readDiscordTokenConfig,
 	readFiltersState,
@@ -11,16 +12,7 @@ import {
 	sendStatusCustom,
 	sendStatusCustomPayload,
 } from '../../main/logging'
-
-interface CustomStatusItem {
-	text: string
-	emoji: string | null
-}
-
-interface StatusStateResult {
-	enabled: boolean
-	enabledBrowser: boolean
-}
+import { t } from '../../main/translations'
 
 const DISCORD_API_URL = 'https://discord.com/api/v10/users/@me/settings'
 const processName = 'Discord.exe'
@@ -109,7 +101,10 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 		}
 	} catch (e: any) {
 		if (sendLog)
-			sendLog('Custom status read error: ' + (e?.message || String(e)), 'error')
+			sendLog(
+				t('customStatus.readError', { error: e?.message || String(e) }),
+				'error',
+			)
 		currentStatuses = DEFAULT_STATUSES
 		activityIntervalMs = 5000
 		return { enabled: false, enabledBrowser: false }
@@ -121,7 +116,7 @@ async function applyCustomStatus(
 	token: string | null,
 ): Promise<{ ok: boolean; retryAfter?: number }> {
 	if (!token || !token.trim()) {
-		if (sendLog) sendLog('Custom status: no Discord token set', 'warn')
+		if (sendLog) sendLog(t('customStatus.noDiscordToken'), 'warn')
 		return { ok: false }
 	}
 
@@ -169,10 +164,10 @@ async function applyCustomStatus(
 				const retryAfter = errData?.retry_after ?? 10
 				if (sendLog)
 					sendLog(
-						`Custom status rate limit. Retry after: ${retryAfter}s`,
+						t('customStatus.rateLimit', { retry: String(retryAfter) }),
 						'warn',
 					)
-				return { ok: false, retryAfter }
+				return { ok: false, retryAfter: retryAfter + 1 }
 			} else {
 				const errData = await response.json()
 				lastError = errData
@@ -181,8 +176,10 @@ async function applyCustomStatus(
 				}
 				if (sendLog)
 					sendLog(
-						`Custom status API error (${response.status}): ` +
-							JSON.stringify(errData),
+						t('customStatus.apiError', {
+							status: String(response.status),
+							error: JSON.stringify(errData),
+						}),
 						'error',
 					)
 				return { ok: false }
@@ -194,7 +191,7 @@ async function applyCustomStatus(
 			}
 			if (sendLog)
 				sendLog(
-					'Custom status apply error: ' + (e?.message || String(e)),
+					t('customStatus.applyError', { error: e?.message || String(e) }),
 					'error',
 				)
 			return { ok: false }
@@ -203,8 +200,10 @@ async function applyCustomStatus(
 
 	if (sendLog)
 		sendLog(
-			'Custom status apply error: ' +
-				(lastError?.message || JSON.stringify(lastError) || 'unknown error'),
+			t('customStatus.applyError', {
+				error:
+					lastError?.message || JSON.stringify(lastError) || 'unknown error',
+			}),
 			'error',
 		)
 	return { ok: false }
@@ -270,8 +269,9 @@ export default function startCustomStatusWorker(): void {
 			if (err) {
 				if (sendLog)
 					sendLog(
-						'Custom status: Discord process check error: ' +
-							(err.message || String(err)),
+						t('customStatus.processCheckError', {
+							error: err.message || String(err),
+						}),
 						'warn',
 					)
 				setTimeout(findAndRestartProcess, 5000)
@@ -334,7 +334,7 @@ export default function startCustomStatusWorker(): void {
 				hasLoggedReadyOnce = false
 				enabledBrowser = false
 
-				scheduleNext(activityIntervalMs)
+				stopCustomStatusWorker()
 				return
 			}
 
@@ -346,7 +346,7 @@ export default function startCustomStatusWorker(): void {
 				if (sendStatusCustom) {
 					sendStatusCustom('CUSTOM_STATUS_DISABLED')
 					sendStatusCustomPayload('IDLE')
-					if (sendLog) sendLog('Custom status: no Discord token set', 'warn')
+					if (sendLog) sendLog(t('customStatus.noDiscordToken'), 'warn')
 				}
 
 				currentIndex = 0
@@ -355,7 +355,7 @@ export default function startCustomStatusWorker(): void {
 				hasLoggedReadyOnce = false
 				enabledBrowser = false
 
-				scheduleNext(activityIntervalMs)
+				stopCustomStatusWorker()
 				return
 			}
 
@@ -371,7 +371,7 @@ export default function startCustomStatusWorker(): void {
 				}
 
 				if (!hasLoggedReadyOnce && sendLog) {
-					sendLog('Custom status ready', 'success')
+					sendLog(t('customStatus.ready'), 'success')
 					hasLoggedReadyOnce = true
 				}
 
@@ -387,7 +387,7 @@ export default function startCustomStatusWorker(): void {
 				scheduleNext(activityIntervalMs)
 			} else {
 				const waitMs = result.retryAfter
-					? result.retryAfter * 1000
+					? result.retryAfter * 1000 + 500
 					: activityIntervalMs
 
 				if (!hasEverBeenReady) {
@@ -403,7 +403,7 @@ export default function startCustomStatusWorker(): void {
 		} catch (e: any) {
 			if (sendLog)
 				sendLog(
-					'Custom status loop error: ' + (e?.message || String(e)),
+					t('customStatus.loopError', { error: e?.message || String(e) }),
 					'error',
 				)
 			if (sendStatusCustom) {
@@ -453,7 +453,7 @@ export default function startCustomStatusWorker(): void {
 			enabledBrowser = false
 			if (sendLog)
 				sendLog(
-					'custom status init error: ' + (e?.message || String(e)),
+					t('customStatus.initError', { error: e?.message || String(e) }),
 					'error',
 				)
 			if (sendStatusCustom) {

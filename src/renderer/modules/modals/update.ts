@@ -1,5 +1,6 @@
 import { marked } from 'marked'
 import type { UpdateInfo } from 'src/types/types'
+import { tNative as t } from '../shell/language'
 import { setActiveView } from '../shell/views-nav'
 
 let pendingUpdate: UpdateInfo | null = null
@@ -39,12 +40,18 @@ async function openUpdateOverlay(info: UpdateInfo) {
 
 	const titleText =
 		info.latestTag && info.currentVersion
-			? `New version ${info.latestTag} available`
-			: 'New version available'
+			? t('updateOverlay.newVersionAvailable', { tag: info.latestTag })
+			: t('updateOverlay.newVersionAvailableAlt')
 
 	setText('update-title', titleText)
-	setText('update-current-version', `v${info.currentVersion}` || '–')
-	setText('update-latest-version', info.latestTag || '–')
+	setText(
+		'update-current-version',
+		`${t('updateOverlay.currentVersion')}: v${info.currentVersion}` || '–',
+	)
+	setText(
+		'update-latest-version',
+		`${t('updateOverlay.latestVersion')}: ${info.latestTag || '–'}`,
+	)
 
 	const hasChangelog = !!info.changelogMd && info.changelogMd.trim().length > 0
 
@@ -54,7 +61,7 @@ async function openUpdateOverlay(info: UpdateInfo) {
 		setHtml('update-changelog', html)
 	} else {
 		setDataAttr('update-changelog-block', 'visible', 'false')
-		setText('update-changelog', '–')
+		setText('update-changelog', t('updateOverlay.noChangelog'))
 	}
 
 	overlay.dataset.open = 'true'
@@ -85,18 +92,21 @@ function bindUpdateOverlayControls() {
 	) as HTMLButtonElement | null
 
 	if (closeBtn) {
+		closeBtn.textContent = t('updateOverlay.close')
 		closeBtn.addEventListener('click', () => {
 			hideUpdateOverlay()
 		})
 	}
 
 	if (laterBtn) {
+		laterBtn.textContent = t('updateOverlay.later')
 		laterBtn.addEventListener('click', () => {
 			hideUpdateOverlay()
 		})
 	}
 
 	if (installBtn) {
+		installBtn.textContent = t('updateOverlay.install')
 		installBtn.addEventListener('click', () => {
 			if (
 				!window.electronAPI ||
@@ -107,6 +117,8 @@ function bindUpdateOverlayControls() {
 			if (!pendingUpdate || !pendingUpdate.downloadUrl) {
 				return
 			}
+			installBtn.textContent = t('updateOverlay.installing')
+			installBtn.disabled = true
 			window.electronAPI.installUpdate(pendingUpdate)
 			hideUpdateOverlay()
 

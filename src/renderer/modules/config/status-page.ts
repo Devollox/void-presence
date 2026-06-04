@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import {
 	CustomStatusItem,
 	FullState,
@@ -73,19 +74,19 @@ function createStatusCard(
 
 	const loadBtn = document.createElement('button')
 	loadBtn.className = 'config-activity-btn'
-	loadBtn.textContent = 'load'
+	loadBtn.textContent = t('load')
 
 	const detailsBtn = document.createElement('button')
 	detailsBtn.className = 'config-activity-btn'
-	detailsBtn.textContent = 'details'
+	detailsBtn.textContent = t('details')
 
 	const exportBtn = document.createElement('button')
 	exportBtn.className = 'config-activity-btn'
-	exportBtn.textContent = 'export'
+	exportBtn.textContent = t('export')
 
 	const delBtn = document.createElement('button')
 	delBtn.className = 'config-activity-btn danger'
-	delBtn.textContent = '✕'
+	delBtn.textContent = t('deleteBtn')
 
 	loadBtn.addEventListener('click', async e => {
 		e.preventDefault()

@@ -562,6 +562,14 @@ input {
 	letter-spacing: 0.2em;
 }
 
+body.lang-ru .client-row span {
+	width: 110px;
+}
+
+body.lang-tr .client-row span {
+	width: 130px;
+}
+
 .client-row input {
 	flex: 1;
 	height: 34px;

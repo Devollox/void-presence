@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import {
 	ActivityType,
 	CycleEntry,
@@ -142,19 +143,19 @@ function createConfigCard(
 
 	const loadBtn = document.createElement('button')
 	loadBtn.className = 'config-activity-btn'
-	loadBtn.textContent = 'load'
+	loadBtn.textContent = t('load')
 
 	const uploadCloudBtn = document.createElement('button')
 	uploadCloudBtn.className = 'config-activity-btn'
-	uploadCloudBtn.textContent = 'upload'
+	uploadCloudBtn.textContent = t('upload')
 
 	const detailsBtn = document.createElement('button')
 	detailsBtn.className = 'config-activity-btn'
-	detailsBtn.textContent = 'details'
+	detailsBtn.textContent = t('details')
 
 	const exportBtnCfg = document.createElement('button')
 	exportBtnCfg.className = 'config-activity-btn'
-	exportBtnCfg.textContent = 'export'
+	exportBtnCfg.textContent = t('export')
 
 	const delBtn = document.createElement('button')
 	delBtn.className = 'config-activity-btn danger'

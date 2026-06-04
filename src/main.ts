@@ -1,8 +1,10 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { decodeEnv } from './main/cloud'
-import { readSettings } from './main/config'
+import { getLanguage, readSettings } from './main/config'
 import { getAutoHide, initIpc } from './main/ipc'
+import { sendLog } from './main/logging'
+import { setMainLanguage, t } from './main/translations'
 import { createTray } from './main/tray'
 import { checkForUpdates } from './main/updates'
 import { createMainWindow } from './main/window'
@@ -103,6 +105,9 @@ if (!gotTheLock) {
 		const initialSettings = await readSettings()
 		const autoHideOnStart = !!initialSettings.autoHideOnStart
 
+		const lang = await getLanguage()
+		setMainLanguage(lang)
+
 		mainWindow = createMainWindow(autoHideOnStart, () => isQuitting)
 		initIpc()
 
@@ -121,6 +126,7 @@ if (!gotTheLock) {
 		)
 		if (mainWindow) {
 			mainWindow.webContents.once('did-finish-load', () => {
+				if (sendLog) sendLog(t('supportDiscord'), 'info')
 				checkForUpdates({ log: true })
 
 				if (pendingUrl) {
@@ -129,6 +135,7 @@ if (!gotTheLock) {
 				}
 			})
 		} else {
+			if (sendLog) sendLog(t('supportDiscord'), 'info')
 			checkForUpdates({ log: true })
 		}
 	})
