@@ -76,6 +76,16 @@ export const mainTranslations: Record<Language, TranslationDict> = {
 		small_hover_text_optional: 'Текст при наведении на малое (необязательно)',
 		text: 'Текст',
 		emoji_optional: 'Эмодзи (необязательно)',
+		updateInstallRequested: 'Запрос на установку обновления: {tag}',
+		updateInstallFailedNoUrl: 'Установка обновления не удалась: нет URL',
+		updateLaunchingPortableInstaller:
+			'Запуск тихого установщика в {dir}: {fileName}',
+		updateInstallerExited: 'Установщик завершён с кодом {code}',
+		updateRestartedAfterPortable: 'Void Presence перезапущен после обновления',
+		updateFailedToRestart:
+			'Не удалось перезапуститься после обновления: {error}',
+		updateLaunchingInstaller: 'Запуск установщика: {fileName}',
+		updateInstallFailed: 'Установка обновления не удалась: {error}',
 	},
 	en: {
 		'customStatus.ready': 'Custom status ready',
@@ -142,6 +152,16 @@ export const mainTranslations: Record<Language, TranslationDict> = {
 		small_hover_text_optional: 'Small hover text (optional)',
 		text: 'Text',
 		emoji_optional: 'Emoji (optional)',
+		updateInstallRequested: 'Install update requested: {tag}',
+		updateInstallFailedNoUrl: 'Update install failed: no download URL',
+		updateLaunchingPortableInstaller:
+			'Launching portable installer silently to {dir}: {fileName}',
+		updateInstallerExited: 'Installer exited with code {code}',
+		updateRestartedAfterPortable:
+			'Restarted Void Presence after portable update',
+		updateFailedToRestart: 'Failed to restart after update: {error}',
+		updateLaunchingInstaller: 'Launching installer: {fileName}',
+		updateInstallFailed: 'Update install failed: {error}',
 	},
 	tr: {
 		'customStatus.ready': 'Özel durum hazır',
@@ -208,6 +228,16 @@ export const mainTranslations: Record<Language, TranslationDict> = {
 		small_hover_text_optional: 'Küçük resim üzerine fare metni (isteğe bağlı)',
 		text: 'Metin',
 		emoji_optional: 'Emoji (isteğe bağlı)',
+		updateInstallRequested: 'Güncelleme yükleme isteği: {tag}',
+		updateInstallFailedNoUrl: 'Güncelleme yükleme başarısız: URL yok',
+		updateLaunchingPortableInstaller:
+			'Taşınabilir yükleyici sessizce başlatılıyor {dir}: {fileName}',
+		updateInstallerExited: 'Yükleyici {code} kodu ile çıktı',
+		updateRestartedAfterPortable:
+			'Taşınabilir güncellemeden sonra Void Presence yeniden başlatıldı',
+		updateFailedToRestart: 'Güncellemeden sonra yeniden başlatılamadı: {error}',
+		updateLaunchingInstaller: 'Yükleyici başlatılıyor: {fileName}',
+		updateInstallFailed: 'Güncelleme yükleme başarısız: {error}',
 	},
 }
 

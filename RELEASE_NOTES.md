@@ -1,6 +1,8 @@
-# Config Labels Overflow & RU Translation Fix
+# Multi-Language interface support
+
+> **Version 2.13.13 is UNSTABLE**
+> To update, download and reinstall **Void Presence** again from the latest release manually.
 
 ## Improvements
 
-- **Fixed text overflow in config labels** - adjusted `.client-row span` width to 85px with word-break to prevent long text cutoff
-- **Fixed Russian translations** - corrected wording for Russian locale
+- **Expanded existing multi-language support** - improved the current Russian (ru), English (en), and Turkish (tr) interface coverage across the UI and logs
