@@ -91,9 +91,10 @@ function updatePlaceholders(): void {
 	}
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-	const savedLang = localStorage.getItem('language') || 'en'
-	setLanguage(savedLang)
+document.addEventListener('DOMContentLoaded', async () => {
+	const initialLang =
+		(await (window as any).electronAPI?.getLanguage?.()) || 'ru'
+	setLanguage(initialLang)
 
 	document
 		.querySelectorAll<HTMLElement>('.timestamp-mode-btn[data-language]')

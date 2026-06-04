@@ -1,5 +1,4 @@
 import i18n from 'i18next'
-
 import en from '../../locales/en.json'
 import ru from '../../locales/ru.json'
 import tr from '../../locales/tr.json'
@@ -10,15 +9,28 @@ const resources = {
 	tr: { translation: tr },
 }
 
-const userLanguage = navigator.language.split('-')[0]
 const supportedLanguages = ['en', 'ru', 'tr']
-const defaultLang = supportedLanguages.includes(userLanguage)
-	? userLanguage
-	: 'en'
+
+function getInitialLanguage(): string {
+	const systemLanguage = navigator.language.split('-')[0]
+	const savedLanguage = localStorage.getItem('language')
+
+	if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+		return savedLanguage
+	}
+
+	if (supportedLanguages.includes(systemLanguage)) {
+		return systemLanguage
+	}
+
+	return 'en'
+}
+
+const currentLanguage = getInitialLanguage()
 
 i18n.init({
 	resources,
-	lng: localStorage.getItem('language') || defaultLang,
+	lng: currentLanguage,
 	fallbackLng: 'en',
 	debug: false,
 	interpolation: {
