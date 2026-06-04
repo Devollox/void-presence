@@ -552,7 +552,7 @@ input {
 }
 
 .client-row span {
-	width: 70px;
+	width: 85px;
 	align-items: center;
 	flex-shrink: 0;
 	font-size: 9px;
@@ -560,14 +560,9 @@ input {
 	color: rgba(255, 255, 255, 0.48);
 	text-transform: uppercase;
 	letter-spacing: 0.2em;
-}
-
-body.lang-ru .client-row span {
-	width: 110px;
-}
-
-body.lang-tr .client-row span {
-	width: 130px;
+	word-break: break-word;
+	white-space: normal;
+	overflow-wrap: break-word;
 }
 
 .client-row input {
