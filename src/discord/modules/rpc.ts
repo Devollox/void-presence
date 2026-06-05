@@ -46,7 +46,6 @@ let client: DiscordClient | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
 let activityIntervalMs = 30000
-let heartbeatTimer: NodeJS.Timeout | null = null
 
 let currentTitle: string | null = null
 let lastSmTcStatus: string | null = null
@@ -75,38 +74,11 @@ let lastStoppedAt: number | null = null
 let hardwareLineIndex = 0
 let hardwareReady = false
 
-let mediaAnchorPosition: number | null = null
-let mediaAnchorAt: number | null = null
-let mediaAnchorSignature = ''
-
 function msToDiscordTs(ms: number | null | undefined): number | undefined {
 	if (!Number.isFinite(ms as number)) return undefined
 	const sec = Math.floor((ms as number) / 1000)
 	if (sec < 1) return undefined
 	return sec
-}
-
-function cleanupMemory() {
-	if (coverCache.size > 100) {
-		const keys = Array.from(coverCache.keys())
-		keys.slice(0, coverCache.size - 100).forEach(k => {
-			coverCache.delete(k)
-			coverRetries.delete(k)
-		})
-	}
-	coverRequestsInWindow = 0
-	if (Date.now() - coverWindowStart > COVER_WINDOW_MS * 2)
-		coverWindowStart = Date.now()
-	if (client && hasEverBeenReady) {
-		try {
-			client.clearActivity()
-		} catch {}
-	}
-	if ((global as any).gc) {
-		try {
-			;(global as any).gc()
-		} catch {}
-	}
 }
 
 function makeCacheKey(title: string, artist: string) {
@@ -121,13 +93,14 @@ async function resolveCoverUrlFromITunes(
 	if (artist.trim()) queryParts.push(artist.trim())
 	if (title.trim()) queryParts.push(title.trim())
 	if (!queryParts.length) return null
+
 	const term = encodeURIComponent(queryParts.join(' '))
 	const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=1`
 	const controller = new AbortController()
 	const timeoutId = setTimeout(() => controller.abort(), 10000)
+
 	try {
 		const res = await fetch(url, { signal: controller.signal } as any)
-		clearTimeout(timeoutId)
 		if (!res.ok) return null
 		const json = await res.json()
 		if (!json || !Array.isArray(json.results) || json.results.length === 0)
@@ -136,9 +109,11 @@ async function resolveCoverUrlFromITunes(
 		const artwork: string | undefined =
 			result.artworkUrl100 || result.artworkUrl60 || result.artworkUrl30
 		return artwork || null
-	} catch {
-		clearTimeout(timeoutId)
+	} catch (e) {
+		console.error('resolveCoverUrlFromITunes error:', e)
 		return null
+	} finally {
+		clearTimeout(timeoutId)
 	}
 }
 
@@ -176,9 +151,6 @@ export function setActivityInterval(sec: number) {
 function createClient() {
 	if (client) {
 		try {
-			client.clearActivity()
-		} catch {}
-		try {
 			client.destroy()
 		} catch {}
 		client = null
@@ -211,14 +183,7 @@ export function stopDiscordRich() {
 	imageIndex = 0
 	hardwareLineIndex = 0
 	hardwareReady = false
-	mediaAnchorPosition = null
-	mediaAnchorAt = null
-	mediaAnchorSignature = ''
 	void savePersistOffsetIfNeeded()
-	if (heartbeatTimer) {
-		clearInterval(heartbeatTimer)
-		heartbeatTimer = null
-	}
 	if (restartTimer) {
 		clearTimeout(restartTimer)
 		restartTimer = null
@@ -228,9 +193,6 @@ export function stopDiscordRich() {
 		restartInterval = null
 	}
 	if (client) {
-		try {
-			client.clearActivity()
-		} catch {}
 		try {
 			client.destroy()
 		} catch {}
@@ -274,20 +236,13 @@ async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
 		if (!raw || typeof raw !== 'object') return null
 		const title = (raw.title || '').trim()
 		if (!title && !raw.playbackStatus) return null
-
 		const { musicFilter, videoFilter } = await readFiltersState()
 		const isMusic = raw.isThumbMusic === true && raw.isThumbVideo !== true
 		const isVideo = raw.isThumbVideo === true && raw.isThumbMusic !== true
-
 		let filteredOut = false
-		if (musicFilter === false && videoFilter === false) {
-			filteredOut = false
-		} else if (musicFilter === true && videoFilter === false && !isMusic) {
-			filteredOut = true
-		} else if (musicFilter === false && videoFilter === true && !isVideo) {
-			filteredOut = true
-		}
-
+		if (!musicFilter && !videoFilter) filteredOut = true
+		else if (musicFilter && !videoFilter && !isMusic) filteredOut = true
+		else if (!musicFilter && videoFilter && !isVideo) filteredOut = true
 		if (filteredOut) {
 			return {
 				sourceAppId: 'Filtered',
@@ -305,7 +260,6 @@ async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
 				endsAt: null,
 			}
 		}
-
 		return {
 			sourceAppId: raw.sourceAppId || 'Player',
 			lastUpdatedTime:
@@ -437,6 +391,7 @@ async function normalizeHardwareActivity(stats: any) {
 
 let activePayload: PresencePayload | null = null
 let fallbackPayload: PresencePayload | null = null
+let lastSentSignature = ''
 
 function resolveVisiblePayload(): PresencePayload | null {
 	return activePayload || fallbackPayload
@@ -453,9 +408,7 @@ export default function startDiscordRich(
 	hardwareReady = false
 	activePayload = null
 	fallbackPayload = null
-	mediaAnchorPosition = null
-	mediaAnchorAt = null
-	mediaAnchorSignature = ''
+	lastSentSignature = ''
 
 	async function startSession() {
 		if (isStopped || sessionId !== currentSessionId) return
@@ -695,6 +648,8 @@ export default function startDiscordRich(
 			const smtcStatus = nowPlaying?.playbackStatus || null
 			const smtcPosRaw = nowPlaying?.position ?? null
 			const smtcDur = nowPlaying?.duration ?? null
+			const smtcPos =
+				typeof smtcPosRaw === 'number' ? Math.floor(smtcPosRaw / 10) * 10 : null
 			const isPausedOrStopped =
 				smtcStatus === 'Paused' ||
 				smtcStatus === 'Stopped' ||
@@ -704,7 +659,6 @@ export default function startDiscordRich(
 				smtcStatus === 'Opened' ||
 				smtcStatus === 'Changing'
 			const hasValidTrack = !!smtcTitle
-
 			const filtersNow = await readFiltersState()
 			const hardwareEnabledNow = filtersNow.hardwareMonitorEnabled === true
 
@@ -804,58 +758,40 @@ export default function startDiscordRich(
 			if (mode === 'now' && nowMode === 'cycles')
 				cycleForNow = getNextTimeCycle()
 
-			let timestampsMs: { start: number; end?: number }
-			let effectivePosition: number | null = null
+			let timestampsMs: { start: number; end?: number } =
+				getTimestampsForActivity(mode, nowMode, cycleForNow)
+			let overrideDelayMs: number | null = null
 
-			if (isPlayingLike && hasValidTrack && smtcPosRaw != null) {
-				const basePosition = Number(smtcPosRaw)
-				const currentSignature = JSON.stringify({
-					title: smtcTitle,
-					status: smtcStatus,
-				})
-
-				if (currentSignature !== mediaAnchorSignature) {
-					mediaAnchorSignature = currentSignature
-					mediaAnchorPosition = basePosition
-					mediaAnchorAt = Date.now()
-				}
-
-				if (mediaAnchorPosition != null && mediaAnchorAt != null) {
-					const elapsedSec = (Date.now() - mediaAnchorAt) / 1000
-					effectivePosition = mediaAnchorPosition + elapsedSec
-				} else {
-					effectivePosition = basePosition
-				}
-
-				const duration = Number(smtcDur)
-				const now = Date.now()
-				const startMs = now - (effectivePosition || 0) * 1000
-				const endMs =
-					Number.isFinite(duration) && duration > 0
-						? startMs + duration * 1000
-						: undefined
-				timestampsMs = { start: startMs, end: endMs }
+			if (isPlayingLike && smtcPos != null && smtcDur != null && smtcDur > 0) {
 				pausedPlainTimestampsMs = null
+				const now = Date.now()
+				const startMs = now - smtcPos * 1000
+				const endMs = startMs + smtcDur * 1000
+				timestampsMs = { start: startMs, end: endMs }
+				const remaining = endMs - now
+				if (remaining > 0 && Number.isFinite(remaining))
+					overrideDelayMs = remaining
 			} else if (
 				nowMode === 'progress' &&
 				(isPlayingLike || isPausedOrStopped)
 			) {
 				timestampsMs = getTimestampsForProgress()
 			} else if (isPausedOrStopped) {
-				if (!pausedPlainTimestampsMs)
+				if (!pausedPlainTimestampsMs) {
 					pausedPlainTimestampsMs = getTimestampsForActivity(
 						mode,
 						nowMode,
 						cycleForNow,
 					)
+				}
 				timestampsMs = pausedPlainTimestampsMs
-			} else {
-				timestampsMs = getTimestampsForActivity(mode, nowMode, cycleForNow)
 			}
 
-			lastSmTcPosition =
-				effectivePosition != null ? effectivePosition : lastSmTcPosition
+			lastSmTcPosition = smtcPos
 			lastSmTcStatus = smtcStatus || null
+
+			if (overrideDelayMs == null || overrideDelayMs < activityIntervalMs)
+				overrideDelayMs = activityIntervalMs
 
 			const finalTimestamps: { start?: number; end?: number } | undefined =
 				(() => {
@@ -913,6 +849,8 @@ export default function startDiscordRich(
 			if (party) activity.party = party
 			if (buttons.length > 0) activity.buttons = buttons
 
+			console.log('RPC activity payload:', JSON.stringify(activity, null, 2))
+
 			await (localClient as any)
 				.request('SET_ACTIVITY', { pid: process.pid, activity })
 				.catch((e: any) => {
@@ -936,19 +874,6 @@ export default function startDiscordRich(
 			})
 		}
 
-		async function publishHeartbeat() {
-			if (isStopped || sessionId !== currentSessionId) return
-			const np = await readNowPlayingSafe()
-			const hasMedia =
-				np &&
-				(np.title ||
-					(np.playbackStatus &&
-						np.playbackStatus !== 'Stopped' &&
-						np.playbackStatus !== 'Closed'))
-			if (!hasMedia) return
-			await pushActivity(np as any)
-		}
-
 		async function pollJsonLoop() {
 			if (isStopped || sessionId !== currentSessionId) return
 			try {
@@ -964,9 +889,6 @@ export default function startDiscordRich(
 					status === 'Playing' || status === 'Opened' || status === 'Changing'
 				const now = Date.now()
 				const GRACE_MS = 4000
-
-				if (now % 3600000 < activityIntervalMs) cleanupMemory()
-
 				if (isPlayingLike) {
 					lastStoppedAt = null
 					if (signature !== lastJsonSignature) {
@@ -976,7 +898,6 @@ export default function startDiscordRich(
 					setTimeout(pollJsonLoop, activityIntervalMs)
 					return
 				}
-
 				if (lastStoppedAt == null) lastStoppedAt = now
 				if (now - lastStoppedAt < GRACE_MS) {
 					setTimeout(pollJsonLoop, activityIntervalMs)
@@ -1002,10 +923,6 @@ export default function startDiscordRich(
 			partyIndex = 0
 			timeCycleIndex = 0
 			hardwareLineIndex = 0
-			mediaAnchorPosition = null
-			mediaAnchorAt = null
-			mediaAnchorSignature = ''
-
 			try {
 				const np = await readNowPlayingSafe()
 				const title = np?.title || ''
@@ -1021,13 +938,9 @@ export default function startDiscordRich(
 			} catch {
 				lastJsonSignature = ''
 			}
-
 			if (sendLog) sendLog(t('rpcReady'), 'success')
 			sendStatus('RPC_ACTIVE')
 			await pushActivity(null as any)
-
-			if (heartbeatTimer) clearInterval(heartbeatTimer)
-			heartbeatTimer = setInterval(() => void publishHeartbeat(), 5 * 60 * 1000)
 			void pollJsonLoop()
 		})
 
