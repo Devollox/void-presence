@@ -1,6 +1,7 @@
-# Tray Click Update
+# Update: RPC & SMTC Worker
 
 ## Improvements
 
-- **Updated tray click behavior** — clicking the tray now shows or creates the main window and immediately checks for updates in the background.
-- **Preserved window recovery** — if the main window does not exist, it is created first and then brought to the foreground.
+- **Removed SMTC session cache** — eliminated caching in the Windows SMTC worker to get fresh media position on every poll.
+- **Fixed local progress calculation** — position now increases over time even when SMTC returns static values, ensuring accurate playback progress in Discord RPC.
+- **Media now overrides hardware** — when music or video is playing, it takes priority and shows in Discord RPC instead of hardware stats.

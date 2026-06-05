@@ -1,13 +1,7 @@
 const { SMTCMonitor } = require('@coooookies/windows-smtc-monitor')
 const { parentPort } = require('worker_threads')
 
-let lastSession = null
-let lastSessionTime = 0
-let lastValidSession = null
-let lastValidSessionTime = 0
-const SESSION_CACHE_MS = 15000
-const VALID_SESSION_HOLD_MS = 120000
-const POLL_INTERVAL_MS = 3000
+const POLL_INTERVAL_MS = 7000
 
 function mapPlaybackStatus(status) {
 	if (status === 0) return 'Closed'
@@ -82,22 +76,37 @@ function safeGetCurrentMediaSession() {
 
 function classifyThumbByKnownSizes(thumb) {
 	if (!thumb) return { isMusic: false, isVideo: false }
+
 	const { width, height } = thumb
+
 	if ((width === 150 && height === 150) || (width === 120 && height === 120)) {
 		return { isMusic: true, isVideo: false }
 	}
+
 	if ((width === 256 && height === 256) || (width === 150 && height === 83)) {
 		return { isMusic: false, isVideo: true }
 	}
+
 	return { isMusic: null, isVideo: null }
 }
 
-function buildInfo(session) {
+function calcNowPlaying() {
 	const now = Date.now()
-	const { media, sourceAppId, timeline, playback, lastUpdatedTime } = session
+	const session = safeGetCurrentMediaSession()
 
+	if (!session) {
+		postNowPlaying(null)
+		return null
+	}
+
+	const { media, sourceAppId, timeline, playback, lastUpdatedTime } = session
 	const title = (media && media.title) || ''
 	const artist = (media && media.artist) || ''
+
+	if (!title) {
+		postNowPlaying(null)
+		return null
+	}
 
 	let startedAt = null
 	let endsAt = null
@@ -107,6 +116,7 @@ function buildInfo(session) {
 	if (timeline) {
 		position = typeof timeline.position === 'number' ? timeline.position : null
 		duration = typeof timeline.duration === 'number' ? timeline.duration : null
+
 		if (typeof position === 'number') {
 			startedAt = now - position * 1000
 			if (typeof duration === 'number' && duration > 0) {
@@ -143,7 +153,7 @@ function buildInfo(session) {
 		}
 	}
 
-	return {
+	const info = {
 		sourceAppId: sourceAppId || 'Player',
 		lastUpdatedTime,
 		title,
@@ -162,54 +172,7 @@ function buildInfo(session) {
 		isThumbVideo,
 		timeline,
 	}
-}
 
-function calcNowPlaying() {
-	const now = Date.now()
-
-	if (lastSession && now - lastSessionTime < SESSION_CACHE_MS) {
-		postNowPlaying(lastSession)
-		return lastSession
-	}
-
-	const session = safeGetCurrentMediaSession()
-
-	if (!session) {
-		if (
-			lastValidSession &&
-			now - lastValidSessionTime < VALID_SESSION_HOLD_MS
-		) {
-			lastSession = lastValidSession
-			lastSessionTime = now
-			postNowPlaying(lastValidSession)
-			return lastValidSession
-		}
-		lastSession = null
-		lastSessionTime = now
-		postNowPlaying(null)
-		return null
-	}
-
-	const info = buildInfo(session)
-
-	if (info && (info.title || info.playbackStatus)) {
-		lastValidSession = info
-		lastValidSessionTime = now
-	}
-
-	if (
-		!info.title &&
-		lastValidSession &&
-		now - lastValidSessionTime < VALID_SESSION_HOLD_MS
-	) {
-		lastSession = lastValidSession
-		lastSessionTime = now
-		postNowPlaying(lastValidSession)
-		return lastValidSession
-	}
-
-	lastSession = info
-	lastSessionTime = now
 	postNowPlaying(info)
 	return info
 }
