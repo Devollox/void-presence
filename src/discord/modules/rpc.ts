@@ -849,8 +849,6 @@ export default function startDiscordRich(
 			if (party) activity.party = party
 			if (buttons.length > 0) activity.buttons = buttons
 
-			console.log('RPC activity payload:', JSON.stringify(activity, null, 2))
-
 			await (localClient as any)
 				.request('SET_ACTIVITY', { pid: process.pid, activity })
 				.catch((e: any) => {
