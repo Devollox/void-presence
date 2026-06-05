@@ -430,5 +430,7 @@
 	"tray.showWindow": "Show Window",
 	"tray.restartPresence": "Restart Presence",
 	"tray.checkUpdates": "Check Updates",
-	"tray.quit": "Quit"
+	"tray.quit": "Quit",
+	"buttons.title": "Button Pairs",
+	"details.title": "Details & State"
 }

@@ -410,7 +410,7 @@
 	"load": "загрузить",
 	"details": "детали",
 	"export": "экспорт",
-	"upload": "облоко",
+	"upload": "облако",
 	"uploading": "загрузка...",
 	"save": "сохранить",
 	"deleteBtn": "✕",
@@ -430,5 +430,7 @@
 	"tray.showWindow": "Показать окно",
 	"tray.restartPresence": "Перезапустить Presence",
 	"tray.checkUpdates": "Проверить обновления",
-	"tray.quit": "Выйти"
+	"tray.quit": "Выйти",
+	"details.title": "Детали и статус",
+	"buttons.title": "Пары кнопок"
 }

@@ -37,6 +37,11 @@ const STATUS_TEXT_MAP: Record<
 		second: t('lookingForDiscordProcess'),
 		value: '-',
 	},
+	DISABLED: {
+		title: t('idle'),
+		second: t('waitingToStart'),
+		value: '-',
+	},
 }
 
 function updateExistingLogItem(
@@ -465,10 +470,27 @@ export function updateStatusText(text: string | null): void {
 	const value = text && text.length > 0 ? text : 'IDLE'
 	const mapped = STATUS_TEXT_MAP[value]
 
-	if (mapped) {
-		elTitleBlock.textContent = mapped.title
-		elSecondBlock.textContent = mapped.second
-		el.textContent = mapped.value
+	if (text === 'IDLE') {
+		elTitleBlock.textContent = t('statusSettings')
+		elSecondBlock.textContent = t('status.customStatus')
+		return
+	}
+
+	if (text === 'RESTARTING') {
+		elTitleBlock.textContent = t('statusSettings')
+		elSecondBlock.textContent = t('customStatusRestarting')
+		return
+	}
+
+	if (text === 'SEARCHING') {
+		elTitleBlock.textContent = t('statusSettings')
+		elSecondBlock.textContent = t('lookingForDiscordProcess')
+		return
+	}
+
+	if (text === 'CONNECTING') {
+		elTitleBlock.textContent = t('statusSettings')
+		elSecondBlock.textContent = t('updatingDiscordStatus')
 		return
 	}
 

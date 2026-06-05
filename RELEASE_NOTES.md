@@ -1,12 +1,7 @@
-# First Launch Language Fix
-
-> **Version 2.13.13 is UNSTABLE**
-> To update, download and reinstall **Void Presence** again from the latest release manually.
+# Language & Display Fix
 
 ## Improvements
 
-- **Fixed first launch language display** - now app correctly shows the selected language (ru/en/tr) on first startup
-
-## Bug Fixes
-
-- Fixed language not applying correctly on first app launch
+- **Fixed language selection** - app now correctly detects and applies the selected language (ru/en/tr) on first startup and subsequent launches
+- **Expanded multi-language interface support** - improved Russian (ru), English (en), and Turkish (tr) coverage across the UI and logs
+- **Fixed placeholder text** - all input fields now show correct translations for their placeholders

@@ -430,5 +430,7 @@
 	"tray.showWindow": "Pencereyi Göster",
 	"tray.restartPresence": "Presence'i Yeniden Başlat",
 	"tray.checkUpdates": "Güncellemeleri Kontrol Et",
-	"tray.quit": "Çık"
+	"tray.quit": "Çık",
+	"buttons.title": "Tuş Eşleşmeleri",
+	"details.title": "Detaylar ve Durum"
 }
