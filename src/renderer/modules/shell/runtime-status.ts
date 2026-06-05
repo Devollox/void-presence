@@ -13,35 +13,37 @@ let activityStartMs: number | null = null
 let uptimeTimer: number | null = null
 let lastErrorItem: HTMLElement | null = null
 
-const STATUS_TEXT_MAP: Record<
+function getStatusTextMap(): Record<
 	string,
 	{ title: string; second: string; value: string }
-> = {
-	IDLE: {
-		title: t('idle'),
-		second: t('waitingToStart'),
-		value: '-',
-	},
-	CONNECTING: {
-		title: t('idle'),
-		second: t('updatingDiscordStatus'),
-		value: '-',
-	},
-	RESTARTING: {
-		title: t('idle'),
-		second: t('customStatusRestarting'),
-		value: '-',
-	},
-	SEARCHING: {
-		title: t('idle'),
-		second: t('lookingForDiscordProcess'),
-		value: '-',
-	},
-	DISABLED: {
-		title: t('idle'),
-		second: t('waitingToStart'),
-		value: '-',
-	},
+> {
+	return {
+		IDLE: {
+			title: t('idle'),
+			second: t('waitingToStart'),
+			value: '-',
+		},
+		CONNECTING: {
+			title: t('idle'),
+			second: t('updatingDiscordStatus'),
+			value: '-',
+		},
+		RESTARTING: {
+			title: t('idle'),
+			second: t('customStatusRestarting'),
+			value: '-',
+		},
+		SEARCHING: {
+			title: t('idle'),
+			second: t('lookingForDiscordProcess'),
+			value: '-',
+		},
+		DISABLED: {
+			title: t('idle'),
+			second: t('waitingToStart'),
+			value: '-',
+		},
+	}
 }
 
 function updateExistingLogItem(
@@ -468,29 +470,12 @@ export function updateStatusText(text: string | null): void {
 	if (!el || !elTitleBlock || !elSecondBlock) return
 
 	const value = text && text.length > 0 ? text : 'IDLE'
-	const mapped = STATUS_TEXT_MAP[value]
+	const mapped = getStatusTextMap()[text]
 
-	if (text === 'IDLE') {
-		elTitleBlock.textContent = t('statusSettings')
-		elSecondBlock.textContent = t('status.customStatus')
-		return
-	}
-
-	if (text === 'RESTARTING') {
-		elTitleBlock.textContent = t('statusSettings')
-		elSecondBlock.textContent = t('customStatusRestarting')
-		return
-	}
-
-	if (text === 'SEARCHING') {
-		elTitleBlock.textContent = t('statusSettings')
-		elSecondBlock.textContent = t('lookingForDiscordProcess')
-		return
-	}
-
-	if (text === 'CONNECTING') {
-		elTitleBlock.textContent = t('statusSettings')
-		elSecondBlock.textContent = t('updatingDiscordStatus')
+	if (mapped) {
+		elTitleBlock.textContent = mapped.title
+		elSecondBlock.textContent = mapped.second
+		el.textContent = mapped.value
 		return
 	}
 
