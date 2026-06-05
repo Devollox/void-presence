@@ -53,7 +53,10 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 		{
 			label: 'Check Updates',
 			accelerator: 'CmdOrCtrl+U',
-			click: () => checkForUpdates({ log: false }),
+			click: () => {
+				showOrCreateWindow(createWindow)
+				checkForUpdates({ log: false })
+			},
 		},
 		{ type: 'separator' },
 		{
