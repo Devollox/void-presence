@@ -169,7 +169,6 @@ function startSmtcWorker() {
 	})
 
 	smtcWorker.on('exit', code => {
-		sendLog(t('smtcWorkerExited', { code: String(code ?? 'null') }))
 		smtcWorker = null
 	})
 }
@@ -230,7 +229,6 @@ function startHardwareWorker() {
 	})
 
 	hardwareWorker.on('exit', code => {
-		sendLog(t('hardwareWorkerExited', { code: String(code ?? 'null') }))
 		hardwareWorker = null
 	})
 }

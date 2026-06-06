@@ -14,7 +14,7 @@
 		"step1Li1Open": "Aç",
 		"step1Li2": "Var olan bir uygulama oluşturun veya seçin.",
 		"step1Li3Add": "Uygulama ikonu ekleyin",
-		"step1Li3Format": "(PNG / JPG / GIF / WEBP, en fazla 10 MB).",
+		"step1Li3Format": "PNG / JPG / GIF / WEBP, en fazla 10 MB.",
 		"step1Li4Copy": "Kopyalayın",
 		"applicationId": "Application ID",
 		"step1Li4From": "özet sayfasından.",
@@ -119,10 +119,10 @@
 	},
 	"status": {
 		"tutorialTitle": "Özel durum",
-		"tutorialWarning1": "Bu özelliği dikkatli kullanın. Kullanıcı token'a dayanır ve üçüncü taraf bir müşteri gibi davranır, bu Discord'un Hizmet Koşullarına aykırıdır, bu yüzden kendi riskinizle kullanırsınız.",
-		"tutorialWarning2": "Olası sonuçlar için herhangi bir sorumluluk kabul etmiyoruz,包括 uyarılar veya hesap kısıtlamaları, ancak bu özel kullanım gevali için şimdiye kadar ban görmedik.",
+		"tutorialWarning1": "Bu özelliği dikkatli kullanın. Kullanıcı token'a dayanır ve üçüncü taraf bir müşteri gibi davranır; bu, Discord'un Hizmet Koşullarına aykırıdır, bu yüzden kendi riskinizle kullanırsınız.",
+		"tutorialWarning2": "Olası sonuçlar için herhangi bir sorumluluk kabul etmiyoruz, uyarılar veya hesap kısıtlamaları dahil, ancak bu özel kullanım için şimdiye kadar ban görmedik.",
 		"tutorialWarning3": "Discord token'ınızı kimseyle paylaşmayın!",
-		"tutorialWarning4": "Bunu kimse göstermeyin, kimse göndermeyin ve bu alan dışında hiçbir yere yapıştırmayın. Token'ınız Discord hesabınıza tam erişim sağlar.",
+		"tutorialWarning4": "Bunu kimseye göstermeyin, kimseye göndermeyin ve bu alan dışında hiçbir yere yapıştırmayın. Token'ınız Discord hesabınıza tam erişim sağlar.",
 		"tutorialStep1": "1. Adım — Durumu etkinleştir ve döngüleri ayarla",
 		"toggle": "Geçiş",
 		"toTurnWorkerOn": "worker'ı açmak için.",
@@ -184,7 +184,7 @@
 		"subtitle": "Oturum olayları",
 		"subtitle2": "Olay geçmişi",
 		"entries": "girdiler",
-		"enterConfigNameAndAuthorId": "Önce yapılandırma adı ve yazar ID girin(voidpresence.site/profile'dan alın)",
+		"enterConfigNameAndAuthorId": "Önce yapılandırma adı ve yazar ID girin (voidpresence.site/profile'dan alın)",
 		"configUploaded": "Yapılandırma \"{title}\" yüklendi!",
 		"uploadFailed": "Yükleme başarısız: {error}",
 		"cloudUploadNotAvailable": "Cloud yüklemesi mevcut değil"
@@ -285,7 +285,7 @@
 		"applyError": "Özel durum uygulama hatası: {error}",
 		"processCheckError": "Özel durum: Discord süreci kontrol hatası: {error}",
 		"loopError": "Özel durum döngü hatası: {error}",
-		"initError": "özel durum başlatma hatası: {error}",
+		"initError": "Özel durum başlatma hatası: {error}",
 		"ready": "Özel durum hazır",
 		"readError": "Özel durum okuma hatası: {error}"
 	},
@@ -341,7 +341,6 @@
 	"updateLaunchingInstaller": "Yükleyici başlatılıyor: {fileName}",
 	"updateInstallFailed": "Güncelleme yükleme başarısız: {error}",
 	"currentVersion": "Void Presence v{version}",
-	"supportDiscord": "Destek Discord: devollox",
 	"logLevelError": "HATA",
 	"logLevelSuccess": "BAŞARILI",
 	"logLevelWarn": "UYARI",
@@ -431,6 +430,6 @@
 	"tray.restartPresence": "Presence'i Yeniden Başlat",
 	"tray.checkUpdates": "Güncellemeleri Kontrol Et",
 	"tray.quit": "Çık",
-	"buttons.title": "Tuş Eşleşmeleri",
-	"details.title": "Detaylar ve Durum"
+	"details.title": "Detaylar ve Durum",
+	"buttons.title": "Tuş Eşleşmeleri"
 }
