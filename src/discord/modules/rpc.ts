@@ -384,8 +384,10 @@ async function normalizeHardwareActivity(stats: any) {
 	}
 	const entry = entries[hardwareLineIndex % entries.length]
 	hardwareLineIndex = (hardwareLineIndex + 1) % entries.length
-	const details = `${await bar(entry.load)} | ${formatPct(entry.load) || '0%'}`
-	const state = [entry.label, entry.temp].filter(Boolean).join(' | ')
+	const details = `${await bar(entry.load)}`
+	const state = [entry.label, entry.temp, `${entry.load}%`]
+		.filter(Boolean)
+		.join(' | ')
 	return { details, state }
 }
 

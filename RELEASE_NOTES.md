@@ -1,5 +1,6 @@
-# Language
+# Updated hardware activity formatting
 
 ## Improvements
 
-- **Expanded multi-language interface support** - improved Russian (ru), English (en), and Turkish (tr) coverage across the UI and logs
+- **Updated hardware activity formatting** — `details` now shows only the load bar, while `state` includes the label, temperature, and load percentage for a cleaner RPC layout.
+- **Kept hardware rotation intact** — entries still cycle normally through available hardware stats.

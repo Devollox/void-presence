@@ -1,7 +1,7 @@
 {
 	"name": "voidpresence",
 	"productName": "Void Presence",
-	"version": "2.14.10",
+	"version": "2.14.11",
 	"description": "My Void Presence",
 	"main": ".vite/build/main.js",
 	"scripts": {
