@@ -1,6 +1,5 @@
-# Updated hardware activity formatting
+# Stability
 
-## Improvements
+## Dependencies
 
-- **Updated hardware activity formatting** — `details` now shows only the load bar, while `state` includes the label, temperature, and load percentage for a cleaner RPC layout.
-- **Kept hardware rotation intact** — entries still cycle normally through available hardware stats.
+- Updated **Electron** to 42.4.0 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.

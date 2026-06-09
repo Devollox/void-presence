@@ -1,7 +1,7 @@
 {
 	"name": "voidpresence",
 	"productName": "Void Presence",
-	"version": "2.14.11",
+	"version": "2.14.12-nightly",
 	"description": "My Void Presence",
 	"main": ".vite/build/main.js",
 	"scripts": {
@@ -32,7 +32,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
 		"cross-env": "^10.1.0",
-		"electron": "42.3.3",
+		"electron": "42.4.0",
 		"electron-reloader": "^1.2.3",
 		"eslint": "^8.56.0",
 		"eslint-plugin-import": "^2.29.1",
