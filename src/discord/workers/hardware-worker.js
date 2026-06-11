@@ -25,8 +25,13 @@ function postHardwareError(err) {
 	})
 }
 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+
 function sampleCpu() {
 	const cores = os.cpus()
+	if (!cores || cores.length === 0)
+		return { idle: 0, total: 0, time: Date.now() }
+
 	let idle = 0
 	let total = 0
 	for (const c of cores) {
@@ -36,11 +41,15 @@ function sampleCpu() {
 	return { idle, total, time: Date.now() }
 }
 
-function getCpuLoadPct() {
-	const next = sampleCpu()
-	const idleDiff = next.idle - lastCpuSample.idle
-	const totalDiff = next.total - lastCpuSample.total
-	lastCpuSample = next
+async function getCpuLoadPct() {
+	const start = sampleCpu()
+	await delay(2000)
+	const end = sampleCpu()
+
+	const idleDiff = end.idle - start.idle
+	const totalDiff = end.total - start.total
+
+	lastCpuSample = end
 
 	if (totalDiff <= 0) return 0
 
@@ -173,10 +182,19 @@ async function getCpuTemperature() {
 	cpuTempPromise = (async () => {
 		if (process.platform !== 'win32') return null
 		try {
-			const cmd =
-				'powershell.exe -NoProfile -Command "Get-CimInstance -Namespace root/WMI -ClassName MSAcpi_ThermalZoneTemperature | Select-Object -ExpandProperty CurrentTemperature"'
-			const { stdout } = await execFileAsync(cmd, [], { windowsHide: true })
-			const ktenth = String(stdout || '').trim()
+			const { stdout } = await execFileAsync(
+				'powershell.exe',
+				[
+					'-NoProfile',
+					'-Command',
+					'Get-CimInstance -Namespace root/WMI -ClassName MSAcpi_ThermalZoneTemperature | Select-Object -ExpandProperty CurrentTemperature',
+				],
+				{ windowsHide: true, maxBuffer: 1024 * 64 },
+			)
+			const ktenth = String(stdout || '')
+				.trim()
+				.split(/\r?\n/)
+				.filter(Boolean)[0]
 			const num = Number(ktenth)
 			if (Number.isFinite(num)) {
 				const tempC = Math.round(num / 10 - 273.15)
@@ -198,12 +216,12 @@ function bytesToGb(v) {
 
 async function readHardware() {
 	try {
-		const [cpuName, cpuTemp, gpu] = await Promise.all([
+		const [cpuName, cpuTemp, gpu, cpuLoad] = await Promise.all([
 			getCpuName(),
 			getCpuTemperature(),
 			getGpuStats(),
+			getCpuLoadPct(),
 		])
-		const cpuLoad = getCpuLoadPct()
 		const total = os.totalmem()
 		const free = os.freemem()
 		const used = total - free
@@ -256,3 +274,5 @@ parentPort.on('message', msg => {
 setInterval(() => {
 	calcHardwareStats()
 }, POLL_INTERVAL_MS)
+
+calcHardwareStats()

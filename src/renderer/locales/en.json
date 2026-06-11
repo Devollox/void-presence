@@ -273,7 +273,7 @@
 	},
 	"settingsPage": {
 		"label": "settings",
-		"title": "Void Settings",
+		"title": "Settings",
 		"subtitle": "settings the void presence",
 		"settingsTitle": "Settings",
 		"languageLabel": "Language"

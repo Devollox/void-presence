@@ -273,7 +273,7 @@
 	},
 	"settingsPage": {
 		"label": "настройки",
-		"title": "Void Настройки",
+		"title": "Настройки",
 		"subtitle": "настройки void presence",
 		"settingsTitle": "Настройки",
 		"languageLabel": "Язык"

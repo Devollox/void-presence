@@ -330,12 +330,6 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	const infoStatus = document.getElementById(
 		'info-status',
 	) as HTMLElement | null
-	const metaObject = document.getElementById(
-		'meta-object',
-	) as HTMLElement | null
-	const metaButtons = document.getElementById(
-		'meta-buttons',
-	) as HTMLElement | null
 	const infoUptime = document.getElementById(
 		'info-uptime',
 	) as HTMLElement | null
@@ -346,9 +340,7 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		!infoButtons ||
 		!infoObject ||
 		!infoDetails ||
-		!infoStatus ||
-		!metaObject ||
-		!metaButtons
+		!infoStatus
 	) {
 		return
 	}
@@ -360,8 +352,6 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		infoObject.textContent = '–'
 		infoDetails.textContent = '–'
 		infoStatus.textContent = t('waitingToStart')
-		metaObject.textContent = `${t('details')}: —`
-		metaButtons.textContent = `${t('buttons')}: —`
 		if (infoUptime) infoUptime.textContent = '–'
 		activityStartMs = null
 		stopUptimeTimer()
@@ -380,8 +370,6 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	infoObject.textContent = payload.details || '–'
 	infoDetails.textContent = payload.state || '–'
 	infoStatus.textContent = t('active')
-	metaObject.textContent = `${t('details')}: ${payload.details || '—'}`
-	metaButtons.textContent = `${t('buttons')}: ${buttonsText}`
 
 	if (!activityStartMs) {
 		activityStartMs = Date.now()
