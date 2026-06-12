@@ -483,22 +483,24 @@ export async function initIpc() {
 			}
 			const authorName = user.name
 
-			const configWithoutToken = JSON.parse(
-				JSON.stringify(payload.configData),
-			) as any
+			const configCloud = JSON.parse(JSON.stringify(payload.configData)) as any
 
-			if (configWithoutToken.discordToken) {
-				delete configWithoutToken.discordToken
+			if (configCloud.discordToken) {
+				delete configCloud.discordToken
 			}
 
-			if (configWithoutToken.statusSettings?.discordToken) {
-				delete configWithoutToken.statusSettings.discordToken
+			if (configCloud.statusSettings?.discordToken) {
+				delete configCloud.statusSettings.discordToken
+			}
+
+			if (configCloud.statusCycles) {
+				delete configCloud.statusCycles
 			}
 
 			return uploadConfigToCloud({
 				...payload,
 				authorName,
-				configData: configWithoutToken,
+				configData: configCloud,
 			})
 		},
 	)

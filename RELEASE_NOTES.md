@@ -1,8 +1,14 @@
-# Worker Session Hold Fix & Settings Page Update
+# Cloud Config Fix & CPU Temperature Update & Layout Markup & Stability
 
 ## Improvements
 
-- **Removed repeated payload fields** — the current payload no longer repeats `Buttons` and `DETAILS`, keeping rich presence output cleaner.
-- **Moved startup options to Settings** — **Auto Start** was moved to the Settings page for easier access.
-- **Relocated window behavior controls** — **Auto Hide** was moved to the Settings page alongside the other startup options.
-- **Improved CPU sampling stability** — the worker CPU logic was adjusted to produce more stable readings and more accurate timing.
+- **Removed `statusCycles` from cloud upload** — the `statusCycles` field is now deleted before uploading config to cloud to prevent unnecessary data storage in `cloud:uploadConfig` IPC handler.
+- **Fixed page layout markup** — adjusted `<div data-i18n="config.uploadCurrent">Upload Current</div>` to match the overall page styling.
+- **Added second CPU temperature fallback** — added alternative PowerShell WMI method (`Get-WmiObject MSAcpi_ThermalZoneTemperature`) in `getCpuTemperature()` to improve CPU temp reading reliability on Windows when the first CimInstance method fails.
+
+## Dependencies
+
+- Updated **Electron** to 42.4.0 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.
+  - **Chromium**: 148.0.7778.254
+  - **Node.js**: 24.16.0
+  - **V8**: 14.8.178.29

@@ -181,6 +181,7 @@ async function getCpuTemperature() {
 	if (cpuTempPromise) return cpuTempPromise
 	cpuTempPromise = (async () => {
 		if (process.platform !== 'win32') return null
+
 		try {
 			const { stdout } = await execFileAsync(
 				'powershell.exe',
@@ -198,14 +199,28 @@ async function getCpuTemperature() {
 			const num = Number(ktenth)
 			if (Number.isFinite(num)) {
 				const tempC = Math.round(num / 10 - 273.15)
-				return tempC >= 0 ? tempC : null
+				if (tempC >= 0 && tempC < 150) return tempC
 			}
-			return null
-		} catch {
-			return null
-		} finally {
-			cpuTempPromise = null
-		}
+		} catch {}
+
+		try {
+			const { stdout } = await execFileAsync(
+				'powershell.exe',
+				[
+					'-NoProfile',
+					'-Command',
+					'$t = Get-WmiObject MSAcpi_ThermalZoneTemperature -Namespace "root/wmi"; if ($t) { $t.CurrentTemperature }',
+				],
+				{ windowsHide: true, maxBuffer: 1024 * 64 },
+			)
+			const num = Number(String(stdout || '').trim())
+			if (Number.isFinite(num)) {
+				const tempC = Math.round(num / 10 - 273.15)
+				if (tempC >= 0 && tempC < 150) return tempC
+			}
+		} catch {}
+
+		return null
 	})()
 	return cpuTempPromise
 }
