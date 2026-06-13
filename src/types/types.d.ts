@@ -3,11 +3,6 @@ export type TimestampMode = 'now' | 'range' | 'persist'
 export type NowMode = 'plain' | 'progress' | 'cycles'
 export type ViewName = 'main' | 'logs' | 'config' | 'status' | 'settings'
 
-export interface CustomStatusItem {
-	text: string
-	emoji: string | null
-}
-
 export interface StatusStateResult {
 	enabled: boolean
 	enabledBrowser: boolean
