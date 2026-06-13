@@ -1,14 +1,15 @@
-# Cloud Config Fix & CPU Temperature Update & Layout Markup & Stability
+# Cloud Color Fix & Average Color Reveal Update
 
 ## Improvements
 
-- **Removed `statusCycles` from cloud upload** — the `statusCycles` field is now deleted before uploading config to cloud to prevent unnecessary data storage in `cloud:uploadConfig` IPC handler.
-- **Fixed page layout markup** — adjusted `<div data-i18n="config.uploadCurrent">Upload Current</div>` to match the overall page styling.
-- **Added second CPU temperature fallback** — added alternative PowerShell WMI method (`Get-WmiObject MSAcpi_ThermalZoneTemperature`) in `getCpuTemperature()` to improve CPU temp reading reliability on Windows when the first CimInstance method fails.
+- **Added image-based average color extraction** — configs now compute `averageColor` from the first `imageCycles[0].largeImage` using `sharp`, so each card gets a color derived from its preview image.
+- **Improved card color reveal** — cards now start with the neutral base color and then reveal the extracted `averageColor` smoothly after a short delay, which makes the UI feel softer and more polished.
+
+## Stability
+
+- **Hardened the image fetch path** — the code checks fetch success and image MIME type before processing, which reduces failures on bad remote URLs.
+- **Preserved upload reliability** — the upload still posts the full config payload to Firebase, while also storing `averageColor` alongside the other fields.
 
 ## Dependencies
 
-- Updated **Electron** to 42.4.0 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.
-  - **Chromium**: 148.0.7778.254
-  - **Node.js**: 24.16.0
-  - **V8**: 14.8.178.29
+- **Uses `sharp` for color extraction** — the image is resized and sampled efficiently before calculating the average hex color.
