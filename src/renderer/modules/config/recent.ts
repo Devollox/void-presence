@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import { setActiveView } from '../shell/views-nav'
 import { updateRecentName } from './config-storage'
 import { setupToasts } from './toasts'
@@ -30,7 +31,7 @@ export function renderRecentApps(
 		inputsWrap.className = 'cycle-inputs'
 
 		const nameInput = document.createElement('input')
-		nameInput.placeholder = 'App name'
+		nameInput.placeholder = t('recent.appNamePlaceholder') || 'App name'
 		nameInput.value = item.name || ''
 
 		const idText = document.createElement('input')
@@ -48,7 +49,10 @@ export function renderRecentApps(
 		useBtn.type = 'button'
 		useBtn.textContent = '↻'
 
-		if (item.name === 'App not found' || item.name === 'Fetch failed') {
+		const appNotFoundText = t('recent.appNotFound')
+		const fetchFailedText = t('recent.fetchFailed')
+
+		if (item.name === appNotFoundText || item.name === fetchFailedText) {
 			nameInput.disabled = true
 			nameInput.classList.add('app-not-found')
 			useBtn.disabled = true
@@ -84,27 +88,27 @@ export function renderRecentApps(
 						updateRecentName(fetchId, app.name)
 						item.name = app.name
 					} else {
-						nameInput.value = 'App not found'
+						nameInput.value = appNotFoundText
 						nameInput.disabled = true
 						nameInput.classList.add('app-not-found')
 						nameInput.title = `ID ${fetchId} invalid`
 						useBtn.disabled = true
 						useBtn.classList.add('app-not-found')
-						updateRecentName(fetchId, 'App not found')
-						item.name = 'App not found'
+						updateRecentName(fetchId, appNotFoundText)
+						item.name = appNotFoundText
 					}
 				})
 				.catch(err => {
 					console.warn(`Failed to fetch app ${item.id}:`, err)
 					if (fetchId !== item.id) return
-					nameInput.value = 'Fetch failed'
+					nameInput.value = fetchFailedText
 					nameInput.disabled = true
 					nameInput.classList.add('app-not-found')
 					nameInput.title = `Network error for ID ${item.id}`
 					useBtn.disabled = true
 					useBtn.classList.add('app-not-found')
-					updateRecentName(fetchId, 'Fetch failed')
-					item.name = 'Fetch failed'
+					updateRecentName(fetchId, fetchFailedText)
+					item.name = fetchFailedText
 				})
 		}
 

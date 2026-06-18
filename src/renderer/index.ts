@@ -89,6 +89,34 @@ function updatePlaceholders(): void {
 	if (configNameCurrentInput) {
 		configNameCurrentInput.placeholder = t('config.configNamePlaceholder')
 	}
+
+	const discordTokenInput = document.getElementById(
+		'discord-token-input',
+	) as HTMLInputElement | null
+	if (discordTokenInput) {
+		discordTokenInput.placeholder = t('status.discordTokenPlaceholder')
+	}
+
+	const statusUpdateIntervalInput = document.getElementById(
+		'status-update-interval-input',
+	) as HTMLInputElement | null
+	if (statusUpdateIntervalInput) {
+		statusUpdateIntervalInput.placeholder = t('status.statusUpdatePlaceholder')
+	}
+
+	const clientIdInput = document.getElementById(
+		'client-id-input',
+	) as HTMLInputElement | null
+	if (clientIdInput) {
+		clientIdInput.placeholder = t('activity.clientIdPlaceholder')
+	}
+
+	const updateIntervalInput = document.getElementById(
+		'update-interval-input',
+	) as HTMLInputElement | null
+	if (updateIntervalInput) {
+		updateIntervalInput.placeholder = t('activity.updateActivityPlaceholder')
+	}
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -103,6 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				const lang = btn.getAttribute('data-language')
 				if (lang) {
 					setLanguage(lang)
+					updatePlaceholders()
 				}
 			})
 		})

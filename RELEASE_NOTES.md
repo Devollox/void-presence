@@ -1,15 +1,21 @@
-# Cloud Color Fix & Average Color Reveal Update
+# Placeholder Translation Fix & Immediate Language Update & Stability
 
 ## Improvements
 
-- **Added image-based average color extraction** — configs now compute `averageColor` from the first `imageCycles[0].largeImage` using `sharp`, so each card gets a color derived from its preview image.
-- **Improved card color reveal** — cards now start with the neutral base color and then reveal the extracted `averageColor` smoothly after a short delay, which makes the UI feel softer and more polished.
+- **Added translation support for all input placeholders** — all input fields now use translation keys instead of hardcoded English text, covering Config, Status, and Activity pages.
+- **Added new translation keys** — introduced 12+ new keys including `config.searchConfigsPlaceholder`, `status.discordTokenPlaceholder`, `activity.clientIdPlaceholder`, `recent.appNotFound`, and `recent.fetchFailed`.
+- **Placeholders update immediately on language change** — no app restart required; placeholders refresh instantly when you switch language in settings or via timestamp mode buttons.
+
+## Bug Fixes
+
+- **Fixed placeholders not updating after language change** — previously placeholders required a full app restart to reflect the new language; now they update via `updatePlaceholders()` called in language change handlers.
+- **Fixed button translation keys showing as raw text** — `details.add` and `buttons.add` now display their translated text normally instead of showing the key itself.
 
 ## Stability
 
-- **Hardened the image fetch path** — the code checks fetch success and image MIME type before processing, which reduces failures on bad remote URLs.
-- **Preserved upload reliability** — the upload still posts the full config payload to Firebase, while also storing `averageColor` alongside the other fields.
+- **Centralized placeholder management** — all placeholder logic is now in `updatePlaceholders()`, making it easier to maintain and extend.
+- **Language handlers now refresh placeholders** — `timestamp-mode-btn` and `settings-language-selector` both call `updatePlaceholders()` after setting language.
 
 ## Dependencies
 
-- **Uses `sharp` for color extraction** — the image is resized and sampled efficiently before calculating the average hex color.
+- Updated **Electron** to 42.4.1 for improved runtime stability, performance, and up‑to‑date Chromium/Node.js versions.

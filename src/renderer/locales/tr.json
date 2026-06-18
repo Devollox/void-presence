@@ -40,6 +40,8 @@
 		"dontShowAgain": "Bu eğiticiyi tekrar gösterme"
 	},
 	"activity": {
+		"clientIdPlaceholder": "UYGULAMA ID",
+		"updateActivityPlaceholder": "AKTİVİTEYİ GÜNCELLE (Saniye) MIN 5 S",
 		"title": "Ana Menü",
 		"idle": "Boşta",
 		"rpcEnabled": "RPC etkin",
@@ -87,19 +89,19 @@
 		"details": "DETAYLAR: -",
 		"buttons": "DÜĞMELER: -"
 	},
-	"details": {
+	"details_cycle": {
 		"title": "Ayrıntılar & Durum",
 		"add": "Ayrıntılar & Durum ekle"
 	},
-	"images": {
+	"images_cycle": {
 		"title": "resimler",
 		"add": "Resim ekle"
 	},
-	"buttons": {
+	"buttons_cycle": {
 		"title": "düğme çiftleri",
 		"add": "Düğme çifti ekle"
 	},
-	"party": {
+	"party_cycle": {
 		"title": "parti boyutu",
 		"add": "Parti ekle"
 	},
@@ -118,6 +120,8 @@
 		"waiting": "İlk güncelleme bekleniyor…"
 	},
 	"status": {
+		"discordTokenPlaceholder": "Discord token'ı buraya yapıştırın",
+		"statusUpdatePlaceholder": "DURUMU GÜNCELLE (Saniye) MIN 5 S",
 		"tutorialTitle": "Özel durum",
 		"tutorialWarning1": "Bu özelliği dikkatli kullanın. Kullanıcı token'a dayanır ve üçüncü taraf bir müşteri gibi davranır; bu, Discord'un Hizmet Koşullarına aykırıdır, bu yüzden kendi riskinizle kullanırsınız.",
 		"tutorialWarning2": "Olası sonuçlar için herhangi bir sorumluluk kabul etmiyoruz, uyarılar veya hesap kısıtlamaları dahil, ancak bu özel kullanım için şimdiye kadar ban görmedik.",
@@ -244,6 +248,12 @@
 		"saveStatus": "durumu kaydet",
 		"config": "yapılandırma"
 	},
+	"recent": {
+		"appNotFound": "Uygulama bulunamadı",
+		"fetchFailed": "Alma başarısız",
+		"appNamePlaceholder": "Uygulama adı",
+		"appIdPlaceholder": "Uygulama ID"
+	},
 	"modal": {
 		"backToProfiles": "Profillere geri dön",
 		"backToStatusProfiles": "Durum profillerine geri dön",
@@ -356,8 +366,6 @@
 	"noClientId": "ID, döngüler, güncelleme ayarlayın",
 	"active": "AKTİF",
 	"unknown": "BİLİNMEYEN",
-	"details": "DETAYLAR",
-	"buttons": "DÜĞMELER",
 	"buttonName1": "Düğme Adı #1",
 	"url1": "URL #1",
 	"buttonName2Optional": "Düğme Adı #2 (isteğe bağlı)",

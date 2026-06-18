@@ -40,6 +40,8 @@
 		"dontShowAgain": "Do not show this tutorial again"
 	},
 	"activity": {
+		"clientIdPlaceholder": "APPLICATION ID",
+		"updateActivityPlaceholder": "UPDATE ACTIVITY (SEC) MIN 5 SEC",
 		"title": "Main Menu",
 		"idle": "Idle",
 		"rpcEnabled": "rpc enabled",
@@ -87,19 +89,19 @@
 		"details": "DETAILS: -",
 		"buttons": "BUTTONS: -"
 	},
-	"details": {
+	"details_cycle": {
 		"title": "Details & State",
 		"add": "Add details & state"
 	},
-	"images": {
+	"images_cycle": {
 		"title": "images",
 		"add": "Add image"
 	},
-	"buttons": {
+	"buttons_cycle": {
 		"title": "button pairs",
 		"add": "Add button pair"
 	},
-	"party": {
+	"party_cycle": {
 		"title": "party size",
 		"add": "Add party"
 	},
@@ -118,6 +120,8 @@
 		"waiting": "Waiting for first update…"
 	},
 	"status": {
+		"discordTokenPlaceholder": "Paste Discord token here",
+		"statusUpdatePlaceholder": "STATUS UPDATE (SEC) MIN 5 SEC",
 		"tutorialTitle": "Custom status",
 		"tutorialWarning1": "Use this feature with caution. It relies on a user token and behaves like a third-party client, which is against Discord's Terms of Service, so you use it at your own risk.",
 		"tutorialWarning2": "We do not accept any responsibility for possible consequences, including warnings or account restrictions, although we have not observed bans for this specific use case so far.",
@@ -244,6 +248,12 @@
 		"saveStatus": "save status",
 		"config": "config"
 	},
+	"recent": {
+		"appNotFound": "App not found",
+		"fetchFailed": "Fetch failed",
+		"appNamePlaceholder": "App name",
+		"appIdPlaceholder": "App ID"
+	},
 	"modal": {
 		"backToProfiles": "Back to profiles",
 		"backToStatusProfiles": "Back to status profiles",
@@ -356,8 +366,6 @@
 	"noClientId": "Set ID, cycles, update",
 	"active": "ACTIVE",
 	"unknown": "UNKNOWN",
-	"details": "DETAILS",
-	"buttons": "BUTTONS",
 	"buttonName1": "Button Name #1",
 	"url1": "URL #1",
 	"buttonName2Optional": "Button Name #2 (optional)",
