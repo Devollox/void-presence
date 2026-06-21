@@ -13,7 +13,7 @@ export function createButtonPairRow(
 	pair: ButtonPair,
 	index: number,
 	onChange: (pair: ButtonPair) => void,
-	onRemove: () => void,
+	onRemove: () => void
 ): HTMLDivElement {
 	return createRow(index, {
 		className: 'pair-row',
@@ -38,7 +38,7 @@ export function createCycleRow(
 	entry: CycleEntry,
 	index: number,
 	onChange: (entry: CycleEntry) => void,
-	onRemove: () => void,
+	onRemove: () => void
 ): HTMLDivElement {
 	return createRow(index, {
 		className: 'cycle-row',
@@ -59,7 +59,7 @@ export function createTimeRow(
 	entry: TimeCycleEntry,
 	index: number,
 	onChange: (entry: TimeCycleEntry) => void,
-	onRemove: () => void,
+	onRemove: () => void
 ): HTMLDivElement {
 	return createRow(index, {
 		className: 'cycle-row',
@@ -86,7 +86,7 @@ export function createPartyRow(
 	party: PartyCycleEntry,
 	index: number,
 	onChange: (party: PartyCycleEntry) => void,
-	onRemove: () => void,
+	onRemove: () => void
 ): HTMLDivElement {
 	return createRow(index, {
 		className: 'party-row',
@@ -113,7 +113,7 @@ export function createImageCycleRow(
 	entry: ImageCycleEntry,
 	index: number,
 	onChange: (entry: ImageCycleEntry) => void,
-	onRemove: () => void,
+	onRemove: () => void
 ): HTMLDivElement {
 	return createRow(index, {
 		className: 'image-row',
@@ -150,7 +150,7 @@ export function createStatusRow(
 	entry: StatusCycleEntry,
 	index: number,
 	onChange: (entry: StatusCycleEntry) => void,
-	onRemove: () => void,
+	onRemove: () => void
 ): HTMLDivElement {
 	return createRow(index, {
 		className: 'cycle-row',

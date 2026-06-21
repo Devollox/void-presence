@@ -1,15 +1,9 @@
 import { StoredStatusProfile } from '../../../types/types'
 
 export function openStatusDetails(profile: StoredStatusProfile): void {
-	const overlay = document.getElementById(
-		'status-details-overlay',
-	) as HTMLElement | null
-	const nameEl = document.getElementById(
-		'status-details-name',
-	) as HTMLElement | null
-	const listEl = document.getElementById(
-		'status-details-list',
-	) as HTMLElement | null
+	const overlay = document.getElementById('status-details-overlay') as HTMLElement | null
+	const nameEl = document.getElementById('status-details-name') as HTMLElement | null
+	const listEl = document.getElementById('status-details-list') as HTMLElement | null
 
 	if (!overlay || !nameEl || !listEl) {
 		return
@@ -39,8 +33,7 @@ export function openStatusDetails(profile: StoredStatusProfile): void {
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent =
-				typeof it.emoji === 'string' && it.emoji.trim() ? it.emoji : 'No emoji'
+			sub.textContent = typeof it.emoji === 'string' && it.emoji.trim() ? it.emoji : 'No emoji'
 
 			main.appendChild(label)
 			main.appendChild(sub)
@@ -53,12 +46,8 @@ export function openStatusDetails(profile: StoredStatusProfile): void {
 }
 
 export function setupStatusDetailsOverlay(): void {
-	const overlay = document.getElementById(
-		'status-details-overlay',
-	) as HTMLElement | null
-	const closeBtn = document.getElementById(
-		'status-details-close',
-	) as HTMLButtonElement | null
+	const overlay = document.getElementById('status-details-overlay') as HTMLElement | null
+	const closeBtn = document.getElementById('status-details-close') as HTMLButtonElement | null
 	if (!overlay || !closeBtn) return
 
 	function close(): void {

@@ -10,10 +10,7 @@ import { applyStateToUIAndLists, loadCurrentState } from '../core/state'
 import { appendLog, setActiveView } from '../shell/views'
 import { downloadJson, pushLiveStateFromCtx } from './live'
 import { openStatusDetails } from './status-details'
-import {
-	attachStatusSearch,
-	filterStatusListByExistingInput,
-} from './status-search'
+import { attachStatusSearch, filterStatusListByExistingInput } from './status-search'
 import {
 	addStatusProfileFromState,
 	deepCloneStatusItems,
@@ -21,19 +18,17 @@ import {
 	setStatusProfiles,
 } from './status-storage'
 import { setupToasts } from './toasts'
+import { openStatusUploadConfirm } from './upload-сonfirm'
 
 function createStatusCard(
 	profile: StoredStatusProfile,
 	list: HTMLElement,
 	nameInput: HTMLInputElement,
-	showSavedToast: () => void,
+	showSavedToast: () => void
 ): void {
-	const items: CustomStatusItem[] = Array.isArray(profile.items)
-		? profile.items
-		: []
+	const items: CustomStatusItem[] = Array.isArray(profile.items) ? profile.items : []
 
-	const preview =
-		items.length > 0 ? `${items[0].text || ''}`.slice(0, 40) || '...' : 'Empty'
+	const preview = items.length > 0 ? `${items[0].text || ''}`.slice(0, 40) || '...' : 'Empty'
 
 	const card = document.createElement('div')
 	card.className = 'config-activity-card'
@@ -76,6 +71,10 @@ function createStatusCard(
 	loadBtn.className = 'config-activity-btn'
 	loadBtn.textContent = t('load')
 
+	const uploadBtn = document.createElement('button')
+	uploadBtn.className = 'config-activity-btn'
+	uploadBtn.textContent = t('upload')
+
 	const detailsBtn = document.createElement('button')
 	detailsBtn.className = 'config-activity-btn'
 	detailsBtn.textContent = t('details')
@@ -98,10 +97,7 @@ function createStatusCard(
 
 		const statusCycles: StatusCycleEntry[] = safeItems.map(it => ({
 			text: it.text || '',
-			emoji:
-				typeof it.emoji === 'string' && it.emoji.trim().length > 0
-					? it.emoji.trim()
-					: null,
+			emoji: typeof it.emoji === 'string' && it.emoji.trim().length > 0 ? it.emoji.trim() : null,
 		}))
 
 		try {
@@ -132,12 +128,71 @@ function createStatusCard(
 			showConfigSavedToast()
 		} catch (err: any) {
 			appendLog({
-				message: `Failed to apply status profile: ${
-					err?.message ?? String(err)
-				}`,
+				message: `Failed to apply status profile: ${err?.message ?? String(err)}`,
 				level: 'error',
 			})
 		}
+	})
+
+	uploadBtn.addEventListener('click', e => {
+		e.preventDefault()
+
+		openStatusUploadConfirm(profile, async () => {
+			const authorInput = document.getElementById('config-author-input') as HTMLInputElement | null
+			if (!authorInput?.value.trim()) {
+				appendLog({
+					message: t('logs.enterAuthorIdFirst'),
+					level: 'error',
+				})
+				return
+			}
+
+			if (!window.electronAPI?.uploadStatusConfig) {
+				appendLog({
+					message: t('logs.cloudUploadNotAvailable'),
+					level: 'error',
+				})
+				return
+			}
+
+			const authorId = authorInput.value.trim()
+
+			try {
+				uploadBtn.disabled = true
+				uploadBtn.textContent = 'uploading...'
+
+				const safeItems = deepCloneStatusItems(items)
+
+				const statusCycles: StatusCycleEntry[] = safeItems.map(it => ({
+					text: it.text || '',
+					emoji:
+						typeof it.emoji === 'string' && it.emoji.trim().length > 0 ? it.emoji.trim() : null,
+				}))
+
+				const payload = {
+					title: profile.name || `void-presence-status-${new Date().toISOString().slice(0, 10)}`,
+					authorId,
+					authorName: '',
+					description: `Uploaded ${new Date().toLocaleDateString()}`,
+					configData: { statusCycles },
+				}
+
+				await window.electronAPI.uploadStatusConfig(payload)
+
+				appendLog({
+					message: t('logs.statusConfigUploaded').replace('{title}', payload.title),
+					level: 'success',
+				})
+			} catch (err: any) {
+				appendLog({
+					message: t('logs.uploadFailed').replace('{error}', err?.message ?? String(err)),
+					level: 'error',
+				})
+			} finally {
+				uploadBtn.disabled = false
+				uploadBtn.textContent = t('upload')
+			}
+		})
 	})
 
 	detailsBtn.addEventListener('click', e => {
@@ -148,9 +203,7 @@ function createStatusCard(
 	exportBtn.addEventListener('click', e => {
 		e.preventDefault()
 		const data = deepCloneStatusItems(items)
-		const name =
-			profile.name ||
-			`void-presence-status-${new Date().toISOString().slice(0, 10)}`
+		const name = profile.name || `void-presence-status-${new Date().toISOString().slice(0, 10)}`
 		downloadJson(data, `${name}.json`)
 	})
 
@@ -165,6 +218,7 @@ function createStatusCard(
 	})
 
 	actions.appendChild(loadBtn)
+	actions.appendChild(uploadBtn)
 	actions.appendChild(detailsBtn)
 	actions.appendChild(exportBtn)
 	actions.appendChild(delBtn)
@@ -174,14 +228,10 @@ function createStatusCard(
 }
 
 export function renderStatusProfiles(): void {
-	const list = document.getElementById(
-		'status-list-config',
-	) as HTMLElement | null
-	const nameInput = document.getElementById(
-		'status-name-input',
-	) as HTMLInputElement | null
+	const list = document.getElementById('status-list-config') as HTMLElement | null
+	const nameInput = document.getElementById('status-name-input') as HTMLInputElement | null
 	const statusSearchInput = document.getElementById(
-		'status-search-input',
+		'status-search-input'
 	) as HTMLInputElement | null
 	if (!list || !nameInput) return
 
@@ -207,21 +257,11 @@ export function renderStatusProfiles(): void {
 }
 
 export function setupStatusPage(): void {
-	const nameInput = document.getElementById(
-		'status-name-input',
-	) as HTMLInputElement | null
-	const saveBtn = document.getElementById(
-		'status-save-btn',
-	) as HTMLButtonElement | null
-	const list = document.getElementById(
-		'status-list-config',
-	) as HTMLElement | null
-	const exportBtn = document.getElementById(
-		'status-export-btn',
-	) as HTMLButtonElement | null
-	const importBtn = document.getElementById(
-		'status-import-btn',
-	) as HTMLButtonElement | null
+	const nameInput = document.getElementById('status-name-input') as HTMLInputElement | null
+	const saveBtn = document.getElementById('status-save-btn') as HTMLButtonElement | null
+	const list = document.getElementById('status-list-config') as HTMLElement | null
+	const exportBtn = document.getElementById('status-export-btn') as HTMLButtonElement | null
+	const importBtn = document.getElementById('status-import-btn') as HTMLButtonElement | null
 
 	if (!nameInput || !saveBtn || !list || !exportBtn || !importBtn) return
 
@@ -234,8 +274,7 @@ export function setupStatusPage(): void {
 		const name = nameInput.value.trim()
 		if (!name) return
 		if (!window.electronAPI?.statusGetCurrent) return
-		const items =
-			(await window.electronAPI.statusGetCurrent()) as CustomStatusItem[]
+		const items = (await window.electronAPI.statusGetCurrent()) as CustomStatusItem[]
 		if (!Array.isArray(items)) return
 		addStatusProfileFromState(name, items)
 		nameInput.value = ''
@@ -247,16 +286,13 @@ export function setupStatusPage(): void {
 		e.preventDefault()
 		const profiles = getStatusProfiles()
 		const name =
-			nameInput.value.trim() ||
-			`void-presence-status-${new Date().toISOString().slice(0, 10)}`
+			nameInput.value.trim() || `void-presence-status-${new Date().toISOString().slice(0, 10)}`
 		downloadJson(profiles, `${name}.json`)
 	})
 
 	importBtn.addEventListener('click', e => {
 		e.preventDefault()
-		const importOverlay = document.getElementById(
-			'status-import-overlay',
-		) as HTMLElement | null
+		const importOverlay = document.getElementById('status-import-overlay') as HTMLElement | null
 		if (importOverlay) {
 			importOverlay.dataset.open = 'true'
 		}
@@ -266,9 +302,7 @@ export function setupStatusPage(): void {
 }
 
 export async function setupStatusIntervalControl(): Promise<void> {
-	const input = document.getElementById(
-		'status-update-interval-input',
-	) as HTMLInputElement | null
+	const input = document.getElementById('status-update-interval-input') as HTMLInputElement | null
 	if (!input) return
 
 	const raw = localStorage.getItem('updateIntervalSecStatus')

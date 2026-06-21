@@ -1,13 +1,7 @@
 import { VoidPresenceCtx } from 'src/types/types'
 import { pushLiveStateFromCtx } from '../config/live'
 
-type ListKey =
-	| 'buttonPairs'
-	| 'cycles'
-	| 'imageCycles'
-	| 'party'
-	| 'timeCycles'
-	| 'statusCycles'
+type ListKey = 'buttonPairs' | 'cycles' | 'imageCycles' | 'party' | 'timeCycles' | 'statusCycles'
 
 type ListConfig<T> = {
 	listId: string
@@ -17,7 +11,7 @@ type ListConfig<T> = {
 		item: T,
 		idx: number,
 		onUpdate: (val: T) => void,
-		onDelete: () => void,
+		onDelete: () => void
 	) => HTMLElement
 	getDefaultItem: () => T
 }
@@ -25,12 +19,10 @@ type ListConfig<T> = {
 export function createListManager<T>(
 	ctx: VoidPresenceCtx,
 	showBlocksToast: () => void,
-	cfg: ListConfig<T>,
+	cfg: ListConfig<T>
 ): () => void {
 	const listEl = document.getElementById(cfg.listId) as HTMLElement | null
-	const addBtn = document.getElementById(
-		cfg.addBtnId,
-	) as HTMLButtonElement | null
+	const addBtn = document.getElementById(cfg.addBtnId) as HTMLButtonElement | null
 
 	const getList = () => (ctx as any)[cfg.storageKey] as T[]
 
@@ -62,7 +54,7 @@ export function createListManager<T>(
 					render()
 					void pushLiveStateFromCtx(ctx)
 					showBlocksToast()
-				},
+				}
 			)
 			listEl.appendChild(row)
 		})

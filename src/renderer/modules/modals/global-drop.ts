@@ -1,10 +1,8 @@
 import { importConfigFromFile } from './import'
 
 export function setupGlobalDrop(): void {
-	const overlay = document.getElementById(
-		'global-drop-overlay',
-	) as HTMLElement | null
-	if (!overlay) return
+	const overlay = document.getElementById('global-drop-overlay')
+	if (!(overlay instanceof HTMLElement)) return
 
 	const showOverlay = () => {
 		overlay.dataset.active = 'true'
@@ -52,11 +50,7 @@ export function setupGlobalDrop(): void {
 			e.clientX >= window.innerWidth ||
 			e.clientY >= window.innerHeight
 
-		if (
-			leftWindow ||
-			e.target === document.documentElement ||
-			e.target === document.body
-		) {
+		if (leftWindow || e.target === document.documentElement || e.target === document.body) {
 			hideOverlay()
 		}
 	})

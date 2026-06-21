@@ -125,9 +125,7 @@ function calcNowPlaying() {
 		}
 	}
 
-	const thumbInfo = getPngSize(
-		media && media.thumbnail ? media.thumbnail : null,
-	)
+	const thumbInfo = getPngSize(media && media.thumbnail ? media.thumbnail : null)
 	const known = classifyThumbByKnownSizes(thumbInfo)
 
 	let isThumbMusic

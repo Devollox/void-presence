@@ -28,8 +28,7 @@ export function setupActivityTypeControls(): void {
 	}
 
 	const stored: ActivityTypeLocal =
-		(localStorage.getItem('activityType') as ActivityTypeLocal | null) ||
-		'playing'
+		(localStorage.getItem('activityType') as ActivityTypeLocal | null) || 'playing'
 
 	applyActivity(stored)
 

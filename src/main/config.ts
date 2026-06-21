@@ -29,18 +29,11 @@ async function ensureDir(filePath: string): Promise<void> {
 	await fs.mkdir(dir, { recursive: true })
 }
 
-async function writeJsonSafe<T>(
-	filePath: string,
-	data: T,
-	retry = 3,
-): Promise<void> {
+async function writeJsonSafe<T>(filePath: string, data: T, retry = 3): Promise<void> {
 	const json = JSON.stringify(data, null, 2)
 	await ensureDir(filePath)
 	const dir = path.dirname(filePath)
-	const tmpPath = path.join(
-		dir,
-		`.${path.basename(filePath)}.${process.pid}.${randomUUID()}.tmp`,
-	)
+	const tmpPath = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${randomUUID()}.tmp`)
 
 	for (let i = 0; i < retry; i++) {
 		try {
@@ -61,7 +54,7 @@ async function writeJsonSafe<T>(
 async function readJsonWithSchema<T>(
 	filePath: string,
 	validate: Validator<T>,
-	fallback: T,
+	fallback: T
 ): Promise<T> {
 	try {
 		const raw = await fs.readFile(filePath, 'utf-8')
@@ -132,18 +125,12 @@ const defaultClientConfig: ClientConfig = {
 const validateClientConfig: Validator<ClientConfig> = (input): ClientConfig => {
 	const obj = (input ?? {}) as Partial<ClientConfig>
 	const clientId =
-		typeof obj.clientId === 'string' && obj.clientId.trim().length > 0
-			? obj.clientId.trim()
-			: null
+		typeof obj.clientId === 'string' && obj.clientId.trim().length > 0 ? obj.clientId.trim() : null
 	return { clientId }
 }
 
 export async function readClientConfig(): Promise<ClientConfig> {
-	return readJsonWithSchema(
-		getClientConfigPath(),
-		validateClientConfig,
-		defaultClientConfig,
-	)
+	return readJsonWithSchema(getClientConfigPath(), validateClientConfig, defaultClientConfig)
 }
 
 export async function writeClientConfig(config: ClientConfig) {
@@ -181,11 +168,7 @@ const validateTimerConfig: Validator<TimerConfig> = (input): TimerConfig => {
 }
 
 export async function readTimerConfig(): Promise<TimerConfig> {
-	return readJsonWithSchema(
-		getTimerConfigPath(),
-		validateTimerConfig,
-		defaultTimerConfig,
-	)
+	return readJsonWithSchema(getTimerConfigPath(), validateTimerConfig, defaultTimerConfig)
 }
 
 export async function writeTimerConfig(config: TimerConfig) {
@@ -195,18 +178,14 @@ export async function writeTimerConfig(config: TimerConfig) {
 export async function setActivityIntervalConfig(sec: number | null) {
 	const cfg = await readTimerConfig()
 	cfg.updateIntervalSec =
-		typeof sec === 'number' && Number.isFinite(sec) && sec > 0
-			? Math.max(5, Math.floor(sec))
-			: null
+		typeof sec === 'number' && Number.isFinite(sec) && sec > 0 ? Math.max(5, Math.floor(sec)) : null
 	await writeTimerConfig(cfg)
 }
 
 export async function setActivityIntervalStatusConfig(sec: number | null) {
 	const cfg = await readTimerConfig()
 	cfg.updateIntervalSecStatus =
-		typeof sec === 'number' && Number.isFinite(sec) && sec > 0
-			? Math.max(5, Math.floor(sec))
-			: null
+		typeof sec === 'number' && Number.isFinite(sec) && sec > 0 ? Math.max(5, Math.floor(sec)) : null
 	await writeTimerConfig(cfg)
 }
 
@@ -214,9 +193,7 @@ const defaultDiscordTokenConfig: DiscordTokenConfig = {
 	discordToken: null,
 }
 
-const validateDiscordTokenConfig: Validator<DiscordTokenConfig> = (
-	input,
-): DiscordTokenConfig => {
+const validateDiscordTokenConfig: Validator<DiscordTokenConfig> = (input): DiscordTokenConfig => {
 	const obj = (input ?? {}) as Partial<DiscordTokenConfig>
 	const discordToken =
 		typeof obj.discordToken === 'string' && obj.discordToken.trim().length > 0
@@ -229,15 +206,12 @@ export async function readDiscordTokenConfig(): Promise<DiscordTokenConfig> {
 	return readJsonWithSchema(
 		getDiscordTokenConfigPath(),
 		validateDiscordTokenConfig,
-		defaultDiscordTokenConfig,
+		defaultDiscordTokenConfig
 	)
 }
 
 export async function writeDiscordTokenConfig(config: DiscordTokenConfig) {
-	await writeJsonSafe(
-		getDiscordTokenConfigPath(),
-		validateDiscordTokenConfig(config),
-	)
+	await writeJsonSafe(getDiscordTokenConfigPath(), validateDiscordTokenConfig(config))
 }
 
 export async function setDiscordTokenConfig(token: string | null) {
@@ -249,16 +223,13 @@ export async function setDiscordTokenConfig(token: string | null) {
 const normalizeButtonPairLoose = (p: ButtonPair): ButtonPair => ({
 	label1: typeof p.label1 === 'string' ? p.label1 : '',
 	url1: typeof p.url1 === 'string' ? p.url1 : '',
-	label2:
-		typeof p.label2 === 'string' && p.label2.length > 0 ? p.label2 : undefined,
+	label2: typeof p.label2 === 'string' && p.label2.length > 0 ? p.label2 : undefined,
 	url2: typeof p.url2 === 'string' && p.url2.length > 0 ? p.url2 : undefined,
 })
 
 const defaultButtonsConfig: ButtonsConfig = { pairs: [] }
 
-const validateButtonsConfig: Validator<ButtonsConfig> = (
-	input,
-): ButtonsConfig => {
+const validateButtonsConfig: Validator<ButtonsConfig> = (input): ButtonsConfig => {
 	const obj = (input ?? {}) as Partial<ButtonsConfig>
 	const pairs = Array.isArray(obj.pairs) ? obj.pairs : []
 	return {
@@ -267,11 +238,7 @@ const validateButtonsConfig: Validator<ButtonsConfig> = (
 }
 
 export async function readButtonsConfig(): Promise<ButtonsConfig> {
-	return readJsonWithSchema(
-		getButtonsConfigPath(),
-		validateButtonsConfig,
-		defaultButtonsConfig,
-	)
+	return readJsonWithSchema(getButtonsConfigPath(), validateButtonsConfig, defaultButtonsConfig)
 }
 
 export async function writeButtonsConfig(config: ButtonsConfig) {
@@ -292,11 +259,7 @@ const validateCyclesConfig: Validator<CyclesConfig> = (input): CyclesConfig => {
 }
 
 export async function readCyclesConfig(): Promise<CyclesConfig> {
-	return readJsonWithSchema(
-		getCyclesConfigPath(),
-		validateCyclesConfig,
-		defaultCyclesConfig,
-	)
+	return readJsonWithSchema(getCyclesConfigPath(), validateCyclesConfig, defaultCyclesConfig)
 }
 
 export async function writeCyclesConfig(config: CyclesConfig) {
@@ -318,10 +281,7 @@ const validateStatusConfig: Validator<{
 		cycles: cycles
 			.map((c: any) => ({
 				text: typeof c?.text === 'string' ? c.text.trim() : '',
-				emoji:
-					typeof c?.emoji === 'string' && c.emoji.trim().length > 0
-						? c.emoji.trim()
-						: null,
+				emoji: typeof c?.emoji === 'string' && c.emoji.trim().length > 0 ? c.emoji.trim() : null,
 			}))
 			.filter(c => c.text.length > 0),
 	}
@@ -330,11 +290,7 @@ const validateStatusConfig: Validator<{
 export async function readStatusConfig(): Promise<{
 	cycles: { text: string; emoji: string | null }[]
 }> {
-	return readJsonWithSchema(
-		getStatusConfigPath(),
-		validateStatusConfig,
-		defaultStatusConfig,
-	)
+	return readJsonWithSchema(getStatusConfigPath(), validateStatusConfig, defaultStatusConfig)
 }
 
 export async function writeStatusConfig(config: {
@@ -343,37 +299,25 @@ export async function writeStatusConfig(config: {
 	await writeJsonSafe(getStatusConfigPath(), validateStatusConfig(config))
 }
 
-export async function setStatusConfig(
-	cycles: { text: string; emoji: string | null }[],
-) {
+export async function setStatusConfig(cycles: { text: string; emoji: string | null }[]) {
 	await writeStatusConfig({ cycles: Array.isArray(cycles) ? cycles : [] })
 }
 
 const defaultImageCyclesConfig: ImageCyclesConfig = { cycles: [] }
 
-const validateImageCyclesConfig: Validator<ImageCyclesConfig> = (
-	input,
-): ImageCyclesConfig => {
+const validateImageCyclesConfig: Validator<ImageCyclesConfig> = (input): ImageCyclesConfig => {
 	const obj = (input ?? {}) as Partial<ImageCyclesConfig>
 	const arr = Array.isArray(obj.cycles) ? obj.cycles : []
 	return {
 		cycles: arr.map(c => ({
 			largeImage:
-				c?.largeImage === null || c?.largeImage === undefined
-					? null
-					: c.largeImage.toString(),
+				c?.largeImage === null || c?.largeImage === undefined ? null : c.largeImage.toString(),
 			largeText:
-				c?.largeText === null || c?.largeText === undefined
-					? null
-					: c.largeText.toString(),
+				c?.largeText === null || c?.largeText === undefined ? null : c.largeText.toString(),
 			smallImage:
-				c?.smallImage === null || c?.smallImage === undefined
-					? null
-					: c.smallImage.toString(),
+				c?.smallImage === null || c?.smallImage === undefined ? null : c.smallImage.toString(),
 			smallText:
-				c?.smallText === null || c?.smallText === undefined
-					? null
-					: c.smallText.toString(),
+				c?.smallText === null || c?.smallText === undefined ? null : c.smallText.toString(),
 		})),
 	}
 }
@@ -382,44 +326,30 @@ export async function readImageCyclesConfig(): Promise<ImageCyclesConfig> {
 	return readJsonWithSchema(
 		getImageCyclesConfigPath(),
 		validateImageCyclesConfig,
-		defaultImageCyclesConfig,
+		defaultImageCyclesConfig
 	)
 }
 
 export async function writeImageCyclesConfig(config: ImageCyclesConfig) {
-	await writeJsonSafe(
-		getImageCyclesConfigPath(),
-		validateImageCyclesConfig(config),
-	)
+	await writeJsonSafe(getImageCyclesConfigPath(), validateImageCyclesConfig(config))
 }
 
 const defaultPartyConfig: PartyConfig | null = null
 
-const validatePartyConfig: Validator<PartyConfig | null> = (
-	input,
-): PartyConfig | null => {
+const validatePartyConfig: Validator<PartyConfig | null> = (input): PartyConfig | null => {
 	if (!input || typeof input !== 'object') return null
 	const obj = input as Partial<PartyConfig>
 	const entriesRaw = Array.isArray(obj.entries) ? obj.entries : []
 	const entries: PartyCycleEntry[] = entriesRaw.map((p: PartyCycleEntry) => ({
 		sizeCurrent:
-			p?.sizeCurrent === null || p?.sizeCurrent === undefined
-				? null
-				: Number(p.sizeCurrent),
-		sizeMax:
-			p?.sizeMax === null || p?.sizeMax === undefined
-				? null
-				: Number(p.sizeMax),
+			p?.sizeCurrent === null || p?.sizeCurrent === undefined ? null : Number(p.sizeCurrent),
+		sizeMax: p?.sizeMax === null || p?.sizeMax === undefined ? null : Number(p.sizeMax),
 	}))
 	return { entries }
 }
 
 export async function readPartyConfig(): Promise<PartyConfig | null> {
-	return readJsonWithSchema(
-		getPartyConfigPath(),
-		validatePartyConfig,
-		defaultPartyConfig,
-	)
+	return readJsonWithSchema(getPartyConfigPath(), validatePartyConfig, defaultPartyConfig)
 }
 
 export async function writePartyConfig(config: PartyConfig | null) {
@@ -442,22 +372,15 @@ const defaultTimestampConfig: TimestampConfig = {
 	timeCycles: [],
 }
 
-const validateTimestampConfig: Validator<TimestampConfig> = (
-	input,
-): TimestampConfig => {
+const validateTimestampConfig: Validator<TimestampConfig> = (input): TimestampConfig => {
 	const obj = (input ?? {}) as Partial<TimestampConfig>
 	const mode = obj.mode || 'now'
 	const min =
-		typeof obj.rangeMin === 'number' && Number.isFinite(obj.rangeMin)
-			? obj.rangeMin
-			: null
+		typeof obj.rangeMin === 'number' && Number.isFinite(obj.rangeMin) ? obj.rangeMin : null
 	const max =
-		typeof obj.rangeMax === 'number' && Number.isFinite(obj.rangeMax)
-			? obj.rangeMax
-			: null
+		typeof obj.rangeMax === 'number' && Number.isFinite(obj.rangeMax) ? obj.rangeMax : null
 	const persistOffsetSec =
-		typeof obj.persistOffsetSec === 'number' &&
-		Number.isFinite(obj.persistOffsetSec)
+		typeof obj.persistOffsetSec === 'number' && Number.isFinite(obj.persistOffsetSec)
 			? obj.persistOffsetSec
 			: 0
 	const nowMode = (obj.nowMode as NowMode) || 'plain'
@@ -476,7 +399,7 @@ export async function readTimestampConfig(): Promise<TimestampConfig> {
 	return readJsonWithSchema(
 		getTimestampConfigPath(),
 		validateTimestampConfig,
-		defaultTimestampConfig,
+		defaultTimestampConfig
 	)
 }
 
@@ -498,8 +421,7 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 			: current.rangeMax
 
 	const hasPersistOffset =
-		typeof config.persistOffsetSec === 'number' &&
-		Number.isFinite(config.persistOffsetSec)
+		typeof config.persistOffsetSec === 'number' && Number.isFinite(config.persistOffsetSec)
 
 	const persistOffsetSecRaw = hasPersistOffset
 		? Number(config.persistOffsetSec)
@@ -521,9 +443,7 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 	}
 
 	const nowMode = config.nowMode || current.nowMode || 'plain'
-	const timeCycles = Array.isArray(config.timeCycles)
-		? config.timeCycles
-		: current.timeCycles
+	const timeCycles = Array.isArray(config.timeCycles) ? config.timeCycles : current.timeCycles
 
 	await writeTimestampConfig({
 		mode,
@@ -537,9 +457,7 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 
 const defaultActivityTypeConfig: ActivityTypeConfig = { type: 'playing' }
 
-const validateActivityTypeConfig: Validator<ActivityTypeConfig> = (
-	input,
-): ActivityTypeConfig => {
+const validateActivityTypeConfig: Validator<ActivityTypeConfig> = (input): ActivityTypeConfig => {
 	const obj = (input ?? {}) as Partial<ActivityTypeConfig>
 	const type = obj.type || 'playing'
 	return { type }
@@ -549,22 +467,17 @@ export async function readActivityTypeConfig(): Promise<ActivityTypeConfig> {
 	return readJsonWithSchema(
 		getActivityTypeConfigPath(),
 		validateActivityTypeConfig,
-		defaultActivityTypeConfig,
+		defaultActivityTypeConfig
 	)
 }
 
 export async function writeActivityTypeConfig(config: ActivityTypeConfig) {
-	await writeJsonSafe(
-		getActivityTypeConfigPath(),
-		validateActivityTypeConfig(config),
-	)
+	await writeJsonSafe(getActivityTypeConfigPath(), validateActivityTypeConfig(config))
 }
 
 export async function setActivityType(type: ActivityTypeConfig['type']) {
 	const safeType =
-		type === 'watching' || type === 'listening' || type === 'competing'
-			? type
-			: 'playing'
+		type === 'watching' || type === 'listening' || type === 'competing' ? type : 'playing'
 	await writeActivityTypeConfig({ type: safeType })
 }
 
@@ -573,8 +486,7 @@ export async function setButtonsConfig(pairs: ButtonPair[]) {
 		const rawUrl1 = (p.url1 ?? '').toString().trim()
 		const rawUrl2 = (p.url2 ?? '').toString().trim()
 		const url1 = rawUrl1.length > 0 && !rawUrl1.includes(' ') ? rawUrl1 : ''
-		const url2 =
-			rawUrl2.length > 0 && !rawUrl2.includes(' ') ? rawUrl2 : undefined
+		const url2 = rawUrl2.length > 0 && !rawUrl2.includes(' ') ? rawUrl2 : undefined
 		return {
 			label1: (p.label1 ?? '').toString(),
 			url1,
@@ -600,7 +512,7 @@ export async function setImageCyclesConfig(
 		largeText: string | null
 		smallImage: string | null
 		smallText: string | null
-	}[],
+	}[]
 ) {
 	const cleaned: ImageCycle[] = (Array.isArray(cycles) ? cycles : []).map(c => {
 		const li = c.largeImage?.toString().trim() ?? ''
@@ -611,15 +523,9 @@ export async function setImageCyclesConfig(
 
 		return {
 			largeImage: safeLargeImage,
-			largeText:
-				c.largeText === null || c.largeText === undefined
-					? null
-					: c.largeText.toString(),
+			largeText: c.largeText === null || c.largeText === undefined ? null : c.largeText.toString(),
 			smallImage: safeSmallImage,
-			smallText:
-				c.smallText === null || c.smallText === undefined
-					? null
-					: c.smallText.toString(),
+			smallText: c.smallText === null || c.smallText === undefined ? null : c.smallText.toString(),
 		}
 	})
 
@@ -630,11 +536,8 @@ export async function setPartyConfig(config: PartyConfig) {
 	const entriesRaw = Array.isArray(config.entries) ? config.entries : []
 	const cleaned: PartyCycleEntry[] = entriesRaw.map(p => ({
 		sizeCurrent:
-			p.sizeCurrent === null || p.sizeCurrent === undefined
-				? null
-				: Number(p.sizeCurrent),
-		sizeMax:
-			p.sizeMax === null || p.sizeMax === undefined ? null : Number(p.sizeMax),
+			p.sizeCurrent === null || p.sizeCurrent === undefined ? null : Number(p.sizeCurrent),
+		sizeMax: p.sizeMax === null || p.sizeMax === undefined ? null : Number(p.sizeMax),
 	}))
 	const finalCfg: PartyConfig = { entries: cleaned }
 	await writePartyConfig(finalCfg)
@@ -719,8 +622,7 @@ const validateSettings: Validator<Settings> = (input): Settings => {
 		rpcEnabled: obj.rpcEnabled === true,
 		barStyle,
 		lastUpdateNotified:
-			typeof obj.lastUpdateNotified === 'string' &&
-			obj.lastUpdateNotified.trim().length > 0
+			typeof obj.lastUpdateNotified === 'string' && obj.lastUpdateNotified.trim().length > 0
 				? obj.lastUpdateNotified.trim()
 				: null,
 		lastUpdateNotifiedVersion:
@@ -732,11 +634,7 @@ const validateSettings: Validator<Settings> = (input): Settings => {
 }
 
 export async function readSettings(): Promise<Settings> {
-	return readJsonWithSchema(
-		getSettingsPath(),
-		validateSettings,
-		defaultSettings,
-	)
+	return readJsonWithSchema(getSettingsPath(), validateSettings, defaultSettings)
 }
 
 export async function writeSettings(data: Settings): Promise<void> {
@@ -766,9 +664,7 @@ export async function setStatusEnabled(enabled: boolean) {
 export async function setStatusIntervalConfig(sec: number | null) {
 	const cfg = await readTimerConfig()
 	cfg.updateIntervalSecStatus =
-		typeof sec === 'number' && Number.isFinite(sec) && sec > 0
-			? Math.max(5, Math.floor(sec))
-			: null
+		typeof sec === 'number' && Number.isFinite(sec) && sec > 0 ? Math.max(5, Math.floor(sec)) : null
 	await writeTimerConfig(cfg)
 }
 
@@ -786,10 +682,7 @@ function validateStatusCyclesConfig(input: unknown) {
 	return {
 		cycles: cycles.map((c: any) => ({
 			text: typeof c?.text === 'string' ? c.text : '',
-			emoji:
-				typeof c?.emoji === 'string' && c.emoji.trim().length > 0
-					? c.emoji
-					: null,
+			emoji: typeof c?.emoji === 'string' && c.emoji.trim().length > 0 ? c.emoji : null,
 		})),
 	}
 }
@@ -801,34 +694,26 @@ export async function readStatusCyclesConfig() {
 	return readJsonWithSchema(
 		getStatusCyclesConfigPath(),
 		validateStatusCyclesConfig,
-		defaultStatusCyclesConfig,
+		defaultStatusCyclesConfig
 	)
 }
 
-export async function writeStatusCyclesConfig(config: {
-	cycles: StatusCycleEntry[]
-}) {
-	await writeJsonSafe(
-		getStatusCyclesConfigPath(),
-		validateStatusCyclesConfig(config),
-	)
+export async function writeStatusCyclesConfig(config: { cycles: StatusCycleEntry[] }) {
+	await writeJsonSafe(getStatusCyclesConfigPath(), validateStatusCyclesConfig(config))
 }
 
 export async function setStatusCyclesConfig(cycles: StatusCycleEntry[]) {
 	const cleaned = Array.isArray(cycles)
 		? cycles.map(c => ({
 				text: c.text?.toString() ?? '',
-				emoji:
-					c.emoji === null || c.emoji === undefined ? null : c.emoji.toString(),
+				emoji: c.emoji === null || c.emoji === undefined ? null : c.emoji.toString(),
 			}))
 		: []
 
 	await writeStatusCyclesConfig({ cycles: cleaned })
 }
 
-export function normalizeStatuses(
-	list: any[] | undefined | null,
-): StatusCycleEntry[] {
+export function normalizeStatuses(list: any[] | undefined | null): StatusCycleEntry[] {
 	if (!Array.isArray(list)) return []
 	return list
 		.map(x => ({
@@ -857,9 +742,7 @@ const defaultLanguageConfig: LanguageConfig = {
 	language: 'ru',
 }
 
-const validateLanguageConfig: Validator<LanguageConfig> = (
-	input,
-): LanguageConfig => {
+const validateLanguageConfig: Validator<LanguageConfig> = (input): LanguageConfig => {
 	const obj = (input ?? {}) as Partial<LanguageConfig>
 	const lang = obj.language
 	if (lang === 'ru' || lang === 'en' || lang === 'tr') {
@@ -869,16 +752,10 @@ const validateLanguageConfig: Validator<LanguageConfig> = (
 }
 
 export async function readLanguageConfig(): Promise<LanguageConfig> {
-	return readJsonWithSchema(
-		getLanguageConfigPath(),
-		validateLanguageConfig,
-		defaultLanguageConfig,
-	)
+	return readJsonWithSchema(getLanguageConfigPath(), validateLanguageConfig, defaultLanguageConfig)
 }
 
-export async function writeLanguageConfig(
-	config: LanguageConfig,
-): Promise<void> {
+export async function writeLanguageConfig(config: LanguageConfig): Promise<void> {
 	await writeJsonSafe(getLanguageConfigPath(), validateLanguageConfig(config))
 }
 

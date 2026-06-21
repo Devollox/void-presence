@@ -69,7 +69,6 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 		}
 
 		const contentType = res.headers.get('content-type') || ''
-
 		if (!contentType.startsWith('image/')) {
 			return defaultColors()
 		}
@@ -90,9 +89,7 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 
 		for (let i = 0; i < rgbaBuffer.length; i += 4) {
 			const alpha = rgbaBuffer[i + 3]
-
 			if (alpha < 128) continue
-
 			r += rgbaBuffer[i]
 			g += rgbaBuffer[i + 1]
 			b += rgbaBuffer[i + 2]
@@ -112,14 +109,12 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 		return {
 			averageColor: hex,
 		}
-	} catch (err: any) {
+	} catch {
 		return defaultColors()
 	}
 }
 
-export async function fetchAuthor(
-	authorId: string,
-): Promise<UserRecord | null> {
+export async function fetchAuthor(authorId: string): Promise<UserRecord | null> {
 	const base = getBaseUrl()
 	const url = `${base}/users/${authorId}.json`
 	const res = await fetch(url)
@@ -129,16 +124,12 @@ export async function fetchAuthor(
 	return data
 }
 
-export async function uploadConfigToCloud(
-	config: UploadConfigPayload,
-): Promise<string> {
+export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<string> {
 	const base = getBaseUrl()
 	const url = `${base}/configs.json`
 
 	const firstImage = getFirstImageUrl(config.configData)
-	const colors = firstImage
-		? await getColorsFromImage(firstImage)
-		: defaultColors()
+	const colors = firstImage ? await getColorsFromImage(firstImage) : defaultColors()
 
 	const response = await fetch(url, {
 		method: 'POST',
@@ -152,6 +143,30 @@ export async function uploadConfigToCloud(
 			downloads: 0,
 			uploadedAt: Date.now(),
 			...colors,
+		}),
+	})
+
+	if (!response.ok) throw new Error(`HTTP ${response.status}`)
+	const result: Record<string, unknown> = await response.json()
+	const keys = Object.keys(result)
+	return keys[0] || 'unknown'
+}
+
+export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Promise<string> {
+	const base = getBaseUrl()
+	const url = `${base}/status-configs.json`
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			title: config.title,
+			author: config.authorName,
+			authorId: `${config.authorId}`,
+			description: config.description,
+			configData: config.configData,
+			downloads: 0,
+			uploadedAt: Date.now(),
 		}),
 	})
 

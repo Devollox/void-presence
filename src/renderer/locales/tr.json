@@ -190,8 +190,10 @@
 		"entries": "girdiler",
 		"enterConfigNameAndAuthorId": "Önce yapılandırma adı ve yazar ID girin (voidpresence.site/profile'dan alın)",
 		"configUploaded": "Yapılandırma \"{title}\" yüklendi!",
-		"uploadFailed": "Yükleme başarısız: {error}",
-		"cloudUploadNotAvailable": "Cloud yüklemesi mevcut değil"
+		"enterAuthorIdFirst": "Önce yazar kimliğini girin (voidpresence.site/profile üzerinden alın)",
+		"cloudUploadNotAvailable": "Buluta yükleme kullanılamıyor",
+		"statusConfigUploaded": "Durum profili \"{title}\" yüklendi!",
+		"uploadFailed": "Yükleme başarısız oldu: {error}"
 	},
 	"statusMap": {
 		"idle": "Boşta",
@@ -255,6 +257,8 @@
 		"appIdPlaceholder": "Uygulama ID"
 	},
 	"modal": {
+		"uploadStatusConfig": "Durum профili yüklensin mi?",
+		"profile": "Profil",
 		"backToProfiles": "Profillere geri dön",
 		"backToStatusProfiles": "Durum profillerine geri dön",
 		"profileConfiguration": "Profil yapılandırması",

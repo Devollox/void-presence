@@ -29,8 +29,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 function sampleCpu() {
 	const cores = os.cpus()
-	if (!cores || cores.length === 0)
-		return { idle: 0, total: 0, time: Date.now() }
+	if (!cores || cores.length === 0) return { idle: 0, total: 0, time: Date.now() }
 
 	let idle = 0
 	let total = 0
@@ -53,10 +52,7 @@ async function getCpuLoadPct() {
 
 	if (totalDiff <= 0) return 0
 
-	return Math.max(
-		0,
-		Math.min(100, Math.round((1 - idleDiff / totalDiff) * 100)),
-	)
+	return Math.max(0, Math.min(100, Math.round((1 - idleDiff / totalDiff) * 100)))
 }
 
 function cleanName(name) {
@@ -88,17 +84,14 @@ function execFileAsync(file, args, opts = {}) {
 }
 
 async function getCpuName() {
-	if (workerData && workerData.cpuName)
-		return cleanName(workerData.cpuName) || 'CPU'
+	if (workerData && workerData.cpuName) return cleanName(workerData.cpuName) || 'CPU'
 	if (!cpuNamePromise) {
 		cpuNamePromise = (async () => {
 			if (process.platform === 'win32') {
 				try {
-					const { stdout } = await execFileAsync(
-						'wmic',
-						['cpu', 'get', 'Name', '/value'],
-						{ windowsHide: true },
-					)
+					const { stdout } = await execFileAsync('wmic', ['cpu', 'get', 'Name', '/value'], {
+						windowsHide: true,
+					})
 					const m = String(stdout || '').match(/Name=(.+)/i)
 					if (m && m[1]) return cleanName(m[1]) || 'CPU'
 				} catch {}
@@ -110,7 +103,7 @@ async function getCpuName() {
 							'-Command',
 							'(Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name)',
 						],
-						{ windowsHide: true },
+						{ windowsHide: true }
 					)
 					const v = String(stdout || '')
 						.trim()
@@ -129,10 +122,7 @@ async function getGpuStats() {
 	if (process.platform !== 'win32') return []
 	if (gpuQueryPromise) return gpuQueryPromise
 	gpuQueryPromise = (async () => {
-		const smi =
-			workerData && workerData.nvidiaSmiPath
-				? workerData.nvidiaSmiPath
-				: 'nvidia-smi'
+		const smi = workerData && workerData.nvidiaSmiPath ? workerData.nvidiaSmiPath : 'nvidia-smi'
 		const args = [
 			'--query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.total',
 			'--format=csv,noheader,nounits',
@@ -190,7 +180,7 @@ async function getCpuTemperature() {
 					'-Command',
 					'Get-CimInstance -Namespace root/WMI -ClassName MSAcpi_ThermalZoneTemperature | Select-Object -ExpandProperty CurrentTemperature',
 				],
-				{ windowsHide: true, maxBuffer: 1024 * 64 },
+				{ windowsHide: true, maxBuffer: 1024 * 64 }
 			)
 			const ktenth = String(stdout || '')
 				.trim()
@@ -211,7 +201,7 @@ async function getCpuTemperature() {
 					'-Command',
 					'$t = Get-WmiObject MSAcpi_ThermalZoneTemperature -Namespace "root/wmi"; if ($t) { $t.CurrentTemperature }',
 				],
-				{ windowsHide: true, maxBuffer: 1024 * 64 },
+				{ windowsHide: true, maxBuffer: 1024 * 64 }
 			)
 			const num = Number(String(stdout || '').trim())
 			if (Number.isFinite(num)) {

@@ -1,14 +1,7 @@
 import { BarStyle } from '../../../types/types'
 
 const STORAGE_KEY = 'barStyle'
-const VALID_STYLES: BarStyle[] = [
-	'unicode',
-	'cmd',
-	'block',
-	'soft',
-	'retro',
-	'cyber',
-]
+const VALID_STYLES: BarStyle[] = ['unicode', 'cmd', 'block', 'soft', 'retro', 'cyber']
 
 function getStoredBarStyle(): BarStyle {
 	const v = localStorage.getItem(STORAGE_KEY) as BarStyle | null
@@ -41,8 +34,7 @@ export async function applyBarStyle(style: BarStyle): Promise<void> {
 }
 
 export function initBarStyleControls(): void {
-	const buttons =
-		document.querySelectorAll<HTMLButtonElement>('[data-bar-style]')
+	const buttons = document.querySelectorAll<HTMLButtonElement>('[data-bar-style]')
 
 	setActiveButtons(getStoredBarStyle())
 	refreshBarStyleVisibility()

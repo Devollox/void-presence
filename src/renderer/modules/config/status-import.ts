@@ -3,15 +3,9 @@ import { renderStatusProfiles } from './status-page'
 import { getStatusProfiles, setStatusProfiles } from './status-storage'
 
 export function setupStatusImportOverlay(): void {
-	const overlay = document.getElementById(
-		'status-import-overlay',
-	) as HTMLElement | null
-	const closeBtn = document.getElementById(
-		'status-import-close-btn',
-	) as HTMLButtonElement | null
-	const fileInput = document.getElementById(
-		'status-import-file-input',
-	) as HTMLInputElement | null
+	const overlay = document.getElementById('status-import-overlay') as HTMLElement | null
+	const closeBtn = document.getElementById('status-import-close-btn') as HTMLButtonElement | null
+	const fileInput = document.getElementById('status-import-file-input') as HTMLInputElement | null
 	if (!overlay || !closeBtn || !fileInput) return
 
 	function close(): void {

@@ -24,12 +24,8 @@ export function getCurrentLanguage(): Language {
 	return currentLang
 }
 
-export function t(
-	key: string,
-	replacements: Record<string, string> = {},
-): string {
-	const msg =
-		mainTranslations[currentLang][key] || mainTranslations.en[key] || key
+export function t(key: string, replacements: Record<string, string> = {}): string {
+	const msg = mainTranslations[currentLang][key] || mainTranslations.en[key] || key
 
 	let result = msg
 	for (const [replKey, value] of Object.entries(replacements)) {

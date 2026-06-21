@@ -190,8 +190,10 @@
 		"entries": "записей",
 		"enterConfigNameAndAuthorId": "Сначала введите имя конфигурации и author ID (получите с voidpresence.site/profile)",
 		"configUploaded": "Конфигурация \"{title}\" загружена!",
-		"uploadFailed": "Загрузка не удалась: {error}",
-		"cloudUploadNotAvailable": "Загрузка в облако недоступна"
+		"enterAuthorIdFirst": "Сначала введите ID автора (получите его на voidpresence.site/profile)",
+		"cloudUploadNotAvailable": "Облачная загрузка недоступна",
+		"statusConfigUploaded": "Статусный профиль «{title}» загружен!",
+		"uploadFailed": "Загрузка не удалась: {error}"
 	},
 	"statusMap": {
 		"idle": "Бездействие",
@@ -255,6 +257,8 @@
 		"appIdPlaceholder": "ID приложения"
 	},
 	"modal": {
+		"uploadStatusConfig": "Загрузить статусный профиль?",
+		"profile": "Профиль",
 		"backToProfiles": "Назад к профилям",
 		"backToStatusProfiles": "Назад к профилям статусов",
 		"profileConfiguration": "Конфигурация профиля",

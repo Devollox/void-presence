@@ -32,7 +32,7 @@ type ToggleConfig<K extends ToggleKey, A extends ToggleApi> = {
 }
 
 function setupGenericToggle<K extends ToggleKey, A extends ToggleApi>(
-	cfg: ToggleConfig<K, A>,
+	cfg: ToggleConfig<K, A>
 ): void {
 	const toggle = document.getElementById(cfg.id) as HTMLElement | null
 	if (!toggle) return
@@ -145,9 +145,7 @@ export function setupStatusEnabledBrowserToggle(): void {
 }
 
 export function setupStopButton(): void {
-	const btn = document.getElementById(
-		'stop-discord',
-	) as HTMLButtonElement | null
+	const btn = document.getElementById('stop-discord') as HTMLButtonElement | null
 	if (!btn) return
 	btn.addEventListener('click', e => {
 		e.preventDefault()
@@ -160,9 +158,7 @@ export function setupStopButton(): void {
 }
 
 export function setupRestartButton(): void {
-	const btn = document.getElementById(
-		'restart-discord',
-	) as HTMLButtonElement | null
+	const btn = document.getElementById('restart-discord') as HTMLButtonElement | null
 	if (!btn) return
 	btn.addEventListener('click', e => {
 		e.preventDefault()

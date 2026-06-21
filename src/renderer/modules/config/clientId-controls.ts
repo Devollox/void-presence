@@ -46,22 +46,18 @@ export function setupClientIdControls(): void {
 		'images-list',
 		'add-image',
 		'recent-list',
-		'status-list',
+		'status-list'
 	)
 
 	const $clientInput = clientInput as HTMLInputElement | null
-	const $intervalInput = document.getElementById(
-		'update-interval-input',
-	) as HTMLInputElement | null
+	const $intervalInput = document.getElementById('update-interval-input') as HTMLInputElement | null
 	const $discordTokenInput = document.getElementById(
-		'discord-token-input',
+		'discord-token-input'
 	) as HTMLInputElement | null
 	const $statusList = statusList as HTMLElement | null
-	const $addStatus = document.getElementById(
-		'add-status',
-	) as HTMLButtonElement | null
+	const $addStatus = document.getElementById('add-status') as HTMLButtonElement | null
 	const $statusIntervalInput = document.getElementById(
-		'status-update-interval-input',
+		'status-update-interval-input'
 	) as HTMLInputElement | null
 
 	if (
@@ -93,8 +89,7 @@ export function setupClientIdControls(): void {
 
 	if ($statusIntervalInput) {
 		const rawStatusInterval = localStorage.getItem('updateIntervalSecStatus')
-		const savedStatusInterval =
-			rawStatusInterval != null ? Number(rawStatusInterval) : NaN
+		const savedStatusInterval = rawStatusInterval != null ? Number(rawStatusInterval) : NaN
 
 		$statusIntervalInput.value =
 			Number.isFinite(savedStatusInterval) && savedStatusInterval > 0
@@ -102,9 +97,7 @@ export function setupClientIdControls(): void {
 				: ''
 	}
 
-	const useReadyIdBtn = document.getElementById(
-		'use-ready-id',
-	) as HTMLButtonElement | null
+	const useReadyIdBtn = document.getElementById('use-ready-id') as HTMLButtonElement | null
 	const storedRecent: StoredRecentApp[] = getRecentApps()
 
 	useReadyIdBtn?.addEventListener('click', async e => {
@@ -121,7 +114,7 @@ export function setupClientIdControls(): void {
 		storedRecent.splice(0, storedRecent.length, ...getRecentApps())
 		renderRecentApps(
 			recentList,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 		showClientIdToast()
 	})
@@ -146,7 +139,7 @@ export function setupClientIdControls(): void {
 
 	renderRecentApps(
 		recentList,
-		storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+		storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 	)
 
 	const partyList = document.getElementById('party-list') as HTMLElement | null
@@ -154,27 +147,11 @@ export function setupClientIdControls(): void {
 
 	const lists = [
 		[partyList, ctx.party, ctx.renderPartyCycles as (() => void) | undefined],
-		[
-			buttonsList,
-			ctx.buttonPairs,
-			ctx.renderButtonPairs as (() => void) | undefined,
-		],
+		[buttonsList, ctx.buttonPairs, ctx.renderButtonPairs as (() => void) | undefined],
 		[cyclesList, ctx.cycles, ctx.renderCycles as (() => void) | undefined],
-		[
-			imagesList,
-			ctx.imageCycles,
-			ctx.renderImageCycles as (() => void) | undefined,
-		],
-		[
-			timeList,
-			ctx.timeCycles,
-			ctx.renderTimeCycles as (() => void) | undefined,
-		],
-		[
-			$statusList,
-			ctx.statusCycles,
-			ctx.renderStatusCycles as (() => void) | undefined,
-		],
+		[imagesList, ctx.imageCycles, ctx.renderImageCycles as (() => void) | undefined],
+		[timeList, ctx.timeCycles, ctx.renderTimeCycles as (() => void) | undefined],
+		[$statusList, ctx.statusCycles, ctx.renderStatusCycles as (() => void) | undefined],
 	] as const
 
 	for (const [list, items, render] of lists) {
@@ -191,7 +168,7 @@ export function setupClientIdControls(): void {
 		setRecentApps(storedRecent)
 		renderRecentApps(
 			recentList,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 	})
 
@@ -203,7 +180,7 @@ export function setupClientIdControls(): void {
 		setRecentApps(storedRecent)
 		renderRecentApps(
 			recentList,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 	})
 
@@ -230,7 +207,7 @@ export function setupClientIdControls(): void {
 			storedRecent.splice(0, storedRecent.length, ...updated)
 			renderRecentApps(
 				recentList,
-				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 			)
 			showClientIdToast()
 		}, 600)
@@ -240,9 +217,7 @@ export function setupClientIdControls(): void {
 		const rawInterval = localStorage.getItem('updateIntervalSec')
 		const savedInterval = rawInterval != null ? Number(rawInterval) : NaN
 		$intervalInput.value =
-			Number.isFinite(savedInterval) && savedInterval > 0
-				? String(savedInterval)
-				: ''
+			Number.isFinite(savedInterval) && savedInterval > 0 ? String(savedInterval) : ''
 
 		$intervalInput.addEventListener('input', () => {
 			if (intervalDebounce) window.clearTimeout(intervalDebounce)
@@ -308,7 +283,7 @@ export function setupClientIdControls(): void {
 		storedRecent.splice(0, storedRecent.length, ...updated)
 		renderRecentApps(
 			recentList,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name })),
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 	}
 

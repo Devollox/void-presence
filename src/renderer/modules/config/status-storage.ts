@@ -15,17 +15,11 @@ export function setStatusProfiles(items: StoredStatusProfile[]): void {
 	localStorage.setItem(STATUS_PROFILES_KEY, JSON.stringify(items))
 }
 
-export function addStatusProfileFromState(
-	name: string,
-	items: CustomStatusItem[],
-): void {
+export function addStatusProfileFromItems(name: string, items: CustomStatusItem[]): void {
 	const profiles = getStatusProfiles()
 	const safeItems: CustomStatusItem[] = (items || []).map(x => ({
 		text: String(x?.text || '').trim(),
-		emoji:
-			typeof x?.emoji === 'string' && x.emoji.trim() !== ''
-				? x.emoji.trim()
-				: null,
+		emoji: typeof x?.emoji === 'string' && x.emoji.trim() !== '' ? x.emoji.trim() : null,
 	}))
 	profiles.push({
 		name,
@@ -35,8 +29,20 @@ export function addStatusProfileFromState(
 	setStatusProfiles(profiles)
 }
 
-export function deepCloneStatusItems(
-	items: CustomStatusItem[],
-): CustomStatusItem[] {
+export function deepCloneStatusItems(items: CustomStatusItem[]): CustomStatusItem[] {
 	return JSON.parse(JSON.stringify(items)) as CustomStatusItem[]
+}
+
+export function addStatusProfileFromState(name: string, items: CustomStatusItem[]): void {
+	const profiles = getStatusProfiles()
+	const safeItems: CustomStatusItem[] = (items || []).map(x => ({
+		text: String(x?.text || '').trim(),
+		emoji: typeof x?.emoji === 'string' && x.emoji.trim() !== '' ? x.emoji.trim() : null,
+	}))
+	profiles.push({
+		name,
+		items: safeItems,
+		createdAt: new Date().toISOString(),
+	})
+	setStatusProfiles(profiles)
 }

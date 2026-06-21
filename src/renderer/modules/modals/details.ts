@@ -11,7 +11,7 @@ type RenderItem = CycleEntry | ImageCycleEntry | ButtonPair | PartyCycleEntry
 function renderList(
 	listEl: HTMLElement,
 	items: RenderItem[],
-	type: 'cycles' | 'images' | 'buttons' | 'party',
+	type: 'cycles' | 'images' | 'buttons' | 'party'
 ): void {
 	listEl.innerHTML = ''
 	if (!items || !items.length) {
@@ -124,9 +124,7 @@ function renderList(
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = `Current: ${it.sizeCurrent ?? '-'} | Max: ${
-				it.sizeMax ?? '-'
-			}`
+			sub.textContent = `Current: ${it.sizeCurrent ?? '-'} | Max: ${it.sizeMax ?? '-'}`
 
 			main.appendChild(label)
 			main.appendChild(sub)
@@ -139,24 +137,12 @@ function renderList(
 }
 
 export function openConfigDetails(cfg: StoredConfig): void {
-	const overlay = document.getElementById(
-		'config-details-overlay',
-	) as HTMLElement | null
-	const nameEl = document.getElementById(
-		'config-details-name',
-	) as HTMLElement | null
-	const cyclesEl = document.getElementById(
-		'config-details-cycles',
-	) as HTMLElement | null
-	const imagesEl = document.getElementById(
-		'config-details-images',
-	) as HTMLElement | null
-	const buttonsEl = document.getElementById(
-		'config-details-buttons',
-	) as HTMLElement | null
-	const partyEl = document.getElementById(
-		'config-details-party',
-	) as HTMLElement | null
+	const overlay = document.getElementById('config-details-overlay') as HTMLElement | null
+	const nameEl = document.getElementById('config-details-name') as HTMLElement | null
+	const cyclesEl = document.getElementById('config-details-cycles') as HTMLElement | null
+	const imagesEl = document.getElementById('config-details-images') as HTMLElement | null
+	const buttonsEl = document.getElementById('config-details-buttons') as HTMLElement | null
+	const partyEl = document.getElementById('config-details-party') as HTMLElement | null
 
 	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl || !partyEl) {
 		return
@@ -174,12 +160,8 @@ export function openConfigDetails(cfg: StoredConfig): void {
 }
 
 export function setupConfigDetailsOverlay(): void {
-	const overlay = document.getElementById(
-		'config-details-overlay',
-	) as HTMLElement | null
-	const closeBtn = document.getElementById(
-		'config-details-close',
-	) as HTMLButtonElement | null
+	const overlay = document.getElementById('config-details-overlay') as HTMLElement | null
+	const closeBtn = document.getElementById('config-details-close') as HTMLButtonElement | null
 	if (!overlay || !closeBtn) return
 
 	function close(): void {

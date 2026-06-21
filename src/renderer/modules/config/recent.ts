@@ -8,10 +8,7 @@ export type RecentApp = {
 	name?: string
 }
 
-export function renderRecentApps(
-	recentList: HTMLElement,
-	items: RecentApp[],
-): void {
+export function renderRecentApps(recentList: HTMLElement, items: RecentApp[]): void {
 	recentList.innerHTML = ''
 	if (!items.length) return
 
@@ -145,7 +142,7 @@ export function renderRecentApps(
 				new CustomEvent('recent:remove', {
 					bubbles: true,
 					detail: { id: item.id },
-				}),
+				})
 			)
 		})
 
@@ -155,9 +152,7 @@ export function renderRecentApps(
 			if (useBtn.disabled) return
 
 			try {
-				const input = document.getElementById(
-					'client-id-input',
-				) as HTMLInputElement | null
+				const input = document.getElementById('client-id-input') as HTMLInputElement | null
 
 				if (input) {
 					input.value = item.id
@@ -170,7 +165,7 @@ export function renderRecentApps(
 				}
 
 				setActiveView('main')
-			} catch (err) {
+			} catch (err: any) {
 				console.error('Failed to use recent clientId:', err)
 			}
 		})

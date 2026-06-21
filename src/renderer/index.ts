@@ -1,5 +1,3 @@
-import { t } from 'i18next'
-import { setMainLanguage } from '../main/translations'
 import { setupActivityTypeControls } from './modules/config/activity'
 import { initBarStyleControls } from './modules/config/bar-style-controls'
 import { setupClientIdControls } from './modules/config/clientId-controls'
@@ -12,23 +10,17 @@ import {
 	setupStatusPage,
 } from './modules/config/status-page'
 import { setupCloudUpload } from './modules/config/upload'
-import i18n from './modules/core/i18n'
 import { fetchNowPlaying } from './modules/core/now-playing'
 import { setupIntervalControl } from './modules/core/state'
 import { setupConfigDetailsOverlay } from './modules/modals/details'
 import { setupGlobalDrop } from './modules/modals/global-drop'
-import { setupImportOverlay } from './modules/modals/import'
-import {
-	setupStatusTutorialButtons,
-	setupTutorials,
-} from './modules/modals/tutorials'
+import { importJsonPayload, setupImportOverlay } from './modules/modals/import'
+import { setupStatusTutorialButtons, setupTutorials } from './modules/modals/tutorials'
 import './modules/modals/update'
 import { initUpdateOverlay } from './modules/modals/update'
-import { setLanguage } from './modules/shell/language'
-import {
-	updateStatusStatus,
-	updateStatusText,
-} from './modules/shell/runtime-status'
+import { initLanguage } from './modules/shell/language'
+import { updatePlaceholders } from './modules/shell/placeholders'
+import { updateStatusStatus, updateStatusText } from './modules/shell/runtime-status'
 import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
@@ -47,111 +39,8 @@ import {
 import { updateInfo, updateStatus } from './modules/shell/views'
 import { setupWindowControls } from './modules/shell/window-controls'
 
-function updatePlaceholders(): void {
-	const configSearchInput = document.getElementById(
-		'config-search-input',
-	) as HTMLInputElement | null
-	if (configSearchInput) {
-		configSearchInput.placeholder = t('config.searchConfigsPlaceholder')
-	}
-
-	const statusSearchInput = document.getElementById(
-		'status-search-input',
-	) as HTMLInputElement | null
-	if (statusSearchInput) {
-		statusSearchInput.placeholder = t('config.searchStatusesPlaceholder')
-	}
-
-	const configNameInput = document.getElementById(
-		'config-name-input',
-	) as HTMLInputElement | null
-	if (configNameInput) {
-		configNameInput.placeholder = t('config.configNamePlaceholder')
-	}
-
-	const statusNameInput = document.getElementById(
-		'status-name-input',
-	) as HTMLInputElement | null
-	if (statusNameInput) {
-		statusNameInput.placeholder = t('config.statusProfileNamePlaceholder')
-	}
-
-	const configAuthorInput = document.getElementById(
-		'config-author-input',
-	) as HTMLInputElement | null
-	if (configAuthorInput) {
-		configAuthorInput.placeholder = t('config.authorIdPlaceholder')
-	}
-
-	const configNameCurrentInput = document.getElementById(
-		'config-name-input-current',
-	) as HTMLInputElement | null
-	if (configNameCurrentInput) {
-		configNameCurrentInput.placeholder = t('config.configNamePlaceholder')
-	}
-
-	const discordTokenInput = document.getElementById(
-		'discord-token-input',
-	) as HTMLInputElement | null
-	if (discordTokenInput) {
-		discordTokenInput.placeholder = t('status.discordTokenPlaceholder')
-	}
-
-	const statusUpdateIntervalInput = document.getElementById(
-		'status-update-interval-input',
-	) as HTMLInputElement | null
-	if (statusUpdateIntervalInput) {
-		statusUpdateIntervalInput.placeholder = t('status.statusUpdatePlaceholder')
-	}
-
-	const clientIdInput = document.getElementById(
-		'client-id-input',
-	) as HTMLInputElement | null
-	if (clientIdInput) {
-		clientIdInput.placeholder = t('activity.clientIdPlaceholder')
-	}
-
-	const updateIntervalInput = document.getElementById(
-		'update-interval-input',
-	) as HTMLInputElement | null
-	if (updateIntervalInput) {
-		updateIntervalInput.placeholder = t('activity.updateActivityPlaceholder')
-	}
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
-	const initialLang =
-		(await (window as any).electronAPI?.getLanguage?.()) || 'ru'
-	setLanguage(initialLang)
-
-	document
-		.querySelectorAll<HTMLElement>('.timestamp-mode-btn[data-language]')
-		.forEach(btn => {
-			btn.addEventListener('click', () => {
-				const lang = btn.getAttribute('data-language')
-				if (lang) {
-					setLanguage(lang)
-					updatePlaceholders()
-				}
-			})
-		})
-
-	const settingsLangSelector = document.getElementById(
-		'settings-language-selector',
-	) as HTMLSelectElement | null
-	if (settingsLangSelector) {
-		settingsLangSelector.value = i18n.language
-
-		settingsLangSelector.addEventListener('change', e => {
-			const lang = (e.target as HTMLSelectElement).value
-			setLanguage(lang)
-			updatePlaceholders()
-		})
-	}
-
-	const lang: 'ru' | 'en' | 'tr' = 'ru'
-	setMainLanguage(lang)
-
+	initLanguage()
 	updatePlaceholders()
 
 	void setupRestartButton()
@@ -210,6 +99,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 	if (window.electronAPI?.onStatusPayload) {
 		window.electronAPI.onStatusPayload(payload => {
 			updateStatusText(payload)
+		})
+	}
+
+	if (window.electronAPI?.onImportConfigFromProtocol) {
+		window.electronAPI.onImportConfigFromProtocol(raw => {
+			try {
+				const payload = raw as { data: unknown; title?: string }
+				importJsonPayload(payload.data, payload.title)
+			} catch (err: any) {
+				console.error('Failed to import config from protocol', err?.message ?? err)
+			}
 		})
 	}
 

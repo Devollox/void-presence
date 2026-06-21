@@ -12,7 +12,10 @@ export type RpcPayload = {
 	details: string
 	state: string
 	coordinates: string
-	buttons: { label: string; url: string }[]
+	buttons: {
+		label: string
+		url: string
+	}[]
 }
 
 export interface RichPresenceButton {
@@ -24,10 +27,18 @@ export type PresencePayload = {
 	source: 'media' | 'hardware'
 	details?: string
 	state?: string
-	timestamps?: { start?: number; end?: number }
+	timestamps?: {
+		start?: number
+		end?: number
+	}
 	activityType?: ActivityType
-	buttons?: { label: string; url: string }[]
-	party?: { size: [number, number] }
+	buttons?: {
+		label: string
+		url: string
+	}[]
+	party?: {
+		size: [number, number]
+	}
 	assets?: {
 		large_image?: string
 		large_text?: string
@@ -113,9 +124,15 @@ export type DiscordTokenConfig = {
 	discordToken: string | null
 }
 
-export type ButtonsConfig = { pairs: ButtonPair[] }
-export type CyclesConfig = { entries: CycleEntry[] }
-export type ImageCyclesConfig = { cycles: ImageCycle[] }
+export type ButtonsConfig = {
+	pairs: ButtonPair[]
+}
+export type CyclesConfig = {
+	entries: CycleEntry[]
+}
+export type ImageCyclesConfig = {
+	cycles: ImageCycle[]
+}
 
 export interface ActivityTypeConfig {
 	type: ActivityType
@@ -231,7 +248,11 @@ export interface NowPlayingData {
 	duration?: number | null
 	startedAt?: number | null
 	endsAt?: number | null
-	thumbnail?: { width: number; height: number; size: number } | null
+	thumbnail?: {
+		width: number
+		height: number
+		size: number
+	} | null
 	isThumbMusic?: boolean
 	isThumbVideo?: boolean
 }
@@ -307,6 +328,23 @@ export interface StoredStatusProfile {
 }
 
 export interface ElectronAPI {
+	uploadConfig?: (config: {
+		title: string
+		authorId: string
+		authorName: string
+		description: string
+		configData: FullState
+	}) => Promise<unknown>
+	uploadStatusConfig?: (config: {
+		title: string
+		authorId: string
+		authorName: string
+		description: string
+		configData: { statusCycles: StatusCycleEntry[] }
+	}) => Promise<unknown>
+	statusGetCurrent?: () => Promise<StatusCycleEntry[]>
+	statusSetCurrent?: (cycles: StatusCycleEntry[]) => Promise<boolean>
+	onImportConfigFromProtocol?: (handler: (payload: unknown) => void) => void
 	getLanguage?: () => Promise<void>
 	setLanguage?: () => Promise<void>
 	onStatusPayload?: (handler: (text: string | null) => void) => void
@@ -336,7 +374,10 @@ export interface ElectronAPI {
 	liveSetCycles?: (cycles: CycleEntry[]) => Promise<unknown> | unknown
 	liveSetImages?: (cycles: ImageCycleEntry[]) => Promise<unknown> | unknown
 	liveSetParty?: (
-		party: { sizeCurrent: string; sizeMax: string }[],
+		party: {
+			sizeCurrent: string
+			sizeMax: string
+		}[]
 	) => Promise<unknown> | unknown
 	liveSetTimestamp?: (cfg: {
 		mode: TimestampMode
@@ -347,11 +388,12 @@ export interface ElectronAPI {
 	liveSetInterval?: (sec: number) => Promise<unknown> | unknown
 	liveSetDiscordToken?: (token: string) => Promise<unknown> | unknown
 	liveSetStatusInterval?: (sec: number) => Promise<unknown> | unknown
-	liveSetStatusCycles?: (
-		cycles: StatusCycleEntry[],
-	) => Promise<unknown> | unknown
+	liveSetStatusCycles?: (cycles: StatusCycleEntry[]) => Promise<unknown> | unknown
 	liveSetTimeCycles?: (
-		cycles: { label: string; seconds: string }[],
+		cycles: {
+			label: string
+			seconds: string
+		}[]
 	) => Promise<unknown> | unknown
 	setRpcMode(mode: string): unknown
 	setActivityType(activityType: string): unknown

@@ -10,7 +10,7 @@
 		"resolveJsonModule": true,
 		"sourceMap": true,
 		"baseUrl": ".",
-		"outDir": "dist"
+		"outDir": "dist",
 	},
 	"include": ["src", "vite.*.config.ts", "src/types/types.d.ts"]
 }

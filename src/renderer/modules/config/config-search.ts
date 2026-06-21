@@ -1,7 +1,5 @@
 export function attachSearchToList(inputId: string, listId: string) {
-	const searchInput = document.getElementById(
-		inputId,
-	) as HTMLInputElement | null
+	const searchInput = document.getElementById(inputId) as HTMLInputElement | null
 	const list = document.getElementById(listId) as HTMLElement | null
 	if (!searchInput || !list) return
 
@@ -19,10 +17,7 @@ export function attachSearchToList(inputId: string, listId: string) {
 	searchInput.addEventListener('input', handler)
 }
 
-export function filterListByExistingInput(
-	input: HTMLInputElement,
-	list: HTMLElement,
-) {
+export function filterListByExistingInput(input: HTMLInputElement, list: HTMLElement) {
 	const q = input.value.trim().toLowerCase()
 	if (!q) return
 	const items = list.querySelectorAll<HTMLElement>('[data-config-id]')

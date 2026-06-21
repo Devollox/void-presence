@@ -1,8 +1,4 @@
-export function attachDnD<T>(
-	container: HTMLElement,
-	items: T[],
-	renderFn: () => void,
-): void {
+export function attachDnD<T>(container: HTMLElement, items: T[], renderFn: () => void): void {
 	let dragIndex: number | null = null
 
 	const getRow = (target: HTMLElement | null): HTMLElement | null =>
@@ -54,8 +50,7 @@ export function attachDnD<T>(
 
 		const targetIndex = Number(row.dataset.index)
 		const rect = row.getBoundingClientRect()
-		let insertIndex =
-			e.clientY >= rect.top + rect.height / 2 ? targetIndex + 1 : targetIndex
+		let insertIndex = e.clientY >= rect.top + rect.height / 2 ? targetIndex + 1 : targetIndex
 
 		const [moved] = items.splice(dragIndex, 1)
 

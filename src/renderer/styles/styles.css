@@ -1281,6 +1281,7 @@ input {
 #config-details-overlay,
 #upload-confirm-overlay,
 #import-overlay,
+#status-upload-confirm-overlay,
 #update-overlay {
 	position: fixed;
 	inset: 0;
@@ -1292,6 +1293,8 @@ input {
 	pointer-events: none;
 	transition: opacity 0.18s ease-out;
 }
+
+#status-upload-confirm-overlay,
 #status-details-overlay,
 #status-import-overlay,
 #config-details-overlay {
@@ -1311,6 +1314,7 @@ input {
 }
 
 #status-details-overlay[data-open='true'],
+#status-upload-confirm-overlay[data-open='true'],
 #status-import-overlay[data-open='true'],
 #config-details-overlay[data-open='true'],
 #upload-confirm-overlay[data-open='true'],
@@ -2208,8 +2212,7 @@ textarea::-moz-selection {
 	padding: 10px 12px;
 	border-radius: 12px;
 	background:
-		radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 55%),
-		rgba(0, 0, 0, 0.9);
+		radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 55%), rgba(0, 0, 0, 0.9);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7);
 	overflow-x: auto;
@@ -2265,11 +2268,7 @@ textarea::-moz-selection {
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
-	background-image: radial-gradient(
-		circle,
-		var(--text-color, #ffffff) 1.5px,
-		transparent 1.5px
-	);
+	background-image: radial-gradient(circle, var(--text-color, #ffffff) 1.5px, transparent 1.5px);
 	background-size: 4px 4px;
 	background-repeat: repeat-y;
 	background-position: center;

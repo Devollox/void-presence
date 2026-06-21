@@ -19,9 +19,7 @@ export type Toasts = {
 }
 
 export function setupToasts() {
-	const blocksToast = document.getElementById(
-		'blocks-toast',
-	) as HTMLElement | null
+	const blocksToast = document.getElementById('blocks-toast') as HTMLElement | null
 
 	const showConfigSavedToast = () => showToast(blocksToast, 'config saved')
 	const showConfigCopiedToast = () => showToast(blocksToast, 'client id copied')
@@ -38,9 +36,6 @@ export function setupToasts() {
 	}
 }
 
-export function attachToastToCtx(
-	ctx: VoidPresenceCtx,
-	showBlocksToast: () => void,
-) {
+export function attachToastToCtx(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
 	ctx.showBlocksToast = showBlocksToast
 }

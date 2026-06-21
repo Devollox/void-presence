@@ -15,10 +15,9 @@ type UpdateInfo = {
 
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
-		const res = await fetch(
-			'https://api.github.com/repos/Devollox/void-presence/releases/latest',
-			{ headers: { Accept: 'application/vnd.github+json' } },
-		)
+		const res = await fetch('https://api.github.com/repos/Devollox/void-presence/releases/latest', {
+			headers: { Accept: 'application/vnd.github+json' },
+		})
 		if (!res.ok) {
 			return null
 		}
@@ -48,8 +47,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 			changelogMd,
 		}
 
-		const alreadyNotified =
-			lastNotified === latestTag && lastNotifiedFor === current
+		const alreadyNotified = lastNotified === latestTag && lastNotifiedFor === current
 
 		if (log) {
 			sendLog(t('updateAvailable', { tag: latestTag, current }), 'warn')
@@ -78,18 +76,12 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 function getInstallerUrl(assets: any[]): string | null {
 	return (
 		assets?.find(
-			(a: any) =>
-				typeof a.name === 'string' &&
-				a.name.includes('Setup') &&
-				a.name.endsWith('.exe'),
+			(a: any) => typeof a.name === 'string' && a.name.includes('Setup') && a.name.endsWith('.exe')
 		)?.browser_download_url || null
 	)
 }
 
-export async function downloadFile(
-	url: string,
-	version: string,
-): Promise<{ filePath: string }> {
+export async function downloadFile(url: string, version: string): Promise<{ filePath: string }> {
 	const fileName = `Void.Presence.Setup.${version}.exe`
 	const filePath = path.join(app.getPath('temp'), fileName)
 
@@ -119,9 +111,7 @@ export async function downloadFile(
 		if (total) {
 			const mb = Math.round(downloaded / 1024 / 1024)
 			const percent = Math.round((downloaded / total) * 100)
-			sendLog(
-				t('updateDownloading', { mb: String(mb), percent: String(percent) }),
-			)
+			sendLog(t('updateDownloading', { mb: String(mb), percent: String(percent) }))
 		}
 	}
 
@@ -131,11 +121,7 @@ export async function downloadFile(
 			fs.stat(filePath, (err, stats) => {
 				if (err || stats.size < 50 * 1024 * 1024) {
 					if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
-					reject(
-						new Error(
-							t('updateInvalidExe', { size: String(stats?.size || 0) }),
-						),
-					)
+					reject(new Error(t('updateInvalidExe', { size: String(stats?.size || 0) })))
 				} else {
 					const mb = Math.round(stats.size / 1024 / 1024)
 					sendLog(t('updateDownloaded', { mb: String(mb) }))

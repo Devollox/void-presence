@@ -15,10 +15,7 @@ function getAssetPath(...segments: string[]) {
 
 const iconPath = getAssetPath('public', 'favicons', 'logo.png')
 
-export function createMainWindow(
-	autoHideOnStart: boolean,
-	isQuitting: () => boolean,
-) {
+export function createMainWindow(autoHideOnStart: boolean, isQuitting: () => boolean) {
 	const shouldShow = !autoHideOnStart
 
 	const { width, height } = screen.getPrimaryDisplay().workAreaSize

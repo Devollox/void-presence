@@ -13,9 +13,7 @@ const PROTOCOL = 'voidpresence'
 
 if (process.defaultApp) {
 	if (process.argv.length >= 2) {
-		app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [
-			path.resolve(process.argv[1]),
-		])
+		app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [path.resolve(process.argv[1])])
 	}
 } else {
 	app.setAsDefaultProtocolClient(PROTOCOL)
@@ -25,50 +23,82 @@ let isQuitting = false
 let mainWindow: BrowserWindow | null = null
 let pendingUrl: string | null = null
 
+async function activateConfigView() {
+	if (!mainWindow || mainWindow.isDestroyed()) return
+
+	await mainWindow.webContents.executeJavaScript(`
+    (function() {
+      const navMain = document.getElementById('nav-main');
+      const navLogs = document.getElementById('nav-logs');
+      const navConfig = document.getElementById('nav-config');
+      const views = document.querySelectorAll('.view');
+
+      views.forEach(v => {
+        const name = v.getAttribute('data-view');
+        v.setAttribute('data-active', name === 'config' ? 'true' : 'false');
+      });
+
+      if (navMain) navMain.setAttribute('data-active', 'false');
+      if (navLogs) navLogs.setAttribute('data-active', 'false');
+      if (navConfig) navConfig.setAttribute('data-active', 'true');
+    })()
+  `)
+}
+
 async function handleUrl(rawUrl: string) {
 	try {
 		const url = new URL(rawUrl)
 		const authorId = url.searchParams.get('authorId')
+		const authorName = url.searchParams.get('name')
+		const provider = url.searchParams.get('provider')
+		const configData = url.searchParams.get('data')
+		const title = url.searchParams.get('title') || undefined
 
-		if (authorId) {
-			mainWindow?.webContents.send('AUTH_FROM_URL', authorId)
+		if (configData) {
+			const parsed = JSON.parse(configData)
+			const payload = { data: parsed, title }
 
 			if (mainWindow && !mainWindow.isDestroyed()) {
-				await mainWindow.webContents.executeJavaScript(`
-					(function() {
-						localStorage.setItem("authorId", ${JSON.stringify(authorId)});
-						const el = document.getElementById('config-author-input');
-						if (el) el.value = ${JSON.stringify(authorId)};
-
-						const navMain = document.getElementById('nav-main')
-						const navLogs = document.getElementById('nav-logs')
-						const navConfig = document.getElementById('nav-config');
-						const views = document.querySelectorAll('.view');
-
-						views.forEach(v => {
-							const name = v.getAttribute('data-view');
-							v.setAttribute('data-active', name === 'config' ? 'true' : 'false');
-						});
-
-						if (navMain) {
-							navMain.setAttribute('data-active', 'false')
-						}
-
-						if (navLogs) {
-							navLogs.setAttribute('data-active', 'false')
-						}
-
-						if (navConfig) {
-							navConfig.setAttribute('data-active', 'true');
-						}
-					})()
-        `)
+				mainWindow.webContents.send('IMPORT_CONFIG_FROM_PROTOCOL', payload)
+				await activateConfigView()
 			} else {
 				pendingUrl = rawUrl
 			}
 		}
-	} catch (e) {
-		console.error('Failed to parse URL or save to storage:', e)
+
+		if (authorId) {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				const labelText =
+					authorName && provider
+						? `${authorName} (${provider})`
+						: authorName || provider || authorId
+
+				await mainWindow.webContents.executeJavaScript(`
+          (function() {
+            localStorage.setItem("authorId", ${JSON.stringify(authorId)});
+            if (${JSON.stringify(authorName)} != null) {
+              localStorage.setItem("authorName", ${JSON.stringify(authorName)});
+            }
+            if (${JSON.stringify(provider)} != null) {
+              localStorage.setItem("authorProvider", ${JSON.stringify(provider)});
+            }
+
+            const input = document.getElementById('config-author-input');
+            if (input) input.value = ${JSON.stringify(authorId)};
+
+            const label = document.getElementById('config-author-label');
+            if (label) label.textContent = ${JSON.stringify(labelText)};
+          })()
+        `)
+
+				mainWindow.webContents.send('AUTH_FROM_URL', authorId)
+				await activateConfigView()
+			} else {
+				pendingUrl = rawUrl
+			}
+		}
+	} catch (e: any) {
+		console.error('Failed to parse URL or save to storage:', e?.message ?? e)
 	}
 }
 
@@ -76,9 +106,8 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
 	app.quit()
 } else {
-	app.on('second-instance', (event, commandLine) => {
+	app.on('second-instance', (_event, commandLine) => {
 		const url = commandLine.find(arg => arg.startsWith(`${PROTOCOL}://`))
-
 		if (url) {
 			handleUrl(url)
 		}
@@ -122,8 +151,9 @@ if (!gotTheLock) {
 			() => {
 				isQuitting = true
 				app.quit()
-			},
+			}
 		)
+
 		if (mainWindow) {
 			mainWindow.webContents.once('did-finish-load', () => {
 				if (sendLog) sendLog(t('supportDiscord'), 'info')

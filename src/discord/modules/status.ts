@@ -7,11 +7,7 @@ import {
 	readStatusCyclesConfig,
 	readTimerConfig,
 } from '../../main/config'
-import {
-	sendLog,
-	sendStatusCustom,
-	sendStatusCustomPayload,
-} from '../../main/logging'
+import { sendLog, sendStatusCustom, sendStatusCustomPayload } from '../../main/logging'
 import { t } from '../../main/translations'
 
 const DISCORD_API_URL = 'https://discord.com/api/v10/users/@me/settings'
@@ -49,9 +45,7 @@ function normalizeStatuses(list: any[] | undefined | null): CustomStatusItem[] {
 		.filter((x): x is CustomStatusItem => x.text.length > 0)
 }
 
-function checkDiscordRunning(
-	cb: (err: { message: string } | null, isRunning: boolean) => void,
-) {
+function checkDiscordRunning(cb: (err: { message: string } | null, isRunning: boolean) => void) {
 	exec('tasklist', (err, stdout) => {
 		if (err) return cb(err, false)
 		const found = stdout.toLowerCase().includes(processName.toLowerCase())
@@ -70,8 +64,7 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 		const statusCycles = await readStatusCyclesConfig()
 		const statusesFromFile = normalizeStatuses(statusCycles?.cycles)
 		const statusesFromSettings = normalizeStatuses(settings?.customStatuses)
-		const statuses =
-			statusesFromFile.length > 0 ? statusesFromFile : statusesFromSettings
+		const statuses = statusesFromFile.length > 0 ? statusesFromFile : statusesFromSettings
 
 		currentStatuses = statuses.length ? statuses : DEFAULT_STATUSES
 
@@ -91,20 +84,14 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 		}
 
 		activityIntervalMs =
-			typeof sec === 'number' && Number.isFinite(sec) && sec >= 5
-				? sec * 1000
-				: 60000
+			typeof sec === 'number' && Number.isFinite(sec) && sec >= 5 ? sec * 1000 : 60000
 
 		return {
 			enabled: enabled || browserEnabled,
 			enabledBrowser: browserEnabled,
 		}
 	} catch (e: any) {
-		if (sendLog)
-			sendLog(
-				t('customStatus.readError', { error: e?.message || String(e) }),
-				'error',
-			)
+		if (sendLog) sendLog(t('customStatus.readError', { error: e?.message || String(e) }), 'error')
 		currentStatuses = DEFAULT_STATUSES
 		activityIntervalMs = 5000
 		return { enabled: false, enabledBrowser: false }
@@ -113,7 +100,7 @@ async function readCustomStatusState(): Promise<StatusStateResult> {
 
 async function applyCustomStatus(
 	item: CustomStatusItem,
-	token: string | null,
+	token: string | null
 ): Promise<{ ok: boolean; retryAfter?: number }> {
 	if (!token || !token.trim()) {
 		if (sendLog) sendLog(t('customStatus.noDiscordToken'), 'warn')
@@ -162,11 +149,7 @@ async function applyCustomStatus(
 			} else if (response.status === 429) {
 				const errData = await response.json()
 				const retryAfter = errData?.retry_after ?? 10
-				if (sendLog)
-					sendLog(
-						t('customStatus.rateLimit', { retry: String(retryAfter) }),
-						'warn',
-					)
+				if (sendLog) sendLog(t('customStatus.rateLimit', { retry: String(retryAfter) }), 'warn')
 				return { ok: false, retryAfter: retryAfter + 1 }
 			} else {
 				const errData = await response.json()
@@ -180,7 +163,7 @@ async function applyCustomStatus(
 							status: String(response.status),
 							error: JSON.stringify(errData),
 						}),
-						'error',
+						'error'
 					)
 				return { ok: false }
 			}
@@ -190,10 +173,7 @@ async function applyCustomStatus(
 				continue
 			}
 			if (sendLog)
-				sendLog(
-					t('customStatus.applyError', { error: e?.message || String(e) }),
-					'error',
-				)
+				sendLog(t('customStatus.applyError', { error: e?.message || String(e) }), 'error')
 			return { ok: false }
 		}
 	}
@@ -201,10 +181,9 @@ async function applyCustomStatus(
 	if (sendLog)
 		sendLog(
 			t('customStatus.applyError', {
-				error:
-					lastError?.message || JSON.stringify(lastError) || 'unknown error',
+				error: lastError?.message || JSON.stringify(lastError) || 'unknown error',
 			}),
-			'error',
+			'error'
 		)
 	return { ok: false }
 }
@@ -272,7 +251,7 @@ export default function startCustomStatusWorker(): void {
 						t('customStatus.processCheckError', {
 							error: err.message || String(err),
 						}),
-						'warn',
+						'warn'
 					)
 				setTimeout(findAndRestartProcess, 5000)
 				return
@@ -386,9 +365,7 @@ export default function startCustomStatusWorker(): void {
 				if (isStopped || sessionId !== currentSessionId) return
 				scheduleNext(activityIntervalMs)
 			} else {
-				const waitMs = result.retryAfter
-					? result.retryAfter * 1000 + 500
-					: activityIntervalMs
+				const waitMs = result.retryAfter ? result.retryAfter * 1000 + 500 : activityIntervalMs
 
 				if (!hasEverBeenReady) {
 					if (sendStatusCustom) {
@@ -401,11 +378,7 @@ export default function startCustomStatusWorker(): void {
 				scheduleNext(waitMs)
 			}
 		} catch (e: any) {
-			if (sendLog)
-				sendLog(
-					t('customStatus.loopError', { error: e?.message || String(e) }),
-					'error',
-				)
+			if (sendLog) sendLog(t('customStatus.loopError', { error: e?.message || String(e) }), 'error')
 			if (sendStatusCustom) {
 				sendStatusCustom('CUSTOM_STATUS_DISABLED')
 				sendStatusCustomPayload('IDLE')
@@ -451,11 +424,7 @@ export default function startCustomStatusWorker(): void {
 		.catch(e => {
 			isConnecting = false
 			enabledBrowser = false
-			if (sendLog)
-				sendLog(
-					t('customStatus.initError', { error: e?.message || String(e) }),
-					'error',
-				)
+			if (sendLog) sendLog(t('customStatus.initError', { error: e?.message || String(e) }), 'error')
 			if (sendStatusCustom) {
 				sendStatusCustom('CUSTOM_STATUS_DISABLED')
 				sendStatusCustomPayload('IDLE')

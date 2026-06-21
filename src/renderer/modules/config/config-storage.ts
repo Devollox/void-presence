@@ -51,10 +51,7 @@ export function upsertRecentApp(id: string, name: string): void {
 	items.push({ id: cleanId, name: cleanName, lastUsedAt: now })
 	const sorted = items
 		.slice()
-		.sort(
-			(a, b) =>
-				new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime(),
-		)
+		.sort((a, b) => new Date(b.lastUsedAt).getTime() - new Date(a.lastUsedAt).getTime())
 
 	setRecentApps(sorted.slice(0, 10))
 }

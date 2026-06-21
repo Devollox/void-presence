@@ -190,8 +190,10 @@
 		"entries": "entries",
 		"enterConfigNameAndAuthorId": "Enter config name and author ID(get from voidpresence.site/profile) first",
 		"configUploaded": "Config \"{title}\" uploaded!",
-		"uploadFailed": "Upload failed: {error}",
-		"cloudUploadNotAvailable": "Cloud upload is not available"
+		"enterAuthorIdFirst": "Enter author ID (get it from voidpresence.site/profile) first",
+		"cloudUploadNotAvailable": "Cloud upload is not available",
+		"statusConfigUploaded": "Status profile \"{title}\" uploaded!",
+		"uploadFailed": "Upload failed: {error}"
 	},
 	"statusMap": {
 		"idle": "Idle",
@@ -255,6 +257,8 @@
 		"appIdPlaceholder": "App ID"
 	},
 	"modal": {
+		"uploadStatusConfig": "Upload status profile?",
+		"profile": "Profile",
 		"backToProfiles": "Back to profiles",
 		"backToStatusProfiles": "Back to status profiles",
 		"profileConfiguration": "Profile configuration",

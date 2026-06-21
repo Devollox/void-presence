@@ -58,8 +58,7 @@ export function createInitialCtx(): VoidPresenceCtx {
 
 	try {
 		const rawStatus = localStorage.getItem('statusCycles')
-		if (rawStatus)
-			ctx.statusCycles = JSON.parse(rawStatus) as StatusCycleEntry[]
+		if (rawStatus) ctx.statusCycles = JSON.parse(rawStatus) as StatusCycleEntry[]
 	} catch {}
 
 	if (!Array.isArray(ctx.buttonPairs)) ctx.buttonPairs = []
@@ -80,15 +79,11 @@ export function createInitialCtx(): VoidPresenceCtx {
 export function setupModeInitialVisibility() {
 	const timeList = document.getElementById('time-list') as HTMLElement | null
 	const nowModeRow = document.querySelector<HTMLElement>('.now-mode-row')
-	const timeDivider = document.querySelector<HTMLElement>(
-		'.time-cycles-divider',
-	)
+	const timeDivider = document.querySelector<HTMLElement>('.time-cycles-divider')
 	const timeHeader = document.querySelector<HTMLElement>('.time-cycles-header')
 
-	const storedMode =
-		(localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
-	const storedNowMode =
-		(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+	const storedMode = (localStorage.getItem('timestampMode') as TimestampMode | null) || 'now'
+	const storedNowMode = (localStorage.getItem('nowMode') as NowMode | null) || 'plain'
 
 	const isNow = storedMode === 'now'
 	const showTime = isNow && storedNowMode === 'cycles'
@@ -98,7 +93,5 @@ export function setupModeInitialVisibility() {
 	if (timeHeader) timeHeader.dataset.visible = showTime ? 'true' : 'false'
 	if (timeList) timeList.dataset.visible = showTime ? 'true' : 'false'
 
-	void pushLiveStateFromCtx(
-		(window as any).__voidPresenceCtx as VoidPresenceCtx,
-	)
+	void pushLiveStateFromCtx((window as any).__voidPresenceCtx as VoidPresenceCtx)
 }

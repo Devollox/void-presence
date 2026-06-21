@@ -14,9 +14,7 @@ import {
 	startDiscordRichAdvanced,
 	stopDiscordRichAdvanced,
 } from '../discord'
-import startCustomStatusWorker, {
-	stopCustomStatusWorker,
-} from '../discord/modules/status'
+import startCustomStatusWorker, { stopCustomStatusWorker } from '../discord/modules/status'
 import {
 	ActivityType,
 	BarStyle,
@@ -26,7 +24,12 @@ import {
 	RpcPayload,
 	StatusCycleEntry,
 } from '../types/types'
-import { fetchAuthor, UploadConfigPayload, uploadConfigToCloud } from './cloud'
+import {
+	fetchAuthor,
+	UploadConfigPayload,
+	uploadConfigToCloud,
+	uploadStatusConfigToCloud,
+} from './cloud'
 import {
 	getLanguage,
 	normalizeStatuses,
@@ -46,12 +49,7 @@ import {
 	writeSettings,
 	writeStatusCyclesConfig,
 } from './config'
-import {
-	sendLog,
-	sendStatus,
-	sendStatusCustom,
-	sendStatusCustomPayload,
-} from './logging'
+import { sendLog, sendStatus, sendStatusCustom, sendStatusCustomPayload } from './logging'
 import { t } from './translations'
 import { downloadFile, isPortable } from './updates'
 
@@ -101,14 +99,7 @@ function setAutoLaunch(enabled: boolean) {
 
 function startSmtcWorker() {
 	const workerPath = app.isPackaged
-		? path.join(
-				process.resourcesPath,
-				'app',
-				'src',
-				'discord',
-				'workers',
-				'smtc-worker.js',
-			)
+		? path.join(process.resourcesPath, 'app', 'src', 'discord', 'workers', 'smtc-worker.js')
 		: path.join(process.cwd(), 'src', 'discord', 'workers', 'smtc-worker.js')
 
 	if (!smtcWorker) {
@@ -129,10 +120,8 @@ function startSmtcWorker() {
 			return
 		}
 
-		const isMusic =
-			msg.data?.isThumbMusic === true && msg.data?.isThumbVideo !== true
-		const isVideo =
-			msg.data?.isThumbVideo === true && msg.data?.isThumbMusic !== true
+		const isMusic = msg.data?.isThumbMusic === true && msg.data?.isThumbVideo !== true
+		const isVideo = msg.data?.isThumbVideo === true && msg.data?.isThumbMusic !== true
 
 		if (musicFilter && !videoFilter && !isMusic) {
 			lastNowPlaying = null
@@ -175,21 +164,8 @@ function startSmtcWorker() {
 
 function startHardwareWorker() {
 	const workerPath = app.isPackaged
-		? path.join(
-				process.resourcesPath,
-				'app',
-				'src',
-				'discord',
-				'workers',
-				'hardware-worker.js',
-			)
-		: path.join(
-				process.cwd(),
-				'src',
-				'discord',
-				'workers',
-				'hardware-worker.js',
-			)
+		? path.join(process.resourcesPath, 'app', 'src', 'discord', 'workers', 'hardware-worker.js')
+		: path.join(process.cwd(), 'src', 'discord', 'workers', 'hardware-worker.js')
 
 	if (!hardwareWorker) {
 		hardwareWorker = new Worker(workerPath, { env: { ...process.env } })
@@ -428,7 +404,7 @@ export async function initIpc() {
 					t('updateLaunchingPortableInstaller', {
 						dir: installDir,
 						fileName: path.basename(filePath),
-					}),
+					})
 				)
 
 				const child = spawn(filePath, ['/S', `/D=${installDir}`])
@@ -444,18 +420,13 @@ export async function initIpc() {
 						restarted.unref()
 						sendLog(t('updateRestartedAfterPortable'))
 					} catch (e: any) {
-						sendLog(
-							t('updateFailedToRestart', { error: e?.message || String(e) }),
-							'error',
-						)
+						sendLog(t('updateFailedToRestart', { error: e?.message || String(e) }), 'error')
 					}
 
 					app.quit()
 				})
 			} else {
-				sendLog(
-					t('updateLaunchingInstaller', { fileName: path.basename(filePath) }),
-				)
+				sendLog(t('updateLaunchingInstaller', { fileName: path.basename(filePath) }))
 
 				const child = spawn(filePath, [], {
 					detached: true,
@@ -466,44 +437,54 @@ export async function initIpc() {
 				app.quit()
 			}
 		} catch (e: any) {
-			sendLog(
-				t('updateInstallFailed', { error: e?.message || String(e) }),
-				'error',
-			)
+			sendLog(t('updateInstallFailed', { error: e?.message || String(e) }), 'error')
 			console.error('install-update error:', e)
 		}
 	})
 
-	ipcMain.handle(
-		'cloud:uploadConfig',
-		async (_event, payload: UploadConfigPayload) => {
-			const user = await fetchAuthor(payload.authorId)
-			if (!user || !user.name) {
-				throw new Error('Author not found')
-			}
-			const authorName = user.name
+	ipcMain.handle('cloud:uploadConfig', async (_event, payload: UploadConfigPayload) => {
+		const user = await fetchAuthor(payload.authorId)
+		if (!user || !user.name) {
+			throw new Error('Author not found')
+		}
 
-			const configCloud = JSON.parse(JSON.stringify(payload.configData)) as any
+		const authorName = user.name
 
-			if (configCloud.discordToken) {
-				delete configCloud.discordToken
-			}
+		const configCloud = JSON.parse(JSON.stringify(payload.configData)) as any
 
-			if (configCloud.statusSettings?.discordToken) {
-				delete configCloud.statusSettings.discordToken
-			}
+		const allowedKeys = ['buttonPairs', 'cycles', 'imageCycles', 'party']
+		const filteredConfigData = Object.fromEntries(
+			allowedKeys.filter(key => key in configCloud).map(key => [key, configCloud[key]])
+		)
 
-			if (configCloud.statusCycles) {
-				delete configCloud.statusCycles
-			}
+		return uploadConfigToCloud({
+			...payload,
+			authorName,
+			configData: filteredConfigData,
+		})
+	})
 
-			return uploadConfigToCloud({
-				...payload,
-				authorName,
-				configData: configCloud,
-			})
-		},
-	)
+	ipcMain.handle('cloud:uploadStatusConfig', async (_event, payload: UploadConfigPayload) => {
+		const user = await fetchAuthor(payload.authorId)
+		if (!user || !user.name) {
+			throw new Error('Author not found')
+		}
+
+		const authorName = user.name
+
+		const configCloud = JSON.parse(JSON.stringify(payload.configData)) as any
+
+		const allowedKeys = ['statusCycles']
+		const filteredConfigData = Object.fromEntries(
+			allowedKeys.filter(key => key in configCloud).map(key => [key, configCloud[key]])
+		)
+
+		return uploadStatusConfigToCloud({
+			...payload,
+			authorName,
+			configData: filteredConfigData,
+		})
+	})
 
 	ipcMain.handle('set-auto-launch', async (_event, enabled: boolean) => {
 		setAutoLaunch(enabled)
@@ -529,8 +510,7 @@ export async function initIpc() {
 			...current,
 			...cfg,
 			persistOffsetSec:
-				typeof cfg.persistOffsetSec === 'number' &&
-				Number.isFinite(cfg.persistOffsetSec)
+				typeof cfg.persistOffsetSec === 'number' && Number.isFinite(cfg.persistOffsetSec)
 					? cfg.persistOffsetSec
 					: current.persistOffsetSec,
 		})
@@ -621,43 +601,34 @@ export async function initIpc() {
 		return true
 	})
 
-	ipcMain.handle(
-		'live-set-status-cycles',
-		async (_event, cycles: StatusCycleEntry[]) => {
-			const normalized = normalizeStatuses(cycles)
-			await setStatusCyclesConfig(normalized)
-			return true
-		},
-	)
+	ipcMain.handle('live-set-status-cycles', async (_event, cycles: StatusCycleEntry[]) => {
+		const normalized = normalizeStatuses(cycles)
+		await setStatusCyclesConfig(normalized)
+		return true
+	})
 
-	ipcMain.handle(
-		'settings:set-status-enabled',
-		async (_event, enabled: boolean) => {
-			const current = await readSettings()
-			const next = { ...current, statusEnabled: !!enabled }
-			await writeSettings(next)
+	ipcMain.handle('settings:set-status-enabled', async (_event, enabled: boolean) => {
+		const current = await readSettings()
+		const next = { ...current, statusEnabled: !!enabled }
+		await writeSettings(next)
 
-			if (next.statusEnabled) {
-				startCustomStatusWorker()
-			} else {
-				stopCustomStatusWorker()
-			}
+		if (next.statusEnabled) {
+			startCustomStatusWorker()
+		} else {
+			stopCustomStatusWorker()
+		}
 
-			return true
-		},
-	)
+		return true
+	})
 
 	ipcMain.handle('live-set-timestamp', async (_event, cfg: any) => {
 		const current = await readTimestampConfig()
 		const oldMode = current.mode
-		const mode =
-			cfg.mode === 'range' || cfg.mode === 'persist' ? cfg.mode : 'now'
+		const mode = cfg.mode === 'range' || cfg.mode === 'persist' ? cfg.mode : 'now'
 		const rangeMin = cfg.rangeMin.trim() === '' ? null : Number(cfg.rangeMin)
 		const rangeMax = cfg.rangeMax.trim() === '' ? null : Number(cfg.rangeMax)
 		const nowMode: NowMode =
-			cfg.nowMode === 'progress' || cfg.nowMode === 'cycles'
-				? (cfg.nowMode as NowMode)
-				: 'plain'
+			cfg.nowMode === 'progress' || cfg.nowMode === 'cycles' ? (cfg.nowMode as NowMode) : 'plain'
 
 		await setTimestampConfig({
 			...current,
@@ -705,75 +676,57 @@ export async function initIpc() {
 	ipcMain.handle('open-discord-token-error-id', async () => {
 		try {
 			await shell.openExternal(
-				'https://www.reddit.com/r/discordapp/comments/sc61n3/comment/hu4fw5x/',
+				'https://www.reddit.com/r/discordapp/comments/sc61n3/comment/hu4fw5x/'
 			)
 		} catch (error) {
 			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
 	})
 
-	ipcMain.handle(
-		'settings:set-music-filter',
-		async (_event, enabled: boolean) => {
-			const current = await readSettings()
-			await writeSettings({ ...current, musicFilter: !!enabled })
-			refreshSmtcWorkerIfNeeded()
-			return true
-		},
-	)
+	ipcMain.handle('settings:set-music-filter', async (_event, enabled: boolean) => {
+		const current = await readSettings()
+		await writeSettings({ ...current, musicFilter: !!enabled })
+		refreshSmtcWorkerIfNeeded()
+		return true
+	})
 
-	ipcMain.handle(
-		'settings:set-video-filter',
-		async (_event, enabled: boolean) => {
-			const current = await readSettings()
-			await writeSettings({ ...current, videoFilter: !!enabled })
-			refreshSmtcWorkerIfNeeded()
-			return true
-		},
-	)
+	ipcMain.handle('settings:set-video-filter', async (_event, enabled: boolean) => {
+		const current = await readSettings()
+		await writeSettings({ ...current, videoFilter: !!enabled })
+		refreshSmtcWorkerIfNeeded()
+		return true
+	})
 
-	ipcMain.handle(
-		'settings:set-automatic-activity',
-		async (_event, enabled: boolean) => {
-			const current = await readSettings()
-			await writeSettings({ ...current, activityFilter: !!enabled })
-			return true
-		},
-	)
+	ipcMain.handle('settings:set-automatic-activity', async (_event, enabled: boolean) => {
+		const current = await readSettings()
+		await writeSettings({ ...current, activityFilter: !!enabled })
+		return true
+	})
 
-	ipcMain.handle(
-		'settings:set-cover-fetch',
-		async (_event, enabled: boolean) => {
-			const current = await readSettings()
-			await writeSettings({ ...current, coverFetchEnabled: !!enabled })
-			return true
-		},
-	)
+	ipcMain.handle('settings:set-cover-fetch', async (_event, enabled: boolean) => {
+		const current = await readSettings()
+		await writeSettings({ ...current, coverFetchEnabled: !!enabled })
+		return true
+	})
 
-	ipcMain.handle(
-		'settings:set-hardware-monitor',
-		async (_event, enabled: boolean) => {
-			const current = await readSettings()
-			await writeSettings({ ...current, hardwareMonitorEnabled: !!enabled })
-			refreshHardwareWorkerIfNeeded()
-			return true
-		},
-	)
+	ipcMain.handle('settings:set-hardware-monitor', async (_event, enabled: boolean) => {
+		const current = await readSettings()
+		await writeSettings({ ...current, hardwareMonitorEnabled: !!enabled })
+		refreshHardwareWorkerIfNeeded()
+		return true
+	})
 
-	ipcMain.handle(
-		'settings:set-status-enabled-browser',
-		async (_event, enabled) => {
-			await setStatusEnabledBrowser(enabled)
-			stopCustomStatusWorker()
+	ipcMain.handle('settings:set-status-enabled-browser', async (_event, enabled) => {
+		await setStatusEnabledBrowser(enabled)
+		stopCustomStatusWorker()
 
-			sendStatusCustom('CUSTOM_STATUS_RESTART')
-			sendStatusCustomPayload('RESTARTING')
+		sendStatusCustom('CUSTOM_STATUS_RESTART')
+		sendStatusCustomPayload('RESTARTING')
 
-			setTimeout(() => {
-				startCustomStatusWorker()
-			}, 2000)
-		},
-	)
+		setTimeout(() => {
+			startCustomStatusWorker()
+		}, 2000)
+	})
 
 	ipcMain.handle('use-ready-client-id', async () => {
 		const readyId = '1492470601686847598'
@@ -837,19 +790,16 @@ export async function initIpc() {
 
 		const settings = await readSettings()
 		const fromSettings = normalizeStatuses(
-			(settings as any)?.statusCycles || (settings as any)?.customStatuses,
+			(settings as any)?.statusCycles || (settings as any)?.customStatuses
 		)
 		return fromSettings
 	})
 
-	ipcMain.handle(
-		'status:set-current',
-		async (_event, cycles: StatusCycleEntry[]) => {
-			const normalized = normalizeStatuses(cycles)
-			await writeStatusCyclesConfig({ cycles: normalized })
-			return true
-		},
-	)
+	ipcMain.handle('status:set-current', async (_event, cycles: StatusCycleEntry[]) => {
+		const normalized = normalizeStatuses(cycles)
+		await writeStatusCyclesConfig({ cycles: normalized })
+		return true
+	})
 
 	ipcMain.handle('get-language', async () => {
 		return await getLanguage()

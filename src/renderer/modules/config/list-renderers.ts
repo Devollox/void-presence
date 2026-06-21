@@ -15,10 +15,7 @@ import {
 	createStatusRow,
 } from './rows'
 
-export function setupButtonPairs(
-	ctx: VoidPresenceCtx,
-	showBlocksToast: () => void,
-) {
+export function setupButtonPairs(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
 	ctx.renderButtonPairs = createListManager<ButtonPair>(ctx, showBlocksToast, {
 		listId: 'buttons-list',
 		addBtnId: 'add-button-pair',
@@ -46,61 +43,43 @@ export function setupCycles(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
 	})
 }
 
-export function setupImageCycles(
-	ctx: VoidPresenceCtx,
-	showBlocksToast: () => void,
-) {
-	ctx.renderImageCycles = createListManager<ImageCycleEntry>(
-		ctx,
-		showBlocksToast,
-		{
-			listId: 'images-list',
-			addBtnId: 'add-image',
-			storageKey: 'imageCycles',
-			createRowFn: createImageCycleRow,
-			getDefaultItem: () => ({
-				largeImage: '',
-				largeText: '',
-				smallImage: '',
-				smallText: '',
-			}),
-		},
-	)
+export function setupImageCycles(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
+	ctx.renderImageCycles = createListManager<ImageCycleEntry>(ctx, showBlocksToast, {
+		listId: 'images-list',
+		addBtnId: 'add-image',
+		storageKey: 'imageCycles',
+		createRowFn: createImageCycleRow,
+		getDefaultItem: () => ({
+			largeImage: '',
+			largeText: '',
+			smallImage: '',
+			smallText: '',
+		}),
+	})
 }
 
 export function setupParty(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
-	ctx.renderPartyCycles = createListManager<PartyCycleEntry>(
-		ctx,
-		showBlocksToast,
-		{
-			listId: 'party-list',
-			addBtnId: 'add-party',
-			storageKey: 'party',
-			createRowFn: createPartyRow,
-			getDefaultItem: () => ({
-				sizeCurrent: '',
-				sizeMax: '',
-			}),
-		},
-	)
+	ctx.renderPartyCycles = createListManager<PartyCycleEntry>(ctx, showBlocksToast, {
+		listId: 'party-list',
+		addBtnId: 'add-party',
+		storageKey: 'party',
+		createRowFn: createPartyRow,
+		getDefaultItem: () => ({
+			sizeCurrent: '',
+			sizeMax: '',
+		}),
+	})
 }
 
-export function setupStatusCycles(
-	ctx: VoidPresenceCtx,
-	showBlocksToast: () => void,
-) {
-	ctx.renderStatusCycles = createListManager<StatusCycleEntry>(
-		ctx,
-		showBlocksToast,
-		{
-			listId: 'status-list',
-			addBtnId: 'add-status',
-			storageKey: 'statusCycles',
-			createRowFn: createStatusRow,
-			getDefaultItem: () => ({
-				text: '',
-				emoji: '',
-			}),
-		},
-	)
+export function setupStatusCycles(ctx: VoidPresenceCtx, showBlocksToast: () => void) {
+	ctx.renderStatusCycles = createListManager<StatusCycleEntry>(ctx, showBlocksToast, {
+		listId: 'status-list',
+		addBtnId: 'add-status',
+		storageKey: 'statusCycles',
+		createRowFn: createStatusRow,
+		getDefaultItem: () => ({
+			text: '',
+			emoji: '',
+		}),
+	})
 }

@@ -45,10 +45,7 @@ function buildBaseStateFromConfig(cfgState: Partial<FullState>): FullState {
 	const state = cfgState || {}
 	const base: FullState = {
 		clientId: state.clientId || localStorage.getItem('clientId') || '',
-		updateIntervalSec:
-			state.updateIntervalSec ||
-			localStorage.getItem('updateIntervalSec') ||
-			'',
+		updateIntervalSec: state.updateIntervalSec || localStorage.getItem('updateIntervalSec') || '',
 		buttonPairs: Array.isArray(state.buttonPairs) ? state.buttonPairs : [],
 		cycles: Array.isArray(state.cycles) ? state.cycles : [],
 		imageCycles: Array.isArray(state.imageCycles) ? state.imageCycles : [],
@@ -58,18 +55,9 @@ function buildBaseStateFromConfig(cfgState: Partial<FullState>): FullState {
 			state.timestampMode ??
 			(localStorage.getItem('timestampMode') as TimestampMode | null) ??
 			'now',
-		timestampRangeMin:
-			state.timestampRangeMin ??
-			localStorage.getItem('timestampRangeMin') ??
-			'',
-		timestampRangeMax:
-			state.timestampRangeMax ??
-			localStorage.getItem('timestampRangeMax') ??
-			'',
-		nowMode:
-			state.nowMode ??
-			(localStorage.getItem('nowMode') as NowMode | null) ??
-			'plain',
+		timestampRangeMin: state.timestampRangeMin ?? localStorage.getItem('timestampRangeMin') ?? '',
+		timestampRangeMax: state.timestampRangeMax ?? localStorage.getItem('timestampRangeMax') ?? '',
+		nowMode: state.nowMode ?? (localStorage.getItem('nowMode') as NowMode | null) ?? 'plain',
 		activityType:
 			state.activityType ??
 			(localStorage.getItem('activityType') as ActivityType | null) ??
@@ -82,7 +70,7 @@ function createConfigCard(
 	cfg: StoredConfig,
 	list: HTMLElement,
 	nameInput: HTMLInputElement,
-	showConfigToast: () => void,
+	showConfigToast: () => void
 ): void {
 	const state = cfg.state || {}
 	const cycles: CycleEntry[] = Array.isArray(state.cycles) ? state.cycles : []
@@ -91,8 +79,7 @@ function createConfigCard(
 	const activityState = firstCycle?.state || 'In the void'
 	const firstImage: ImageCycleEntry | null =
 		(Array.isArray(state.imageCycles) && state.imageCycles[0]) || null
-	const largeImage =
-		firstImage && firstImage.largeImage ? firstImage.largeImage : 'about:blank'
+	const largeImage = firstImage && firstImage.largeImage ? firstImage.largeImage : 'about:blank'
 
 	const card = document.createElement('div')
 	card.className = 'config-activity-card'
@@ -167,6 +154,7 @@ function createConfigCard(
 		if (!ctx) return
 
 		const base = buildBaseStateFromConfig(state)
+
 		const currentStatusCyclesRaw = localStorage.getItem('statusCycles')
 		const currentStatusCycles: StatusCycleEntry[] = (() => {
 			if (!currentStatusCyclesRaw) return []
@@ -178,28 +166,18 @@ function createConfigCard(
 			}
 		})()
 
-		const currentStatusInterval =
-			localStorage.getItem('updateIntervalSecStatus') || '30'
+		const currentStatusInterval = localStorage.getItem('updateIntervalSecStatus') || '30'
 
 		const currentDiscordToken = localStorage.getItem('discordToken') || ''
 
-		const currentCyclesRaw = localStorage.getItem('cycles')
-		const currentCycles: CycleEntry[] = (() => {
-			if (!currentCyclesRaw) return []
-			try {
-				const parsed = JSON.parse(currentCyclesRaw)
-				return Array.isArray(parsed) ? parsed : []
-			} catch {
-				return []
-			}
-		})()
+		const configCycles: CycleEntry[] = Array.isArray(state.cycles) ? state.cycles : []
 
 		const st: FullState = {
 			...base,
 			statusCycles: currentStatusCycles,
 			updateIntervalSecStatus: currentStatusInterval,
 			discordToken: currentDiscordToken,
-			cycles: currentCycles,
+			cycles: configCycles,
 		}
 
 		applyStateToUIAndLists(st, ctx)
@@ -216,9 +194,7 @@ function createConfigCard(
 	uploadCloudBtn.addEventListener('click', e => {
 		e.preventDefault()
 		openUploadConfirm(cfg, async () => {
-			const authorInput = document.getElementById(
-				'config-author-input',
-			) as HTMLInputElement | null
+			const authorInput = document.getElementById('config-author-input') as HTMLInputElement | null
 			if (!authorInput?.value.trim()) {
 				appendLog({
 					message: 'Enter author ID(get from voidpresence.site/profile) first',
@@ -238,17 +214,11 @@ function createConfigCard(
 			const stateFromConfig: FullState = {
 				clientId: cfg.state?.clientId ?? '',
 				updateIntervalSec: cfg.state?.updateIntervalSec ?? '',
-				buttonPairs: Array.isArray(cfg.state?.buttonPairs)
-					? cfg.state!.buttonPairs
-					: [],
+				buttonPairs: Array.isArray(cfg.state?.buttonPairs) ? cfg.state!.buttonPairs : [],
 				cycles: Array.isArray(cfg.state?.cycles) ? cfg.state!.cycles : [],
-				imageCycles: Array.isArray(cfg.state?.imageCycles)
-					? cfg.state!.imageCycles
-					: [],
+				imageCycles: Array.isArray(cfg.state?.imageCycles) ? cfg.state!.imageCycles : [],
 				party: Array.isArray(cfg.state?.party) ? cfg.state!.party : [],
-				timeCycles: Array.isArray(cfg.state?.timeCycles)
-					? cfg.state!.timeCycles
-					: [],
+				timeCycles: Array.isArray(cfg.state?.timeCycles) ? cfg.state!.timeCycles : [],
 				timestampMode: cfg.state?.timestampMode ?? 'now',
 				timestampRangeMin: cfg.state?.timestampRangeMin ?? '',
 				timestampRangeMax: cfg.state?.timestampRangeMax ?? '',
@@ -261,9 +231,7 @@ function createConfigCard(
 				uploadCloudBtn.innerHTML = 'uploading...'
 
 				const safeState = JSON.parse(
-					JSON.stringify(stateFromConfig, (key, value) =>
-						key === 'clientId' ? undefined : value,
-					),
+					JSON.stringify(stateFromConfig, (key, value) => (key === 'clientId' ? undefined : value))
 				) as FullState
 
 				const config = {
@@ -305,9 +273,7 @@ function createConfigCard(
 			imageCycles: (state.imageCycles && state.imageCycles.slice()) || [],
 			buttonPairs: (state.buttonPairs && state.buttonPairs.slice()) || [],
 			party: Array.isArray(state.party) ? state.party.slice() : undefined,
-			timeCycles: Array.isArray(state.timeCycles)
-				? state.timeCycles.slice()
-				: [],
+			timeCycles: Array.isArray(state.timeCycles) ? state.timeCycles.slice() : [],
 			timestampMode: state.timestampMode,
 			timestampRangeMin: state.timestampRangeMin,
 			timestampRangeMax: state.timestampRangeMax,
@@ -315,8 +281,7 @@ function createConfigCard(
 			nowMode: state.nowMode,
 			updateIntervalSec: state.updateIntervalSec,
 		}
-		const name =
-			cfg.name || `void-presence-${new Date().toISOString().slice(0, 10)}`
+		const name = cfg.name || `void-presence-${new Date().toISOString().slice(0, 10)}`
 		downloadJson(data, `${name}.json`)
 	})
 
@@ -342,11 +307,9 @@ function createConfigCard(
 
 export function renderConfigs() {
 	const list = document.getElementById('config-list') as HTMLElement | null
-	const nameInput = document.getElementById(
-		'config-name-input',
-	) as HTMLInputElement | null
+	const nameInput = document.getElementById('config-name-input') as HTMLInputElement | null
 	const configSearchInput = document.getElementById(
-		'config-search-input',
+		'config-search-input'
 	) as HTMLInputElement | null
 	if (!list || !nameInput) return
 

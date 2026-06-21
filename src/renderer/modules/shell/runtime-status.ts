@@ -1,22 +1,15 @@
 import { t } from 'i18next'
 import { LogEntry, RichPresencePayload } from '../../../types/types'
 
-const logsViewList = document.getElementById(
-	'logs-view-list',
-) as HTMLElement | null
-const logsCounter = document.getElementById(
-	'logs-counter',
-) as HTMLElement | null
+const logsViewList = document.getElementById('logs-view-list') as HTMLElement | null
+const logsCounter = document.getElementById('logs-counter') as HTMLElement | null
 const maxLogs = 120
 
 let activityStartMs: number | null = null
 let uptimeTimer: number | null = null
 let lastErrorItem: HTMLElement | null = null
 
-function getStatusTextMap(): Record<
-	string,
-	{ title: string; second: string; value: string }
-> {
+function getStatusTextMap(): Record<string, { title: string; second: string; value: string }> {
 	return {
 		IDLE: {
 			title: t('idle'),
@@ -50,7 +43,7 @@ function updateExistingLogItem(
 	item: HTMLElement | null,
 	rawText: string,
 	level: string,
-	time: string,
+	time: string
 ): boolean {
 	if (!item) return false
 
@@ -198,7 +191,7 @@ export function appendLog(entry: LogEntry | string): void {
 		navLogs.classList.remove(
 			'sidebar-nav-item-error',
 			'sidebar-nav-item-success',
-			'sidebar-nav-item-warn',
+			'sidebar-nav-item-warn'
 		)
 
 		let highlightClass: string | null = null
@@ -284,9 +277,7 @@ function formatDuration(ms: number): string {
 }
 
 function startUptimeTimer() {
-	const infoUptime = document.getElementById(
-		'info-uptime',
-	) as HTMLElement | null
+	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
 	if (!infoUptime) return
 
 	if (uptimeTimer) {
@@ -305,9 +296,7 @@ function startUptimeTimer() {
 }
 
 function stopUptimeTimer() {
-	const infoUptime = document.getElementById(
-		'info-uptime',
-	) as HTMLElement | null
+	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
 	if (uptimeTimer) {
 		window.clearInterval(uptimeTimer)
 		uptimeTimer = null
@@ -318,30 +307,13 @@ function stopUptimeTimer() {
 export function updateInfo(payload: RichPresencePayload | null): void {
 	const title = document.getElementById('activity-title') as HTMLElement | null
 	const sub = document.getElementById('activity-sub') as HTMLElement | null
-	const infoButtons = document.getElementById(
-		'info-buttons',
-	) as HTMLElement | null
-	const infoObject = document.getElementById(
-		'info-object',
-	) as HTMLElement | null
-	const infoDetails = document.getElementById(
-		'info-details',
-	) as HTMLElement | null
-	const infoStatus = document.getElementById(
-		'info-status',
-	) as HTMLElement | null
-	const infoUptime = document.getElementById(
-		'info-uptime',
-	) as HTMLElement | null
+	const infoButtons = document.getElementById('info-buttons') as HTMLElement | null
+	const infoObject = document.getElementById('info-object') as HTMLElement | null
+	const infoDetails = document.getElementById('info-details') as HTMLElement | null
+	const infoStatus = document.getElementById('info-status') as HTMLElement | null
+	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
 
-	if (
-		!title ||
-		!sub ||
-		!infoButtons ||
-		!infoObject ||
-		!infoDetails ||
-		!infoStatus
-	) {
+	if (!title || !sub || !infoButtons || !infoObject || !infoDetails || !infoStatus) {
 		return
 	}
 
@@ -388,20 +360,15 @@ export function updateStatus(status: string): void {
 
 	if (statusDot) {
 		if (status === 'RPC_ACTIVE') {
-			statusDot.style.background =
-				'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
+			statusDot.style.background = 'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
 		} else if (status === 'RPC_DISCONNECTED') {
-			statusDot.style.background =
-				'radial-gradient(circle, #fb7185 0, #f97373 50%, #000000 100%)'
+			statusDot.style.background = 'radial-gradient(circle, #fb7185 0, #f97373 50%, #000000 100%)'
 		} else if (status === 'RPC_RESTARTING' || status === 'CONNECTING RPC') {
-			statusDot.style.background =
-				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+			statusDot.style.background = 'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
 		} else if (status === 'RPC_NO_CLIENT_ID') {
-			statusDot.style.background =
-				'radial-gradient(circle, #f97316 0, #ea580c 50%, #000000 100%)'
+			statusDot.style.background = 'radial-gradient(circle, #f97316 0, #ea580c 50%, #000000 100%)'
 		} else {
-			statusDot.style.background =
-				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+			statusDot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		}
 	}
 
@@ -412,13 +379,9 @@ export function updateStatus(status: string): void {
 }
 
 export function updateStatusStatus(status: string): void {
-	const chip = document.querySelector(
-		'.status-chip-status span',
-	) as HTMLElement | null
+	const chip = document.querySelector('.status-chip-status span') as HTMLElement | null
 	const dot = document.querySelector('.status-dot-status') as HTMLElement | null
-	const textEl = document.getElementById(
-		'status-page-info-status',
-	) as HTMLElement | null
+	const textEl = document.getElementById('status-page-info-status') as HTMLElement | null
 	const mapped = mapStatusCustomToText(status)
 
 	if (chip) chip.textContent = mapped.chip
@@ -426,33 +389,26 @@ export function updateStatusStatus(status: string): void {
 
 	if (dot) {
 		if (status === 'CUSTOM_STATUS_READY') {
-			dot.style.background =
-				'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
+			dot.style.background = 'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
 		} else if (status === 'CUSTOM_STATUS_DISABLED') {
-			dot.style.background =
-				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		} else if (status === 'CUSTOM_STATUS_RESTART') {
-			dot.style.background =
-				'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+			dot.style.background = 'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
 		} else if (status === 'CUSTOM_STATUS_SEARCHING_DISCORD') {
-			dot.style.background =
-				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		} else {
-			dot.style.background =
-				'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		}
 	}
 }
 
 export function updateStatusText(text: string | null): void {
-	const el = document.getElementById(
-		'status-page-info-text',
-	) as HTMLElement | null
+	const el = document.getElementById('status-page-info-text') as HTMLElement | null
 	const elTitleBlock = document.getElementById(
-		'status-page-info-text-title-block',
+		'status-page-info-text-title-block'
 	) as HTMLElement | null
 	const elSecondBlock = document.getElementById(
-		'status-page-info-text-second-block',
+		'status-page-info-text-second-block'
 	) as HTMLElement | null
 
 	if (!el || !elTitleBlock || !elSecondBlock) return

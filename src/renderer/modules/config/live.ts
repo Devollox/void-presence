@@ -11,9 +11,7 @@ import {
 	VoidPresenceCtx,
 } from '../../../types/types'
 
-function buildPartyPayload(
-	party: PartyCycleEntry[],
-): { sizeCurrent: string; sizeMax: string }[] {
+function buildPartyPayload(party: PartyCycleEntry[]): { sizeCurrent: string; sizeMax: string }[] {
 	return (party || []).map(p => ({
 		sizeCurrent: p.sizeCurrent?.toString() ?? '',
 		sizeMax: p.sizeMax?.toString() ?? '',
@@ -21,14 +19,11 @@ function buildPartyPayload(
 }
 
 function buildTimeCyclesPayload(
-	timeCycles: TimeCycleEntry[],
+	timeCycles: TimeCycleEntry[]
 ): { label: string; seconds: string }[] {
 	return (timeCycles || []).map(tc => ({
 		label: tc.label || '',
-		seconds:
-			typeof tc.seconds === 'number'
-				? String(tc.seconds)
-				: (tc.seconds as string) || '',
+		seconds: typeof tc.seconds === 'number' ? String(tc.seconds) : (tc.seconds as string) || '',
 	}))
 }
 
@@ -45,8 +40,7 @@ function buildTimestampPayloadFromLocal(): {
 	const timestampRangeMax = localStorage.getItem('timestampRangeMax') || ''
 	const activityType: ActivityType =
 		(localStorage.getItem('activityType') as ActivityType | null) || 'playing'
-	const nowMode: NowMode =
-		(localStorage.getItem('nowMode') as NowMode | null) || 'plain'
+	const nowMode: NowMode = (localStorage.getItem('nowMode') as NowMode | null) || 'plain'
 
 	return {
 		mode: timestampMode,
@@ -58,37 +52,24 @@ function buildTimestampPayloadFromLocal(): {
 }
 
 function buildStatusCyclesPayload(
-	statusCycles: StatusCycleEntry[],
+	statusCycles: StatusCycleEntry[]
 ): { text: string; emoji: string | null }[] {
 	return (statusCycles || []).map(s => ({
 		text: s.text || '',
-		emoji:
-			typeof s.emoji === 'string' && s.emoji.trim().length > 0
-				? s.emoji.trim()
-				: null,
+		emoji: typeof s.emoji === 'string' && s.emoji.trim().length > 0 ? s.emoji.trim() : null,
 	}))
 }
 
-export async function pushLiveStateFromCtx(
-	ctx: VoidPresenceCtx,
-): Promise<void> {
-	const clientInput = document.getElementById(
-		'client-id-input',
-	) as HTMLInputElement | null
-	const intervalInput = document.getElementById(
-		'update-interval-input',
-	) as HTMLInputElement | null
-	const tokenInput = document.getElementById(
-		'discord-token-input',
-	) as HTMLInputElement | null
+export async function pushLiveStateFromCtx(ctx: VoidPresenceCtx): Promise<void> {
+	const clientInput = document.getElementById('client-id-input') as HTMLInputElement | null
+	const intervalInput = document.getElementById('update-interval-input') as HTMLInputElement | null
+	const tokenInput = document.getElementById('discord-token-input') as HTMLInputElement | null
 	const statusIntervalInput = document.getElementById(
-		'status-update-interval-input',
+		'status-update-interval-input'
 	) as HTMLInputElement | null
 
 	const clientId = clientInput ? clientInput.value.trim() : ''
-	const intervalSec = intervalInput
-		? parseInt(intervalInput.value.trim(), 10)
-		: NaN
+	const intervalSec = intervalInput ? parseInt(intervalInput.value.trim(), 10) : NaN
 	const discordToken = tokenInput ? tokenInput.value.trim() : ''
 
 	const statusIntervalSec = statusIntervalInput
@@ -120,11 +101,7 @@ export async function pushLiveStateFromCtx(
 	if (window.electronAPI?.liveSetClientId && clientId.length > 18) {
 		await window.electronAPI.liveSetClientId(clientId)
 	}
-	if (
-		!isNaN(intervalSec) &&
-		intervalSec > 0 &&
-		window.electronAPI?.liveSetInterval
-	) {
+	if (!isNaN(intervalSec) && intervalSec > 0 && window.electronAPI?.liveSetInterval) {
 		await window.electronAPI.liveSetInterval(intervalSec)
 	}
 	if (window.electronAPI?.liveSetDiscordToken) {
@@ -134,14 +111,10 @@ export async function pushLiveStateFromCtx(
 		await window.electronAPI.liveSetCycles((ctx.cycles || []) as CycleEntry[])
 	}
 	if (window.electronAPI?.liveSetImages) {
-		await window.electronAPI.liveSetImages(
-			(ctx.imageCycles || []) as ImageCycleEntry[],
-		)
+		await window.electronAPI.liveSetImages((ctx.imageCycles || []) as ImageCycleEntry[])
 	}
 	if (window.electronAPI?.liveSetButtons) {
-		await window.electronAPI.liveSetButtons(
-			(ctx.buttonPairs || []) as ButtonPair[],
-		)
+		await window.electronAPI.liveSetButtons((ctx.buttonPairs || []) as ButtonPair[])
 	}
 	if (window.electronAPI?.liveSetParty) {
 		const partyPayload = buildPartyPayload(ctx.party || [])

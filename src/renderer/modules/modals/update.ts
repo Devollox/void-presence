@@ -31,9 +31,7 @@ function setDataAttr(id: string, attr: string, value: string) {
 }
 
 async function openUpdateOverlay(info: UpdateInfo) {
-	const overlay = document.getElementById(
-		'update-overlay',
-	) as HTMLElement | null
+	const overlay = document.getElementById('update-overlay') as HTMLElement | null
 	if (!overlay) return
 
 	pendingUpdate = info
@@ -46,12 +44,9 @@ async function openUpdateOverlay(info: UpdateInfo) {
 	setText('update-title', titleText)
 	setText(
 		'update-current-version',
-		`${t('updateOverlay.currentVersion')}: v${info.currentVersion}` || '–',
+		`${t('updateOverlay.currentVersion')}: v${info.currentVersion}` || '–'
 	)
-	setText(
-		'update-latest-version',
-		`${t('updateOverlay.latestVersion')}: ${info.latestTag || '–'}`,
-	)
+	setText('update-latest-version', `${t('updateOverlay.latestVersion')}: ${info.latestTag || '–'}`)
 
 	const hasChangelog = !!info.changelogMd && info.changelogMd.trim().length > 0
 
@@ -68,28 +63,18 @@ async function openUpdateOverlay(info: UpdateInfo) {
 }
 
 function hideUpdateOverlay() {
-	const overlay = document.getElementById(
-		'update-overlay',
-	) as HTMLElement | null
+	const overlay = document.getElementById('update-overlay') as HTMLElement | null
 	if (!overlay) return
 	overlay.dataset.open = 'false'
 }
 
 function bindUpdateOverlayControls() {
-	const overlay = document.getElementById(
-		'update-overlay',
-	) as HTMLElement | null
+	const overlay = document.getElementById('update-overlay') as HTMLElement | null
 	if (!overlay) return
 
-	const closeBtn = document.getElementById(
-		'update-close-btn',
-	) as HTMLButtonElement | null
-	const laterBtn = document.getElementById(
-		'update-later-btn',
-	) as HTMLButtonElement | null
-	const installBtn = document.getElementById(
-		'update-install-btn',
-	) as HTMLButtonElement | null
+	const closeBtn = document.getElementById('update-close-btn') as HTMLButtonElement | null
+	const laterBtn = document.getElementById('update-later-btn') as HTMLButtonElement | null
+	const installBtn = document.getElementById('update-install-btn') as HTMLButtonElement | null
 
 	if (closeBtn) {
 		closeBtn.textContent = t('updateOverlay.close')
@@ -108,10 +93,7 @@ function bindUpdateOverlayControls() {
 	if (installBtn) {
 		installBtn.textContent = t('updateOverlay.install')
 		installBtn.addEventListener('click', () => {
-			if (
-				!window.electronAPI ||
-				typeof window.electronAPI.installUpdate !== 'function'
-			) {
+			if (!window.electronAPI || typeof window.electronAPI.installUpdate !== 'function') {
 				return
 			}
 			if (!pendingUpdate || !pendingUpdate.downloadUrl) {
@@ -130,10 +112,7 @@ function bindUpdateOverlayControls() {
 export function initUpdateOverlay() {
 	bindUpdateOverlayControls()
 
-	if (
-		window.electronAPI &&
-		typeof window.electronAPI.onUpdateAvailable === 'function'
-	) {
+	if (window.electronAPI && typeof window.electronAPI.onUpdateAvailable === 'function') {
 		window.electronAPI.onUpdateAvailable((info: UpdateInfo) => {
 			void openUpdateOverlay(info)
 		})

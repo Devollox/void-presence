@@ -85,10 +85,7 @@ function makeCacheKey(title: string, artist: string) {
 	return `${title.toLowerCase().trim()}::${artist.toLowerCase().trim()}`
 }
 
-async function resolveCoverUrlFromITunes(
-	title: string,
-	artist: string,
-): Promise<string | null> {
+async function resolveCoverUrlFromITunes(title: string, artist: string): Promise<string | null> {
 	const queryParts: string[] = []
 	if (artist.trim()) queryParts.push(artist.trim())
 	if (title.trim()) queryParts.push(title.trim())
@@ -103,8 +100,7 @@ async function resolveCoverUrlFromITunes(
 		const res = await fetch(url, { signal: controller.signal } as any)
 		if (!res.ok) return null
 		const json = await res.json()
-		if (!json || !Array.isArray(json.results) || json.results.length === 0)
-			return null
+		if (!json || !Array.isArray(json.results) || json.results.length === 0) return null
 		const result = json.results[0]
 		const artwork: string | undefined =
 			result.artworkUrl100 || result.artworkUrl60 || result.artworkUrl30
@@ -117,10 +113,7 @@ async function resolveCoverUrlFromITunes(
 	}
 }
 
-async function resolveCoverUrl(
-	title: string,
-	artist: string,
-): Promise<string | null> {
+async function resolveCoverUrl(title: string, artist: string): Promise<string | null> {
 	const key = makeCacheKey(title, artist)
 	if (coverCache.has(key)) return coverCache.get(key) || null
 	const now = Date.now()
@@ -160,19 +153,14 @@ function createClient() {
 }
 
 async function savePersistOffsetIfNeeded() {
-	if (!currentTimestampConfig || currentTimestampConfig.mode !== 'persist')
-		return
+	if (!currentTimestampConfig || currentTimestampConfig.mode !== 'persist') return
 	try {
 		const elapsedMs = Date.now() - persistSessionStart
 		const totalOffsetSec = (persistOffsetSecBase * 1000 + elapsedMs) / 1000
 		currentTimestampConfig.persistOffsetSec = Math.floor(totalOffsetSec)
 		await setTimestampConfig(currentTimestampConfig)
 	} catch (e) {
-		if (sendLog)
-			sendLog(
-				t('persistOffsetSaveError', { error: e?.message || String(e) }),
-				'warn',
-			)
+		if (sendLog) sendLog(t('persistOffsetSaveError', { error: e?.message || String(e) }), 'warn')
 	}
 }
 
@@ -203,9 +191,7 @@ export function stopDiscordRich() {
 	hasLoggedConnectingOnce = false
 }
 
-function checkDiscordRunning(
-	cb: (err: { message: string } | null, isRunning: boolean) => void,
-) {
+function checkDiscordRunning(cb: (err: { message: string } | null, isRunning: boolean) => void) {
 	exec('tasklist', (err, stdout) => {
 		if (err) return cb(err, false)
 		const found = stdout.toLowerCase().includes(processName.toLowerCase())
@@ -213,9 +199,7 @@ function checkDiscordRunning(
 	})
 }
 
-function getNextImageCycle(imageCyclesConfig: {
-	cycles: ImageCycle[]
-}): ImageCycle {
+function getNextImageCycle(imageCyclesConfig: { cycles: ImageCycle[] }): ImageCycle {
 	if (!imageCyclesConfig.cycles.length) {
 		return {
 			largeImage: null,
@@ -224,8 +208,7 @@ function getNextImageCycle(imageCyclesConfig: {
 			smallText: null,
 		}
 	}
-	const img =
-		imageCyclesConfig.cycles[imageIndex % imageCyclesConfig.cycles.length]
+	const img = imageCyclesConfig.cycles[imageIndex % imageCyclesConfig.cycles.length]
 	imageIndex = (imageIndex + 1) % imageCyclesConfig.cycles.length
 	return img
 }
@@ -262,25 +245,20 @@ async function readNowPlayingSafe(): Promise<NowPlayingInfo> {
 		}
 		return {
 			sourceAppId: raw.sourceAppId || 'Player',
-			lastUpdatedTime:
-				typeof raw.lastUpdatedTime === 'number' ? raw.lastUpdatedTime : null,
+			lastUpdatedTime: typeof raw.lastUpdatedTime === 'number' ? raw.lastUpdatedTime : null,
 			title: raw.title || '',
 			artist: raw.artist || '',
 			albumTitle: raw.albumTitle || '',
 			albumArtist: raw.albumArtist || '',
 			genres: Array.isArray(raw.genres) ? raw.genres : [],
-			playbackStatus:
-				typeof raw.playbackStatus === 'string' ? raw.playbackStatus : null,
-			playbackType:
-				typeof raw.playbackType === 'string' ? raw.playbackType : null,
+			playbackStatus: typeof raw.playbackStatus === 'string' ? raw.playbackStatus : null,
+			playbackType: typeof raw.playbackType === 'string' ? raw.playbackType : null,
 			position: typeof raw.position === 'number' ? raw.position : null,
 			duration: typeof raw.duration === 'number' ? raw.duration : null,
 			startedAt: typeof raw.startedAt === 'number' ? raw.startedAt : null,
 			endsAt: typeof raw.endsAt === 'number' ? raw.endsAt : null,
-			isThumbMusic:
-				typeof raw.isThumbMusic === 'boolean' ? raw.isThumbMusic : null,
-			isThumbVideo:
-				typeof raw.isThumbVideo === 'boolean' ? raw.isThumbVideo : null,
+			isThumbMusic: typeof raw.isThumbMusic === 'boolean' ? raw.isThumbMusic : null,
+			isThumbVideo: typeof raw.isThumbVideo === 'boolean' ? raw.isThumbVideo : null,
 		}
 	} catch {
 		return null
@@ -338,9 +316,7 @@ function buildHardwareEntries(stats: any) {
 				Number.isFinite(Number(stats.cpu.temp)) && Number(stats.cpu.temp) !== 0
 					? `${Math.round(Number(stats.cpu.temp))}°C`
 					: null,
-			load: Number.isFinite(Number(stats.cpu.load))
-				? Number(stats.cpu.load)
-				: null,
+			load: Number.isFinite(Number(stats.cpu.load)) ? Number(stats.cpu.load) : null,
 		})
 	}
 	const gpus = Array.isArray(stats.gpu) ? stats.gpu : []
@@ -361,15 +337,12 @@ function buildHardwareEntries(stats: any) {
 		entries.push({
 			label: 'RAM',
 			temp: `${(used / 1024 / 1024 / 1024).toFixed(1)}/${(total / 1024 / 1024 / 1024).toFixed(1)} GB`,
-			load: Number.isFinite(percent)
-				? percent
-				: Math.round((used / total) * 100),
+			load: Number.isFinite(percent) ? percent : Math.round((used / total) * 100),
 		})
 	}
 	if (!entries.length) {
 		const raw = JSON.stringify(stats)
-		if (raw && raw.length <= 120)
-			entries.push({ label: raw, temp: null, load: null })
+		if (raw && raw.length <= 120) entries.push({ label: raw, temp: null, load: null })
 	}
 	return entries
 }
@@ -385,9 +358,7 @@ async function normalizeHardwareActivity(stats: any) {
 	const entry = entries[hardwareLineIndex % entries.length]
 	hardwareLineIndex = (hardwareLineIndex + 1) % entries.length
 	const details = `${await bar(entry.load)}`
-	const state = [entry.label, entry.temp, `${entry.load}%`]
-		.filter(Boolean)
-		.join(' | ')
+	const state = [entry.label, entry.temp, `${entry.load}%`].filter(Boolean).join(' | ')
 	return { details, state }
 }
 
@@ -399,9 +370,7 @@ function resolveVisiblePayload(): PresencePayload | null {
 	return activePayload || fallbackPayload
 }
 
-export default function startDiscordRich(
-	sendPayload: (payload: RpcPayload) => void,
-) {
+export default function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
 	isStopped = false
 	const sessionId = ++currentSessionId
 	hasLoggedConnectingOnce = false
@@ -475,9 +444,7 @@ export default function startDiscordRich(
 
 		function getTimestampsForProgress() {
 			const start = Date.now()
-			const base = Number.isFinite(activityIntervalMs)
-				? activityIntervalMs
-				: 30000
+			const base = Number.isFinite(activityIntervalMs) ? activityIntervalMs : 30000
 			const end = start + base
 			return { start, end }
 		}
@@ -489,11 +456,7 @@ export default function startDiscordRich(
 			if (!cycle) return { start: Date.now() }
 			const labelSec = Number(cycle.label)
 			const secondsSec = Number(cycle.seconds)
-			if (
-				!Number.isFinite(labelSec) ||
-				!Number.isFinite(secondsSec) ||
-				secondsSec < 0
-			)
+			if (!Number.isFinite(labelSec) || !Number.isFinite(secondsSec) || secondsSec < 0)
 				return { start: Date.now() }
 			const now = Date.now()
 			const startMs = now - labelSec * 1000
@@ -504,13 +467,12 @@ export default function startDiscordRich(
 		function getTimestampsForActivity(
 			modeLocal: typeof mode,
 			nowModeLocal: NowMode,
-			cycleForNow: TimeCycleEntry | null,
+			cycleForNow: TimeCycleEntry | null
 		): { start: number; end?: number } {
 			if (modeLocal === 'now') {
 				if (nowModeLocal === 'plain') return getTimestampsForPlain()
 				if (nowModeLocal === 'progress') return getTimestampsForProgress()
-				if (nowModeLocal === 'cycles')
-					return getTimestampsForCycles(cycleForNow)
+				if (nowModeLocal === 'cycles') return getTimestampsForCycles(cycleForNow)
 				return getTimestampsForPlain()
 			}
 			if (modeLocal === 'range') {
@@ -518,10 +480,7 @@ export default function startDiscordRich(
 				const max = timestampConfig.rangeMax ?? 0
 				const low = Math.max(0, Math.min(min, max))
 				const high = Math.max(low, Math.max(min, max))
-				const delta =
-					high > low
-						? low * 1000 + Math.random() * (high - low) * 1000
-						: low * 1000
+				const delta = high > low ? low * 1000 + Math.random() * (high - low) * 1000 : low * 1000
 				return { start: Date.now() - delta }
 			}
 			if (modeLocal === 'persist') {
@@ -542,18 +501,13 @@ export default function startDiscordRich(
 				await setTimestampConfig(timestampConfig)
 			} catch (e) {
 				if (sendLog)
-					sendLog(
-						t('persistOffsetUpdateError', { error: e?.message || String(e) }),
-						'warn',
-					)
+					sendLog(t('persistOffsetUpdateError', { error: e?.message || String(e) }), 'warn')
 			}
 		}
 
 		const localClient = createClient()
 		let baseCycles = cyclesConfig.entries
-		let buttonPairs = Array.isArray(buttonsConfig.pairs)
-			? buttonsConfig.pairs
-			: []
+		let buttonPairs = Array.isArray(buttonsConfig.pairs) ? buttonsConfig.pairs : []
 		let partyConfig = partyConfigInitial || null
 
 		function buildCycles(imgCycle: ImageCycle) {
@@ -587,24 +541,21 @@ export default function startDiscordRich(
 			const pair = buttonPairs[buttonIndex % buttonPairs.length]
 			buttonIndex = (buttonIndex + 1) % buttonPairs.length
 			const res: { label: string; url: string }[] = []
-			if (pair.label1 && pair.url1)
-				res.push({ label: pair.label1, url: pair.url1 })
-			if (pair.label2 && pair.url2)
-				res.push({ label: pair.label2, url: pair.url2 })
+			if (pair.label1 && pair.url1) res.push({ label: pair.label1, url: pair.url1 })
+			if (pair.label2 && pair.url2) res.push({ label: pair.label2, url: pair.url2 })
 			return res
 		}
 
 		async function refreshConfigsIfChanged() {
 			try {
-				const [newButtons, newCycles, newImages, newParty, newTs, newType] =
-					await Promise.all([
-						readButtonsConfig(),
-						readCyclesConfig(),
-						readImageCyclesConfig(),
-						readPartyConfig(),
-						readTimestampConfig(),
-						readActivityTypeConfig(),
-					])
+				const [newButtons, newCycles, newImages, newParty, newTs, newType] = await Promise.all([
+					readButtonsConfig(),
+					readCyclesConfig(),
+					readImageCyclesConfig(),
+					readPartyConfig(),
+					readTimestampConfig(),
+					readActivityTypeConfig(),
+				])
 				if (newCycles.entries.length) baseCycles = newCycles.entries
 				if (Array.isArray(newButtons.pairs)) {
 					buttonPairs = newButtons.pairs
@@ -624,10 +575,7 @@ export default function startDiscordRich(
 				activityFilterEnabled = newFilters.activityFilter === true
 			} catch (e: any) {
 				if (sendLog)
-					sendLog(
-						t('configRefreshError', { error: e?.message || String(e) || '' }),
-						'error',
-					)
+					sendLog(t('configRefreshError', { error: e?.message || String(e) || '' }), 'error')
 			}
 		}
 
@@ -650,16 +598,11 @@ export default function startDiscordRich(
 			const smtcStatus = nowPlaying?.playbackStatus || null
 			const smtcPosRaw = nowPlaying?.position ?? null
 			const smtcDur = nowPlaying?.duration ?? null
-			const smtcPos =
-				typeof smtcPosRaw === 'number' ? Math.floor(smtcPosRaw / 10) * 10 : null
+			const smtcPos = typeof smtcPosRaw === 'number' ? Math.floor(smtcPosRaw / 10) * 10 : null
 			const isPausedOrStopped =
-				smtcStatus === 'Paused' ||
-				smtcStatus === 'Stopped' ||
-				smtcStatus === 'Closed'
+				smtcStatus === 'Paused' || smtcStatus === 'Stopped' || smtcStatus === 'Closed'
 			const isPlayingLike =
-				smtcStatus === 'Playing' ||
-				smtcStatus === 'Opened' ||
-				smtcStatus === 'Changing'
+				smtcStatus === 'Playing' || smtcStatus === 'Opened' || smtcStatus === 'Changing'
 			const hasValidTrack = !!smtcTitle
 			const filtersNow = await readFiltersState()
 			const hardwareEnabledNow = filtersNow.hardwareMonitorEnabled === true
@@ -678,12 +621,8 @@ export default function startDiscordRich(
 				if (!details) details = smtcTitle
 				if (!state) state = smtcArtist || undefined
 				if (activityFilterEnabled && hasValidTrack) {
-					const isMusic =
-						nowPlaying?.isThumbMusic === true &&
-						nowPlaying?.isThumbVideo !== true
-					const isVideo =
-						nowPlaying?.isThumbVideo === true &&
-						nowPlaying?.isThumbMusic !== true
+					const isMusic = nowPlaying?.isThumbMusic === true && nowPlaying?.isThumbVideo !== true
+					const isVideo = nowPlaying?.isThumbVideo === true && nowPlaying?.isThumbMusic !== true
 					if (isMusic) effectiveActivityType = 'listening'
 					else if (isVideo) effectiveActivityType = 'watching'
 					else effectiveActivityType = activityType
@@ -749,19 +688,21 @@ export default function startDiscordRich(
 				Number(partyEntry.sizeCurrent!) > 0 &&
 				partyEntry.sizeMax! >= partyEntry.sizeCurrent!
 					? {
-							size: [
-								Number(partyEntry.sizeCurrent!),
-								Number(partyEntry.sizeMax!),
-							] as [number, number],
+							size: [Number(partyEntry.sizeCurrent!), Number(partyEntry.sizeMax!)] as [
+								number,
+								number,
+							],
 						}
 					: undefined
 
 			let cycleForNow: TimeCycleEntry | null = null
-			if (mode === 'now' && nowMode === 'cycles')
-				cycleForNow = getNextTimeCycle()
+			if (mode === 'now' && nowMode === 'cycles') cycleForNow = getNextTimeCycle()
 
-			let timestampsMs: { start: number; end?: number } =
-				getTimestampsForActivity(mode, nowMode, cycleForNow)
+			let timestampsMs: { start: number; end?: number } = getTimestampsForActivity(
+				mode,
+				nowMode,
+				cycleForNow
+			)
 			let overrideDelayMs: number | null = null
 
 			if (isPlayingLike && smtcPos != null && smtcDur != null && smtcDur > 0) {
@@ -771,20 +712,12 @@ export default function startDiscordRich(
 				const endMs = startMs + smtcDur * 1000
 				timestampsMs = { start: startMs, end: endMs }
 				const remaining = endMs - now
-				if (remaining > 0 && Number.isFinite(remaining))
-					overrideDelayMs = remaining
-			} else if (
-				nowMode === 'progress' &&
-				(isPlayingLike || isPausedOrStopped)
-			) {
+				if (remaining > 0 && Number.isFinite(remaining)) overrideDelayMs = remaining
+			} else if (nowMode === 'progress' && (isPlayingLike || isPausedOrStopped)) {
 				timestampsMs = getTimestampsForProgress()
 			} else if (isPausedOrStopped) {
 				if (!pausedPlainTimestampsMs) {
-					pausedPlainTimestampsMs = getTimestampsForActivity(
-						mode,
-						nowMode,
-						cycleForNow,
-					)
+					pausedPlainTimestampsMs = getTimestampsForActivity(mode, nowMode, cycleForNow)
 				}
 				timestampsMs = pausedPlainTimestampsMs
 			}
@@ -795,16 +728,15 @@ export default function startDiscordRich(
 			if (overrideDelayMs == null || overrideDelayMs < activityIntervalMs)
 				overrideDelayMs = activityIntervalMs
 
-			const finalTimestamps: { start?: number; end?: number } | undefined =
-				(() => {
-					const startSec = msToDiscordTs(timestampsMs.start)
-					const endSec = msToDiscordTs(timestampsMs.end)
-					if (!startSec && !endSec) return undefined
-					const obj: { start?: number; end?: number } = {}
-					if (startSec) obj.start = startSec
-					if (endSec && (!startSec || endSec > startSec)) obj.end = endSec
-					return obj
-				})()
+			const finalTimestamps: { start?: number; end?: number } | undefined = (() => {
+				const startSec = msToDiscordTs(timestampsMs.start)
+				const endSec = msToDiscordTs(timestampsMs.end)
+				if (!startSec && !endSec) return undefined
+				const obj: { start?: number; end?: number } = {}
+				if (startSec) obj.start = startSec
+				if (endSec && (!startSec || endSec > startSec)) obj.end = endSec
+				return obj
+			})()
 
 			let largeImage: string | undefined = current.largeImage || undefined
 			let largeText: string | undefined = current.largeText || undefined
@@ -821,13 +753,9 @@ export default function startDiscordRich(
 				state: safeState,
 				assets: {
 					large_image:
-						visible?.source === 'media'
-							? largeImage
-							: visible?.assets?.large_image || largeImage,
+						visible?.source === 'media' ? largeImage : visible?.assets?.large_image || largeImage,
 					large_text:
-						visible?.source === 'media'
-							? largeText
-							: visible?.assets?.large_text || largeText,
+						visible?.source === 'media' ? largeText : visible?.assets?.large_text || largeText,
 					small_image:
 						visible?.source === 'media'
 							? current.smallImage || undefined
@@ -859,7 +787,7 @@ export default function startDiscordRich(
 							t('rpcActivityError', {
 								error: e?.message || JSON.stringify(e) || '',
 							}),
-							'error',
+							'error'
 						)
 				})
 
@@ -880,13 +808,10 @@ export default function startDiscordRich(
 				const nowPlaying = await readNowPlayingSafe()
 				const title = nowPlaying?.title || ''
 				const status = nowPlaying?.playbackStatus || ''
-				const posRaw =
-					typeof nowPlaying?.position === 'number' ? nowPlaying.position : null
-				const position =
-					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
+				const posRaw = typeof nowPlaying?.position === 'number' ? nowPlaying.position : null
+				const position = typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
 				const signature = JSON.stringify({ title, status, position })
-				const isPlayingLike =
-					status === 'Playing' || status === 'Opened' || status === 'Changing'
+				const isPlayingLike = status === 'Playing' || status === 'Opened' || status === 'Changing'
 				const now = Date.now()
 				const GRACE_MS = 4000
 				if (isPlayingLike) {
@@ -928,12 +853,10 @@ export default function startDiscordRich(
 				const title = np?.title || ''
 				const status = np?.playbackStatus || ''
 				const posRaw = typeof np?.position === 'number' ? np.position : null
-				const position =
-					typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
+				const position = typeof posRaw === 'number' ? Math.floor(posRaw / 10) * 10 : null
 				currentTitle = title || null
 				lastSmTcStatus = status || null
-				lastSmTcPosition =
-					typeof position === 'number' ? position : lastSmTcPosition
+				lastSmTcPosition = typeof position === 'number' ? position : lastSmTcPosition
 				if (!np || (!np.playbackStatus && !np.title)) lastJsonSignature = ''
 			} catch {
 				lastJsonSignature = ''
@@ -970,10 +893,8 @@ export default function startDiscordRich(
 			isConnecting = false
 			const msg = e?.message || ''
 			const isCouldNotConnect = msg.includes('Could not connect')
-			const justAfterSearch =
-				isSearchingDiscord && Date.now() - lastReadyAt > 2000
-			const shouldSuppress =
-				suppressFirstLoginError || (isCouldNotConnect && justAfterSearch)
+			const justAfterSearch = isSearchingDiscord && Date.now() - lastReadyAt > 2000
+			const shouldSuppress = suppressFirstLoginError || (isCouldNotConnect && justAfterSearch)
 			if (!shouldSuppress && sendLog)
 				sendLog(t('rpcLoginError', { error: msg || String(e) }), 'error')
 			if (restartTimer) clearTimeout(restartTimer)

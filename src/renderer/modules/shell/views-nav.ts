@@ -4,9 +4,7 @@ const navMain = document.getElementById('nav-main') as HTMLElement | null
 const navLogs = document.getElementById('nav-logs') as HTMLElement | null
 const navConfig = document.getElementById('nav-config') as HTMLElement | null
 const navStatus = document.getElementById('nav-status') as HTMLElement | null
-const navSettings = document.getElementById(
-	'nav-settings',
-) as HTMLElement | null
+const navSettings = document.getElementById('nav-settings') as HTMLElement | null
 const views = document.querySelectorAll<HTMLElement>('.view')
 
 export function setActiveView(viewName: ViewName): void {
@@ -24,24 +22,15 @@ export function setActiveView(viewName: ViewName): void {
 	}
 
 	if (navConfig) {
-		navConfig.setAttribute(
-			'data-active',
-			viewName === 'config' ? 'true' : 'false',
-		)
+		navConfig.setAttribute('data-active', viewName === 'config' ? 'true' : 'false')
 	}
 
 	if (navStatus) {
-		navStatus.setAttribute(
-			'data-active',
-			viewName === 'status' ? 'true' : 'false',
-		)
+		navStatus.setAttribute('data-active', viewName === 'status' ? 'true' : 'false')
 	}
 
 	if (navSettings) {
-		navSettings.setAttribute(
-			'data-active',
-			viewName === 'settings' ? 'true' : 'false',
-		)
+		navSettings.setAttribute('data-active', viewName === 'settings' ? 'true' : 'false')
 	}
 }
 

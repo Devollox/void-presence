@@ -4,9 +4,7 @@ function closeOverlay(overlayId: string) {
 	overlay.setAttribute('data-open', 'false')
 
 	if (overlayId === 'import-overlay') {
-		const input = document.getElementById(
-			'import-file-input',
-		) as HTMLInputElement | null
+		const input = document.getElementById('import-file-input') as HTMLInputElement | null
 		if (input) input.value = ''
 	}
 }

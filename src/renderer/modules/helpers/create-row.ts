@@ -12,7 +12,7 @@ type RowConfig<T> = {
 
 function createRow<T extends Record<string, string>>(
 	index: number,
-	{ className, inputs, onChange, onRemove }: RowConfig<T>,
+	{ className, inputs, onChange, onRemove }: RowConfig<T>
 ): HTMLDivElement {
 	const row = document.createElement('div')
 	row.className = className
