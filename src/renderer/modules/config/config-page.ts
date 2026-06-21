@@ -38,7 +38,6 @@ export function setupConfigPage(): void {
 	exportBtn.addEventListener('click', e => {
 		e.preventDefault()
 		const state = getConfigs()
-
 		const name = nameInput.value.trim() || `void-presence-${new Date().toISOString().slice(0, 10)}`
 		downloadJson(state, `${name}.json`)
 	})

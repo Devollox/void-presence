@@ -41,7 +41,7 @@ export function attachAddConfigGlobal() {
 	;(window as any).addConfigFromState = addConfigFromState
 }
 
-function buildBaseStateFromConfig(cfgState: Partial<FullState>): FullState {
+export function buildBaseStateFromConfig(cfgState: Partial<FullState>): FullState {
 	const state = cfgState || {}
 	const base: FullState = {
 		clientId: state.clientId || localStorage.getItem('clientId') || '',
@@ -153,7 +153,8 @@ function createConfigCard(
 		const ctx = window.__voidPresenceCtx as VoidPresenceCtx | undefined
 		if (!ctx) return
 
-		const base = buildBaseStateFromConfig(state)
+		const safeState = deepCloneState((state || {}) as FullState)
+		const base = buildBaseStateFromConfig(safeState)
 
 		const currentStatusCyclesRaw = localStorage.getItem('statusCycles')
 		const currentStatusCycles: StatusCycleEntry[] = (() => {
@@ -167,10 +168,9 @@ function createConfigCard(
 		})()
 
 		const currentStatusInterval = localStorage.getItem('updateIntervalSecStatus') || '30'
-
 		const currentDiscordToken = localStorage.getItem('discordToken') || ''
 
-		const configCycles: CycleEntry[] = Array.isArray(state.cycles) ? state.cycles : []
+		const configCycles: CycleEntry[] = Array.isArray(safeState.cycles) ? safeState.cycles : []
 
 		const st: FullState = {
 			...base,
@@ -180,7 +180,7 @@ function createConfigCard(
 			cycles: configCycles,
 		}
 
-		applyStateToUIAndLists(st, ctx)
+		await applyStateToUIAndLists(st, ctx)
 		await pushLiveStateFromCtx(ctx)
 
 		nameInput.value = ''
@@ -262,7 +262,11 @@ function createConfigCard(
 
 	detailsBtn.addEventListener('click', e => {
 		e.preventDefault()
-		openConfigDetails(cfg)
+		const clonedCfg: StoredConfig = {
+			...cfg,
+			state: cfg.state ? deepCloneState(cfg.state as FullState) : undefined,
+		}
+		openConfigDetails(clonedCfg)
 	})
 
 	exportBtnCfg.addEventListener('click', e => {

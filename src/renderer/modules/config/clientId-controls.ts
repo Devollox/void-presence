@@ -113,7 +113,7 @@ export function setupClientIdControls(): void {
 		upsertRecentApp(readyId, '')
 		storedRecent.splice(0, storedRecent.length, ...getRecentApps())
 		renderRecentApps(
-			recentList,
+			recentList as HTMLElement,
 			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 		showClientIdToast()
@@ -138,7 +138,7 @@ export function setupClientIdControls(): void {
 	ctx.renderStatusCycles?.()
 
 	renderRecentApps(
-		recentList,
+		recentList as HTMLElement,
 		storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 	)
 
@@ -156,7 +156,6 @@ export function setupClientIdControls(): void {
 
 	for (const [list, items, render] of lists) {
 		if (!list || !items || !render) continue
-		const isStatus = list === $statusList
 		attachDnD<unknown>(list, items, () => {
 			render()
 			void pushLiveStateFromCtx(ctx)
@@ -164,22 +163,21 @@ export function setupClientIdControls(): void {
 		})
 	}
 
-	attachDnD<StoredRecentApp>(recentList, storedRecent, () => {
+	attachDnD<StoredRecentApp>(recentList as HTMLElement, storedRecent, () => {
 		setRecentApps(storedRecent)
 		renderRecentApps(
-			recentList,
+			recentList as HTMLElement,
 			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 	})
-
-	recentList.addEventListener('recent:remove', e => {
+	;(recentList as HTMLElement).addEventListener('recent:remove', e => {
 		const id = (e as CustomEvent<{ id: string }>).detail.id
 		removeRecentApp(id)
 		const next = getRecentApps()
 		storedRecent.splice(0, storedRecent.length, ...next)
 		setRecentApps(storedRecent)
 		renderRecentApps(
-			recentList,
+			recentList as HTMLElement,
 			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 	})
@@ -206,7 +204,7 @@ export function setupClientIdControls(): void {
 			const updated = getRecentApps()
 			storedRecent.splice(0, storedRecent.length, ...updated)
 			renderRecentApps(
-				recentList,
+				recentList as HTMLElement,
 				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 			)
 			showClientIdToast()
@@ -282,7 +280,7 @@ export function setupClientIdControls(): void {
 		const updated = getRecentApps()
 		storedRecent.splice(0, storedRecent.length, ...updated)
 		renderRecentApps(
-			recentList,
+			recentList as HTMLElement,
 			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
 		)
 	}

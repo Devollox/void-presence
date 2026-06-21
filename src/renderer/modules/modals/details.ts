@@ -55,13 +55,13 @@ function renderList(
 			const it = item as ImageCycleEntry
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
-			label.textContent = it.largeText || 'no large text'
+			label.textContent = it.largeText || 'No Large Text'
 
 			const largeUrlPill = document.createElement('div')
 			largeUrlPill.className = 'config-details-pill'
 			const largeLink = document.createElement('a')
 			largeLink.href = it.largeImage || '#'
-			largeLink.textContent = it.largeImage || 'no large url'
+			largeLink.textContent = it.largeImage || 'No Large Url'
 			largeLink.target = '_blank'
 			largeUrlPill.appendChild(largeLink)
 
@@ -70,14 +70,14 @@ function renderList(
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = it.smallText || 'no small text'
+			sub.textContent = it.smallText || 'No Small Text'
 
 			const smallUrlPill = document.createElement('div')
 			smallUrlPill.className = 'config-details-pill'
 			const smallLink = document.createElement('a')
 			smallLink.href = it.smallImage || '#'
-			smallLink.textContent = it.smallImage || 'no'
-			if (smallLink.textContent !== 'no') {
+			smallLink.textContent = it.smallImage || 'No Small Url'
+			if (smallLink.textContent !== 'No Small Url') {
 				smallLink.target = '_blank'
 				smallUrlPill.appendChild(smallLink)
 				meta.appendChild(sub)

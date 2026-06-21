@@ -126,12 +126,7 @@ function createStatusCard(
 
 			const { showConfigSavedToast } = setupToasts()
 			showConfigSavedToast()
-		} catch (err: any) {
-			appendLog({
-				message: `Failed to apply status profile: ${err?.message ?? String(err)}`,
-				level: 'error',
-			})
-		}
+		} catch (err: any) {}
 	})
 
 	uploadBtn.addEventListener('click', e => {
