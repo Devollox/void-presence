@@ -235,6 +235,7 @@
 		"step2Li4Dialog": "dialog to overwrite the cloud copy.",
 		"dontShowAgain": "Do not show this cloud tutorial again",
 		"title": "Profiles",
+		"titleUser": "User",
 		"subtitle": "save / load presets",
 		"recentApps": "Recent Apps",
 		"cloudSync": "Cloud Sync",
