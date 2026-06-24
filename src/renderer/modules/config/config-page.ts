@@ -1,7 +1,6 @@
 import { loadCurrentState } from '../core/state'
 import { addConfigFromState, attachAddConfigGlobal, renderConfigs } from './config-render'
 import { attachSearchToList } from './config-search'
-import { getConfigs } from './config-storage'
 import { downloadJson } from './live'
 import { setupToasts } from './toasts'
 
@@ -37,7 +36,7 @@ export function setupConfigPage(): void {
 
 	exportBtn.addEventListener('click', e => {
 		e.preventDefault()
-		const state = getConfigs()
+		const state = loadCurrentState()
 		const name = nameInput.value.trim() || `void-presence-${new Date().toISOString().slice(0, 10)}`
 		downloadJson(state, `${name}.json`)
 	})

@@ -4,11 +4,8 @@ import { setupClientIdControls } from './modules/config/clientId-controls'
 import { setupConfigPage } from './modules/config/config-page'
 import { setupStatusDetailsOverlay } from './modules/config/status-details'
 import { setupStatusImportOverlay } from './modules/config/status-import'
-import {
-	renderStatusProfiles,
-	setupStatusIntervalControl,
-	setupStatusPage,
-} from './modules/config/status-page'
+import { setupStatusPage } from './modules/config/status-page'
+import { renderStatusProfiles, setupStatusIntervalControl } from './modules/config/status-render'
 import { setupCloudUpload } from './modules/config/upload'
 import { fetchNowPlaying } from './modules/core/now-playing'
 import { setupIntervalControl } from './modules/core/state'

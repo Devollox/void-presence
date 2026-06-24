@@ -1,5 +1,5 @@
 import { CustomStatusItem, StoredStatusProfile } from '../../../types/types'
-import { renderStatusProfiles } from './status-page'
+import { renderStatusProfiles } from './status-render'
 import { getStatusProfiles, setStatusProfiles } from './status-storage'
 
 export function setupStatusImportOverlay(): void {

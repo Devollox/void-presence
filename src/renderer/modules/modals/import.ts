@@ -1,6 +1,6 @@
 import { CustomStatusItem, FullState } from '../../../types/types'
 import { renderConfigs } from '../config/config-render'
-import { renderStatusProfiles } from '../config/status-page'
+import { renderStatusProfiles } from '../config/status-render'
 import { addStatusProfileFromItems } from '../config/status-storage'
 import { setupToasts } from '../config/toasts'
 
