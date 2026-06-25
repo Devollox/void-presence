@@ -100,9 +100,19 @@ jobs:
           TAG="${{ github.ref_name }}"
           gh api "repos/${{ github.repository }}/releases/tags/$TAG" \
             --jq '.assets[].name' \
+
           | grep -E '^Void-Presence-Setup-.*\.exe$|^Void-Presence-Setup-.*\.exe\.blockmap$|^latest\.yml$' \
           | while read -r ASSET; do
               gh release delete-asset "$TAG" "$ASSET" -y
             done || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger void-updates repo
+        if: steps.check_release.outputs.exists == 'false'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.UPDATER_TOKEN }}
+          repository: Devollox/void-updates
+          event-type: main_repo_updated
+          client-payload: '{"tag": "${{ github.ref_name }}", "sha": "${{ github.sha }}"}'
