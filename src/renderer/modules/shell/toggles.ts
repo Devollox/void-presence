@@ -1,4 +1,5 @@
 import { refreshBarStyleVisibility } from '../config/bar-style-controls'
+import { setupToasts } from '../config/toasts'
 import { updateInfo, updateStatus } from './views'
 
 type ToggleKey =
@@ -144,31 +145,34 @@ export function setupStatusEnabledBrowserToggle(): void {
 	})
 }
 
-export function setupStopButton(): void {
-	const btn = document.getElementById('stop-discord') as HTMLButtonElement | null
-	if (!btn) return
-	btn.addEventListener('click', e => {
-		e.preventDefault()
-		if (window.electronAPI?.stopDiscordRich) {
-			updateStatus('RPC_DISABLED')
-			updateInfo(null)
-			void window.electronAPI.stopDiscordRich()
-		}
-	})
-}
+export function setupPresenceControls() {
+	const btnRestart = document.getElementById('restart-discord') as HTMLButtonElement | null
+	const btnStop = document.getElementById('stop-discord') as HTMLButtonElement | null
 
-export function setupRestartButton(): void {
-	const btn = document.getElementById('restart-discord') as HTMLButtonElement | null
-	if (!btn) return
-	btn.addEventListener('click', e => {
-		e.preventDefault()
-		if (window.electronAPI?.restartDiscordRich) {
+	if (btnRestart && window.electronAPI?.customStatusRestart) {
+		btnRestart.addEventListener('click', e => {
+			e.preventDefault()
 			setTimeout(() => {
 				updateStatus('RPC_RESTARTING')
 			}, 100)
 			window.electronAPI.restartDiscordRich()
-		}
-	})
+
+			const { showRestartPresnceToast } = setupToasts()
+			showRestartPresnceToast()
+		})
+	}
+
+	if (btnRestart && window.electronAPI?.stopDiscordRich) {
+		btnStop.addEventListener('click', e => {
+			e.preventDefault()
+			updateStatus('RPC_DISABLED')
+			updateInfo(null)
+			void window.electronAPI.stopDiscordRich()
+
+			const { showStopPresnceToast } = setupToasts()
+			showStopPresnceToast()
+		})
+	}
 }
 
 export function setupCustomStatusControls() {
@@ -178,12 +182,18 @@ export function setupCustomStatusControls() {
 	if (btnRestart && window.electronAPI?.customStatusRestart) {
 		btnRestart.addEventListener('click', () => {
 			window.electronAPI.customStatusRestart()
+
+			const { showRestartStatusToast } = setupToasts()
+			showRestartStatusToast()
 		})
 	}
 
 	if (btnStop && window.electronAPI?.customStatusStop) {
 		btnStop.addEventListener('click', () => {
 			window.electronAPI.customStatusStop()
+
+			const { showStopStatusToast } = setupToasts()
+			showStopStatusToast()
 		})
 	}
 }

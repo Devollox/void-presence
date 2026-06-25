@@ -189,6 +189,9 @@ function createConfigCard(
 		const { showBlocksToast } = setupToasts()
 		const storedRecent: StoredRecentApp[] = getRecentApps()
 		reattachDnDForProfiles(ctx, showBlocksToast, storedRecent)
+
+		const { showConfigLoadedToast } = setupToasts()
+		showConfigLoadedToast()
 	})
 
 	uploadCloudBtn.addEventListener('click', e => {
@@ -248,6 +251,8 @@ function createConfigCard(
 					message: `Config "${config.title}" uploaded!`,
 					level: 'success',
 				})
+				const { showConfigUpLoadedToast } = setupToasts()
+				showConfigUpLoadedToast()
 			} catch (err: any) {
 				appendLog({
 					message: `Upload failed: ${err?.message ?? String(err)}`,
@@ -297,6 +302,9 @@ function createConfigCard(
 		configs.splice(index, 1)
 		setConfigs(configs)
 		renderConfigs()
+
+		const { showConfigDeleteToast } = setupToasts()
+		showConfigDeleteToast()
 	})
 
 	actions.appendChild(loadBtn)

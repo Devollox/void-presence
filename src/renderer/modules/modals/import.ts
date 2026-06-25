@@ -17,6 +17,16 @@ function isStatusArray(data: unknown): data is CustomStatusItem[] {
 	)
 }
 
+function isStatusObject(data: unknown): data is { statusCycles: CustomStatusItem[] } {
+	if (!data || typeof data !== 'object' || Array.isArray(data)) return false
+	const obj = data as Record<string, unknown>
+	if (!Array.isArray(obj.statusCycles)) return false
+	return obj.statusCycles.every(
+		x =>
+			x && typeof x === 'object' && 'text' in x && typeof (x as CustomStatusItem).text === 'string'
+	)
+}
+
 function isConfigLike(data: unknown): data is Partial<FullState> {
 	if (!data || typeof data !== 'object' || Array.isArray(data)) return false
 	const obj = data as Record<string, unknown>
@@ -30,13 +40,23 @@ function isConfigLike(data: unknown): data is Partial<FullState> {
 }
 
 export function importJsonPayload(parsed: unknown, baseName?: string): void {
-	const { showConfigLoadedToast } = setupToasts()
+	const { showConfigImportedToast } = setupToasts()
 
 	if (isStatusArray(parsed)) {
 		const name = baseName || 'Imported status'
 		addStatusProfileFromItems(name, parsed)
 		renderStatusProfiles()
-		showConfigLoadedToast()
+		showConfigImportedToast()
+		return
+	}
+
+	if (isStatusObject(parsed)) {
+		const name = baseName || 'Imported status'
+		const obj = parsed as { statusCycles: CustomStatusItem[] }
+		const items = obj.statusCycles
+		addStatusProfileFromItems(name, items)
+		renderStatusProfiles()
+		showConfigImportedToast()
 		return
 	}
 
@@ -71,7 +91,7 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 		}
 
 		renderConfigs()
-		showConfigLoadedToast()
+		showConfigImportedToast()
 		return
 	}
 }

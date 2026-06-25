@@ -54,12 +54,20 @@ async function handleUrl(rawUrl: string) {
 		const configData = url.searchParams.get('data')
 		const title = url.searchParams.get('title') || undefined
 
+		const kindParam = url.searchParams.get('kind')
+		const pathname = url.pathname.replace('/', '')
+		const payloadType = kindParam || pathname || 'config'
+
 		if (configData) {
 			const parsed = JSON.parse(configData)
-			const payload = { data: parsed, title }
-
 			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.webContents.send('IMPORT_CONFIG_FROM_PROTOCOL', payload)
+				if (payloadType === 'status') {
+					const payload = { data: parsed, title }
+					mainWindow.webContents.send('IMPORT_STATUS_FROM_PROTOCOL', payload)
+				} else {
+					const payload = { data: parsed, title }
+					mainWindow.webContents.send('IMPORT_CONFIG_FROM_PROTOCOL', payload)
+				}
 				await activateConfigView()
 			} else {
 				pendingUrl = rawUrl
@@ -89,7 +97,7 @@ async function handleUrl(rawUrl: string) {
             const label = document.getElementById('config-author-label');
             if (label) label.textContent = ${JSON.stringify(labelText)};
           })()
-        `)
+        }`)
 
 				mainWindow.webContents.send('AUTH_FROM_URL', authorId)
 				await activateConfigView()

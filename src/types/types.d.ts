@@ -345,6 +345,7 @@ export interface ElectronAPI {
 	statusGetCurrent?: () => Promise<StatusCycleEntry[]>
 	statusSetCurrent?: (cycles: StatusCycleEntry[]) => Promise<boolean>
 	onImportConfigFromProtocol?: (handler: (payload: unknown) => void) => void
+	onImportStatusFromProtocol?: (handler: (payload: unknown) => void) => void
 	getLanguage?: () => Promise<void>
 	setLanguage?: () => Promise<void>
 	onStatusPayload?: (handler: (text: string | null) => void) => void

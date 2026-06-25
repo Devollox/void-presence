@@ -26,11 +26,10 @@ import {
 	setupCustomStatusControls,
 	setupHardwareFilterToggle,
 	setupMusicFilterToggle,
-	setupRestartButton,
+	setupPresenceControls,
 	setupRpcEnabledToggle,
 	setupStatusEnabledBrowserToggle,
 	setupStatusEnabledToggle,
-	setupStopButton,
 	setupVideoFilterToggle,
 } from './modules/shell/toggles'
 import { updateInfo, updateStatus } from './modules/shell/views'
@@ -40,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	initLanguage()
 	updatePlaceholders()
 
-	void setupRestartButton()
 	void setupClientIdControls()
 	void setupAutoLaunchToggle()
 	void setupAutoHideToggle()
@@ -48,7 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupActivityTypeControls()
 	void setupConfigDetailsOverlay()
 	void setupConfigPage()
-	void setupStopButton()
 	void setupMusicFilterToggle()
 	void setupVideoFilterToggle()
 	void setupCoverFetchToggle()
@@ -56,6 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupAutomaticActivityToggle()
 	void setupStatusEnabledToggle()
 	void setupCustomStatusControls()
+	void setupPresenceControls()
 	void setupIntervalControl()
 	void setupStatusTutorialButtons()
 	void initUpdateOverlay()
@@ -101,6 +99,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	if (window.electronAPI?.onImportConfigFromProtocol) {
 		window.electronAPI.onImportConfigFromProtocol(raw => {
+			try {
+				const payload = raw as { data: unknown; title?: string }
+				importJsonPayload(payload.data, payload.title)
+			} catch (err: any) {
+				console.error('Failed to import config from protocol', err?.message ?? err)
+			}
+		})
+	}
+
+	if (window.electronAPI?.onImportStatusFromProtocol) {
+		window.electronAPI.onImportStatusFromProtocol(raw => {
 			try {
 				const payload = raw as { data: unknown; title?: string }
 				importJsonPayload(payload.data, payload.title)

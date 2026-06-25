@@ -122,6 +122,9 @@ function createStatusCard(
 			const { showConfigSavedToast } = setupToasts()
 			showConfigSavedToast()
 		} catch (err: any) {}
+
+		const { showConfigLoadedToast } = setupToasts()
+		showConfigLoadedToast()
 	})
 
 	uploadBtn.addEventListener('click', e => {
@@ -173,6 +176,9 @@ function createStatusCard(
 					message: t('logs.statusConfigUploaded').replace('{title}', payload.title),
 					level: 'success',
 				})
+
+				const { showConfigUpLoadedToast } = setupToasts()
+				showConfigUpLoadedToast()
 			} catch (err: any) {
 				appendLog({
 					message: t('logs.uploadFailed').replace('{error}', err?.message ?? String(err)),
@@ -205,6 +211,9 @@ function createStatusCard(
 		profiles.splice(index, 1)
 		setStatusProfiles(profiles)
 		renderStatusProfiles()
+
+		const { showConfigDeleteToast } = setupToasts()
+		showConfigDeleteToast()
 	})
 
 	actions.appendChild(loadBtn)

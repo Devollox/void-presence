@@ -126,7 +126,7 @@ export async function fetchAuthor(authorId: string): Promise<UserRecord | null> 
 
 export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<string> {
 	const base = getBaseUrl()
-	const url = `${base}/configs.json`
+	const url = `${base}/presence-configs.json`
 
 	const firstImage = getFirstImageUrl(config.configData)
 	const colors = firstImage ? await getColorsFromImage(firstImage) : defaultColors()

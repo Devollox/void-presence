@@ -131,4 +131,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	onImportConfigFromProtocol: (callback: (payload: unknown) => void) => {
 		ipcRenderer.on('IMPORT_CONFIG_FROM_PROTOCOL', (_event, payload) => callback(payload))
 	},
+	onImportStatusFromProtocol: (callback: (payload: unknown) => void) => {
+		ipcRenderer.on('IMPORT_STATUS_FROM_PROTOCOL', (_event, payload) => callback(payload))
+	},
 })

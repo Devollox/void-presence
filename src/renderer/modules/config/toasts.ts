@@ -24,15 +24,28 @@ export function setupToasts() {
 	const showConfigSavedToast = () => showToast(blocksToast, 'config saved')
 	const showConfigCopiedToast = () => showToast(blocksToast, 'client id copied')
 	const showConfigLoadedToast = () => showToast(blocksToast, 'config loaded')
+	const showConfigUpLoadedToast = () => showToast(blocksToast, 'config uploaded')
+	const showConfigImportedToast = () => showToast(blocksToast, 'config imported')
+	const showConfigDeleteToast = () => showToast(blocksToast, 'config delete')
 	const showClientIdToast = () => showToast(blocksToast, 'client id saved')
 	const showBlocksToast = () => showToast(blocksToast, 'changes saved')
-
+	const showRestartPresnceToast = () => showToast(blocksToast, 'restart presnce')
+	const showRestartStatusToast = () => showToast(blocksToast, 'restart status')
+	const showStopPresnceToast = () => showToast(blocksToast, 'stop presnce')
+	const showStopStatusToast = () => showToast(blocksToast, 'stop status')
 	return {
 		showConfigSavedToast,
 		showConfigCopiedToast,
 		showConfigLoadedToast,
 		showClientIdToast,
 		showBlocksToast,
+		showConfigImportedToast,
+		showConfigUpLoadedToast,
+		showConfigDeleteToast,
+		showRestartPresnceToast,
+		showRestartStatusToast,
+		showStopPresnceToast,
+		showStopStatusToast,
 	}
 }
 
