@@ -340,7 +340,6 @@ export default function startCustomStatusWorker(): void {
 
 			const item = currentStatuses[currentIndex % currentStatuses.length]
 			currentIndex = (currentIndex + 1) % currentStatuses.length
-
 			const result = await applyCustomStatus(item, token)
 
 			if (result.ok) {
