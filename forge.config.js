@@ -20,6 +20,7 @@ module.exports = {
 			if (path.endsWith('vite.win.config.ts')) return true
 			if (path.endsWith('RELEASE_NOTES.md')) return true
 			if (path.endsWith('README.md')) return true
+			if (path.endsWith('.prettierrc')) return true
 			if (path.endsWith('LICENSE')) return true
 			if (path.endsWith('package-lock.json')) return true
 
