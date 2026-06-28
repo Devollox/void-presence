@@ -77,7 +77,6 @@ function bindUpdateOverlayControls() {
 	const installBtn = document.getElementById('update-install-btn') as HTMLButtonElement | null
 
 	if (closeBtn) {
-		closeBtn.textContent = t('updateOverlay.close')
 		closeBtn.addEventListener('click', () => {
 			hideUpdateOverlay()
 		})
