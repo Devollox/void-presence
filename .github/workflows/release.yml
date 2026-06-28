@@ -81,7 +81,6 @@ jobs:
             out/make/zip/win32/x64/*.zip
           body_path: RELEASE_NOTES.md
           tag_name: ${{ github.ref_name }}
-          prerelease: true
           make_latest: false
           overwrite_files: true
         env:
