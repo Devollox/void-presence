@@ -51,7 +51,7 @@ import {
 } from './config'
 import { sendLog, sendStatus, sendStatusCustom, sendStatusCustomPayload } from './logging'
 import { t } from './translations'
-import { downloadFile, isPortable } from './updates'
+import { downloadFile, getInstallDir, isPortable } from './updates'
 
 let autoHideOnStart = false
 let smtcWorker: Worker | null = null
@@ -396,8 +396,8 @@ export async function initIpc() {
 			const { filePath } = await downloadFile(info.downloadUrl, version)
 
 			if (portable) {
-				const installDir = path.dirname(process.execPath)
-				const exeName = path.basename(process.execPath)
+				const installDir = getInstallDir()
+				const exeName = path.basename(app.getPath('exe'))
 				const newExePath = path.join(installDir, exeName)
 
 				sendLog(
@@ -407,7 +407,9 @@ export async function initIpc() {
 					})
 				)
 
-				const child = spawn(filePath, ['/S', `/D=${installDir}`])
+				const args = ['/S', `/D=${installDir}`]
+
+				const child = spawn(filePath, args)
 
 				child.on('close', code => {
 					sendLog(t('updateInstallerExited', { code: String(code ?? 'null') }))
@@ -424,6 +426,10 @@ export async function initIpc() {
 					}
 
 					app.quit()
+				})
+
+				child.on('error', err => {
+					sendLog(t('updateInstallerSpawnError', { error: String(err) }), 'error')
 				})
 			} else {
 				sendLog(t('updateLaunchingInstaller', { fileName: path.basename(filePath) }))

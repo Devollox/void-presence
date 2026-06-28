@@ -1,17 +1,22 @@
-# Config & Status Import Improvements, Presence Controls Refactor
+# New Installer & Update Flow
 
-## New Features
+> IMPORTANT: THIS RELEASE INTRODUCES A NEW VOID PRESENCE INSTALLER.
+> LEGACY UPDATES WILL CONTINUE TO WORK FOR 1 WEEK FROM THE RELEASE DATE.
+> AFTER THAT, ONLY THE NEW INSTALLER‑BASED UPDATE FLOW WILL BE SUPPORTED.
+> IF AUTO‑UPDATE DOES NOT WORK, YOU SEE ERRORS, OR VOID PRESENCE DOES NOT START AFTER UPDATE,
+> YOU MUST OPEN THE RELEASE PAGE AND UPDATE MANUALLY USING THE INSTALLER FROM THIS RELEASE.
 
-- **Import both configs and statuses** — added a unified import flow that handles JSON files as both Rich Presence configs and text-based status presets, so users no longer have to split imports across different screens.
-- **Unified profile import flow** — imported configs and statuses now land in a single profile panel where they can be viewed, edited, and deleted regardless of type.
-- **Consistent JSON format across types** — the JSON structure for configs and statuses has been aligned, simplifying export/import between the desktop app and the web catalog.
+## New Installer
 
-## Refactoring
+- **Installer stored in app folder** — the update flow now downloads `Void.Presence.Setup.<version>.exe` directly into the app directory instead of a temporary location, so the installer always runs next to the current executable.
+- **Single installer per release** — the `void-updates` → `void-presence` pipeline ensures that each release exposes one up‑to‑date installer asset that the client can safely use for upgrades.
 
-- **Shared presence control helper** — restart and stop logic for Discord Rich Presence has been refactored into a single `setupPresenceControls` helper so one place manages both `Restart` and `Stop` actions.
-- **Restart/stop actions wired to Electron API** — button handlers use a unified Electron API layer; `restartDiscordRich` and `stopDiscordRich` are called from `setupPresenceControls()` and update RPC state (`RPC_RESTARTING`, `RPC_DISABLED`) as well as the current presence info.
+## Manual Update Notice
 
-## Improvements
+- **Manual update required on update failure** — if auto‑update does not complete, the installer reports corruption, or Void Presence fails to start after updating, you need to perform a manual update using this release’s installer.
+- **Direct installer download from Releases** — open the Releases page, download the latest `Void.Presence.Setup.<version>.exe` from Assets, and run it manually to migrate your installation to the new installer flow.
 
-- **Extended Toast helpers for presence actions** — `setupToasts()` now exposes additional helpers for presence-related events, including restart and stop, so users always get immediate visual feedback after clicking `Restart` or `Stop`.
-- **Context-aware RPC state messages** — toast messages are tailored to the current RPC state (restarting, disabled), making it clear what exactly happened to Discord Rich Presence after each action.
+## Compatibility with Older Versions
+
+- **Older clients may not support the new flow** — previous versions of Void Presence use the legacy updater and may not correctly handle the new installer behavior.
+- **One‑time manual upgrade path** — if auto‑update fails on an older version, perform a single manual update with this release’s installer; future updates will then use the new installer‑based flow correctly.

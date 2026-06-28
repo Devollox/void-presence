@@ -81,9 +81,20 @@ function getInstallerUrl(assets: any[]): string | null {
 	)
 }
 
+function getInstallDir() {
+	const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
+	if (portableDir && portableDir.trim().length > 0) {
+		return portableDir
+	}
+
+	const exePath = app.getPath('exe')
+	return path.dirname(exePath)
+}
+
 export async function downloadFile(url: string, version: string): Promise<{ filePath: string }> {
 	const fileName = `Void.Presence.Setup.${version}.exe`
-	const filePath = path.join(app.getPath('temp'), fileName)
+	const installDir = getInstallDir()
+	const filePath = path.join(installDir, fileName)
 
 	sendLog(t('updateDownloadStarted', { fileName }))
 
@@ -135,10 +146,6 @@ export async function downloadFile(url: string, version: string): Promise<{ file
 	})
 }
 
-function getInstallDir() {
-	return path.dirname(process.execPath)
-}
-
 export function isPortable() {
 	const dir = getInstallDir().toLowerCase()
 	const inAppData = dir.includes('\\appdata\\local\\programs\\')
@@ -147,3 +154,5 @@ export function isPortable() {
 	const portable = !(inAppData || inProgramFiles)
 	return portable
 }
+
+export { getInstallDir }
