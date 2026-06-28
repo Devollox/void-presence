@@ -83,7 +83,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           make_latest: false
           overwrite_files: true
-          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
