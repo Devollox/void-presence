@@ -23,24 +23,20 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        if: steps.check_release.outputs.exists == 'false'
         run: npm install
 
       - name: Build application
-        if: steps.check_release.outputs.exists == 'false'
         run: npm run make
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cleanup assets
-        if: steps.check_release.outputs.exists == 'false'
         shell: bash
         run: |
           find out/make -type f \( -name "*.blockmap" -o -name "*.yml" \) -delete
           ls -R out/make
 
       - name: Rename NSIS installer
-        if: steps.check_release.outputs.exists == 'false'
         shell: pwsh
         run: |
           Get-ChildItem out\make\nsis\x64\*.exe | ForEach-Object {
@@ -49,7 +45,6 @@ jobs:
           }
 
       - name: Rename ZIP
-        if: steps.check_release.outputs.exists == 'false'
         shell: pwsh
         env:
           TAG_NAME: ${{ github.ref_name }}
@@ -73,15 +68,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update release description from RELEASE_NOTES.md
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Update description
         run: |
           gh release edit ${{ github.ref_name }} --notes-file RELEASE_NOTES.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete unwanted assets
-        if: steps.check_release.outputs.exists == 'false'
         shell: bash
         run: |
           TAG="${{ github.ref_name }}"
@@ -94,8 +87,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Trigger void-updates repo
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Trigger void-updates
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.UPDATER_TOKEN }}
