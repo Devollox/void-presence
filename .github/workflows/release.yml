@@ -1,35 +1,22 @@
-name: Build and Release
+name: Build and Pre-release
 
 on:
   push:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: windows-latest
 
     steps:
-      - name: Check if release already exists for this tag
-        id: check_release
-        shell: bash
-        run: |
-          set -e
-          TAG="${{ github.ref_name }}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout code
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        if: steps.check_release.outputs.exists == 'false'
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -39,13 +26,13 @@ jobs:
         if: steps.check_release.outputs.exists == 'false'
         run: npm install
 
-      - name: Build Application
+      - name: Build application
         if: steps.check_release.outputs.exists == 'false'
         run: npm run make
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cleanup Assets
+      - name: Cleanup assets
         if: steps.check_release.outputs.exists == 'false'
         shell: bash
         run: |
@@ -72,8 +59,7 @@ jobs:
           $newName = "Void.Presence.Portable.$version.zip"
           Rename-Item $file.FullName -NewName $newName
 
-      - name: Upload Release (pre-release)
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Create pre-release
         uses: softprops/action-gh-release@v3
         with:
           files: |
@@ -94,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete unwanted assets (latest.yml & blockmap & old .exe)
+      - name: Delete unwanted assets
         if: steps.check_release.outputs.exists == 'false'
         shell: bash
         run: |
