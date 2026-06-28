@@ -54,23 +54,21 @@ jobs:
           $newName = "Void.Presence.Portable.$version.zip"
           Rename-Item $file.FullName -NewName $newName
 
-      - name: Create pre-release
-        uses: softprops/action-gh-release@v3
-        with:
-          files: |
-            out/make/nsis/x64/*.exe
-            out/make/zip/win32/x64/*.zip
-          body_path: RELEASE_NOTES.md
-          tag_name: ${{ github.ref_name }}
-          prerelease: true
-          make_latest: false
-          overwrite_files: true
+      - name: Upload assets to existing release
+        run: |
+          TAG="${{ github.ref_name }}"
+          gh release upload "$TAG" \
+            out/make/nsis/x64/*.exe \
+            out/make/zip/win32/x64/*.zip \
+            --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update description
+      - name: Mark release as pre-release and update description
         run: |
-          gh release edit ${{ github.ref_name }} --notes-file RELEASE_NOTES.md
+          gh release edit ${{ github.ref_name }} \
+            --prerelease \
+            --notes-file RELEASE_NOTES.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
