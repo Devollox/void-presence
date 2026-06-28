@@ -1,0 +1,54 @@
+name: Finalize Release from Updates
+
+on:
+  repository_dispatch:
+    types: [repo_binary_updates]
+
+jobs:
+  finalize:
+    runs-on: windows-latest
+
+    steps:
+      - name: Parse payload
+        id: payload
+        shell: bash
+        run: |
+          echo "source_tag=${{ github.event.client_payload.source_tag }}" >> "$GITHUB_OUTPUT"
+          echo "updates_tag=${{ github.event.client_payload.updates_tag }}" >> "$GITHUB_OUTPUT"
+
+      - name: Download updated installer from void-updates
+        shell: pwsh
+        run: |
+          $sourceTag  = "${{ steps.payload.outputs.source_tag }}"
+          $updatesTag = "${{ steps.payload.outputs.updates_tag }}"
+
+          if (-not $sourceTag)  { throw "source_tag is empty" }
+          if (-not $updatesTag) { throw "updates_tag is empty" }
+
+          $version = $sourceTag -replace '^v',''
+          $fileName = "Void.Presence.Updates.$version.exe"
+
+          $url = "https://github.com/Devollox/void-updates/releases/download/$updatesTag/$fileName"
+          Write-Host "Downloading $url"
+
+          Invoke-WebRequest -Uri $url -OutFile $fileName
+
+          if (-not (Test-Path $fileName)) {
+            throw "Failed to download $fileName from $url"
+          }
+
+          $setupName = "Void.Presence.Setup.$version.exe"
+          Rename-Item $fileName $setupName
+          Write-Host "Renamed to $setupName"
+
+      - name: Upload final Setup to existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Void.Presence.Setup.*.exe
+          tag_name: ${{ steps.payload.outputs.source_tag }}
+          overwrite_files: true
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
