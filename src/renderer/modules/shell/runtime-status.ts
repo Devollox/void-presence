@@ -39,6 +39,68 @@ function getStatusTextMap(): Record<string, { title: string; second: string; val
 	}
 }
 
+export function clearLogsView(): void {
+	if (logsViewList) {
+		logsViewList.innerHTML = ''
+	}
+	if (logsCounter) {
+		logsCounter.textContent = '0' + t('entries')
+	}
+
+	const navLogs = document.getElementById('nav-logs') as HTMLElement | null
+	if (navLogs) {
+		navLogs.classList.remove(
+			'sidebar-nav-item-error',
+			'sidebar-nav-item-success',
+			'sidebar-nav-item-warn'
+		)
+	}
+}
+
+export function downloadLogsFromView(): void {
+	if (!logsViewList) return
+
+	const lines: string[] = []
+
+	logsViewList.querySelectorAll('.log-item').forEach(item => {
+		const meta = item.querySelector('.log-item-meta') as HTMLElement | null
+		const msg = item.querySelector('.log-item-message') as HTMLElement | null
+
+		const metaText = meta?.textContent?.trim() || ''
+		const msgLines: string[] = []
+
+		if (msg) {
+			msg.querySelectorAll('div').forEach(lineEl => {
+				const text = lineEl.textContent || ''
+				if (text.trim().length > 0) {
+					msgLines.push(text)
+				}
+			})
+		}
+
+		const msgText = msgLines.join(' | ')
+		const full = metaText ? `${metaText} :: ${msgText}` : msgText
+		if (full.trim().length > 0) {
+			lines.push(full)
+		}
+	})
+
+	if (!lines.length) {
+		return
+	}
+
+	const blob = new Blob([lines.join('\n')], {
+		type: 'text/plain;charset=utf-8',
+	})
+
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = 'void-presence-logs.txt'
+	a.click()
+	URL.revokeObjectURL(url)
+}
+
 function updateExistingLogItem(
 	item: HTMLElement | null,
 	rawText: string,
@@ -216,6 +278,18 @@ export function appendLog(entry: LogEntry | string): void {
 if (window.electronAPI?.onLogMessage) {
 	window.electronAPI.onLogMessage(entry => {
 		appendLog(entry)
+	})
+}
+
+if (window.electronAPI?.onLogsDownload) {
+	window.electronAPI?.onLogsDownload?.(() => {
+		downloadLogsFromView()
+	})
+}
+
+if (window.electronAPI?.onLogsClear) {
+	window.electronAPI?.onLogsClear?.(() => {
+		clearLogsView()
 	})
 }
 

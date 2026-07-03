@@ -30,6 +30,7 @@ import {
 	setupRpcEnabledToggle,
 	setupStatusEnabledBrowserToggle,
 	setupStatusEnabledToggle,
+	setupSupportAndLogsButtons,
 	setupVideoFilterToggle,
 } from './modules/shell/toggles'
 import { updateInfo, updateStatus } from './modules/shell/views'
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupAutomaticActivityToggle()
 	void setupStatusEnabledToggle()
 	void setupCustomStatusControls()
+	void setupSupportAndLogsButtons()
 	void setupPresenceControls()
 	void setupIntervalControl()
 	void setupStatusTutorialButtons()

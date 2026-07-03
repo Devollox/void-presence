@@ -188,12 +188,19 @@
 		"subtitle": "События сессии",
 		"subtitle2": "История событий",
 		"entries": "записей",
+		"clearConsole": "Очистить консоль",
+		"downloadTxt": "Скачать логи (.txt)",
 		"enterConfigNameAndAuthorId": "Сначала введите имя конфигурации и author ID (получите с voidpresence.site/profile)",
 		"configUploaded": "Конфигурация \"{title}\" загружена!",
 		"enterAuthorIdFirst": "Сначала введите ID автора (получите его на voidpresence.site/profile)",
 		"cloudUploadNotAvailable": "Облачная загрузка недоступна",
 		"statusConfigUploaded": "Статусный профиль «{title}» загружен!",
 		"uploadFailed": "Загрузка не удалась: {error}"
+	},
+	"support": {
+		"title": "Поддержка",
+		"openSupportPage": "Открыть страницу поддержки",
+		"openDiscord": "Discord"
 	},
 	"statusMap": {
 		"idle": "Бездействие",

@@ -188,6 +188,8 @@
 		"subtitle": "Session events",
 		"subtitle2": "Events history",
 		"entries": "entries",
+		"clearConsole": "Clear console",
+		"downloadTxt": "Download logs (.txt)",
 		"enterConfigNameAndAuthorId": "Enter config name and author ID(get from voidpresence.site/profile) first",
 		"configUploaded": "Config \"{title}\" uploaded!",
 		"enterAuthorIdFirst": "Enter author ID (get it from voidpresence.site/profile) first",
@@ -195,18 +197,10 @@
 		"statusConfigUploaded": "Status profile \"{title}\" uploaded!",
 		"uploadFailed": "Upload failed: {error}"
 	},
-	"statusMap": {
-		"idle": "Idle",
-		"waitingToStart": "Waiting to start",
-		"updatingDiscordStatus": "Updating Discord status",
-		"customStatusRestarting": "Custom status is restarting",
-		"lookingForDiscordProcess": "Looking for Discord process",
-		"attachingRichPresence": "Attaching Rich Presence",
-		"presenceIsBroadcasting": "Presence is broadcasting",
-		"lostConnectionToDiscord": "Lost connection to Discord",
-		"noClientId": "Set ID, cycles, update",
-		"active": "ACTIVE",
-		"unknown": "UNKNOWN"
+	"support": {
+		"title": "Support",
+		"openSupportPage": "Open support page",
+		"openDiscord": "Discord"
 	},
 	"config": {
 		"tutorialTitle": "Cloud profiles",

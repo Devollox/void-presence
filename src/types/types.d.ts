@@ -328,6 +328,12 @@ export interface StoredStatusProfile {
 }
 
 export interface ElectronAPI {
+	openSupportSite?: () => Promise<boolean> | boolean
+	openSupportDiscord?: () => Promise<boolean> | boolean
+	clearLogs?: () => Promise<boolean> | boolean
+	downloadLogs?: () => Promise<boolean> | boolean
+	onLogsClear?: (handler: () => void) => void
+	onLogsDownload?: (handler: () => void) => void
 	uploadConfig?: (config: {
 		title: string
 		authorId: string

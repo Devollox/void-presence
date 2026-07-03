@@ -24,12 +24,7 @@ import {
 	RpcPayload,
 	StatusCycleEntry,
 } from '../types/types'
-import {
-	fetchAuthor,
-	UploadConfigPayload,
-	uploadConfigToCloud,
-	uploadStatusConfigToCloud,
-} from './cloud'
+import { UploadConfigPayload, uploadConfigToCloud, uploadStatusConfigToCloud } from './cloud'
 import {
 	getLanguage,
 	normalizeStatuses,
@@ -448,16 +443,21 @@ export async function initIpc() {
 		}
 	})
 
-	ipcMain.handle('cloud:uploadConfig', async (_event, payload: UploadConfigPayload) => {
-		const user = await fetchAuthor(payload.authorId)
-		if (!user || !user.name) {
-			throw new Error('Author not found')
-		}
+	let lastPresenceUpload = 0
+	let lastStatusUpload = 0
 
-		const authorName = user.name
+	ipcMain.handle('cloud:uploadConfig', async (_event, payload: UploadConfigPayload) => {
+		const now = Date.now()
+		if (now - lastPresenceUpload < 1000) {
+			return {
+				ok: false,
+				error: 'TooManyRequests',
+				message: 'Wait a moment before uploading again.',
+			}
+		}
+		lastPresenceUpload = now
 
 		const configCloud = JSON.parse(JSON.stringify(payload.configData)) as any
-
 		const allowedKeys = ['buttonPairs', 'cycles', 'imageCycles', 'party']
 		const filteredConfigData = Object.fromEntries(
 			allowedKeys.filter(key => key in configCloud).map(key => [key, configCloud[key]])
@@ -465,21 +465,23 @@ export async function initIpc() {
 
 		return uploadConfigToCloud({
 			...payload,
-			authorName,
+			authorName: payload.authorName,
 			configData: filteredConfigData,
 		})
 	})
 
 	ipcMain.handle('cloud:uploadStatusConfig', async (_event, payload: UploadConfigPayload) => {
-		const user = await fetchAuthor(payload.authorId)
-		if (!user || !user.name) {
-			throw new Error('Author not found')
+		const now = Date.now()
+		if (now - lastStatusUpload < 1000) {
+			return {
+				ok: false,
+				error: 'TooManyRequests',
+				message: 'Wait a moment before uploading again.',
+			}
 		}
-
-		const authorName = user.name
+		lastStatusUpload = now
 
 		const configCloud = JSON.parse(JSON.stringify(payload.configData)) as any
-
 		const allowedKeys = ['statusCycles']
 		const filteredConfigData = Object.fromEntries(
 			allowedKeys.filter(key => key in configCloud).map(key => [key, configCloud[key]])
@@ -487,7 +489,7 @@ export async function initIpc() {
 
 		return uploadStatusConfigToCloud({
 			...payload,
-			authorName,
+			authorName: payload.authorName,
 			configData: filteredConfigData,
 		})
 	})
@@ -687,6 +689,42 @@ export async function initIpc() {
 		} catch (error) {
 			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
+	})
+
+	ipcMain.handle('support:open-site', async () => {
+		try {
+			await shell.openExternal('https://voidpresence.site/docs')
+			return true
+		} catch (error) {
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
+			return false
+		}
+	})
+
+	ipcMain.handle('support:open-discord', async () => {
+		try {
+			await shell.openExternal('https://discord.com/users/devollox')
+			return true
+		} catch (error) {
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
+			return false
+		}
+	})
+
+	ipcMain.handle('logs:clear', async () => {
+		const win = BrowserWindow.getAllWindows()[0]
+		if (win && !win.isDestroyed()) {
+			win.webContents.send('logs:clear')
+		}
+		return true
+	})
+
+	ipcMain.handle('logs:download', async () => {
+		const win = BrowserWindow.getAllWindows()[0]
+		if (win && !win.isDestroyed()) {
+			win.webContents.send('logs:download')
+		}
+		return true
 	})
 
 	ipcMain.handle('settings:set-music-filter', async (_event, enabled: boolean) => {

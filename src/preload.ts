@@ -98,6 +98,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	openDiscordGetTokenVideoError: () => {
 		ipcRenderer.invoke('open-discord-token-error-id')
 	},
+	openSupportSite: () => ipcRenderer.invoke('support:open-site'),
+	openSupportDiscord: () => ipcRenderer.invoke('support:open-discord'),
+	clearLogs: () => ipcRenderer.invoke('logs:clear'),
+	downloadLogs: () => ipcRenderer.invoke('logs:download'),
+	onLogsClear: (handler: () => void) => {
+		ipcRenderer.on('logs:clear', () => handler())
+	},
+	onLogsDownload: (handler: () => void) => {
+		ipcRenderer.on('logs:download', () => handler())
+	},
 	setMusicFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-music-filter', enabled),
 	setVideoFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-video-filter', enabled),
 	setAutomaticActivity: (enabled: boolean) =>

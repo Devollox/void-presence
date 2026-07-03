@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
-import { decodeEnv } from './main/cloud'
 import { getLanguage, readSettings } from './main/config'
 import { getAutoHide, initIpc } from './main/ipc'
 import { sendLog } from './main/logging'
@@ -131,8 +130,6 @@ if (!gotTheLock) {
 		event.preventDefault()
 		handleUrl(url)
 	})
-
-	decodeEnv()
 
 	app.on('before-quit', () => {
 		isQuitting = true

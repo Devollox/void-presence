@@ -188,12 +188,19 @@
 		"subtitle": "Oturum olayları",
 		"subtitle2": "Olay geçmişi",
 		"entries": "girdiler",
+		"clearConsole": "Konsolu temizle",
+		"downloadTxt": "Günlükleri indir (.txt)",
 		"enterConfigNameAndAuthorId": "Önce yapılandırma adı ve yazar ID girin (voidpresence.site/profile'dan alın)",
 		"configUploaded": "Yapılandırma \"{title}\" yüklendi!",
 		"enterAuthorIdFirst": "Önce yazar kimliğini girin (voidpresence.site/profile üzerinden alın)",
 		"cloudUploadNotAvailable": "Buluta yükleme kullanılamıyor",
 		"statusConfigUploaded": "Durum profili \"{title}\" yüklendi!",
 		"uploadFailed": "Yükleme başarısız oldu: {error}"
+	},
+	"support": {
+		"title": "Destek",
+		"openSupportPage": "Destek sayfasını aç",
+		"openDiscord": "Discord"
 	},
 	"statusMap": {
 		"idle": "Boşta",

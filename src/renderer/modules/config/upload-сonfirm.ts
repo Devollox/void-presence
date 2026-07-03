@@ -51,6 +51,14 @@ export function openStatusUploadConfirm(profile: StoredStatusProfile, onConfirm:
 	info.textContent = profile.name || 'Unnamed status profile'
 	overlay.dataset.open = 'true'
 
+	const close = () => {
+		overlay.dataset.open = 'false'
+		okBtn.removeEventListener('click', okHandler)
+		closeBtn.removeEventListener('click', close)
+		overlay.removeEventListener('click', overlayHandler)
+		window.removeEventListener('keydown', escHandler)
+	}
+
 	const okHandler = () => {
 		close()
 		onConfirm()
@@ -62,14 +70,14 @@ export function openStatusUploadConfirm(profile: StoredStatusProfile, onConfirm:
 		}
 	}
 
-	const close = () => {
-		overlay.dataset.open = 'false'
-		okBtn.removeEventListener('click', okHandler)
-		closeBtn.removeEventListener('click', close)
-		overlay.removeEventListener('click', overlayHandler)
+	const escHandler = (e: KeyboardEvent) => {
+		if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+			close()
+		}
 	}
 
 	okBtn.addEventListener('click', okHandler)
 	closeBtn.addEventListener('click', close)
 	overlay.addEventListener('click', overlayHandler)
+	window.addEventListener('keydown', escHandler)
 }

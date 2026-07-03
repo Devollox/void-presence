@@ -2281,3 +2281,45 @@ textarea::-moz-selection {
 .hint-warning {
 	color: #fbbf24;
 }
+
+.support-actions {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 12px 16px 16px;
+}
+
+.support-btn {
+	height: 30px;
+	padding: 0 12px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	background: rgba(255, 255, 255, 0.02);
+	color: rgba(255, 255, 255, 0.78);
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition:
+		background-color 0.14s ease,
+		color 0.14s ease,
+		border-color 0.14s ease,
+		transform 0.1s ease;
+}
+
+.support-btn:hover {
+	background: #ffffff;
+	color: #000000;
+	border-color: #ffffff;
+	transform: translateY(-1px);
+}
+
+.support-btn:active {
+	transform: translateY(0);
+}

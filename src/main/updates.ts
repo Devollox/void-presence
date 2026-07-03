@@ -13,17 +13,34 @@ type UpdateInfo = {
 	changelogMd: string
 }
 
+type ApiLatestInfo = {
+	tag: string
+	assetName: string
+	downloadUrl: string
+	body: string
+}
+
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
-		const res = await fetch('https://api.github.com/repos/Devollox/void-presence/releases/latest', {
-			headers: { Accept: 'application/vnd.github+json' },
+		const res = await fetch('https://api.voidpresence.site/v1/github/releases', {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ app: 'void-presence' }),
 		})
 		if (!res.ok) {
 			return null
 		}
 
-		const data = await res.json()
-		const latestTag = data.tag_name as string
+		const data = (await res.json()) as ApiLatestInfo
+
+		const latestTag = data.tag
+		if (!latestTag) {
+			return null
+		}
+
 		const latest = latestTag.replace(/^v/i, '')
 		const current = app.getVersion()
 		const changelogMd: string = (data.body || '').trim()
@@ -37,7 +54,7 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		const lastNotified = settings.lastUpdateNotified || null
 		const lastNotifiedFor = settings.lastUpdateNotifiedVersion || current
 
-		const downloadUrl = getInstallerUrl(data.assets)
+		const downloadUrl = data.downloadUrl || null
 
 		const info: UpdateInfo = {
 			latestTag,
@@ -71,14 +88,6 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 		sendLog(t('updateCheckFailed', { error: e?.message || String(e) }))
 		return null
 	}
-}
-
-function getInstallerUrl(assets: any[]): string | null {
-	return (
-		assets?.find(
-			(a: any) => typeof a.name === 'string' && a.name.includes('Setup') && a.name.endsWith('.exe')
-		)?.browser_download_url || null
-	)
 }
 
 function getInstallDir() {
