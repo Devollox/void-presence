@@ -1,7 +1,7 @@
 {
 	"name": "voidpresence",
 	"productName": "Void Presence",
-	"version": "4.0.0",
+	"version": "4.0.1-nightly",
 	"description": "My Void Presence",
 	"main": ".vite/build/main.js",
 	"scripts": {
@@ -27,12 +27,11 @@
 		"@electron-forge/plugin-vite": "^7.2.0",
 		"@electron/rebuild": "^4.0.3",
 		"@types/discord-rpc": "^4.0.8",
-		"@types/firebase": "^2.4.32",
 		"@types/node": "^25.0.3",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
 		"cross-env": "^10.1.0",
-		"electron": "42.5.0",
+		"electron": "42.6.0",
 		"electron-reloader": "^1.2.3",
 		"eslint": "^8.56.0",
 		"eslint-plugin-import": "^2.29.1",
@@ -43,7 +42,6 @@
 		"@coooookies/windows-smtc-monitor": "^1.0.12",
 		"discord-rpc": "^4.0.1",
 		"electron-squirrel-startup": "^1.0.0",
-		"firebase": "^12.6.0",
 		"i18next": "^26.3.1",
 		"marked": "^18.0.2",
 		"sharp": "^0.35.1"
