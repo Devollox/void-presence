@@ -162,10 +162,12 @@ function createStatusCard(
 						typeof it.emoji === 'string' && it.emoji.trim().length > 0 ? it.emoji.trim() : null,
 				}))
 
+				const storedAuthorName = localStorage.getItem('authorName') || ''
+
 				const payload = {
 					title: profile.name || `void-presence-status-${new Date().toISOString().slice(0, 10)}`,
 					authorId,
-					authorName: '',
+					authorName: storedAuthorName,
 					description: `Uploaded ${new Date().toLocaleDateString()}`,
 					configData: { statusCycles },
 				}

@@ -92,9 +92,38 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 	}
 }
 
+async function resolveAuthorName(authorId: string, authorName: string): Promise<string> {
+	const trimmed = authorName.trim()
+	if (trimmed.length > 0) {
+		return trimmed
+	}
+
+	try {
+		const res = await fetch(
+			`https://api.voidpresence.site/v1/authors/${encodeURIComponent(authorId)}/configs`
+		)
+
+		if (!res.ok) {
+			return authorId
+		}
+
+		const data = (await res.json()) as any
+		const name = data?.user?.name
+
+		if (typeof name === 'string' && name.trim().length > 0) {
+			return name.trim()
+		}
+
+		return authorId
+	} catch {
+		return authorId
+	}
+}
+
 export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<string> {
 	const firstImage = getFirstImageUrl(config.configData)
 	const colors = firstImage ? await getColorsFromImage(firstImage) : defaultColors()
+	const authorName = await resolveAuthorName(config.authorId, config.authorName)
 
 	const response = await fetch(
 		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
@@ -104,6 +133,7 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 			body: JSON.stringify({
 				kind: 'presence',
 				title: config.title,
+				author: authorName,
 				description: config.description,
 				configData: config.configData,
 				downloads: 0,
@@ -119,7 +149,8 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 }
 
 export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Promise<string> {
-	console.log(config.authorName)
+	const authorName = await resolveAuthorName(config.authorId, config.authorName)
+
 	const response = await fetch(
 		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
 		{
@@ -128,6 +159,7 @@ export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Pr
 			body: JSON.stringify({
 				kind: 'status',
 				title: config.title,
+				author: authorName,
 				description: config.description,
 				configData: config.configData,
 				downloads: 0,
