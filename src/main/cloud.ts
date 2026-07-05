@@ -18,12 +18,7 @@ type ResolvedAuthor = {
 	avatar: string | null
 }
 
-function getFirstImageUrl(configData: unknown): string {
-	const data = configData as any
-	return data?.imageCycles?.[0]?.largeImage || ''
-}
-
-function defaultColors(): ColorResult {
+function defaultColor(): ColorResult {
 	return { averageColor: '#5b5b5b' }
 }
 
@@ -38,7 +33,7 @@ function rgbToHex(r: number, g: number, b: number) {
 async function getColorsFromImage(url: string): Promise<ColorResult> {
 	try {
 		if (!url) {
-			return defaultColors()
+			return defaultColor()
 		}
 
 		const res = await fetch(url, {
@@ -49,12 +44,12 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 		})
 
 		if (!res.ok) {
-			return defaultColors()
+			return defaultColor()
 		}
 
 		const contentType = res.headers.get('content-type') || ''
 		if (!contentType.startsWith('image/')) {
-			return defaultColors()
+			return defaultColor()
 		}
 
 		const arrayBuffer = await res.arrayBuffer()
@@ -81,7 +76,7 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 		}
 
 		if (!count) {
-			return defaultColors()
+			return defaultColor()
 		}
 
 		r = Math.round(r / count)
@@ -90,12 +85,20 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 
 		const hex = rgbToHex(r, g, b)
 
-		return {
-			averageColor: hex,
-		}
+		return { averageColor: hex }
 	} catch {
-		return defaultColors()
+		return defaultColor()
 	}
+}
+
+async function getColorsFromImages(urls: string[]): Promise<string[]> {
+	const validUrls = urls.filter(url => typeof url === 'string' && url.trim().length > 0)
+	if (!validUrls.length) {
+		return []
+	}
+
+	const results = await Promise.all(validUrls.map(url => getColorsFromImage(url)))
+	return results.map(res => res.averageColor)
 }
 
 async function resolveAuthor(
@@ -139,8 +142,15 @@ async function resolveAuthor(
 }
 
 export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<string> {
-	const firstImage = getFirstImageUrl(config.configData)
-	const colors = firstImage ? await getColorsFromImage(firstImage) : defaultColors()
+	const data = config.configData as any
+	const imageUrls: string[] = Array.isArray(data?.imageCycles)
+		? data.imageCycles
+				.map((img: any) => (typeof img?.largeImage === 'string' ? img.largeImage : ''))
+				.filter((url: string) => url.length > 0)
+		: []
+
+	const averageColors = imageUrls.length > 0 ? await getColorsFromImages(imageUrls) : []
+
 	const resolved = await resolveAuthor(config.authorId, config.authorName, config.authorAvatar)
 
 	const response = await fetch(
@@ -158,7 +168,7 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 				configData: config.configData,
 				downloads: 0,
 				uploadedAt: Date.now(),
-				...colors,
+				averageColors,
 			}),
 		}
 	)
