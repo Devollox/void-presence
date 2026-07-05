@@ -6,6 +6,7 @@ export type UploadConfigPayload = {
 	authorName: string
 	description: string
 	configData: any
+	authorAvatar?: string | null
 }
 
 type ColorResult = {
@@ -97,10 +98,22 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 	}
 }
 
-async function resolveAuthor(authorId: string, authorName: string): Promise<ResolvedAuthor> {
-	const trimmed = authorName.trim()
-	if (trimmed.length > 0) {
-		return { name: trimmed, avatar: null }
+async function resolveAuthor(
+	authorId: string,
+	authorName: string,
+	authorAvatar?: string | null
+): Promise<ResolvedAuthor> {
+	const trimmedName = authorName.trim()
+	const trimmedAvatar = (authorAvatar ?? '').trim()
+
+	const hasName = trimmedName.length > 0
+	const hasAvatar = trimmedAvatar.length > 0
+
+	if (hasName || hasAvatar) {
+		return {
+			name: hasName ? trimmedName : authorId,
+			avatar: hasAvatar ? trimmedAvatar : null,
+		}
 	}
 
 	try {
@@ -128,7 +141,7 @@ async function resolveAuthor(authorId: string, authorName: string): Promise<Reso
 export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<string> {
 	const firstImage = getFirstImageUrl(config.configData)
 	const colors = firstImage ? await getColorsFromImage(firstImage) : defaultColors()
-	const resolved = await resolveAuthor(config.authorId, config.authorName)
+	const resolved = await resolveAuthor(config.authorId, config.authorName, config.authorAvatar)
 
 	const response = await fetch(
 		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
@@ -138,8 +151,9 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 			body: JSON.stringify({
 				kind: 'presence',
 				title: config.title,
+				authorId: `${config.authorId}`,
 				author: resolved.name,
-				authorAvatar: resolved.avatar ?? undefined,
+				authorAvatar: resolved.avatar ?? null,
 				description: config.description,
 				configData: config.configData,
 				downloads: 0,
@@ -155,7 +169,7 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 }
 
 export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Promise<string> {
-	const resolved = await resolveAuthor(config.authorId, config.authorName)
+	const resolved = await resolveAuthor(config.authorId, config.authorName, config.authorAvatar)
 
 	const response = await fetch(
 		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
@@ -165,8 +179,9 @@ export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Pr
 			body: JSON.stringify({
 				kind: 'status',
 				title: config.title,
+				authorId: `${config.authorId}`,
 				author: resolved.name,
-				authorAvatar: resolved.avatar ?? undefined,
+				authorAvatar: resolved.avatar ?? null,
 				description: config.description,
 				configData: config.configData,
 				downloads: 0,

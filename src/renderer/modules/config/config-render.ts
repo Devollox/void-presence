@@ -238,11 +238,13 @@ function createConfigCard(
 				) as FullState
 
 				const storedAuthorName = localStorage.getItem('authorName') || ''
+				const storedAuthorAvatar = localStorage.getItem('authorAvatar') || ''
 
 				const config = {
 					title: cfg.name || 'Unnamed profile',
 					authorId,
 					authorName: storedAuthorName,
+					authorAvatar: storedAuthorAvatar,
 					description: `Uploaded ${new Date().toLocaleDateString()}`,
 					configData: safeState,
 				}

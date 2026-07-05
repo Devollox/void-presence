@@ -163,11 +163,13 @@ function createStatusCard(
 				}))
 
 				const storedAuthorName = localStorage.getItem('authorName') || ''
+				const storedAuthorAvatar = localStorage.getItem('authorAvatar') || ''
 
 				const payload = {
 					title: profile.name || `void-presence-status-${new Date().toISOString().slice(0, 10)}`,
 					authorId,
 					authorName: storedAuthorName,
+					authorAvatar: storedAuthorAvatar,
 					description: `Uploaded ${new Date().toLocaleDateString()}`,
 					configData: { statusCycles },
 				}

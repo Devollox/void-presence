@@ -50,6 +50,7 @@ async function handleUrl(rawUrl: string) {
 		const authorId = url.searchParams.get('authorId')
 		const authorName = url.searchParams.get('name')
 		const provider = url.searchParams.get('provider')
+		const avatar = url.searchParams.get('avatar')
 		const configData = url.searchParams.get('data')
 		const title = url.searchParams.get('title') || undefined
 
@@ -81,22 +82,30 @@ async function handleUrl(rawUrl: string) {
 						: authorName || provider || authorId
 
 				await mainWindow.webContents.executeJavaScript(`
-          (function() {
-            localStorage.setItem("authorId", ${JSON.stringify(authorId)});
-            if (${JSON.stringify(authorName)} != null) {
-              localStorage.setItem("authorName", ${JSON.stringify(authorName)});
-            }
-            if (${JSON.stringify(provider)} != null) {
-              localStorage.setItem("authorProvider", ${JSON.stringify(provider)});
-            }
+					(function() {
+						const authorId = ${JSON.stringify(authorId)};
+						const authorName = ${JSON.stringify(authorName)};
+						const provider = ${JSON.stringify(provider)};
+						const avatar = ${JSON.stringify(avatar)};
 
-            const input = document.getElementById('config-author-input');
-            if (input) input.value = ${JSON.stringify(authorId)};
+						localStorage.setItem("authorId", authorId);
+						if (authorName != null) {
+							localStorage.setItem("authorName", authorName);
+						}
+						if (provider != null) {
+							localStorage.setItem("authorProvider", provider);
+						}
+						if (avatar != null && avatar !== "") {
+							localStorage.setItem("authorAvatar", avatar);
+						}
 
-            const label = document.getElementById('config-author-label');
-            if (label) label.textContent = ${JSON.stringify(labelText)};
-          })()
-        `)
+						const input = document.getElementById('config-author-input');
+						if (input) input.value = authorId;
+
+						const label = document.getElementById('config-author-label');
+						if (label) label.textContent = authorName || authorId;
+					})();
+				`)
 
 				mainWindow.webContents.send('AUTH_FROM_URL', authorId)
 				await activateConfigView()
