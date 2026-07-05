@@ -96,7 +96,7 @@ async function handleUrl(rawUrl: string) {
             const label = document.getElementById('config-author-label');
             if (label) label.textContent = ${JSON.stringify(labelText)};
           })()
-        }`)
+        `)
 
 				mainWindow.webContents.send('AUTH_FROM_URL', authorId)
 				await activateConfigView()
