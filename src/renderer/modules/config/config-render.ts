@@ -216,17 +216,10 @@ function createConfigCard(
 
 			const stateFromConfig: FullState = {
 				clientId: cfg.state?.clientId ?? '',
-				updateIntervalSec: cfg.state?.updateIntervalSec ?? '',
 				buttonPairs: Array.isArray(cfg.state?.buttonPairs) ? cfg.state!.buttonPairs : [],
 				cycles: Array.isArray(cfg.state?.cycles) ? cfg.state!.cycles : [],
 				imageCycles: Array.isArray(cfg.state?.imageCycles) ? cfg.state!.imageCycles : [],
 				party: Array.isArray(cfg.state?.party) ? cfg.state!.party : [],
-				timeCycles: Array.isArray(cfg.state?.timeCycles) ? cfg.state!.timeCycles : [],
-				timestampMode: cfg.state?.timestampMode ?? 'now',
-				timestampRangeMin: cfg.state?.timestampRangeMin ?? '',
-				timestampRangeMax: cfg.state?.timestampRangeMax ?? '',
-				activityType: cfg.state?.activityType ?? 'playing',
-				nowMode: cfg.state?.nowMode ?? 'plain',
 			}
 
 			try {
