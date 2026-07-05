@@ -1,5 +1,13 @@
-# Syntax Fix
+# Backend Image Color Extraction & Stability
 
-## Fixed
+## Added
 
-- **Protocol script closing brace** — removed an extra `}` at the end of the `executeJavaScript` template string, which was breaking the injected IIFE and causing an `Unexpected token '}'` during URL import.
+- **Server-side average color calculation** — moved image color analysis from the desktop client to backend Cloud Functions, which now use `sharp` in the config creation API to compute average colors from `imageCycles` URLs during upload.
+
+## Improved
+
+- **Lighter desktop client uploads** — the client now only sends config data and author info; the backend automatically enriches presence configs with `averageColors`, reducing client bundle size and moving all heavy image processing into Cloud Functions.
+
+## Dependencies
+
+- **Removed sharp from the client app** — dropped the `sharp` dependency from the desktop application, keeping it only in backend Cloud Functions for image processing, which improves client startup time and install size.
