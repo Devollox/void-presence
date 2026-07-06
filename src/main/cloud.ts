@@ -3,19 +3,12 @@ import sharp from 'sharp'
 export type UploadConfigPayload = {
 	title: string
 	authorId: string
-	authorName: string
 	description: string
 	configData: any
-	authorAvatar?: string | null
 }
 
 type ColorResult = {
 	averageColor: string
-}
-
-type ResolvedAuthor = {
-	name: string
-	avatar: string | null
 }
 
 function defaultColor(): ColorResult {
@@ -41,6 +34,7 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 				'User-Agent':
 					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36',
 			},
+			signal: AbortSignal.timeout(7000),
 		})
 
 		if (!res.ok) {
@@ -55,7 +49,7 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 		const arrayBuffer = await res.arrayBuffer()
 		const buffer = Buffer.from(arrayBuffer)
 
-		const rgbaBuffer = await sharp(buffer)
+		const rgbaBuffer = await sharp(buffer, { page: 0 })
 			.resize(24, 24, { fit: 'fill' })
 			.ensureAlpha()
 			.raw()
@@ -83,9 +77,7 @@ async function getColorsFromImage(url: string): Promise<ColorResult> {
 		g = Math.round(g / count)
 		b = Math.round(b / count)
 
-		const hex = rgbToHex(r, g, b)
-
-		return { averageColor: hex }
+		return { averageColor: rgbToHex(r, g, b) }
 	} catch {
 		return defaultColor()
 	}
@@ -101,46 +93,6 @@ async function getColorsFromImages(urls: string[]): Promise<string[]> {
 	return results.map(res => res.averageColor)
 }
 
-async function resolveAuthor(
-	authorId: string,
-	authorName: string,
-	authorAvatar?: string | null
-): Promise<ResolvedAuthor> {
-	const trimmedName = authorName.trim()
-	const trimmedAvatar = (authorAvatar ?? '').trim()
-
-	const hasName = trimmedName.length > 0
-	const hasAvatar = trimmedAvatar.length > 0
-
-	if (hasName || hasAvatar) {
-		return {
-			name: hasName ? trimmedName : authorId,
-			avatar: hasAvatar ? trimmedAvatar : null,
-		}
-	}
-
-	try {
-		const res = await fetch(
-			`https://api.voidpresence.site/v1/authors/${encodeURIComponent(authorId)}/configs`
-		)
-
-		if (!res.ok) {
-			return { name: authorId, avatar: null }
-		}
-
-		const data = (await res.json()) as any
-		const user = data?.user
-		const name =
-			typeof user?.name === 'string' && user.name.trim().length > 0 ? user.name.trim() : authorId
-		const avatar =
-			typeof user?.avatar === 'string' && user.avatar.trim().length > 0 ? user.avatar.trim() : null
-
-		return { name, avatar }
-	} catch {
-		return { name: authorId, avatar: null }
-	}
-}
-
 export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<string> {
 	const data = config.configData as any
 	const imageUrls: string[] = Array.isArray(data?.imageCycles)
@@ -151,8 +103,6 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 
 	const averageColors = imageUrls.length > 0 ? await getColorsFromImages(imageUrls) : []
 
-	const resolved = await resolveAuthor(config.authorId, config.authorName, config.authorAvatar)
-
 	const response = await fetch(
 		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
 		{
@@ -162,14 +112,13 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 				kind: 'presence',
 				title: config.title,
 				authorId: `${config.authorId}`,
-				author: resolved.name,
-				authorAvatar: resolved.avatar ?? null,
 				description: config.description,
 				configData: config.configData,
 				downloads: 0,
 				uploadedAt: Date.now(),
 				averageColors,
 			}),
+			signal: AbortSignal.timeout(10000),
 		}
 	)
 
@@ -179,8 +128,6 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 }
 
 export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Promise<string> {
-	const resolved = await resolveAuthor(config.authorId, config.authorName, config.authorAvatar)
-
 	const response = await fetch(
 		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
 		{
@@ -190,13 +137,12 @@ export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Pr
 				kind: 'status',
 				title: config.title,
 				authorId: `${config.authorId}`,
-				author: resolved.name,
-				authorAvatar: resolved.avatar ?? null,
 				description: config.description,
 				configData: config.configData,
 				downloads: 0,
 				uploadedAt: Date.now(),
 			}),
+			signal: AbortSignal.timeout(10000),
 		}
 	)
 
