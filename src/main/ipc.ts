@@ -465,7 +465,6 @@ export async function initIpc() {
 
 		return uploadConfigToCloud({
 			...payload,
-			authorName: payload.authorName,
 			configData: filteredConfigData,
 		})
 	})
@@ -489,7 +488,6 @@ export async function initIpc() {
 
 		return uploadStatusConfigToCloud({
 			...payload,
-			authorName: payload.authorName,
 			configData: filteredConfigData,
 		})
 	})
