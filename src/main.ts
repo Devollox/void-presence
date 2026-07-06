@@ -22,28 +22,6 @@ let isQuitting = false
 let mainWindow: BrowserWindow | null = null
 let pendingUrl: string | null = null
 
-async function activateConfigView() {
-	if (!mainWindow || mainWindow.isDestroyed()) return
-
-	await mainWindow.webContents.executeJavaScript(`
-    (function() {
-      const navMain = document.getElementById('nav-main');
-      const navLogs = document.getElementById('nav-logs');
-      const navConfig = document.getElementById('nav-config');
-      const views = document.querySelectorAll('.view');
-
-      views.forEach(v => {
-        const name = v.getAttribute('data-view');
-        v.setAttribute('data-active', name === 'config' ? 'true' : 'false');
-      });
-
-      if (navMain) navMain.setAttribute('data-active', 'false');
-      if (navLogs) navLogs.setAttribute('data-active', 'false');
-      if (navConfig) navConfig.setAttribute('data-active', 'true');
-    })()
-  `)
-}
-
 async function handleUrl(rawUrl: string) {
 	try {
 		const url = new URL(rawUrl)
@@ -62,13 +40,11 @@ async function handleUrl(rawUrl: string) {
 			const parsed = JSON.parse(configData)
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				if (payloadType === 'status') {
-					const payload = { data: parsed, title }
-					mainWindow.webContents.send('IMPORT_STATUS_FROM_PROTOCOL', payload)
+					mainWindow.webContents.send('IMPORT_STATUS_FROM_PROTOCOL', { data: parsed, title })
 				} else {
-					const payload = { data: parsed, title }
-					mainWindow.webContents.send('IMPORT_CONFIG_FROM_PROTOCOL', payload)
+					mainWindow.webContents.send('IMPORT_CONFIG_FROM_PROTOCOL', { data: parsed, title })
 				}
-				await activateConfigView()
+				mainWindow.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', { view: 'config' })
 			} else {
 				pendingUrl = rawUrl
 			}
@@ -76,45 +52,19 @@ async function handleUrl(rawUrl: string) {
 
 		if (authorId) {
 			if (mainWindow && !mainWindow.isDestroyed()) {
-				const labelText =
-					authorName && provider
-						? `${authorName} (${provider})`
-						: authorName || provider || authorId
-
-				await mainWindow.webContents.executeJavaScript(`
-					(function() {
-						const authorId = ${JSON.stringify(authorId)};
-						const authorName = ${JSON.stringify(authorName)};
-						const provider = ${JSON.stringify(provider)};
-						const avatar = ${JSON.stringify(avatar)};
-
-						localStorage.setItem("authorId", authorId);
-						if (authorName != null) {
-							localStorage.setItem("authorName", authorName);
-						}
-						if (provider != null) {
-							localStorage.setItem("authorProvider", provider);
-						}
-						if (avatar != null && avatar !== "") {
-							localStorage.setItem("authorAvatar", avatar);
-						}
-
-						const input = document.getElementById('config-author-input');
-						if (input) input.value = authorId;
-
-						const label = document.getElementById('config-author-label');
-						if (label) label.textContent = authorName || authorId;
-					})();
-				`)
-
-				mainWindow.webContents.send('AUTH_FROM_URL', authorId)
-				await activateConfigView()
+				mainWindow.webContents.send('AUTH_FROM_URL', {
+					authorId,
+					authorName,
+					provider,
+					avatar,
+				})
+				mainWindow.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', { view: 'config' })
 			} else {
 				pendingUrl = rawUrl
 			}
 		}
 	} catch (e: any) {
-		console.error('Failed to parse URL or save to storage:', e?.message ?? e)
+		console.error('Failed to parse URL or handle protocol data:', e?.message ?? e)
 	}
 }
 
@@ -122,7 +72,8 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
 	app.quit()
 } else {
-	app.on('second-instance', (_event, commandLine) => {
+	app.on('second-instance', (event, commandLine) => {
+		event.preventDefault()
 		const url = commandLine.find(arg => arg.startsWith(`${PROTOCOL}://`))
 		if (url) {
 			handleUrl(url)

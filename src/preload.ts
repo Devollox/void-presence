@@ -68,14 +68,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	uploadConfig: (config: {
 		title: string
 		authorId: string
-		authorName: string
 		description: string
 		configData: FullState
 	}) => ipcRenderer.invoke('cloud:uploadConfig', config),
 	uploadStatusConfig: (config: {
 		title: string
 		authorId: string
-		authorName: string
 		description: string
 		configData: { statusCycles: StatusCycleEntry[] }
 	}) => ipcRenderer.invoke('cloud:uploadStatusConfig', config),
@@ -109,7 +107,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.on('logs:download', () => handler())
 	},
 	setMusicFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-music-filter', enabled),
-	setVideoFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-video-filter', enabled),
+	setVideoFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-video-fetch', enabled),
 	setAutomaticActivity: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-automatic-activity', enabled),
 	setCoverFetch: (enabled: boolean) => ipcRenderer.invoke('settings:set-cover-fetch', enabled),
@@ -143,5 +141,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	},
 	onImportStatusFromProtocol: (callback: (payload: unknown) => void) => {
 		ipcRenderer.on('IMPORT_STATUS_FROM_PROTOCOL', (_event, payload) => callback(payload))
+	},
+	onActivateView: (callback: (payload: { view: string }) => void) => {
+		ipcRenderer.on('ACTIVATE_VIEW_FROM_PROTOCOL', (_event, payload) => callback(payload))
+	},
+	onAuthFromUrl: (
+		callback: (user: {
+			authorId: string
+			authorName: string | null
+			provider: string | null
+			avatar: string | null
+		}) => void
+	) => {
+		ipcRenderer.on('AUTH_FROM_URL', (_event, user) => callback(user))
 	},
 })

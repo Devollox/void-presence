@@ -1,16 +1,12 @@
-# Structural Architecture Shift & Client Optimization
-
-## Added
-
-- **Relational database restructuring** — migrated the entire database architecture away from redundant data duplication. Presence and status configurations now store only a strict `authorId` foreign key instead of baking mutable author names and avatars directly into configurations.
-- **On-the-fly metadata joining** — implemented an efficient server-side batch collection pattern (`uniqueAuthorIds`) in global queries and Server-Sent Events (SSE) streams, fetching and combining real-time profile data dynamically instead of downloading entire raw collection snapshots.
+# Security Hardening
 
 ## Improved
 
-- **Zero-overhead client synchronization** — eliminated the complex, recursive multi-path background updates across config trees upon user profile synchronization. Modifying user avatars or Discord tags now updates only a single atomic database leaf in the `users` branch.
-- **Linear complexity queries (O(1))** — removed heavy recursive user-to-configuration scanners (`buildConfigToOwnerMap`/`findUserByConfig`) in individual fetch, delete, and streaming endpoints, replacing whole-table memory processing with direct key-based lookups.
-- **Serverless SSE stability** — locked down persistent update listeners (`.on('value')`) to look up strictly targeted author resources instead of listening to the global database root, completely preventing cascade server crashes under traffic spikes.
+- **Serverless SSE stability** — locked down persistent update listeners (`.on('value')`) to look up strictly targeted author resources instead of listening to the global database root, completely forgetting cascade server crashes under traffic spikes.
 
-## Fixed
+## Security
 
-- **Ghost config creation** — fixed an issue where updating user info while handling deleted configurations could accidentally recreate partial ghost config documents in the configurations branch due to Firebase `.update()` properties.
+- **Removed executeJavaScript Deep Link vulnerability** — eliminated a critical Remote Code Execution (RCE) and XSS vulnerability by removing risky `executeJavaScript` string evaluations of untrusted external protocol variables, routing incoming payload structures natively over isolated IPC channels (`webContents.send`).
+- **Enforced server-side data authority** — stripped out client-controlled author profile strings from the config creation payload, ensuring user identity fields are built securely on the server from verified session states rather than trusting raw JSON body inputs.
+- **Secured analytic mutations against spoofing** — re-engineered telemetry and download increment handlers to securely check document existence before execution, preventing malicious fake ID injections from spawning rogue orphan data structures inside database trees.
+- **Hardened download metric protections** — restricted clients from spoofing initial document engagement metrics by forcing all new configuration structures to securely initialize at zero downloads explicitly on the backend layer.

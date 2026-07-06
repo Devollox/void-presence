@@ -121,6 +121,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 		})
 	}
 
+	if (window.electronAPI?.onActivateView) {
+		window.electronAPI.onActivateView(payload => {
+			const views = document.querySelectorAll('.view')
+			views.forEach(v => {
+				const name = v.getAttribute('data-view')
+				v.setAttribute('data-active', name === payload.view ? 'true' : 'false')
+			})
+
+			document.getElementById('nav-main')?.setAttribute('data-active', 'false')
+			document.getElementById('nav-config')?.setAttribute('data-active', 'true')
+		})
+	}
+
+	if (window.electronAPI?.onAuthFromUrl) {
+		window.electronAPI.onAuthFromUrl(user => {
+			localStorage.setItem('authorId', user.authorId)
+			if (user.authorName) localStorage.setItem('authorName', user.authorName)
+			if (user.provider) localStorage.setItem('authorProvider', user.provider)
+			if (user.avatar) localStorage.setItem('authorAvatar', user.avatar)
+
+			const input = document.getElementById('config-author-input') as HTMLInputElement
+			if (input) input.value = user.authorId
+
+			const label = document.getElementById('config-author-label')
+			if (label) label.textContent = user.authorName || user.authorId
+		})
+	}
+
 	async function pollNowPlayingUi() {
 		const info = await fetchNowPlaying()
 		setTimeout(pollNowPlayingUi, 4000)
