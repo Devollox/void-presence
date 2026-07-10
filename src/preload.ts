@@ -77,8 +77,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		description: string
 		configData: { statusCycles: StatusCycleEntry[] }
 	}) => ipcRenderer.invoke('cloud:uploadStatusConfig', config),
-	setPartySize: (sizeCurrent: number, sizeMax: number) =>
-		ipcRenderer.invoke('set-party-size', { sizeCurrent, sizeMax }),
 	setPartyConfig: (config: PartyConfig) => ipcRenderer.invoke('set-party-config', config),
 	setTimestampConfig: (cfg: { mode: string; rangeMin: number | null; rangeMax: number | null }) =>
 		ipcRenderer.invoke('set-timestamp-config', cfg),
@@ -107,7 +105,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.on('logs:download', () => handler())
 	},
 	setMusicFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-music-filter', enabled),
-	setVideoFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-video-fetch', enabled),
+	setVideoFilter: (enabled: boolean) => ipcRenderer.invoke('settings:set-video-filter', enabled),
 	setAutomaticActivity: (enabled: boolean) =>
 		ipcRenderer.invoke('settings:set-automatic-activity', enabled),
 	setCoverFetch: (enabled: boolean) => ipcRenderer.invoke('settings:set-cover-fetch', enabled),

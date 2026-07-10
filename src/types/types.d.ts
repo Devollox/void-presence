@@ -387,7 +387,12 @@ export interface ElectronAPI {
 	liveSetButtons?: (pairs: ButtonPair[]) => Promise<unknown> | unknown
 	liveSetCycles?: (cycles: CycleEntry[]) => Promise<unknown> | unknown
 	liveSetImages?: (cycles: ImageCycleEntry[]) => Promise<unknown> | unknown
-	liveSetParty?: (party: { sizeCurrent: string; sizeMax: string }[]) => Promise<unknown> | unknown
+	liveSetParty?: (
+		party: {
+			sizeCurrent: string
+			sizeMax: string
+		}[]
+	) => Promise<unknown> | unknown
 	liveSetTimestamp?: (cfg: {
 		mode: TimestampMode
 		rangeMin: string
@@ -398,42 +403,39 @@ export interface ElectronAPI {
 	liveSetDiscordToken?: (token: string) => Promise<unknown> | unknown
 	liveSetStatusInterval?: (sec: number) => Promise<unknown> | unknown
 	liveSetStatusCycles?: (cycles: StatusCycleEntry[]) => Promise<unknown> | unknown
-	liveSetTimeCycles?: (cycles: { label: string; seconds: string }[]) => Promise<unknown> | unknown
-	setRpcMode(mode: string): unknown
-	setActivityInterval: (sec: number) => Promise<unknown> | unknown
-	setActivityType(type: ActivityType): unknown
-	setAutoHide: (value: boolean) => Promise<void> | void
-	getAutoHide: () => Promise<boolean>
-	windowClose: () => Promise<void>
-	windowMinimize: () => Promise<void>
-	windowToggleMaximize: () => Promise<void>
-	setAutoLaunch: (enabled: boolean) => Promise<void>
-	setImageCycles: (
-		cycles: { largeImage: string; largeText: string; smallImage: string; smallText: string }[]
-	) => Promise<void>
-	setButtons: (
-		pairs: { label1: string; url1: string; label2: string; url2: string }[]
-	) => Promise<void>
-	setCycles: (entries: { details: string; state: string }[]) => Promise<void>
-	onLogMessage: (callback: (entry: LogEntry) => void) => void
-	setPartySize: (sizeCurrent: number, sizeMax: number) => Promise<void>
-	setPartyConfig: (config: PartyConfig) => Promise<void>
-	setTimestampConfig: (cfg: {
-		mode: string
+	liveSetTimeCycles?: (
+		cycles: {
+			label: string
+			seconds: string
+		}[]
+	) => Promise<unknown> | unknown
+	setActivityType(activityType: string): unknown
+	setActivityInterval?: (sec: number) => Promise<void>
+	setClientId?: (id: string) => Promise<void>
+	setButtons?: (pairs: ButtonPair[]) => Promise<void>
+	setCycles?: (cycles: CycleEntry[]) => Promise<void>
+	setImageCycles?: (cycles: ImageCycleEntry[]) => Promise<void>
+	resetPersistTimestamp(): unknown
+	setTimestampConfig(arg0: {
+		mode: TimestampMode
 		rangeMin: number | null
 		rangeMax: number | null
-	}) => Promise<void>
-	resetPersistTimestamp: () => Promise<void>
-	openSupportSite: () => Promise<void>
-	openSupportDiscord: () => Promise<void>
-	clearLogs: () => Promise<void>
-	downloadLogs: () => Promise<void>
-	onLogsClear: (handler: () => void) => void
-	onLogsDownload: (handler: () => void) => void
-	setStatusEnabled: (enabled: boolean) => Promise<void>
-	onRpcUpdate?: (callback: (payload: RpcPayload) => void) => void
-	onRpcStatus?: (callback: (status: string) => void) => void
-	onStatusStatus?: (callback: (status: string) => void) => void
+		nowMode?: NowMode
+		timeCycles?: TimeCycleEntry[]
+	}): unknown
+	setPartyConfig?: (config: PartyConfig) => Promise<void>
+	restartDiscordRich?: () => Promise<void>
+	stopDiscordRich?: () => Promise<void>
+	setAutoLaunch?: (on: boolean) => Promise<void> | void
+	setAutoHide?: (on: boolean) => Promise<void> | void
+	windowClose?: () => void
+	windowMinimize?: () => void
+	windowToggleMaximize?: () => void
+	onLogMessage?: (handler: (entry: LogEntry) => void) => void
+	onRpcUpdate?: (handler: (payload: RichPresencePayload) => void) => void
+	onRpcStatus?: (handler: (status: string) => void) => void
+	onStatusStatus?: (handler: (status: string) => void) => void
+	invoke: <T = unknown>(channel: string, ...args: unknown[]) => Promise<T>
 }
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string
