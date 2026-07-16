@@ -2475,6 +2475,7 @@ textarea::-moz-selection {
 
 	> div {
 		border: none;
+		padding: 0 !important;
 	}
 }
 
