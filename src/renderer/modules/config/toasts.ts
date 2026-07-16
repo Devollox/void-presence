@@ -22,6 +22,8 @@ export function setupToasts() {
 	const blocksToast = document.getElementById('blocks-toast') as HTMLElement | null
 
 	const showConfigSavedToast = () => showToast(blocksToast, 'config saved')
+	const showPluginSavedToast = ({ message }: { message: string }) =>
+		showToast(blocksToast, `${message}`)
 	const showConfigCopiedToast = () => showToast(blocksToast, 'client id copied')
 	const showConfigLoadedToast = () => showToast(blocksToast, 'config loaded')
 	const showConfigUpLoadedToast = () => showToast(blocksToast, 'config uploaded')
@@ -46,6 +48,7 @@ export function setupToasts() {
 		showRestartStatusToast,
 		showStopPresnceToast,
 		showStopStatusToast,
+		showPluginSavedToast,
 	}
 }
 

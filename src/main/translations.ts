@@ -1,4 +1,4 @@
-import en from '../renderer/locales/en.json'
+﻿import en from '../renderer/locales/en.json'
 import ru from '../renderer/locales/ru.json'
 import tr from '../renderer/locales/tr.json'
 

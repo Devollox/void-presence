@@ -4,7 +4,21 @@
 		"status": "статус",
 		"logs": "логи",
 		"config": "конфиг",
-		"settings": "настройки"
+		"settings": "настройки",
+		"plugins": "плагины"
+	},
+	"plugins": {
+		"label": "плагины",
+		"title": "Плагины",
+		"subtitle": "управление плагинами void presence",
+		"noPlugins": "Плагины ещё не установлены.",
+		"noPluginsHint": "Плагины расширяют Void Presence дополнительными функциями.",
+		"enabled": "включён",
+		"disabled": "отключён",
+		"version": "версия",
+		"available": "доступно",
+		"comingSoon": "Поддержка плагинов скоро появится.",
+		"comingSoonHint": "Следите за обновлениями."
 	},
 	"tutorial": {
 		"title": "руководство",

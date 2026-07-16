@@ -33,8 +33,22 @@ async function handleUrl(rawUrl: string) {
 		const title = url.searchParams.get('title') || undefined
 
 		const kindParam = url.searchParams.get('kind')
+		const host = url.host
 		const pathname = url.pathname.replace('/', '')
 		const payloadType = kindParam || pathname || 'config'
+
+		if (host === 'install-plugin') {
+			const pluginUrl = url.searchParams.get('url')
+			if (pluginUrl) {
+				if (mainWindow && !mainWindow.isDestroyed()) {
+					mainWindow.webContents.send('INSTALL_PLUGIN_FROM_URL', { url: pluginUrl })
+					mainWindow.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', { view: 'logs' })
+				} else {
+					pendingUrl = rawUrl
+				}
+			}
+			return
+		}
 
 		if (configData) {
 			const parsed = JSON.parse(configData)

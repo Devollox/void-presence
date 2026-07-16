@@ -1,5 +1,6 @@
-import { contextBridge, ipcRenderer } from 'electron'
+﻿import { contextBridge, ipcRenderer } from 'electron'
 import { Language } from './main/translations'
+import { PluginInfo } from './plugins/plugin-types'
 import {
 	ButtonPair,
 	CycleEntry,
@@ -152,5 +153,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		}) => void
 	) => {
 		ipcRenderer.on('AUTH_FROM_URL', (_event, user) => callback(user))
+	},
+
+	pluginsList: () => ipcRenderer.invoke('plugins:list'),
+	pluginsSetEnabled: (id: string, enabled: boolean) =>
+		ipcRenderer.invoke('plugins:set-enabled', id, enabled),
+	pluginsGetActive: () => ipcRenderer.invoke('plugins:get-active'),
+	pluginsSetStorage: (pluginId: string, key: string, value: string) =>
+		ipcRenderer.invoke('plugins:set-storage', pluginId, key, value),
+	pluginsRemove: (id: string) => ipcRenderer.invoke('plugins:remove', id),
+	pluginsSetPriority: (id: string, priority: number) =>
+		ipcRenderer.invoke('plugins:set-priority', id, priority),
+	onPluginsListUpdated: (handler: (plugins: PluginInfo[]) => void) => {
+		ipcRenderer.on('plugin:list-updated', (_event, payload) => handler(payload))
+	},
+	onPluginToast: (handler: (payload: { message: string }) => void) => {
+		ipcRenderer.on('plugin:toast', (_event, payload) => handler(payload))
+	},
+	pluginsInstallFromUrl: (url: string) => ipcRenderer.invoke('plugins:install-from-url', url),
+	onInstallPluginFromUrl: (handler: (payload: { url: string }) => void) => {
+		ipcRenderer.on('INSTALL_PLUGIN_FROM_URL', (_event, payload) => handler(payload))
 	},
 })

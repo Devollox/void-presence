@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, Tray } from 'electron'
+﻿import { app, BrowserWindow, Menu, Tray } from 'electron'
 import * as path from 'path'
 import { stopDiscordRich } from '../discord'
 import { sendStatus } from './logging'

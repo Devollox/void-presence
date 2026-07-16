@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -46,6 +46,10 @@
 							<div class="tab-indicator"></div>
 							<span data-i18n="tabs.logs">logs</span>
 						</button>
+						<button class="tab-btn" data-page="plugins" data-active="false" id="nav-plugins">
+							<div class="tab-indicator"></div>
+							<span data-i18n="tabs.plugins">plugins</span>
+						</button>
 						<button class="tab-btn" data-page="config" data-active="false" id="nav-config">
 							<div class="tab-indicator"></div>
 							<span data-i18n="tabs.config">config</span>
@@ -73,7 +77,7 @@
 										<div>
 											<div class="card-label" data-i18n="tutorial.title">tutorial</div>
 											<div class="card-title" data-i18n="tutorial.firstTimeSetup">
-												First‑time setup
+												FirstвЂ‘time setup
 											</div>
 										</div>
 										<button id="tutorial-inline-close" class="tutorial-inline-close" type="button">
@@ -86,7 +90,7 @@
 									<div class="tutorial-inline-body">
 										<div class="tutorial-inline-col">
 											<div class="tutorial-inline-step-label" data-i18n="tutorial.step1">
-												Step 1 — Discord Client ID
+												Step 1 вЂ” Discord Client ID
 											</div>
 											<ol class="tutorial-inline-list">
 												<li>
@@ -100,7 +104,7 @@
 												</li>
 												<li>
 													<span data-i18n="tutorial.step1Li3Add">Add an app icon</span>
-													<span class="tutorial-strong">1024×1024</span>
+													<span class="tutorial-strong">1024Г—1024</span>
 													<span data-i18n="tutorial.step1Li3Format"
 														>(PNG / JPG / GIF / WEBP, up to 10 MB).</span
 													>
@@ -125,7 +129,7 @@
 										<div class="tutorial-inline-col">
 											<div class="tutorial-inline-col">
 												<div class="tutorial-inline-step-label" data-i18n="tutorial.step2">
-													Step 2 — Start your presence
+													Step 2 вЂ” Start your presence
 												</div>
 												<ul class="tutorial-inline-list">
 													<li>
@@ -170,7 +174,7 @@
 											</div>
 											<div class="tutorial-inline-col">
 												<div class="tutorial-inline-step-label" data-i18n="tutorial.step3">
-													Step 3 — Troubleshooting
+													Step 3 вЂ” Troubleshooting
 												</div>
 												<ul class="tutorial-inline-list">
 													<li>
@@ -253,78 +257,6 @@
 											id="update-interval-input"
 											placeholder="UPDATE ACTIVITY (SEC) MIN 5 SEC"
 										/>
-									</div>
-									<div id="advanced-interval-hint" class="client-row">
-										<span data-i18n="activity.rpcModeFilter">rpc mode filter</span>
-										<div class="advanced-toggles-wrap">
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="activity.musicFilter">Music filter</span>
-													<div class="hint-text" data-i18n="activity.smartMusicDetection">
-														smart music detection
-													</div>
-												</div>
-												<div id="music-filter-toggle" class="auto-toggle" data-on="false">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="activity.videoFilter">Video filter</span>
-													<div class="hint-text" data-i18n="activity.smartVideoDetection">
-														smart video detection
-													</div>
-												</div>
-												<div id="video-filter-toggle" class="auto-toggle" data-on="false">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-										</div>
-										<span data-i18n="activity.automatic">Automatic</span>
-										<div class="advanced-toggles-wrap">
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="activity.automaticActivity">Automatic activity</span>
-													<div class="hint-text">
-														<span class="hint-text" data-i18n="activity.weSubstituteActivity"
-															>we substitute the activity by type</span
-														>
-													</div>
-												</div>
-												<div id="automatic-activity-toggle" class="auto-toggle" data-on="false">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="activity.fetchCovers">Fetch covers</span>
-													<div class="hint-text">
-														<span class="hint-text" data-i18n="activity.useAlbumArt"
-															>use album art when available</span
-														>
-													</div>
-												</div>
-												<div id="cover-fetch-toggle" class="auto-toggle" data-on="true">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div id="advanced-interval-hint" class="client-row">
-										<span></span>
-										<div class="advanced-toggles-wrap">
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="activity.hardwareFilter">Hardware filter</span>
-													<div class="hint-text" data-i18n="activity.hardwareDetection">
-														hardware detection
-													</div>
-												</div>
-												<div id="hardware-filter-toggle" class="auto-toggle" data-on="false">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-										</div>
 									</div>
 									<div class="client-row" id="bar-style-row" data-visible="false">
 										<span data-i18n="activity.barStyle">bar style</span>
@@ -601,16 +533,16 @@
 									<div class="payload-title" data-i18n="payload.title">current payload</div>
 									<div class="payload-grid">
 										<div class="payload-label" data-i18n="payload.buttons">Buttons</div>
-										<div class="payload-value" id="info-buttons">–</div>
+										<div class="payload-value" id="info-buttons">вЂ“</div>
 										<div class="payload-label" data-i18n="payload.details">DETAILS</div>
-										<div class="payload-value" id="info-object">–</div>
+										<div class="payload-value" id="info-object">вЂ“</div>
 										<div class="payload-label" data-i18n="payload.state">State</div>
-										<div class="payload-value" id="info-details">–</div>
+										<div class="payload-value" id="info-details">вЂ“</div>
 										<div class="payload-label" data-i18n="payload.uptime">Uptime</div>
-										<div class="payload-value" id="info-uptime">–</div>
+										<div class="payload-value" id="info-uptime">вЂ“</div>
 									</div>
 									<div class="payload-status" id="info-status">
-										<span data-i18n="payload.waiting">Waiting for first update…</span>
+										<span data-i18n="payload.waiting">Waiting for first updateвЂ¦</span>
 									</div>
 								</div>
 							</div>
@@ -638,8 +570,8 @@
 							<div class="tutorial-inline-header">
 								<p class="hint-text" data-i18n="status.tutorialWarning1">
 									Use this feature with caution. It relies on a user token and behaves like a
-									third‑party client, which is against Discord's Terms of Service, so you use it at
-									your own risk.
+									thirdвЂ‘party client, which is against Discord's Terms of Service, so you use it
+									at your own risk.
 								</p>
 								<p class="hint-text" data-i18n="status.tutorialWarning2">
 									We do not accept any responsibility for possible consequences, including warnings
@@ -661,7 +593,7 @@
 							<div class="tutorial-inline-body">
 								<div class="tutorial-inline-col">
 									<div class="tutorial-inline-step-label" data-i18n="status.tutorialStep1">
-										Step 1 — Enable status and set up cycles
+										Step 1 вЂ” Enable status and set up cycles
 									</div>
 									<ol class="tutorial-inline-list">
 										<li>
@@ -684,7 +616,7 @@
 												>update(sec)</span
 											>
 											<span data-i18n="status.howOftenStatusChange"
-												>— how often the status should change (minimum 5 seconds).</span
+												>вЂ” how often the status should change (minimum 5 seconds).</span
 											>
 										</li>
 										<li>
@@ -700,7 +632,7 @@
 								<div class="tutorial-inline-wrapper">
 									<div class="tutorial-inline-col">
 										<div class="tutorial-inline-step-label" data-i18n="status.tutorialStep2">
-											Step 2 — Get Discord token
+											Step 2 вЂ” Get Discord token
 										</div>
 										<ul class="tutorial-inline-list">
 											<li data-i18n="status.step2Li1">
@@ -754,7 +686,7 @@
 									</div>
 									<div class="tutorial-inline-col">
 										<div class="tutorial-inline-step-label" data-i18n="status.tutorialStep3">
-											Step 3 — Important notes
+											Step 3 вЂ” Important notes
 										</div>
 										<ul class="tutorial-inline-list">
 											<li>
@@ -953,10 +885,10 @@
 							<div class="payload-title" data-i18n="payload.title">current payload</div>
 							<div class="payload-grid">
 								<div class="payload-label" data-i18n="status.statusText">Status Text</div>
-								<div class="payload-value" id="status-page-info-text">–</div>
+								<div class="payload-value" id="status-page-info-text">вЂ“</div>
 							</div>
 							<div class="payload-status" id="status-page-info-status">
-								<span data-i18n="status.waiting">Waiting for first update…</span>
+								<span data-i18n="status.waiting">Waiting for first updateвЂ¦</span>
 							</div>
 						</div>
 					</section>
@@ -1028,7 +960,7 @@
 							<div class="tutorial-inline-body">
 								<div class="tutorial-inline-col">
 									<div class="tutorial-inline-step-label" data-i18n="config.step1">
-										Step 1 — Prepare your profile
+										Step 1 вЂ” Prepare your profile
 									</div>
 									<ol class="tutorial-inline-list">
 										<li data-i18n="config.step1Li1">
@@ -1060,7 +992,7 @@
 
 								<div class="tutorial-inline-col">
 									<div class="tutorial-inline-step-label" data-i18n="config.step2">
-										Step 2 — Upload to cloud
+										Step 2 вЂ” Upload to cloud
 									</div>
 									<ul class="tutorial-inline-list">
 										<li>
@@ -1259,6 +1191,45 @@
 												<div id="auto-hide-toggle" class="auto-toggle" data-on="false">
 													<div class="auto-toggle-knob"></div>
 												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<section class="view content-scroll" data-view="plugins" data-active="false">
+						<div class="wrapper">
+							<div class="main-content-block">
+								<div class="card">
+									<div class="card-header">
+										<div class="card-label" data-i18n="plugins.label">plugins</div>
+										<div class="card-title-block">
+											<div class="card-title" data-i18n="plugins.title">Plugins</div>
+											<div class="card-label" data-i18n="plugins.subtitle">
+												manage void presence plugins
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="card" id="plugins-list-card">
+									<div class="card-header">
+										<div class="card-title-label" data-i18n="plugins.title">Plugins</div>
+										<div id="plugins-count" class="card-label">
+											0 <span data-i18n="plugins.available">available</span>
+										</div>
+									</div>
+									<div class="divider"></div>
+									<div id="plugins-list" class="plugins-list"></div>
+									<div id="plugins-empty" class="plugins-empty" data-visible="true">
+										<div class="plugins-coming-soon">
+											<div class="plugins-coming-soon-title" data-i18n="plugins.comingSoon">
+												Plugin support is coming soon.
+											</div>
+											<div class="hint-text" data-i18n="plugins.comingSoonHint">
+												Check back later for updates.
 											</div>
 										</div>
 									</div>
@@ -1513,13 +1484,17 @@
 														<div class="config-details-item-label" data-i18n="modal.current">
 															Current
 														</div>
-														<div class="config-details-item-sub" id="update-current-version">–</div>
+														<div class="config-details-item-sub" id="update-current-version">
+															вЂ“
+														</div>
 													</div>
 													<div>
 														<div class="config-details-item-label" data-i18n="modal.latest">
 															Latest
 														</div>
-														<div class="config-details-item-sub" id="update-latest-version">–</div>
+														<div class="config-details-item-sub" id="update-latest-version">
+															вЂ“
+														</div>
 													</div>
 												</div>
 												<div class="config-details-item-meta">
@@ -1551,7 +1526,7 @@
 												<div class="config-details-item-label" data-i18n="modal.whatIsNew">
 													What's new
 												</div>
-												<div class="config-details-item-sub" id="update-changelog">–</div>
+												<div class="config-details-item-sub" id="update-changelog">вЂ“</div>
 											</div>
 										</div>
 									</div>

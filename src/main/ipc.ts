@@ -1,7 +1,6 @@
-import { spawn } from 'child_process'
+﻿import { spawn } from 'child_process'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
-import { Worker } from 'worker_threads'
 import {
 	resetPersistTimestampValueAdvanced,
 	setActivityIntervalAdvanced,
@@ -15,11 +14,22 @@ import {
 	stopDiscordRichAdvanced,
 } from '../discord'
 import startCustomStatusWorker, { stopCustomStatusWorker } from '../discord/modules/status'
+import { defaultPlugin } from '../plugins/builtin/default-plugin'
+import { hardwarePlugin } from '../plugins/builtin/hardware-plugin'
+import { smtcPlugin } from '../plugins/builtin/smtc-plugin'
+import {
+	getActivePluginId,
+	getPluginInfoList,
+	registerPlugin,
+	setPluginEnabled,
+	setPluginPriority,
+	startAll as startAllPlugins,
+	startPluginsWatcher,
+} from '../plugins/plugin-manager'
 import {
 	ActivityType,
 	BarStyle,
 	NowMode,
-	NowPlayingData,
 	PartyConfig,
 	RpcPayload,
 	StatusCycleEntry,
@@ -28,7 +38,6 @@ import { UploadConfigPayload, uploadConfigToCloud, uploadStatusConfigToCloud } f
 import {
 	getLanguage,
 	normalizeStatuses,
-	readFiltersState,
 	readSettings,
 	readStatusCyclesConfig,
 	readTimestampConfig,
@@ -49,12 +58,12 @@ import { t } from './translations'
 import { downloadFile, getInstallDir, isPortable } from './updates'
 
 let autoHideOnStart = false
-let smtcWorker: Worker | null = null
-let hardwareWorker: Worker | null = null
-let lastNowPlaying: NowPlayingData | null = null
-let lastHardwareStats: any | null = null
 let stopCurrentRpc: (() => void) | null = null
 let rpcStarted = false
+
+registerPlugin(defaultPlugin)
+registerPlugin(smtcPlugin)
+registerPlugin(hardwarePlugin)
 
 function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
 	if (stopCurrentRpc) {
@@ -92,153 +101,8 @@ function setAutoLaunch(enabled: boolean) {
 	})
 }
 
-function startSmtcWorker() {
-	const workerPath = app.isPackaged
-		? path.join(process.resourcesPath, 'app', 'src', 'discord', 'workers', 'smtc-worker.js')
-		: path.join(process.cwd(), 'src', 'discord', 'workers', 'smtc-worker.js')
-
-	if (!smtcWorker) {
-		smtcWorker = new Worker(workerPath, { env: { ...process.env } })
-	}
-
-	smtcWorker.removeAllListeners('message')
-
-	smtcWorker.on('message', async msg => {
-		if (!msg || typeof msg !== 'object') return
-		if (msg.type === 'smtcError') return
-		if (msg.type !== 'nowPlaying') return
-
-		const { musicFilter, videoFilter } = await readFiltersState()
-		const haveAnyFilter = !!musicFilter || !!videoFilter
-		if (!haveAnyFilter) {
-			lastNowPlaying = null
-			return
-		}
-
-		const isMusic = msg.data?.isThumbMusic === true && msg.data?.isThumbVideo !== true
-		const isVideo = msg.data?.isThumbVideo === true && msg.data?.isThumbMusic !== true
-
-		if (musicFilter && !videoFilter && !isMusic) {
-			lastNowPlaying = null
-			return
-		}
-
-		if (!musicFilter && videoFilter && !isVideo) {
-			lastNowPlaying = null
-			return
-		}
-
-		lastNowPlaying = msg.data
-
-		const settings = await readSettings()
-		if (!settings.rpcEnabled) return
-
-		if (!rpcStarted) {
-			rpcStarted = true
-			const win = BrowserWindow.getAllWindows()[0]
-			if (win && !win.isDestroyed()) {
-				setTimeout(() => {
-					sendStatus('RPC_RESTARTING')
-				}, 100)
-				startDiscordRich(payload => {
-					if (win.isDestroyed()) return
-					win.webContents.send('rpc-update', payload)
-				})
-			}
-		}
-	})
-
-	smtcWorker.on('error', err => {
-		sendLog(t('rpcError', { error: String(err) }), 'error')
-	})
-
-	smtcWorker.on('exit', code => {
-		smtcWorker = null
-	})
-}
-
-function startHardwareWorker() {
-	const workerPath = app.isPackaged
-		? path.join(process.resourcesPath, 'app', 'src', 'discord', 'workers', 'hardware-worker.js')
-		: path.join(process.cwd(), 'src', 'discord', 'workers', 'hardware-worker.js')
-
-	if (!hardwareWorker) {
-		hardwareWorker = new Worker(workerPath, { env: { ...process.env } })
-	}
-
-	hardwareWorker.removeAllListeners('message')
-
-	hardwareWorker.on('message', async msg => {
-		if (!msg || typeof msg !== 'object') return
-		if (msg.type === 'hardwareStats') {
-			lastHardwareStats = msg.data
-		}
-		if (msg.type === 'hardwareError') {
-			return
-		}
-
-		const settings = await readSettings()
-		if (!settings.rpcEnabled) return
-
-		if (!rpcStarted) {
-			rpcStarted = true
-			const win = BrowserWindow.getAllWindows()[0]
-			if (win && !win.isDestroyed()) {
-				setTimeout(() => {
-					sendStatus('RPC_RESTARTING')
-				}, 100)
-				startDiscordRich(payload => {
-					if (win.isDestroyed()) return
-					win.webContents.send('rpc-update', payload)
-				})
-			}
-		}
-	})
-
-	hardwareWorker.on('error', err => {
-		sendLog(t('hardwareWorkerError', { error: String(err) }), 'error')
-	})
-
-	hardwareWorker.on('exit', code => {
-		hardwareWorker = null
-	})
-}
-
-export function getLastNowPlaying() {
-	return lastNowPlaying
-}
-
-export function getLastHardwareStats() {
-	return lastHardwareStats
-}
-
-async function refreshSmtcWorkerIfNeeded() {
-	const s = await readSettings()
-	const shouldUseSmtc = s.musicFilter || s.videoFilter
-
-	if (shouldUseSmtc && !smtcWorker) {
-		startSmtcWorker()
-	}
-
-	if (!shouldUseSmtc && smtcWorker) {
-		smtcWorker.terminate()
-		smtcWorker = null
-		lastNowPlaying = null
-	}
-}
-
-async function refreshHardwareWorkerIfNeeded() {
-	const s = await readSettings()
-
-	if (s.hardwareMonitorEnabled && !hardwareWorker) {
-		startHardwareWorker()
-	}
-
-	if (!s.hardwareMonitorEnabled && hardwareWorker) {
-		hardwareWorker.terminate()
-		hardwareWorker = null
-		lastHardwareStats = null
-	}
+export function getLastHardwareStats(): null {
+	return null
 }
 
 export async function initIpc() {
@@ -248,22 +112,15 @@ export async function initIpc() {
 	if (s.statusEnabled) {
 		sendStatusCustom('CUSTOM_STATUS_RESTART')
 		sendStatusCustomPayload('RESTARTING')
-
 		setTimeout(() => {
 			startCustomStatusWorker()
 		}, 2000)
 	}
 
-	const shouldUseSmtc = s.musicFilter || s.videoFilter
-	if (shouldUseSmtc && !smtcWorker) {
-		startSmtcWorker()
-	}
+	await startAllPlugins()
+	startPluginsWatcher()
 
-	if (s.hardwareMonitorEnabled && !hardwareWorker) {
-		startHardwareWorker()
-	}
-
-	if (s.rpcEnabled && !shouldUseSmtc && !s.hardwareMonitorEnabled) {
+	if (s.rpcEnabled) {
 		rpcStarted = true
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win && !win.isDestroyed()) {
@@ -277,8 +134,63 @@ export async function initIpc() {
 		}
 	}
 
+	ipcMain.handle('plugins:list', () => {
+		return getPluginInfoList()
+	})
+
+	ipcMain.handle('plugins:set-enabled', async (_event, id: string, enabled: boolean) => {
+		if (id === 'hardware') {
+			const current = await readSettings()
+			await writeSettings({ ...current, hardwareMonitorEnabled: !!enabled })
+		} else if (id === 'smtc') {
+			const current = await readSettings()
+			await writeSettings({ ...current, musicFilter: !!enabled, videoFilter: !!enabled })
+		}
+		setPluginEnabled(id, enabled)
+		return true
+	})
+
+	ipcMain.handle('plugins:get-active', () => {
+		return getActivePluginId()
+	})
+
+	ipcMain.handle('plugins:set-priority', async (_event, pluginId: string, priority: number) => {
+		setPluginPriority(pluginId, priority)
+		return true
+	})
+
+	ipcMain.handle('plugins:remove', async (_event, pluginId: string) => {
+		const { promises: fsp } = await import('fs')
+		const pluginsDir = app.getPath('userData')
+		const filePath = path.join(`${pluginsDir}/plugins`, `${pluginId}.js`)
+		try {
+			await fsp.unlink(filePath)
+			return { ok: true }
+		} catch (e: any) {
+			sendLog(`Failed to remove ${pluginId}: ${e?.message ?? e}`, 'error')
+			return { ok: false, error: e?.message }
+		}
+	})
+
+	ipcMain.handle(
+		'plugins:set-storage',
+		async (_event, pluginId: string, key: string, value: string) => {
+			const { promises: fsp } = await import('fs')
+			const stateFile = path.join(app.getPath('userData'), `plugin-${pluginId}-state.json`)
+			try {
+				let data: Record<string, string> = {}
+				try {
+					data = JSON.parse(await fsp.readFile(stateFile, 'utf-8'))
+				} catch {}
+				data[key] = value
+				await fsp.writeFile(stateFile, JSON.stringify(data, null, 2), 'utf-8')
+			} catch {}
+			return true
+		}
+	)
+
 	ipcMain.handle('get-now-playing', async () => {
-		return lastNowPlaying
+		return null
 	})
 
 	ipcMain.handle('restart-discord-rich', async () => {
@@ -727,15 +639,17 @@ export async function initIpc() {
 
 	ipcMain.handle('settings:set-music-filter', async (_event, enabled: boolean) => {
 		const current = await readSettings()
-		await writeSettings({ ...current, musicFilter: !!enabled })
-		refreshSmtcWorkerIfNeeded()
+		const next = { ...current, musicFilter: !!enabled }
+		await writeSettings(next)
+		setPluginEnabled('smtc', !!(next.musicFilter || next.videoFilter))
 		return true
 	})
 
 	ipcMain.handle('settings:set-video-filter', async (_event, enabled: boolean) => {
 		const current = await readSettings()
-		await writeSettings({ ...current, videoFilter: !!enabled })
-		refreshSmtcWorkerIfNeeded()
+		const next = { ...current, videoFilter: !!enabled }
+		await writeSettings(next)
+		setPluginEnabled('smtc', !!(next.musicFilter || next.videoFilter))
 		return true
 	})
 
@@ -754,7 +668,7 @@ export async function initIpc() {
 	ipcMain.handle('settings:set-hardware-monitor', async (_event, enabled: boolean) => {
 		const current = await readSettings()
 		await writeSettings({ ...current, hardwareMonitorEnabled: !!enabled })
-		refreshHardwareWorkerIfNeeded()
+		setPluginEnabled('hardware', !!enabled)
 		return true
 	})
 
@@ -909,4 +823,54 @@ export async function initIpc() {
 
 		return true
 	})
+
+	ipcMain.handle('plugins:install-from-url', async (_event, pluginUrl: string) => {
+		try {
+			const { promises: fsp } = await import('fs')
+			const https = await import('https')
+			const http = await import('http')
+
+			const pluginsDir = path.join(app.getPath('userData'), 'plugins')
+			await fsp.mkdir(pluginsDir, { recursive: true })
+
+			const urlObj = new URL(pluginUrl)
+			const rawName = urlObj.pathname.split('/').pop() || 'plugin.js'
+			const fileName = rawName.endsWith('.js') ? rawName : `${rawName}.js`
+			const destPath = path.join(pluginsDir, fileName)
+
+			sendLog(`Downloading plugin from "${pluginUrl}"...`, 'info')
+
+			await new Promise<void>((resolve, reject) => {
+				const proto = pluginUrl.startsWith('https') ? https : http
+				const file = require('fs').createWriteStream(destPath)
+				proto
+					.get(pluginUrl, (res: any) => {
+						if (res.statusCode !== 200) {
+							reject(new Error(`HTTP ${res.statusCode}`))
+							return
+						}
+						res.pipe(file)
+						file.on('finish', () => {
+							file.close()
+							resolve()
+						})
+					})
+					.on('error', (e: Error) => {
+						require('fs').unlink(destPath, () => {})
+						reject(e)
+					})
+			})
+
+			sendLog(`Plugin saved to "${destPath}". Restart app to load it.`, 'success')
+			return { ok: true, path: destPath }
+		} catch (e: any) {
+			sendLog(`Failed to install plugin: ${e?.message ?? e}`, 'error')
+			return { ok: false, error: e?.message ?? String(e) }
+		}
+	})
+
+	const win = BrowserWindow.getAllWindows()[0]
+	if (win && !win.isDestroyed()) {
+		win.webContents.on('ipc-message', () => {})
+	}
 }

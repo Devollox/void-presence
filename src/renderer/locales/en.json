@@ -4,7 +4,21 @@
 		"status": "status",
 		"logs": "logs",
 		"config": "config",
-		"settings": "settings"
+		"settings": "settings",
+		"plugins": "plugins"
+	},
+	"plugins": {
+		"label": "plugins",
+		"title": "Plugins",
+		"subtitle": "manage void presence plugins",
+		"noPlugins": "No plugins installed yet.",
+		"noPluginsHint": "Plugins extend Void Presence with additional features.",
+		"enabled": "enabled",
+		"disabled": "disabled",
+		"version": "version",
+		"available": "available",
+		"comingSoon": "Plugin support is coming soon.",
+		"comingSoonHint": "Check back later for updates."
 	},
 	"tutorial": {
 		"title": "tutorial",

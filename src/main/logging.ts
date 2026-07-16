@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+﻿import { BrowserWindow } from 'electron'
 import { LogLevel } from 'src/types/types'
 
 export function sendStatus(status: string) {

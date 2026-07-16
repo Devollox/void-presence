@@ -1,7 +1,7 @@
-export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
+﻿export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
 export type TimestampMode = 'now' | 'range' | 'persist'
 export type NowMode = 'plain' | 'progress' | 'cycles'
-export type ViewName = 'main' | 'logs' | 'config' | 'status' | 'settings'
+export type ViewName = 'main' | 'logs' | 'config' | 'status' | 'settings' | 'plugins'
 
 export interface StatusStateResult {
 	enabled: boolean
@@ -24,7 +24,7 @@ export interface RichPresenceButton {
 }
 
 export type PresencePayload = {
-	source: 'media' | 'hardware'
+	source?: string
 	details?: string
 	state?: string
 	timestamps?: {
@@ -327,7 +327,66 @@ export interface StoredStatusProfile {
 	createdAt: string
 }
 
+export interface PluginToggleControl {
+	type: 'toggle'
+	id: string
+	labelKey: string
+	hintKey: string
+	storageKey: string
+	ipcMethod: string
+	defaultValue?: boolean
+}
+
+export interface PluginSelectOption {
+	value: string
+	labelKey: string
+}
+
+export interface PluginSelectControl {
+	type: 'select'
+	id: string
+	labelKey: string
+	storageKey: string
+	ipcMethod: string
+	options: PluginSelectOption[]
+	defaultValue?: string
+}
+
+export interface PluginInputControl {
+	type: 'input'
+	id: string
+	labelKey: string
+	hintKey?: string
+	storageKey: string
+	ipcMethod?: string
+	placeholder?: string
+	defaultValue?: string
+}
+
+export type PluginControl = PluginToggleControl | PluginSelectControl | PluginInputControl
+
+export interface PluginInfo {
+	id: string
+	nameKey: string
+	version: string
+	builtin: boolean
+	priority: number
+	locked: boolean
+	enabled: boolean
+	controls: PluginControl[]
+}
+
 export interface ElectronAPI {
+	pluginsList?: () => Promise<PluginInfo[]>
+	pluginsSetEnabled?: (id: string, enabled: boolean) => Promise<boolean>
+	pluginsGetActive?: () => Promise<string | null>
+	pluginsSetStorage?: (pluginId: string, key: string, value: string) => Promise<boolean>
+	pluginsRemove?: (id: string) => Promise<{ ok: boolean; error?: string }>
+	pluginsSetPriority?: (id: string, priority: number) => Promise<boolean>
+	pluginsInstallFromUrl?: (url: string) => Promise<{ ok: boolean; path?: string; error?: string }>
+	onInstallPluginFromUrl?: (handler: (payload: { url: string }) => void) => void
+	onPluginsListUpdated?: (handler: (plugins: PluginInfo[]) => void) => void
+	onPluginToast?: (handler: (payload: { message: string }) => void) => void
 	openSupportSite?: () => Promise<boolean> | boolean
 	openSupportDiscord?: () => Promise<boolean> | boolean
 	clearLogs?: () => Promise<boolean> | boolean

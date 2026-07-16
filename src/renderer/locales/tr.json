@@ -4,7 +4,21 @@
 		"status": "durum",
 		"logs": "günlükler",
 		"config": "yapılandırma",
-		"settings": "ayarlar"
+		"settings": "ayarlar",
+		"plugins": "eklentiler"
+	},
+	"plugins": {
+		"label": "eklentiler",
+		"title": "Eklentiler",
+		"subtitle": "void presence eklentilerini yönet",
+		"noPlugins": "Henüz yüklü eklenti yok.",
+		"noPluginsHint": "Eklentiler, Void Presence'ı ek özelliklerle genişletir.",
+		"enabled": "etkin",
+		"disabled": "devre dışı",
+		"version": "sürüm",
+		"available": "mevcut",
+		"comingSoon": "Eklenti desteği yakında geliyor.",
+		"comingSoonHint": "Güncellemeler için tekrar kontrol edin."
 	},
 	"tutorial": {
 		"title": "eğitici",

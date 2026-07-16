@@ -1,4 +1,4 @@
-import { setupActivityTypeControls } from './modules/config/activity'
+﻿import { setupActivityTypeControls } from './modules/config/activity'
 import { initBarStyleControls } from './modules/config/bar-style-controls'
 import { setupClientIdControls } from './modules/config/clientId-controls'
 import { setupConfigPage } from './modules/config/config-page'
@@ -6,6 +6,7 @@ import { setupStatusDetailsOverlay } from './modules/config/status-details'
 import { setupStatusImportOverlay } from './modules/config/status-import'
 import { setupStatusPage } from './modules/config/status-page'
 import { renderStatusProfiles, setupStatusIntervalControl } from './modules/config/status-render'
+import { setupToasts } from './modules/config/toasts'
 import { setupCloudUpload } from './modules/config/upload'
 import { fetchNowPlaying } from './modules/core/now-playing'
 import { setupIntervalControl } from './modules/core/state'
@@ -15,23 +16,19 @@ import { importJsonPayload, setupImportOverlay } from './modules/modals/import'
 import { setupStatusTutorialButtons, setupTutorials } from './modules/modals/tutorials'
 import './modules/modals/update'
 import { initUpdateOverlay } from './modules/modals/update'
+import { setupPluginsPage } from './modules/plugins/plugins-page'
 import { initLanguage } from './modules/shell/language'
 import { updatePlaceholders } from './modules/shell/placeholders'
 import { updateStatusStatus, updateStatusText } from './modules/shell/runtime-status'
 import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
-	setupAutomaticActivityToggle,
-	setupCoverFetchToggle,
 	setupCustomStatusControls,
-	setupHardwareFilterToggle,
-	setupMusicFilterToggle,
 	setupPresenceControls,
 	setupRpcEnabledToggle,
 	setupStatusEnabledBrowserToggle,
 	setupStatusEnabledToggle,
 	setupSupportAndLogsButtons,
-	setupVideoFilterToggle,
 } from './modules/shell/toggles'
 import { updateInfo, updateStatus } from './modules/shell/views'
 import { setupWindowControls } from './modules/shell/window-controls'
@@ -47,11 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupActivityTypeControls()
 	void setupConfigDetailsOverlay()
 	void setupConfigPage()
-	void setupMusicFilterToggle()
-	void setupVideoFilterToggle()
-	void setupCoverFetchToggle()
-	void setupHardwareFilterToggle()
-	void setupAutomaticActivityToggle()
 	void setupStatusEnabledToggle()
 	void setupCustomStatusControls()
 	void setupSupportAndLogsButtons()
@@ -71,6 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupStatusDetailsOverlay()
 	void setupStatusIntervalControl()
 	void initBarStyleControls()
+
+	void setupPluginsPage()
 
 	updateStatusStatus('CUSTOM_STATUS_DISABLED')
 	updateStatus('RPC_DISABLED')
@@ -121,6 +115,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 		})
 	}
 
+	if (window.electronAPI?.onInstallPluginFromUrl) {
+		window.electronAPI.onInstallPluginFromUrl(async ({ url }) => {
+			try {
+				const result = await window.electronAPI.pluginsInstallFromUrl(url)
+				const { showPluginSavedToast } = setupToasts()
+				if (result?.ok) {
+					showPluginSavedToast({ message: `Plugin installed from ${url}` })
+				} else {
+					showPluginSavedToast({ message: `Failed to install plugin from ${url}` })
+				}
+			} catch (err: any) {
+				const { showPluginSavedToast } = setupToasts()
+				showPluginSavedToast({ message: `Failed to install plugin from ${url}` })
+			}
+		})
+	}
+
 	if (window.electronAPI?.onActivateView) {
 		window.electronAPI.onActivateView(payload => {
 			const views = document.querySelectorAll('.view')
@@ -155,4 +166,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	void pollNowPlayingUi()
+
+	if (window.electronAPI?.onPluginToast) {
+		window.electronAPI.onPluginToast(({ message }: { message: string }) => {
+			const { showPluginSavedToast } = setupToasts()
+			showPluginSavedToast({ message: `plugin ${message} load` })
+		})
+	}
+
+	if (window.electronAPI?.onPluginsListUpdated) {
+		window.electronAPI.onPluginsListUpdated(plugins => {
+			document.dispatchEvent(new CustomEvent('plugins-reload', { detail: plugins }))
+		})
+	}
 })

@@ -1,27 +1,12 @@
-import { refreshBarStyleVisibility } from '../config/bar-style-controls'
+﻿import { refreshBarStyleVisibility } from '../config/bar-style-controls'
 import { setupToasts } from '../config/toasts'
 import { updateInfo, updateStatus } from './views'
 
-type ToggleKey =
-	| 'autoLaunch'
-	| 'autoHide'
-	| 'musicFilter'
-	| 'videoFilter'
-	| 'activityFilter'
-	| 'coverFetchEnabled'
-	| 'hardwareMonitorEnabled'
-	| 'statusEnabled'
-	| 'statusEnabledBrowser'
-	| 'rpcEnabled'
+type ToggleKey = 'autoLaunch' | 'autoHide' | 'statusEnabled' | 'statusEnabledBrowser' | 'rpcEnabled'
 
 type ToggleApi =
 	| 'setAutoLaunch'
 	| 'setAutoHide'
-	| 'setMusicFilter'
-	| 'setVideoFilter'
-	| 'setAutomaticActivity'
-	| 'setCoverFetch'
-	| 'setHardwareMonitor'
 	| 'setStatusEnabled'
 	| 'setStatusEnabledBrowser'
 	| 'setRpcEnabled'
@@ -78,46 +63,6 @@ export function setupAutoHideToggle(): void {
 		id: 'auto-hide-toggle',
 		storageKey: 'autoHide',
 		apiMethod: 'setAutoHide',
-	})
-}
-
-export function setupMusicFilterToggle(): void {
-	setupGenericToggle({
-		id: 'music-filter-toggle',
-		storageKey: 'musicFilter',
-		apiMethod: 'setMusicFilter',
-	})
-}
-
-export function setupVideoFilterToggle(): void {
-	setupGenericToggle({
-		id: 'video-filter-toggle',
-		storageKey: 'videoFilter',
-		apiMethod: 'setVideoFilter',
-	})
-}
-
-export function setupAutomaticActivityToggle(): void {
-	setupGenericToggle({
-		id: 'automatic-activity-toggle',
-		storageKey: 'activityFilter',
-		apiMethod: 'setAutomaticActivity',
-	})
-}
-
-export function setupCoverFetchToggle(): void {
-	setupGenericToggle({
-		id: 'cover-fetch-toggle',
-		storageKey: 'coverFetchEnabled',
-		apiMethod: 'setCoverFetch',
-	})
-}
-
-export function setupHardwareFilterToggle(): void {
-	setupGenericToggle({
-		id: 'hardware-filter-toggle',
-		storageKey: 'hardwareMonitorEnabled',
-		apiMethod: 'setHardwareMonitor',
 	})
 }
 

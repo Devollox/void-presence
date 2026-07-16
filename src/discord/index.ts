@@ -1,4 +1,4 @@
-import { stopDiscordRich as stopDiscordRichAdvancedModule } from './modules/rpc'
+﻿import { stopDiscordRich as stopDiscordRichAdvancedModule } from './modules/rpc'
 
 export {
 	readClientConfig,
