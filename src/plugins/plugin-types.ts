@@ -58,10 +58,12 @@ export interface VoidPlugin {
 	priority: number
 	locked?: boolean
 	waitForWorker?: boolean
+	exclusive?: boolean
 	controls: PluginControl[]
 	start(ctx: PluginContext): Promise<void> | void
 	stop(): Promise<void> | void
 	onUpdate(cb: () => void): void
+	onConfigChanged?(key: string): void
 	getPayload(): PresencePayload | null
 }
 
@@ -73,5 +75,6 @@ export interface PluginInfo {
 	priority: number
 	locked: boolean
 	enabled: boolean
+	exclusive: boolean
 	controls: PluginControl[]
 }

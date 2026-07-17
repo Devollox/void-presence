@@ -164,6 +164,13 @@ export const defaultPlugin: VoidPlugin = {
 	onUpdate(cb: () => void) {
 		_updateCb = cb
 	},
+	onConfigChanged(key: string) {
+		if (key === 'buttons') _buttonIndex = 0
+		if (key === 'imageCycles') _imageIndex = 0
+		if (key === 'cycles') _cycleIndex = 0
+		if (key === 'party') _partyIndex = 0
+		void refresh()
+	},
 	getPayload() {
 		return _currentPayload
 	},

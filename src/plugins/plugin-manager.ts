@@ -247,6 +247,16 @@ export function isPluginEnabled(id: string): boolean {
 	return enabledState.get(id) ?? false
 }
 
+export function notifyConfigChanged(key: string): void {
+	for (const plugin of registry) {
+		if (enabledState.get(plugin.id) && plugin.onConfigChanged) {
+			try {
+				plugin.onConfigChanged(key)
+			} catch {}
+		}
+	}
+}
+
 export async function startAll(): Promise<void> {
 	await loadExternalPlugins()
 
@@ -293,19 +303,36 @@ export async function stopAll(): Promise<void> {
 }
 
 let _globalUpdateCb: (() => void) | null = null
+let _globalDebounceTimer: NodeJS.Timeout | null = null
+let _throttledCb: (() => void) | null = null
+
+function getThrottledCb(): () => void {
+	if (!_throttledCb) {
+		_throttledCb = () => {
+			if (!_globalUpdateCb) return
+			if (_globalDebounceTimer) clearTimeout(_globalDebounceTimer)
+			_globalDebounceTimer = setTimeout(() => {
+				_globalDebounceTimer = null
+				_globalUpdateCb?.()
+			}, 50)
+		}
+	}
+	return _throttledCb
+}
 
 export function subscribeToUpdates(cb: () => void): void {
 	_globalUpdateCb = cb
+	const throttled = getThrottledCb()
 	for (const plugin of registry) {
 		if (enabledState.get(plugin.id)) {
-			plugin.onUpdate(cb)
+			plugin.onUpdate(throttled)
 		}
 	}
 }
 
 function attachUpdateCb(plugin: VoidPlugin): void {
 	if (_globalUpdateCb) {
-		plugin.onUpdate(_globalUpdateCb)
+		plugin.onUpdate(getThrottledCb())
 	}
 }
 
@@ -313,6 +340,13 @@ export function getActivePayload(): PresencePayload | null {
 	const active = registry
 		.filter(p => enabledState.get(p.id) === true)
 		.sort((a, b) => b.priority - a.priority)
+
+	for (const plugin of active) {
+		if (plugin.exclusive) {
+			const payload = plugin.getPayload()
+			if (payload !== null) return payload
+		}
+	}
 
 	for (const plugin of active) {
 		const payload = plugin.getPayload()
@@ -325,6 +359,10 @@ export function getActivePluginId(): string | null {
 	const active = registry
 		.filter(p => enabledState.get(p.id) === true)
 		.sort((a, b) => b.priority - a.priority)
+
+	for (const plugin of active) {
+		if (plugin.exclusive && plugin.getPayload() !== null) return plugin.id
+	}
 
 	for (const plugin of active) {
 		if (plugin.getPayload() !== null) return plugin.id
@@ -341,6 +379,7 @@ export function getPluginInfoList(): PluginInfo[] {
 		priority: p.priority,
 		locked: p.locked === true,
 		enabled: enabledState.get(p.id) ?? false,
+		exclusive: p.exclusive === true,
 		controls: p.controls,
 	}))
 }

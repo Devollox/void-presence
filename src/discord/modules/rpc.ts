@@ -299,20 +299,46 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 
 		let pushPending = false
 		let debounceTimer: NodeJS.Timeout | null = null
+		let dirtyWhilePushing = false
+		let lastPayloadSig = ''
+
+		function payloadSig(p: PresencePayload | null): string {
+			if (!p) return ''
+			return `${p.details}|${p.state}|${p.activityType}|${p.priority}|${JSON.stringify(p.buttons ?? [])}|${JSON.stringify(p.assets ?? {})}`
+		}
 
 		async function onPluginUpdate() {
 			if (isStopped || sessionId !== currentSessionId) return
+
+			const sig = payloadSig(getActivePayload())
+			if (sig && sig === lastPayloadSig) return
+
+			if (pushPending) {
+				dirtyWhilePushing = true
+				return
+			}
+
 			if (debounceTimer) clearTimeout(debounceTimer)
 			debounceTimer = setTimeout(async () => {
 				debounceTimer = null
-				if (pushPending) return
+				if (pushPending) {
+					dirtyWhilePushing = true
+					return
+				}
 				pushPending = true
+				dirtyWhilePushing = false
 				try {
 					await pushActivity()
+					lastPayloadSig = payloadSig(getActivePayload())
 				} finally {
 					pushPending = false
+
+					if (dirtyWhilePushing) {
+						dirtyWhilePushing = false
+						void onPluginUpdate()
+					}
 				}
-			}, 150)
+			}, 1000)
 		}
 
 		localClient.on('ready', async () => {
@@ -333,7 +359,7 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 			})
 			setTimeout(() => {
 				void onPluginUpdate()
-			}, 200)
+			}, 1000)
 		})
 
 		localClient.on('disconnected', () => {

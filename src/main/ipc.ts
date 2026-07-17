@@ -23,6 +23,7 @@ import {
 	hotLoadPlugin,
 	markPluginInstallDone,
 	markPluginInstalling,
+	notifyConfigChanged,
 	registerPlugin,
 	setPluginEnabled,
 	setPluginPriority,
@@ -295,6 +296,7 @@ export async function initIpc() {
 
 	ipcMain.handle('set-image-cycles', async (_event, cycles: any) => {
 		await setImageCyclesConfig(cycles)
+		notifyConfigChanged('imageCycles')
 		return true
 	})
 
@@ -304,11 +306,13 @@ export async function initIpc() {
 
 	ipcMain.handle('set-buttons', async (_event, pairs: any) => {
 		await setButtonsConfig(pairs)
+		notifyConfigChanged('buttons')
 		return true
 	})
 
 	ipcMain.handle('set-cycles', async (_event, entries: any) => {
 		await setCycles(entries)
+		notifyConfigChanged('cycles')
 		return true
 	})
 

@@ -104,19 +104,44 @@ function buildEntries(
 function getNextImageCycle(cycles: ImageCycle[]): ImageCycle {
 	if (!cycles.length)
 		return { largeImage: null, largeText: null, smallImage: null, smallText: null }
-	const img = cycles[_imageIndex % cycles.length]
-	_imageIndex = (_imageIndex + 1) % cycles.length
-	return img
+	return cycles[_imageIndex % cycles.length]
+}
+
+function advanceImageCycle(cycles: ImageCycle[]): void {
+	if (cycles.length) _imageIndex = (_imageIndex + 1) % cycles.length
 }
 
 function getNextButtons(buttonPairs: any[]): { label: string; url: string }[] {
 	if (!Array.isArray(buttonPairs) || !buttonPairs.length) return []
 	const pair = buttonPairs[_buttonIndex % buttonPairs.length]
-	_buttonIndex = (_buttonIndex + 1) % buttonPairs.length
 	const res: { label: string; url: string }[] = []
 	if (pair?.label1 && pair?.url1) res.push({ label: pair.label1, url: pair.url1 })
 	if (pair?.label2 && pair?.url2) res.push({ label: pair.label2, url: pair.url2 })
 	return res
+}
+
+function advanceButtons(buttonPairs: any[]): void {
+	if (Array.isArray(buttonPairs) && buttonPairs.length) {
+		_buttonIndex = (_buttonIndex + 1) % buttonPairs.length
+	} else {
+		_buttonIndex = 0
+	}
+}
+
+function clampButtonIndex(buttonPairs: any[]): void {
+	if (!Array.isArray(buttonPairs) || !buttonPairs.length) {
+		_buttonIndex = 0
+	} else if (_buttonIndex >= buttonPairs.length) {
+		_buttonIndex = 0
+	}
+}
+
+function clampImageIndex(cycles: ImageCycle[]): void {
+	if (!cycles.length) {
+		_imageIndex = 0
+	} else if (_imageIndex >= cycles.length) {
+		_imageIndex = 0
+	}
 }
 
 const san = (v: string | null | undefined): string | undefined =>
@@ -140,6 +165,9 @@ async function refreshPayload(): Promise<void> {
 		readActivityTypeConfig(),
 		readButtonsConfig(),
 	])
+
+	clampImageIndex(imagesCfg.cycles)
+	clampButtonIndex(buttonsCfg.pairs)
 
 	const entry = entries[_lineIndex % entries.length]
 	const barStr = await bar(entry.load)
@@ -194,6 +222,13 @@ function startRotateTimer(): void {
 			const entries = buildEntries(_lastStats)
 			if (entries.length) {
 				_lineIndex = (_lineIndex + 1) % entries.length
+
+				const [imagesCfg, buttonsCfg] = await Promise.all([
+					readImageCyclesConfig(),
+					readButtonsConfig(),
+				])
+				advanceImageCycle(imagesCfg.cycles)
+				advanceButtons(buttonsCfg.pairs)
 				await refreshPayload()
 			}
 		}
@@ -275,11 +310,11 @@ export const hardwareControls: PluginControl[] = [
 		defaultValue: 'unicode',
 		options: [
 			{ value: 'unicode', labelKey: 'barStyle.unicode' },
-			{ value: 'cmd',     labelKey: 'barStyle.cmd'     },
-			{ value: 'block',   labelKey: 'barStyle.block'   },
-			{ value: 'soft',    labelKey: 'barStyle.soft'    },
-			{ value: 'retro',   labelKey: 'barStyle.retro'   },
-			{ value: 'cyber',   labelKey: 'barStyle.cyber'   },
+			{ value: 'cmd', labelKey: 'barStyle.cmd' },
+			{ value: 'block', labelKey: 'barStyle.block' },
+			{ value: 'soft', labelKey: 'barStyle.soft' },
+			{ value: 'retro', labelKey: 'barStyle.retro' },
+			{ value: 'cyber', labelKey: 'barStyle.cyber' },
 		],
 	},
 ]
@@ -287,6 +322,7 @@ export const hardwareControls: PluginControl[] = [
 export const hardwarePlugin: VoidPlugin = {
 	id: 'hardware',
 	nameKey: 'plugins.hardware.name',
+	exclusive: true,
 	version: '1.0.0',
 	builtin: true,
 	priority: 50,
@@ -308,6 +344,13 @@ export const hardwarePlugin: VoidPlugin = {
 
 	onUpdate(cb: () => void) {
 		_updateCb = cb
+	},
+
+	onConfigChanged(key: string) {
+		if (key === 'buttons') _buttonIndex = 0
+		if (key === 'imageCycles') _imageIndex = 0
+		if (key === 'cycles') _lineIndex = 0
+		void refreshPayload()
 	},
 
 	getPayload() {
