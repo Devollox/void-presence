@@ -1,190 +1,153 @@
-<img width="3844" height="793" alt="484064966-2c662772-bca231-4de4-988f-5304d7dfd87d" src="https://github.com/user-attachments/assets/ff426959-a128-41bc-922c-a971a877fce9" />
+<img width="3844" height="793" alt="banner" src="https://github.com/user-attachments/assets/ff426959-a128-41bc-922c-a971a877fce9" />
 
-<img width="1920" height="1080" alt="Композиция2-1_1" src="https://github.com/user-attachments/assets/ad409ce8-4dd0-4d3e-bc16-1d04ea0c4318" />
-<img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/daba103b-8fdf-4153-99ab-18d8bb019da8" />
+<img width="1920" height="1080" alt="screenshot" src="https://github.com/user-attachments/assets/ad409ce8-4dd0-4d3e-bc16-1d04ea0c4318" />
+<img width="1920" height="1032" alt="screenshot2" src="https://github.com/user-attachments/assets/daba103b-8fdf-4153-99ab-18d8bb019da8" />
 
 https://github.com/user-attachments/assets/57fffa33-626d-467f-80a1-0df338f0f65a
 
-> **Void Presence** – Advanced Discord Rich Presence manager with full control over your activity display.
+> **Void Presence** – Advanced Discord Rich Presence manager with a plugin system, hardware monitoring, music detection, and full control over your activity display.
 
 ---
 
 ## Overview
 
-Void Presence is an advanced Discord Rich Presence manager with three RPC modes: `Basic`, `Music and Video`, and `Hardware monitoring`. It also supports custom button pairs, dynamic status cycling, rotating images, drag-and-drop profile management, config import/export, auto-launch, tray hiding, and a minimalist dark UI.
+Void Presence is an Electron-based Discord Rich Presence manager built around a **plugin architecture**. Each feature (default presence, hardware stats, SMTC music/video) is a plugin — you can install external plugins from the community or write your own in plain JavaScript.
 
 ---
 
 ## Features
 
-- **RPC Modes** – `Basic` (lightweight) / `Music and Video` (**Music + Video**) / `Hardware overlay` (**CPU + GPU + RAM**)
-- **Dynamic status** – cyclic switching between statuses (work in browser (no Discord.exe check)
-- **Custom button pairs** – Create multiple button sets with labels and URLs
-- **Custom update interval** – Control how often activity is refreshed (in seconds)
-- **Status cycles** – Rotate between different status messages (`details` and `state`)
-- **Image rotation** – Cycle through multiple large and small Rich Presence images
-- **Profiles with drag & drop** – Create, reorder, and switch between presence profiles
-- **Config import / export** – Move your setup between machines via JSON config files
-- **Real-time updates** – Activity refreshes every 30 seconds automatically
-- **Discord RPC integration** – Uses Discord Rich Presence RPC API under the hood
-- **Auto-launch (optional)** – Start with the system
-- **Auto-hide (optional)** – Start minimized to tray
-- **Minimalist UI** – Dark, clean interface with real-time preview
-- **System tray** – Quick access while running in the background
+- **Plugin system** — hot-loadable `.js` plugins, no restart required. Install from URL with one click via `voidpresence://install-plugin?url=…`
+- **Builtin plugins** — `default` (text cycles), `hardware` (CPU / GPU / RAM overlay), `smtc` (music & video via Windows SMTC)
+- **Priority-based presence** — multiple plugins can be active; highest priority with a non-null payload wins
+- **Exclusive plugins** — a plugin marked `exclusive` blocks all lower-priority fallbacks when it has data
+- **Plugin controls** — plugins expose UI controls (input fields) that render automatically on the plugin card
+- **Custom button pairs** — multiple button sets with labels and URLs, rotated automatically
+- **Status cycles** — rotate between `details` / `state` text pairs on a configurable interval
+- **Image rotation** — cycle through large and small Rich Presence images
+- **Activity type** — playing / watching / listening / competing
+- **Timestamp modes** — now, range, persist (survives restarts), progress bar, custom cycles
+- **Party size** — show current / max party size on the presence card
+- **Profiles with drag & drop** — create, reorder, and switch between presence profiles
+- **Config import / export** — JSON files, drag-and-drop, cloud sync via Author ID
+- **Custom Discord status** — dynamic status cycling in Discord (works without Discord.exe via browser)
+- **Bar styles** — 6 styles for hardware load bars: unicode, cmd, block, soft, retro, cyber
+- **Auto-launch / auto-hide** — start with the system, minimize to tray on launch
+- **Minimalist dark UI** — real-time presence preview, in-app logs, keyboard shortcuts
+- **Multilingual** — English, Russian, Turkish
 
-##
+---
 
-<img width="3844" height="302" alt="2" src="https://github.com/user-attachments/assets/4d1b2728-9b48-4327-862e-b6613cf87e8f" />
+<img width="3844" height="302" alt="divider" src="https://github.com/user-attachments/assets/4d1b2728-9b48-4327-862e-b6613cf87e8f" />
 
-##
+## Quick setup
 
-### Quick setup
-
-1. Click the **releases** button → **Download ZIP** - [Last Releases](https://github.com/Devollox/void-presence/releases)
-2. Extract the ZIP archive
-3. Run `Void Presence.exe`
-4. Enter your Discord **Application ID** (from the [Discord Developer Portal](https://discord.com/developers/applications))
-5. Configure buttons, status cycles, images, and profiles
-6. Click **Save** to start Rich Presence
-
-> **⏱️ Initial delay** – On first launch, status may appear in Discord after ~25 seconds. This is normal and only happens on startup.
-
-##
-
-<img width="3844" height="302" alt="1" src="https://github.com/user-attachments/assets/f37380e9-d67d-43c9-aaa9-6bcc1f486541" />
-
-##
-
-### Discord Application ID
-
-1. Open the [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create a new application
-3. Copy the **Application ID** from **General Information**
+1. Download the latest release → [Releases](https://github.com/Devollox/void-presence/releases)
+2. Extract and run `Void Presence.exe`
+3. Open the [Discord Developer Portal](https://discord.com/developers/applications), create an application, copy the **Application ID**
 4. Paste it into the `CLIENT ID` field in Void Presence
+5. Configure cycles, images, and buttons — click **Save**
 
-## RPC Modes Explained
+> **⏱️ Initial delay** — On first launch Discord presence may appear after ~25 seconds. This is normal.
 
-| Mode         | Features                                                                            | CPU      | Spotify/YouTube | Hardware             | Use Case                                |
-| ------------ | ----------------------------------------------------------------------------------- | -------- | --------------- | -------------------- | --------------------------------------- |
-| **Basic**    | Core RPC<br>Lightweight                                                             | **0.1%** | None            | None                 | Gaming, coding, minimal                 |
-| **Advanced** | All Basic +<br>**Music detection**<br>**Video activity**<br>**Hardware monitoring** | **0.4%** | **Full**        | **Optional overlay** | Streaming, music, YouTube, system stats |
+---
 
-## RPC Update Intervals
+## Plugin system
 
-### Recommended Settings
+Plugins live in `%APPDATA%\Void Presence\plugins\`. Drop a `.js` file or a folder with `index.js` there — the app hot-loads it instantly.
 
-| Use Case        | Interval     | Discord Rate Limit | CPU Usage | Notes                                            |
-| --------------- | ------------ | ------------------ | --------- | ------------------------------------------------ |
-| **Default**     | **30 sec**   | Safe               | 0.1%      | **Perfect balance** — smooth rotation, no limits |
-| **Fast cycles** | **5-15 sec** | Safe               | 0.3%      | Good for frequent status changes                 |
-| **Aggressive**  | **2 sec**    | 60/min limit       | 0.8%      | Works but Discord may throttle                   |
-| **Avoid**       | **<1 sec**   | Rate limited       | 2%+       | Discord drops updates                            |
+```js
+// hello.js — minimal plugin
+module.exports = {
+  id: 'hello',
+  nameKey: 'Hello Plugin',
+  version: '1.0.0',
+  builtin: false,
+  priority: 60,
+  locked: false,
+  controls: [],
 
-### Best Practices
-
-```typescript
-// Your current minimum (5 sec) is perfect
-setActivityInterval(sec) {
-  if (sec < 5) activityIntervalMs = 5000  // Safe default
+  start(ctx) { /* ctx.readSettings(), ctx.sendLog(), ctx.writeConfig()… */ },
+  stop() {},
+  onUpdate(cb) { this._cb = cb },
+  getPayload() {
+    return { source: 'hello', details: 'Hello', state: 'from plugin', activityType: 'playing', priority: 60 }
+  },
 }
 ```
 
-Recommended user presets:
+Full plugin API docs → [voidpresence.site/plugins/docs](https://voidpresence.site/plugins/docs)
 
-- 30s — Gaming/Streaming (default)
-- 15s — Coding sessions
-- 5s — Rapid status changes
+### Builtin plugin priorities
 
-### Button pairs
+| Plugin | Priority | Exclusive |
+|---|---|---|
+| `default` | 0 | No |
+| `hardware` | 50 | Yes |
+| `smtc` | 70 | No |
 
-- Each pair contains two buttons with labels and URLs
-- You can create multiple pairs and reuse them across profiles
-- Buttons will appear on your Discord Rich Presence card
+Use `priority > 70` to override everything.
 
-### Status cycles
+---
 
-- Add multiple status items with `Details`, `State`, `Image` and `Button`
-- Items rotate every N seconds (default: 30)
-- Great for showcasing what you are doing (gaming, coding, streaming, etc.)
+## RPC update intervals
 
-### Images
+| Interval | Discord rate limit | Notes |
+|---|---|---|
+| **30 s** (default) | Safe | Smooth rotation, no limits |
+| **5–15 s** | Safe | Good for frequent status changes |
+| **< 5 s** | May throttle | Discord drops rapid updates |
 
-- **Large image** – Main Rich Presence artwork
-- **Small image** – Badge/overlay image
-- Use Discord asset keys from your application or external URLs
-- Add several images and enable rotation for more dynamic presence
-
-### Dynamic Status cycles
-
-- Add multiple status items with `Text`, `Emoji`
-- Items rotate every N seconds by default, with `30` seconds as the standard interval.
-- Use it to dynamically switch what Dynamic Status shows, such as gaming, coding, streaming, or other live activity.
-
-### Profiles (drag & drop)
-
-- Create separate profiles for gaming, work, streaming, etc.
-- Reorder profiles with drag and drop to prioritize them
-- Switch between presets without rebuilding configuration
-
-### Config import / export
-
-- Export your current setup to a JSON config
-- Import by dropping the file onto the app or using the file picker
-- Perfect for backup or sharing setups across machines or accounts
-- Upload your profiles to the cloud and restore them on any machine using your **Author ID** from the Void Presence profile page: [+ Author ID](https://www.voidpresence.site/profile)
-
-## Presets & Community Configs
-
-Void Presence ships with ready‑to‑use Rich Presence presets and supports importing custom configurations.
-
-You can **browse, search, and download community configs here**:
-[+ Configs](https://www.voidpresence.site/configs)
+---
 
 ## Keyboard shortcuts
 
-- `Ctrl+,` – Show / hide window
-- `Ctrl+R` – Restart Rich Presence
-- `Ctrl+Q` – Quit application
-- `Ctrl+U` – Check Updates
+| Shortcut | Action |
+|---|---|
+| `Ctrl+,` | Show / hide window |
+| `Ctrl+R` | Restart Rich Presence |
+| `Ctrl+Q` | Quit |
+| `Ctrl+U` | Check for updates |
+
+---
 
 ## Tech stack
 
-- **Frontend** – TypeScript, HTML5, CSS3
-- **Backend** – Electron, Node.js
-- **RPC** – `discord-rpc` library for Discord Rich Presence
+- **Electron** + **Node.js** (main process)
+- **TypeScript** + **HTML / CSS** (renderer)
+- **Vite** + **Electron Forge** (build)
+- **discord-rpc** — Discord Rich Presence API
+- **@coooookies/windows-smtc-monitor** — Windows SMTC for music/video detection
+- **worker_threads** — hardware stats and SMTC run in separate threads
 
-##
+---
 
-<img width="3844" height="302" alt="Security   data" src="https://github.com/user-attachments/assets/3d30ecf9-8487-4caf-a281-db079659dea2" />
+<img width="3844" height="302" alt="security" src="https://github.com/user-attachments/assets/3d30ecf9-8487-4caf-a281-db079659dea2" />
 
-##
+## Security & data
 
-Void Presence uploads only **Rich Presence configuration data** when you use cloud features or share configs on the website.
+Void Presence uploads only **Rich Presence configuration data** when you use cloud features.
 
-What can be stored in the cloud:
+**What is stored:**
+- Config data — button pairs, status cycles, image cycles (`buttonPairs`, `cycles`, `imageCycles`)
+- Metadata — title, description, upload timestamp, download counter
+- Author name — your display handle
 
-- **Config data** – button pairs, status cycles, image cycles and related settings (`configData`, `buttonPairs`, `cycles`, `imageCycles`)
-- **Metadata** – config title, description, upload timestamp, download counter (`title`, `description`, `uploadedAt`, `downloads`)
-- **Author name** – your display name or handle shown as the config author (`author`, for example `Devollox`)
+**What is never stored:**
+- Discord tokens, passwords, or OAuth keys
+- Personal messages or Discord account data
+- System files or arbitrary local data
 
-What is **not** stored:
+Plugins run in the Electron **main process**. Only install plugins from sources you trust.
 
-- No Discord tokens, passwords or OAuth keys
-- No personal messages or Discord account data
-- No system files or arbitrary local data
+---
 
-Configs are used only to render Rich Presence and to let you share presets between machines or with other users through the Void Presence website.
-
-##
-
-<img width="3844" height="302" alt="Author" src="https://github.com/user-attachments/assets/ac80d92e-eb98-4f3e-85ab-bf354e3b11ea" />
-
-##
+<img width="3844" height="302" alt="author" src="https://github.com/user-attachments/assets/ac80d92e-eb98-4f3e-85ab-bf354e3b11ea" />
 
 Made with ❤️ by [Devollox](https://github.com/Devollox)
 
 <p align="left">
-  <img width="128" height="128" alt="выфвфы" src="https://github.com/user-attachments/assets/32b65183-a39c-4871-bb37-5fbe01ecaade" />
+  <img width="128" height="128" alt="avatar" src="https://github.com/user-attachments/assets/32b65183-a39c-4871-bb37-5fbe01ecaade" />
 </p>
 
 > **Void Presence** – Control your Discord presence. Own your story.
