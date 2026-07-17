@@ -377,6 +377,7 @@ export interface PluginInfo {
 }
 
 export interface ElectronAPI {
+	openExternal(arg0: string): unknown
 	pluginsList?: () => Promise<PluginInfo[]>
 	pluginsSetEnabled?: (id: string, enabled: boolean) => Promise<boolean>
 	pluginsGetActive?: () => Promise<string | null>

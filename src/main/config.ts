@@ -767,3 +767,22 @@ export async function getLanguage(): Promise<Language> {
 export async function setLanguage(lang: Language): Promise<void> {
 	await writeLanguageConfig({ language: lang })
 }
+
+export async function readExternalPluginsState(): Promise<Record<string, boolean>> {
+	try {
+		const filePath = path.join(app.getPath('userData'), 'external-plugins-state.json')
+		const raw = await fs.readFile(filePath, 'utf-8')
+		const parsed = JSON.parse(raw)
+		if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+			return parsed as Record<string, boolean>
+		}
+		return {}
+	} catch {
+		return {}
+	}
+}
+
+export async function writeExternalPluginsState(state: Record<string, boolean>): Promise<void> {
+	const filePath = path.join(app.getPath('userData'), 'external-plugins-state.json')
+	await writeJsonSafe(filePath, state)
+}

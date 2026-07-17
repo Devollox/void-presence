@@ -97,6 +97,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	},
 	openSupportSite: () => ipcRenderer.invoke('support:open-site'),
 	openSupportDiscord: () => ipcRenderer.invoke('support:open-discord'),
+	openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
 	clearLogs: () => ipcRenderer.invoke('logs:clear'),
 	downloadLogs: () => ipcRenderer.invoke('logs:download'),
 	onLogsClear: (handler: () => void) => {
@@ -170,7 +171,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	onPluginToast: (handler: (payload: { message: string }) => void) => {
 		ipcRenderer.on('plugin:toast', (_event, payload) => handler(payload))
 	},
-	pluginsInstallFromUrl: (url: string) => ipcRenderer.invoke('plugins:install-from-url', url),
+	pluginsInstallFromUrl: (url: string, isZip = false) => ipcRenderer.invoke('plugins:install-from-url', url, isZip),
 	onInstallPluginFromUrl: (handler: (payload: { url: string }) => void) => {
 		ipcRenderer.on('INSTALL_PLUGIN_FROM_URL', (_event, payload) => handler(payload))
 	},

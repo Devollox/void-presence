@@ -1,5 +1,4 @@
-﻿import { refreshBarStyleVisibility } from '../config/bar-style-controls'
-import { setupToasts } from '../config/toasts'
+﻿import { setupToasts } from '../config/toasts'
 import { updateInfo, updateStatus } from './views'
 
 type ToggleKey = 'autoLaunch' | 'autoHide' | 'statusEnabled' | 'statusEnabledBrowser' | 'rpcEnabled'
@@ -45,8 +44,6 @@ function setupGenericToggle<K extends ToggleKey, A extends ToggleApi>(
 		if (api?.[cfg.apiMethod]) {
 			api[cfg.apiMethod](next)
 		}
-
-		refreshBarStyleVisibility()
 	})
 }
 
@@ -172,6 +169,25 @@ export function setupSupportAndLogsButtons() {
 	if (btnDownloadLogs && api?.downloadLogs) {
 		btnDownloadLogs.addEventListener('click', () => {
 			api.downloadLogs?.()
+		})
+	}
+}
+
+export function setupPluginsExternalButtons() {
+	const api = window.electronAPI
+
+	const btnBrowse = document.getElementById('plugins-open-site')
+	const btnAdd = document.getElementById('plugins-add-yours')
+
+	if (btnBrowse) {
+		btnBrowse.addEventListener('click', () => {
+			api?.openExternal?.('https://voidpresence.site/plugins')
+		})
+	}
+
+	if (btnAdd) {
+		btnAdd.addEventListener('click', () => {
+			api?.openExternal?.('https://github.com/Devollox/void-web/tree/main/plugins')
 		})
 	}
 }

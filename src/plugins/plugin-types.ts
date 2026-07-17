@@ -45,7 +45,9 @@ export interface PluginContext {
 	readFiltersState(): Promise<ConfigState>
 	sendLog(msg: string, level?: LogLevel): void
 	userDataPath: string
+	pluginDir: string | null
 	readConfig(name: string): Promise<Record<string, unknown> | null>
+	writeConfig(name: string, data: Record<string, unknown>): Promise<void>
 }
 
 export interface VoidPlugin {

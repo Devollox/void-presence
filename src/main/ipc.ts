@@ -20,6 +20,9 @@ import { smtcPlugin } from '../plugins/builtin/smtc-plugin'
 import {
 	getActivePluginId,
 	getPluginInfoList,
+	hotLoadPlugin,
+	markPluginInstallDone,
+	markPluginInstalling,
 	registerPlugin,
 	setPluginEnabled,
 	setPluginPriority,
@@ -38,6 +41,7 @@ import { UploadConfigPayload, uploadConfigToCloud, uploadStatusConfigToCloud } f
 import {
 	getLanguage,
 	normalizeStatuses,
+	readExternalPluginsState,
 	readSettings,
 	readStatusCyclesConfig,
 	readTimestampConfig,
@@ -50,6 +54,7 @@ import {
 	setStatusCyclesConfig,
 	setStatusEnabledBrowser,
 	setStatusIntervalConfig,
+	writeExternalPluginsState,
 	writeSettings,
 	writeStatusCyclesConfig,
 } from './config'
@@ -117,7 +122,9 @@ export async function initIpc() {
 		}, 2000)
 	}
 
-	await startAllPlugins()
+	void startAllPlugins().catch((e: any) => {
+		sendLog(t('startAllPluginsError', { error: e?.message ?? String(e) }), 'error')
+	})
 	startPluginsWatcher()
 
 	if (s.rpcEnabled) {
@@ -145,6 +152,10 @@ export async function initIpc() {
 		} else if (id === 'smtc') {
 			const current = await readSettings()
 			await writeSettings({ ...current, musicFilter: !!enabled, videoFilter: !!enabled })
+		} else {
+			const state = await readExternalPluginsState()
+			state[id] = !!enabled
+			await writeExternalPluginsState(state)
 		}
 		setPluginEnabled(id, enabled)
 		return true
@@ -161,13 +172,32 @@ export async function initIpc() {
 
 	ipcMain.handle('plugins:remove', async (_event, pluginId: string) => {
 		const { promises: fsp } = await import('fs')
-		const pluginsDir = app.getPath('userData')
-		const filePath = path.join(`${pluginsDir}/plugins`, `${pluginId}.js`)
+		const pluginsRoot = path.join(app.getPath('userData'), 'plugins')
+
+		const filePath = path.join(pluginsRoot, `${pluginId}.js`)
+		const dirPath = path.join(pluginsRoot, pluginId)
+
 		try {
 			await fsp.unlink(filePath)
 			return { ok: true }
 		} catch (e: any) {
-			sendLog(`Failed to remove ${pluginId}: ${e?.message ?? e}`, 'error')
+			if (e && (e.code === 'ENOENT' || e.code === 'EISDIR')) {
+				try {
+					await fsp.rm(dirPath, { recursive: true, force: true })
+					return { ok: true }
+				} catch (err: any) {
+					sendLog(
+						t('pluginRemoveFolderFailed', { id: pluginId, error: err?.message ?? String(err) }),
+						'error'
+					)
+					return { ok: false, error: err?.message }
+				}
+			}
+
+			sendLog(
+				t('pluginRemoveFileFailed', { id: pluginId, error: e?.message ?? String(e) }),
+				'error'
+			)
 			return { ok: false, error: e?.message }
 		}
 	})
@@ -194,8 +224,8 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('restart-discord-rich', async () => {
-		const s = await readSettings()
-		if (!s.rpcEnabled) return false
+		const s2 = await readSettings()
+		if (!s2.rpcEnabled) return false
 
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win || win.isDestroyed()) return false
@@ -231,8 +261,8 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('reset-persist-timestamp', async () => {
-		const s = await readSettings()
-		if (!s.rpcEnabled) return true
+		const s3 = await readSettings()
+		if (!s3.rpcEnabled) return true
 
 		const win = BrowserWindow.getAllWindows()[0]
 		if (!win || win.isDestroyed()) return false
@@ -364,7 +394,7 @@ export async function initIpc() {
 			return {
 				ok: false,
 				error: 'TooManyRequests',
-				message: 'Wait a moment before uploading again.',
+				message: t('cloudTooManyRequests'),
 			}
 		}
 		lastPresenceUpload = now
@@ -387,7 +417,7 @@ export async function initIpc() {
 			return {
 				ok: false,
 				error: 'TooManyRequests',
-				message: 'Wait a moment before uploading again.',
+				message: t('cloudTooManyRequests'),
 			}
 		}
 		lastStatusUpload = now
@@ -621,6 +651,18 @@ export async function initIpc() {
 		}
 	})
 
+	ipcMain.handle('shell:open-external', async (_event, url: string) => {
+		try {
+			const parsed = new URL(url)
+			if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false
+			await shell.openExternal(url)
+			return true
+		} catch (error) {
+			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
+			return false
+		}
+	})
+
 	ipcMain.handle('logs:clear', async () => {
 		const win = BrowserWindow.getAllWindows()[0]
 		if (win && !win.isDestroyed()) {
@@ -710,8 +752,8 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('use-recent-client-id', async (_event, clientId: string) => {
-		const s = await readSettings()
-		if (!s.rpcEnabled) return true
+		const s4 = await readSettings()
+		if (!s4.rpcEnabled) return true
 
 		await setClientId(clientId)
 
@@ -815,16 +857,7 @@ export async function initIpc() {
 		return true
 	})
 
-	ipcMain.handle('custom-status:stop', async () => {
-		stopCustomStatusWorker()
-
-		sendStatusCustom('CUSTOM_STATUS_DISABLED')
-		sendStatusCustomPayload('IDLE')
-
-		return true
-	})
-
-	ipcMain.handle('plugins:install-from-url', async (_event, pluginUrl: string) => {
+	ipcMain.handle('plugins:install-from-url', async (_event, pluginUrl: string, isZip = false) => {
 		try {
 			const { promises: fsp } = await import('fs')
 			const https = await import('https')
@@ -833,40 +866,133 @@ export async function initIpc() {
 			const pluginsDir = path.join(app.getPath('userData'), 'plugins')
 			await fsp.mkdir(pluginsDir, { recursive: true })
 
+			const downloadToBuffer = (url: string): Promise<Buffer> =>
+				new Promise((resolve, reject) => {
+					const proto = url.startsWith('https') ? https : http
+					const chunks: Buffer[] = []
+					const req = proto.get(url, { headers: { 'User-Agent': 'void-presence' } }, (res: any) => {
+						if (res.statusCode === 301 || res.statusCode === 302) {
+							downloadToBuffer(res.headers.location).then(resolve).catch(reject)
+							return
+						}
+						if (res.statusCode !== 200) {
+							reject(new Error(`HTTP ${res.statusCode} for ${url}`))
+							return
+						}
+						res.on('data', (c: Buffer) => chunks.push(c))
+						res.on('end', () => resolve(Buffer.concat(chunks)))
+					})
+					req.on('error', reject)
+				})
+
+			const ghTreeMatch = pluginUrl.match(
+				/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)$/
+			)
+
+			if (isZip || ghTreeMatch) {
+				let apiUrl: string
+				let pluginId: string
+
+				if (ghTreeMatch) {
+					const [, owner, repo, branch, folderPath] = ghTreeMatch
+					pluginId = folderPath.split('/').pop() || 'plugin'
+					apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}?ref=${branch}`
+				} else {
+					const urlObj = new URL(pluginUrl)
+					pluginId =
+						urlObj.pathname
+							.split('/')
+							.pop()
+							?.replace(/\.zip$/, '') || 'plugin'
+
+					const m = pluginUrl.match(
+						/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+?)\/[^/]+\.zip/
+					)
+					if (!m) throw new Error(`Cannot parse folder URL: ${pluginUrl}`)
+					const [, owner, repo, branch, folderPath] = m
+					apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}/${pluginId}?ref=${branch}`
+				}
+
+				const destDir = path.join(pluginsDir, pluginId)
+				await fsp.mkdir(destDir, { recursive: true })
+
+				markPluginInstalling(pluginId)
+				sendLog(t('pluginInstallDownloadingFolder', { id: pluginId }), 'info')
+
+				async function downloadDir(apiDirUrl: string, localDir: string): Promise<void> {
+					const buf = await downloadToBuffer(apiDirUrl)
+					const items = JSON.parse(buf.toString('utf-8'))
+					if (!Array.isArray(items)) {
+						throw new Error(`Unexpected API response from ${apiDirUrl}`)
+					}
+
+					await fsp.mkdir(localDir, { recursive: true })
+
+					for (const item of items) {
+						const localPath = path.join(localDir, item.name)
+						if (item.type === 'dir') {
+							await downloadDir(item.url, localPath)
+						} else if (item.type === 'file' && item.download_url) {
+							const fileBuf = await downloadToBuffer(item.download_url)
+							await fsp.writeFile(localPath, fileBuf)
+							sendLog(t('pluginInstallFileProgress', { path: item.path }), 'info')
+						}
+					}
+				}
+
+				try {
+					await downloadDir(apiUrl, destDir)
+					await fsp.unlink(path.join(destDir, '.rebuilt')).catch(() => {})
+
+					sendLog(t('pluginInstallFolderDone', { dir: destDir }), 'success')
+
+					try {
+						await hotLoadPlugin(path.join(destDir, 'index.js'), pluginId, destDir)
+					} catch (e: any) {
+						sendLog(t('pluginInstallLoadFailed', { error: e?.message ?? String(e) }), 'warn')
+					}
+				} finally {
+					markPluginInstallDone(pluginId)
+				}
+
+				return { ok: true, path: destDir, folder: true }
+			}
+
 			const urlObj = new URL(pluginUrl)
-			const rawName = urlObj.pathname.split('/').pop() || 'plugin.js'
+			const rawName = urlObj.pathname.split('/').pop() || 'plugin'
 			const fileName = rawName.endsWith('.js') ? rawName : `${rawName}.js`
 			const destPath = path.join(pluginsDir, fileName)
 
-			sendLog(`Downloading plugin from "${pluginUrl}"...`, 'info')
+			sendLog(t('pluginMgrDownloadingFromUrl', { url: pluginUrl }), 'info')
+			const buf = await downloadToBuffer(pluginUrl)
+			await fsp.writeFile(destPath, buf)
 
-			await new Promise<void>((resolve, reject) => {
-				const proto = pluginUrl.startsWith('https') ? https : http
-				const file = require('fs').createWriteStream(destPath)
-				proto
-					.get(pluginUrl, (res: any) => {
-						if (res.statusCode !== 200) {
-							reject(new Error(`HTTP ${res.statusCode}`))
-							return
-						}
-						res.pipe(file)
-						file.on('finish', () => {
-							file.close()
-							resolve()
-						})
-					})
-					.on('error', (e: Error) => {
-						require('fs').unlink(destPath, () => {})
-						reject(e)
-					})
-			})
+			sendLog(t('pluginMgrSavedFile', { path: destPath }), 'success')
 
-			sendLog(`Plugin saved to "${destPath}". Restart app to load it.`, 'success')
-			return { ok: true, path: destPath }
+			const pluginId = fileName.replace(/\.js$/, '')
+			try {
+				await hotLoadPlugin(destPath, pluginId, null)
+			} catch (e: any) {
+				sendLog(
+					t('pluginMgrHotLoadFailed', { name: pluginId, error: e?.message ?? String(e) }),
+					'warn'
+				)
+			}
+
+			return { ok: true, path: destPath, folder: false }
 		} catch (e: any) {
-			sendLog(`Failed to install plugin: ${e?.message ?? e}`, 'error')
+			sendLog(t('pluginMgrInstallFailedGeneric', { error: e?.message ?? String(e) }), 'error')
 			return { ok: false, error: e?.message ?? String(e) }
 		}
+	})
+
+	ipcMain.handle('custom-status:stop', async () => {
+		stopCustomStatusWorker()
+
+		sendStatusCustom('CUSTOM_STATUS_DISABLED')
+		sendStatusCustomPayload('IDLE')
+
+		return true
 	})
 
 	const win = BrowserWindow.getAllWindows()[0]

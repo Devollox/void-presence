@@ -3,6 +3,7 @@ import path from 'path'
 import { Worker } from 'worker_threads'
 import {
 	readActivityTypeConfig,
+	readButtonsConfig,
 	readImageCyclesConfig,
 	readSettings,
 	readTimerConfig,
@@ -38,6 +39,7 @@ async function bar(p: any): Promise<string> {
 }
 
 let _imageIndex = 0
+let _buttonIndex = 0
 let _worker: Worker | null = null
 let _lastStats: any | null = null
 let _lineIndex = 0
@@ -107,6 +109,16 @@ function getNextImageCycle(cycles: ImageCycle[]): ImageCycle {
 	return img
 }
 
+function getNextButtons(buttonPairs: any[]): { label: string; url: string }[] {
+	if (!Array.isArray(buttonPairs) || !buttonPairs.length) return []
+	const pair = buttonPairs[_buttonIndex % buttonPairs.length]
+	_buttonIndex = (_buttonIndex + 1) % buttonPairs.length
+	const res: { label: string; url: string }[] = []
+	if (pair?.label1 && pair?.url1) res.push({ label: pair.label1, url: pair.url1 })
+	if (pair?.label2 && pair?.url2) res.push({ label: pair.label2, url: pair.url2 })
+	return res
+}
+
 const san = (v: string | null | undefined): string | undefined =>
 	v && v.trim() !== '' ? v : undefined
 
@@ -123,9 +135,10 @@ async function refreshPayload(): Promise<void> {
 		return
 	}
 
-	const [imagesCfg, typeCfg] = await Promise.all([
+	const [imagesCfg, typeCfg, buttonsCfg] = await Promise.all([
 		readImageCyclesConfig(),
 		readActivityTypeConfig(),
+		readButtonsConfig(),
 	])
 
 	const entry = entries[_lineIndex % entries.length]
@@ -136,6 +149,7 @@ async function refreshPayload(): Promise<void> {
 
 	const img = getNextImageCycle(imagesCfg.cycles)
 	const activityType: ActivityType = typeCfg.type
+	const buttons = getNextButtons(buttonsCfg.pairs)
 
 	const largeImage = san(img.largeImage)
 	const largeText = san(img.largeText)
@@ -158,6 +172,7 @@ async function refreshPayload(): Promise<void> {
 					},
 				}
 			: {}),
+		...(buttons.length ? { buttons } : {}),
 		priority: 50,
 	}
 }
@@ -237,6 +252,7 @@ function stopWorker(): void {
 	_lastStats = null
 	_currentPayload = null
 	_lineIndex = 0
+	_buttonIndex = 0
 	_workerReady = false
 }
 
@@ -249,6 +265,22 @@ export const hardwareControls: PluginControl[] = [
 		storageKey: 'hardwareMonitorEnabled',
 		ipcMethod: 'setHardwareMonitor',
 		defaultValue: false,
+	},
+	{
+		type: 'select',
+		id: 'hardware-bar-style',
+		labelKey: 'barStyle.label',
+		storageKey: 'barStyle',
+		ipcMethod: 'setBarStyleConfig',
+		defaultValue: 'unicode',
+		options: [
+			{ value: 'unicode', labelKey: 'barStyle.unicode' },
+			{ value: 'cmd',     labelKey: 'barStyle.cmd'     },
+			{ value: 'block',   labelKey: 'barStyle.block'   },
+			{ value: 'soft',    labelKey: 'barStyle.soft'    },
+			{ value: 'retro',   labelKey: 'barStyle.retro'   },
+			{ value: 'cyber',   labelKey: 'barStyle.cyber'   },
+		],
 	},
 ]
 
@@ -265,6 +297,7 @@ export const hardwarePlugin: VoidPlugin = {
 
 	async start(_ctx: PluginContext) {
 		_lineIndex = 0
+		_buttonIndex = 0
 		const settings = await readSettings()
 		if (settings.hardwareMonitorEnabled) startWorker()
 	},

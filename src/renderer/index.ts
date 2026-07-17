@@ -1,5 +1,4 @@
 ﻿import { setupActivityTypeControls } from './modules/config/activity'
-import { initBarStyleControls } from './modules/config/bar-style-controls'
 import { setupClientIdControls } from './modules/config/clientId-controls'
 import { setupConfigPage } from './modules/config/config-page'
 import { setupStatusDetailsOverlay } from './modules/config/status-details'
@@ -29,6 +28,7 @@ import {
 	setupStatusEnabledBrowserToggle,
 	setupStatusEnabledToggle,
 	setupSupportAndLogsButtons,
+	setupPluginsExternalButtons,
 } from './modules/shell/toggles'
 import { updateInfo, updateStatus } from './modules/shell/views'
 import { setupWindowControls } from './modules/shell/window-controls'
@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupStatusImportOverlay()
 	void setupStatusDetailsOverlay()
 	void setupStatusIntervalControl()
-	void initBarStyleControls()
 
 	void setupPluginsPage()
+	void setupPluginsExternalButtons()
 
 	updateStatusStatus('CUSTOM_STATUS_DISABLED')
 	updateStatus('RPC_DISABLED')
@@ -116,9 +116,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	if (window.electronAPI?.onInstallPluginFromUrl) {
-		window.electronAPI.onInstallPluginFromUrl(async ({ url }) => {
+		window.electronAPI.onInstallPluginFromUrl(async ({ url, isZip }) => {
 			try {
-				const result = await window.electronAPI.pluginsInstallFromUrl(url)
+				const result = await window.electronAPI.pluginsInstallFromUrl(url, isZip ?? false)
 				const { showPluginSavedToast } = setupToasts()
 				if (result?.ok) {
 					showPluginSavedToast({ message: `Plugin installed from ${url}` })

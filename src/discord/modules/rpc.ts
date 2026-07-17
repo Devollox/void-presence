@@ -1,10 +1,8 @@
 ﻿import { exec } from 'child_process'
 import rpc from 'discord-rpc'
 import {
-	readButtonsConfig,
 	readClientConfig,
 	readCyclesConfig,
-	readPartyConfig,
 	readTimerConfig,
 	readTimestampConfig,
 	setTimestampConfig,
@@ -16,7 +14,6 @@ import {
 	ActivityType,
 	DiscordClient,
 	NowMode,
-	PartyCycleEntry,
 	PresencePayload,
 	RichPresencePayload,
 	RpcPayload,
@@ -217,37 +214,9 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 			}
 		}
 
-		let buttonPairs = (await readButtonsConfig()).pairs
-		let partyConfig = await readPartyConfig()
-		let buttonIndex = 0
-		let partyIndex = 0
-
-		function getNextButtons(): { label: string; url: string }[] {
-			if (!buttonPairs.length) return []
-			const pair = buttonPairs[buttonIndex % buttonPairs.length]
-			buttonIndex = (buttonIndex + 1) % buttonPairs.length
-			const res: { label: string; url: string }[] = []
-			if (pair.label1 && pair.url1) res.push({ label: pair.label1, url: pair.url1 })
-			if (pair.label2 && pair.url2) res.push({ label: pair.label2, url: pair.url2 })
-			return res
-		}
-
-		function getNextParty(): PartyCycleEntry | null {
-			if (!partyConfig?.entries?.length) return null
-			const e = partyConfig.entries[partyIndex % partyConfig.entries.length]
-			partyIndex = (partyIndex + 1) % partyConfig.entries.length
-			return e
-		}
-
 		async function refreshGlobalConfigs() {
 			try {
-				const [btn, party, ts] = await Promise.all([
-					readButtonsConfig(),
-					readPartyConfig(),
-					readTimestampConfig(),
-				])
-				buttonPairs = btn.pairs
-				partyConfig = party
+				const ts = await readTimestampConfig()
 				timestampConfig = ts
 				currentTimestampConfig = ts
 				mode = ts.mode
@@ -296,21 +265,9 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 					}
 				: undefined
 
-			const buttons: { label: string; url: string }[] =
-				plugin?.buttons !== undefined ? (plugin.buttons ?? []) : getNextButtons()
+			const buttons: { label: string; url: string }[] = plugin?.buttons ?? []
 
-			const partyEntry =
-				plugin?.party !== undefined
-					? plugin.party
-					: (() => {
-							const e = getNextParty()
-							if (!e) return undefined
-							const cur = Number(e.sizeCurrent)
-							const max = Number(e.sizeMax)
-							return Number.isFinite(cur) && Number.isFinite(max) && cur > 0 && max >= cur
-								? { size: [cur, max] as [number, number] }
-								: undefined
-						})()
+			const partyEntry = plugin?.party
 
 			const activity: RichPresencePayload = {
 				details,
@@ -366,8 +323,6 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 			intervalLocked = true
 			lastReadyAt = Date.now()
 			isSearchingDiscord = false
-			buttonIndex = 0
-			partyIndex = 0
 			timeCycleIndex = 0
 
 			if (sendLog) sendLog(t('rpcReady'), 'success')

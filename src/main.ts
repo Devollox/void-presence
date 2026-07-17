@@ -39,9 +39,14 @@ async function handleUrl(rawUrl: string) {
 
 		if (host === 'install-plugin') {
 			const pluginUrl = url.searchParams.get('url')
-			if (pluginUrl) {
+			const zipUrl    = url.searchParams.get('zip')
+			const target    = pluginUrl || zipUrl
+			if (target) {
 				if (mainWindow && !mainWindow.isDestroyed()) {
-					mainWindow.webContents.send('INSTALL_PLUGIN_FROM_URL', { url: pluginUrl })
+					mainWindow.webContents.send('INSTALL_PLUGIN_FROM_URL', {
+						url:    target,
+						isZip:  !!zipUrl,
+					})
 					mainWindow.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', { view: 'logs' })
 				} else {
 					pendingUrl = rawUrl
