@@ -1,4 +1,5 @@
-﻿import { setupActivityTypeControls } from './modules/config/activity'
+﻿import { t } from 'i18next'
+import { setupActivityTypeControls } from './modules/config/activity'
 import { setupClientIdControls } from './modules/config/clientId-controls'
 import { setupConfigPage } from './modules/config/config-page'
 import { setupStatusDetailsOverlay } from './modules/config/status-details'
@@ -23,14 +24,14 @@ import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
 	setupCustomStatusControls,
+	setupPluginsExternalButtons,
 	setupPresenceControls,
 	setupRpcEnabledToggle,
 	setupStatusEnabledBrowserToggle,
 	setupStatusEnabledToggle,
 	setupSupportAndLogsButtons,
-	setupPluginsExternalButtons,
 } from './modules/shell/toggles'
-import { updateInfo, updateStatus } from './modules/shell/views'
+import { setActiveView, updateInfo, updateStatus } from './modules/shell/views'
 import { setupWindowControls } from './modules/shell/window-controls'
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -116,32 +117,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	if (window.electronAPI?.onInstallPluginFromUrl) {
-		window.electronAPI.onInstallPluginFromUrl(async ({ url, isZip }) => {
+		window.electronAPI.onInstallPluginFromUrl(async ({ url }) => {
+			const { showPluginSavedToast } = setupToasts()
+
 			try {
-				const result = await window.electronAPI.pluginsInstallFromUrl(url, isZip ?? false)
-				const { showPluginSavedToast } = setupToasts()
+				const result = await window.electronAPI.pluginsInstallFromUrl(url)
+
 				if (result?.ok) {
-					showPluginSavedToast({ message: `Plugin installed from ${url}` })
+					showPluginSavedToast({
+						message: t('pluginInstallFromUrlSuccess', { url }),
+					})
 				} else {
-					showPluginSavedToast({ message: `Failed to install plugin from ${url}` })
+					showPluginSavedToast({
+						message: t('pluginInstallFromUrlFailed', { url }),
+					})
 				}
 			} catch (err: any) {
-				const { showPluginSavedToast } = setupToasts()
-				showPluginSavedToast({ message: `Failed to install plugin from ${url}` })
+				showPluginSavedToast({
+					message: t('pluginInstallFromUrlFailed', { url }),
+				})
 			}
 		})
 	}
 
 	if (window.electronAPI?.onActivateView) {
 		window.electronAPI.onActivateView(payload => {
-			const views = document.querySelectorAll('.view')
-			views.forEach(v => {
-				const name = v.getAttribute('data-view')
-				v.setAttribute('data-active', name === payload.view ? 'true' : 'false')
-			})
-
-			document.getElementById('nav-main')?.setAttribute('data-active', 'false')
-			document.getElementById('nav-config')?.setAttribute('data-active', 'true')
+			setActiveView(payload.view)
 		})
 	}
 

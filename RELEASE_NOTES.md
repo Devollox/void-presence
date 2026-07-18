@@ -1,17 +1,14 @@
-﻿# Bug Fixes & Plugin System Improvements
+﻿# Security Hardening & View Routing Improvements
 
-## Fixed
+## Improved
 
-- **Double SET_ACTIVITY push** — all plugin update callbacks now go through a single 50ms global debounce in plugin-manager, collapsing simultaneous updates from default + hardware plugins into one push.
-- **Payload signature check** — rpc.ts now skips redundant pushes when the active payload has not changed between ticks.
-- **Button/image index overflow** — indices are clamped to array bounds after every config read; deleting an element no longer causes skips or out-of-range access.
-- **Double index increment** — getNextImageCycle and getNextButtons in hardware-plugin no longer advance indices on read; indices advance only in the rotate timer tick via dedicated dvanceImageCycle / dvanceButtons helpers.
+- **Localized plugin install toasts** — plugin installation results now use localized toast messages (`pluginInstallFromUrlSuccess` / `pluginInstallFromUrlFailed`), with translations available in English, Russian, and Turkish for consistent feedback across languages.
+- **Folder-only hot-load for plugins** — updated the `plugins:install-from-url` handler so hot reloading is applied only to folder-based plugins (GitHub tree/zip installs), while single-file `.js` plugins are downloaded and stored without immediate hot-load, reducing unnecessary runtime surface.
 
-## Added
+## Security
 
-- **onConfigChanged(key) hook** — plugins can implement this optional method to react when buttons, imageCycles, cycles or party config changes. Default and hardware plugins reset their indices and re-render payload immediately on change.
-- **
-otifyConfigChanged(key)** — plugin-manager broadcasts config changes to all active plugins when set-buttons, set-image-cycles or set-cycles IPC handlers fire.
-- **exclusive plugin flag** — a plugin with exclusive: true takes full control when it has a payload; all other plugins are bypassed in getActivePayload regardless of priority.
-- **dirtyWhilePushing flag in rpc.ts** — if a new update arrives while a push is in flight, a single follow-up push is queued after the current one completes instead of being silently dropped.
+- **Reduced renderer attack surface for plugin installs** — the `onInstallPluginFromUrl` handler now accepts a single structured payload and routes it into a typed IPC call, preventing accidental extension of the deep link surface with unvalidated flags.
 
+## Refactored
+
+- **Unified view activation routing** — replaced ad-hoc DOM rewrites with unified view switching through the `setActiveView` shell controller, making all navigation state changes flow through a single, predictable code path.

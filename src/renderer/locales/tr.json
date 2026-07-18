@@ -514,5 +514,7 @@
 	"pluginInstallDownloadingFolder": "\"{id}\" eklenti klasörü GitHub API üzerinden indiriliyor...",
 	"pluginInstallFileProgress": "{path} indirildi",
 	"pluginInstallFolderDone": "Eklenti klasörü \"{dir}\" konumuna kuruldu.",
-	"pluginInstallLoadFailed": "Eklenti indirildi ancak yüklenemedi: {error}"
+	"pluginInstallLoadFailed": "Eklenti indirildi ancak yüklenemedi: {error}",
+	"pluginInstallFromUrlSuccess": "{url} adresinden eklenti yüklendi",
+	"pluginInstallFromUrlFailed": "{url} adresinden eklenti yüklenemedi"
 }

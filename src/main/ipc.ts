@@ -973,16 +973,6 @@ export async function initIpc() {
 
 			sendLog(t('pluginMgrSavedFile', { path: destPath }), 'success')
 
-			const pluginId = fileName.replace(/\.js$/, '')
-			try {
-				await hotLoadPlugin(destPath, pluginId, null)
-			} catch (e: any) {
-				sendLog(
-					t('pluginMgrHotLoadFailed', { name: pluginId, error: e?.message ?? String(e) }),
-					'warn'
-				)
-			}
-
 			return { ok: true, path: destPath, folder: false }
 		} catch (e: any) {
 			sendLog(t('pluginMgrInstallFailedGeneric', { error: e?.message ?? String(e) }), 'error')

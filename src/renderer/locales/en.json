@@ -501,5 +501,7 @@
 	"pluginInstallDownloadingFolder": "Downloading plugin folder \"{id}\" via GitHub API...",
 	"pluginInstallFileProgress": "Downloaded {path}",
 	"pluginInstallFolderDone": "Plugin folder installed to \"{dir}\".",
-	"pluginInstallLoadFailed": "Plugin downloaded but failed to load: {error}"
+	"pluginInstallLoadFailed": "Plugin downloaded but failed to load: {error}",
+	"pluginInstallFromUrlSuccess": "Plugin installed from {url}",
+	"pluginInstallFromUrlFailed": "Failed to install plugin from {url}"
 }

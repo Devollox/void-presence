@@ -514,5 +514,7 @@
 	"pluginInstallDownloadingFolder": "Загрузка папки плагина \"{id}\" через GitHub API...",
 	"pluginInstallFileProgress": "Загружен {path}",
 	"pluginInstallFolderDone": "Папка плагина установлена в \"{dir}\".",
-	"pluginInstallLoadFailed": "Плагин загружен, но не удалось запустить: {error}"
+	"pluginInstallLoadFailed": "Плагин загружен, но не удалось запустить: {error}",
+	"pluginInstallFromUrlSuccess": "Плагин установлен из {url}",
+	"pluginInstallFromUrlFailed": "Не удалось установить плагин из {url}"
 }
