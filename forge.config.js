@@ -6,11 +6,12 @@ const { VitePlugin } = require('@electron-forge/plugin-vite')
 const { AutoUnpackNativesPlugin } = require('@electron-forge/plugin-auto-unpack-natives')
 
 const ICON_BASE = './public/favicons/Group'
+const isWindows = process.platform === 'win32'
 
 module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
-		executableName: 'Void Presence',
+		executableName: isWindows ? 'Void Presence' : 'voidpresence',
 		asar: true,
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
