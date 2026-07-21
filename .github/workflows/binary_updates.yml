@@ -107,6 +107,55 @@ jobs:
             esac
           done
 
+      - name: Rename portable assets in void-presence release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.payload.outputs.source_tag }}"
+          OWNER="Devollox"
+          REPO="void-presence"
+
+          assets_json=$(gh api "repos/$OWNER/$REPO/releases/tags/$TAG" --jq '.assets')
+          echo "$assets_json" | jq -c '.[]' | while read -r asset; do
+            name=$(echo "$asset" | jq -r '.name')
+            id=$(echo "$asset" | jq -r '.id')
+            url=$(echo "$asset" | jq -r '.browser_download_url')
+
+            case "$name" in
+              Void.Presence.Portable.*.zip)
+                newname=""
+                if [[ "$name" == Void.Presence.Portable.*.arm64.zip ]]; then
+                  ver="${name#Void.Presence.Portable.}"
+                  ver="${ver%.arm64.zip}"
+                  newname="Void.Presence.Portable.${ver}.macos.zip"
+                elif [[ "$name" == Void.Presence.Portable.*.linux.zip ]]; then
+                  newname="$name"
+                else
+                  ver="${name#Void.Presence.Portable.}"
+                  ver="${ver%.zip}"
+                  newname="Void.Presence.Portable.${ver}.windows.zip"
+                fi
+
+                if [ -n "$newname" ] && [ "$newname" != "$name" ]; then
+                  echo "Renaming portable asset: $name → $newname"
+
+                  tmpdir=$(mktemp -d)
+                  curl -sL "$url" -o "$tmpdir/$newname"
+
+                  gh release upload "$TAG" "$tmpdir/$newname" \
+                    --repo "$OWNER/$REPO" \
+                    --clobber
+
+                  echo "Deleting old portable asset: $name (id=$id)"
+                  gh api "repos/$OWNER/$REPO/releases/assets/$id" -X DELETE >/dev/null
+                fi
+                ;;
+              *)
+                ;;
+            esac
+          done
+
       - name: Upload all updater files to void-presence release
         uses: softprops/action-gh-release@v2
         with:
