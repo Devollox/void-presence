@@ -7,11 +7,7 @@ export default defineConfig({
 	},
 	build: {
 		rollupOptions: {
-			external: [
-				'bufferutil',
-				'utf-8-validate',
-				'@coooookies/windows-smtc-monitor',
-			],
+			external: ['sharp', 'bufferutil', 'utf-8-validate', '@coooookies/windows-smtc-monitor'],
 		},
 	},
 })

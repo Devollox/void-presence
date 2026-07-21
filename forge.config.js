@@ -8,13 +8,42 @@ const { AutoUnpackNativesPlugin } = require('@electron-forge/plugin-auto-unpack-
 const ICON_BASE = './public/favicons/Group'
 const isWindows = process.platform === 'win32'
 
+const forgePlugins = []
+
+if (!isWindows) {
+	forgePlugins.push(new AutoUnpackNativesPlugin({}))
+}
+
+forgePlugins.push(
+	new VitePlugin({
+		build: [
+			{ entry: 'src/main.ts', config: 'vite.main.config.ts' },
+			{ entry: 'src/preload.ts', config: 'vite.preload.config.ts' },
+		],
+		renderer: [
+			{
+				name: 'main_window',
+				config: 'vite.renderer.config.ts',
+			},
+		],
+	})
+)
+
 module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
-		executableName: isWindows ? 'Void Presence' : 'voidpresence',
-		asar: true,
+		executableName: process.env.FORGE_EXECUTABLE_NAME || 'Void Presence',
+		asar: isWindows
+			? false
+			: {
+					unpack: '**/node_modules/{sharp,@coooookies,sharp-win32-x64}**',
+				},
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
+
+			if (path.includes('node_modules/sharp') || path.includes('node_modules/@coooookies')) {
+				return false
+			}
 
 			if (path.startsWith('/.git') || path.startsWith('.git')) return true
 			if (path.endsWith('.eslintrc') || path.endsWith('.hintrc')) return true
@@ -127,19 +156,5 @@ module.exports = {
 			platforms: ['linux'],
 		},
 	],
-	plugins: [
-		new AutoUnpackNativesPlugin({}),
-		new VitePlugin({
-			build: [
-				{ entry: 'src/main.ts', config: 'vite.main.config.ts' },
-				{ entry: 'src/preload.ts', config: 'vite.preload.config.ts' },
-			],
-			renderer: [
-				{
-					name: 'main_window',
-					config: 'vite.renderer.config.ts',
-				},
-			],
-		}),
-	],
+	plugins: forgePlugins,
 }

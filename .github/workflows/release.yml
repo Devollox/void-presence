@@ -80,10 +80,19 @@ jobs:
             npm install --os=linux --cpu=x64 sharp
           fi
 
-      - name: Build Application
+      - name: Build Application (Windows)
+        if: matrix.platform == 'windows'
         run: npm run make
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORGE_EXECUTABLE_NAME: 'Void Presence'
+
+      - name: Build Application (Mac & Linux)
+        if: matrix.platform != 'windows'
+        run: npm run make
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORGE_EXECUTABLE_NAME: 'voidpresence'
 
       - name: Debug artifacts before rename (macOS)
         if: matrix.platform == 'macos'
@@ -131,9 +140,9 @@ jobs:
           zip_arm_dir="out/make/zip/darwin/arm64"
           zip_x64_dir="out/make/zip/darwin/x64"
 
-          if [ -f "out/make/Void Presence.dmg" ]; then
+          if [ -f "out/make/Void Presence.dmg" ] || [ -f "out/make/voidpresence.dmg" ]; then
             mkdir -p "$dmg_dir"
-            mv "out/make/Void Presence.dmg" "$dmg_dir/Void Presence.dmg"
+            mv out/make/*.dmg "$dmg_dir/" 2>/dev/null || true
           fi
 
           for f in "$dmg_dir"/*.dmg; do
