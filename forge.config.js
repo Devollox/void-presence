@@ -9,7 +9,7 @@ const ICON_BASE = './public/favicons/Group'
 module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
-		executableName: 'void-presence',
+		executableName: 'voidpresence',
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 
@@ -97,7 +97,7 @@ module.exports = {
 			platforms: ['linux'],
 			config: {
 				options: {
-					name: 'void-presence',
+					name: 'voidpresence',
 					productName: 'Void Presence',
 					icon: './public/favicons/logo.png',
 					categories: ['Utility'],
@@ -111,7 +111,7 @@ module.exports = {
 			platforms: ['linux'],
 			config: {
 				options: {
-					name: 'void-presence',
+					name: 'voidpresence',
 					productName: 'Void Presence',
 					icon: './public/favicons/logo.png',
 					categories: ['Utility'],
