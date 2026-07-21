@@ -46,6 +46,8 @@ module.exports = {
 			if (path.includes('/node_modules/vite')) return true
 			if (path.includes('/node_modules/@vite')) return true
 
+			if (path.includes('/node_modules/.bin')) return true
+
 			if (path.endsWith('.map')) return true
 
 			return false
