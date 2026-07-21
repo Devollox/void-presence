@@ -10,9 +10,7 @@ module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
 		executableName: 'voidpresence',
-		asar: {
-			unpack: '**/node_modules/{.bin,sharp,@coooookies}/**',
-		},
+		asar: true,
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 
@@ -48,6 +46,8 @@ module.exports = {
 			if (path.includes('/node_modules/@eslint')) return true
 			if (path.includes('/node_modules/vite')) return true
 			if (path.includes('/node_modules/@vite')) return true
+
+			if (/\/node_modules\/\.bin($|\/)/.test(path)) return true
 
 			if (path.endsWith('.map')) return true
 
