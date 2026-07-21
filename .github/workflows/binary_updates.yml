@@ -62,23 +62,19 @@ jobs:
             name=$(basename "$f")
             case "$name" in
               *.exe)
-                # Windows NSIS updater → Setup exe
                 dest="renamed/Void.Presence.Setup.$VERSION.exe"
                 cp "$f" "$dest"
-                echo "Windows: $name → $(basename $dest)"
+                echo "Windows: $name → $(basename "$dest")"
                 ;;
-              *.macos.zip)
-                # macOS updater zip
-                dest="renamed/Void.Presence.Setup.$VERSION.macos.zip"
+              *.dmg)
+                dest="renamed/Void.Presence.Setup.$VERSION.dmg"
                 cp "$f" "$dest"
-                echo "macOS: $name → $(basename $dest)"
+                echo "macOS: $name → $(basename "$dest")"
                 ;;
-              *.linux)
-                # Linux binary
-                dest="renamed/Void.Presence.Setup.$VERSION.linux"
+              *.deb)
+                dest="renamed/Void.Presence.Setup.$VERSION.deb"
                 cp "$f" "$dest"
-                chmod +x "$dest"
-                echo "Linux: $name → $(basename $dest)"
+                echo "Linux: $name → $(basename "$dest")"
                 ;;
               *)
                 echo "Skipping unknown file: $name"
