@@ -41,7 +41,6 @@ jobs:
           echo "updates_tag = $UPDATES_TAG"
           echo "version     = $VERSION"
 
-          # Download all Void.Presence.Updates.* assets from the void-updates release
           gh release download "$UPDATES_TAG" \
             --repo "Devollox/void-updates" \
             --pattern "Void.Presence.Updates.*" \
@@ -84,6 +83,29 @@ jobs:
 
           echo "=== renamed files ==="
           ls -lh renamed/
+
+      - name: Delete old non-Setup assets from void-presence release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.payload.outputs.source_tag }}"
+          OWNER="Devollox"
+          REPO="void-presence"
+
+          assets_json=$(gh api "repos/$OWNER/$REPO/releases/tags/$TAG" --jq '.assets')
+          echo "$assets_json" | jq -c '.[]' | while read -r asset; do
+            name=$(echo "$asset" | jq -r '.name')
+            id=$(echo "$asset" | jq -r '.id')
+            case "$name" in
+              Void.Presence.[0-9]*.dmg|Void.Presence.[0-9]*.amd64.deb|Void.Presence.[0-9]*.x86_64.rpm)
+                echo "Deleting old asset: $name (id=$id)"
+                gh api "repos/$OWNER/$REPO/releases/assets/$id" -X DELETE >/dev/null
+                ;;
+              *)
+                ;;
+            esac
+          done
 
       - name: Upload all updater files to void-presence release
         uses: softprops/action-gh-release@v2
