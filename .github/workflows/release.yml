@@ -119,6 +119,11 @@ jobs:
           zip_arm_dir="out/make/zip/darwin/arm64"
           zip_x64_dir="out/make/zip/darwin/x64"
 
+          if [ -f "out/make/Void Presence.dmg" ]; then
+            mkdir -p "$dmg_dir"
+            mv "out/make/Void Presence.dmg" "$dmg_dir/Void Presence.dmg"
+          fi
+
           for f in "$dmg_dir"/*.dmg; do
             [ -f "$f" ] || continue
             mv "$f" "$dmg_dir/Void.Presence.$version.dmg"
@@ -150,7 +155,7 @@ jobs:
           zip_dir="out/make/zip/linux/x64"
 
           for f in "$deb_dir"/*.deb; do
-            [ -f "$f" || continue
+            [ -f "$f" ] || continue
             mv "$f" "$deb_dir/Void.Presence.$version.amd64.deb"
             break
           done
