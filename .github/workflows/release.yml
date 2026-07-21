@@ -68,6 +68,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install platform-specific sharp binaries
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            npm install --os=win32 --cpu=x64 sharp
+          elif [ "${{ matrix.platform }}" = "macos" ]; then
+            npm install --os=darwin --cpu=x64 sharp
+            npm install --os=darwin --cpu=arm64 sharp
+          elif [ "${{ matrix.platform }}" = "linux" ]; then
+            npm install --os=linux --cpu=x64 sharp
+          fi
+
       - name: Build Application
         run: npm run make
         env:
@@ -242,6 +254,7 @@ jobs:
           TAG="${{ github.ref_name }}"
           gh api "repos/${{ github.repository }}/releases/tags/$TAG" \
             --jq '.assets[].name' \
+
           | grep -E '^Void-Presence-Setup-.*\.exe$|^Void-Presence-Setup-.*\.exe\.blockmap$|^latest\.yml$' \
           | while read -r ASSET; do
               gh release delete-asset "$TAG" "$ASSET" -y || true

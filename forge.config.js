@@ -3,13 +3,14 @@ const { MakerDMG } = require('@electron-forge/maker-dmg')
 const { MakerDeb } = require('@electron-forge/maker-deb')
 const { MakerRpm } = require('@electron-forge/maker-rpm')
 const { VitePlugin } = require('@electron-forge/plugin-vite')
+const { AutoUnpackNativesPlugin } = require('@electron-forge/plugin-auto-unpack-natives')
 
 const ICON_BASE = './public/favicons/Group'
 
 module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
-		executableName: 'voidpresence',
+		executableName: 'Void Presence',
 		asar: true,
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
@@ -54,9 +55,7 @@ module.exports = {
 			return false
 		},
 	},
-	rebuildConfig: {
-		skipPrebuild: true,
-	},
+	rebuildConfig: {},
 	makers: [
 		{
 			name: '@electron-forge/maker-zip',
@@ -128,6 +127,7 @@ module.exports = {
 		},
 	],
 	plugins: [
+		new AutoUnpackNativesPlugin({}),
 		new VitePlugin({
 			build: [
 				{ entry: 'src/main.ts', config: 'vite.main.config.ts' },
