@@ -73,6 +73,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Debug artifacts before rename (macOS)
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          echo "=== out/make BEFORE rename (macOS) ==="
+          find out/make -type f | sort || true
+
+      - name: Debug artifacts before rename (Linux)
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          echo "=== out/make BEFORE rename (Linux) ==="
+          find out/make -type f | sort || true
+
       - name: Rename NSIS installer (Windows)
         if: matrix.platform == 'windows'
         shell: pwsh
@@ -130,7 +144,7 @@ jobs:
       - name: List build output
         shell: bash
         run: |
-          echo "=== out/make tree ==="
+          echo "=== out/make AFTER rename ==="
           find out/make -type f | sort || true
 
       - name: Upload build artifacts (Windows)
