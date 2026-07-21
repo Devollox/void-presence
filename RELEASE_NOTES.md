@@ -1,14 +1,13 @@
-﻿# Security Hardening & View Routing Improvements
+# Cross-Platform Support
+
+## New
+
+- **macOS support** — Void Presence now builds and runs natively on macOS. A `.dmg` installer and a portable `.zip` are published with every release.
+- **Linux support** — Void Presence now builds and runs on Linux. A `.deb`, `.rpm`, and a portable `.zip` are published with every release.
 
 ## Improved
 
-- **Localized plugin install toasts** — plugin installation results now use localized toast messages (`pluginInstallFromUrlSuccess` / `pluginInstallFromUrlFailed`), with translations available in English, Russian, and Turkish for consistent feedback across languages.
-- **Folder-only hot-load for plugins** — updated the `plugins:install-from-url` handler so hot reloading is applied only to folder-based plugins (GitHub tree/zip installs), while single-file `.js` plugins are downloaded and stored without immediate hot-load, reducing unnecessary runtime surface.
-
-## Security
-
-- **Reduced renderer attack surface for plugin installs** — the `onInstallPluginFromUrl` handler now accepts a single structured payload and routes it into a typed IPC call, preventing accidental extension of the deep link surface with unvalidated flags.
-
-## Refactored
-
-- **Unified view activation routing** — replaced ad-hoc DOM rewrites with unified view switching through the `setActiveView` shell controller, making all navigation state changes flow through a single, predictable code path.
+- **Platform-aware hardware monitor** — the hardware worker now detects CPU name, CPU temperature, and GPU stats on macOS (`sysctl`, `system_profiler`) and Linux (`/proc/cpuinfo`, `/sys/class/thermal`, `sensors`, `/sys/class/drm`) in addition to Windows.
+- **Platform-aware updater** — `updates.ts` picks the correct installer extension (`.exe` / `.dmg` / `.deb`) and launch method per platform. The self-update flow opens the DMG on macOS and runs `pkexec dpkg -i` on Linux.
+- **SMTC plugin guarded** — the Windows Media Session (SMTC) plugin and its worker now exit gracefully on macOS and Linux instead of crashing on the missing native module.
+- **GitHub Actions matrix build** — the release workflow now builds all three platform bundles in parallel and publishes them in a single GitHub Release.

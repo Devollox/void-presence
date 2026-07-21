@@ -336,52 +336,74 @@ export async function initIpc() {
 
 			const { filePath } = await downloadFile(info.downloadUrl, version)
 
-			if (portable) {
-				const installDir = getInstallDir()
-				const exeName = path.basename(app.getPath('exe'))
-				const newExePath = path.join(installDir, exeName)
+			if (process.platform === 'win32') {
+				if (portable) {
+					const installDir = getInstallDir()
+					const exeName = path.basename(app.getPath('exe'))
+					const newExePath = path.join(installDir, exeName)
 
-				sendLog(
-					t('updateLaunchingPortableInstaller', {
-						dir: installDir,
-						fileName: path.basename(filePath),
+					sendLog(
+						t('updateLaunchingPortableInstaller', {
+							dir: installDir,
+							fileName: path.basename(filePath),
+						})
+					)
+
+					const args = ['/S', `/D=${installDir}`]
+					const child = spawn(filePath, args)
+
+					child.on('close', code => {
+						sendLog(t('updateInstallerExited', { code: String(code ?? 'null') }))
+						try {
+							const restarted = spawn(newExePath, [], { detached: true, stdio: 'ignore' })
+							restarted.unref()
+							sendLog(t('updateRestartedAfterPortable'))
+						} catch (e: any) {
+							sendLog(t('updateFailedToRestart', { error: e?.message || String(e) }), 'error')
+						}
+						app.quit()
 					})
-				)
 
-				const args = ['/S', `/D=${installDir}`]
+					child.on('error', err => {
+						sendLog(t('updateInstallerSpawnError', { error: String(err) }), 'error')
+					})
+				} else {
+					sendLog(t('updateLaunchingInstaller', { fileName: path.basename(filePath) }))
+					const child = spawn(filePath, [], { detached: true, stdio: 'ignore' })
+					child.unref()
+					app.quit()
+				}
+			} else if (process.platform === 'darwin') {
+				sendLog(t('updateLaunchingInstaller', { fileName: path.basename(filePath) }))
+				const child = spawn('open', [filePath], { detached: true, stdio: 'ignore' })
+				child.unref()
+				app.quit()
+			} else {
+				sendLog(t('updateLaunchingInstaller', { fileName: path.basename(filePath) }))
 
-				const child = spawn(filePath, args)
+				let child
+				try {
+					child = spawn('pkexec', ['dpkg', '-i', filePath], { stdio: 'ignore' })
+				} catch {
+					child = spawn('bash', ['-c', `sudo dpkg -i "${filePath}"`], {
+						detached: true,
+						stdio: 'ignore',
+					})
+				}
 
 				child.on('close', code => {
 					sendLog(t('updateInstallerExited', { code: String(code ?? 'null') }))
-
 					try {
-						const restarted = spawn(newExePath, [], {
-							detached: true,
-							stdio: 'ignore',
-						})
+						const exePath = app.getPath('exe')
+						const restarted = spawn(exePath, [], { detached: true, stdio: 'ignore' })
 						restarted.unref()
-						sendLog(t('updateRestartedAfterPortable'))
-					} catch (e: any) {
-						sendLog(t('updateFailedToRestart', { error: e?.message || String(e) }), 'error')
-					}
-
+					} catch {}
 					app.quit()
 				})
 
 				child.on('error', err => {
 					sendLog(t('updateInstallerSpawnError', { error: String(err) }), 'error')
 				})
-			} else {
-				sendLog(t('updateLaunchingInstaller', { fileName: path.basename(filePath) }))
-
-				const child = spawn(filePath, [], {
-					detached: true,
-					stdio: 'ignore',
-				})
-
-				child.unref()
-				app.quit()
 			}
 		} catch (e: any) {
 			sendLog(t('updateInstallFailed', { error: e?.message || String(e) }), 'error')

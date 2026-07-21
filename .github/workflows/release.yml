@@ -6,54 +6,75 @@ on:
       - 'v*'
 
 jobs:
-  release:
-    runs-on: windows-latest
-
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
     steps:
       - name: Check if release already exists for this tag
-        id: check_release
-        shell: bash
+        id: check
         run: |
-          set -e
-          TAG="${{ github.ref_name }}"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+          if gh release view "${{ github.ref_name }}" \
+               --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "exists=true"  >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout code
-        if: steps.check_release.outputs.exists == 'false'
-        uses: actions/checkout@v4
+  build:
+    needs: preflight
+    if: needs.preflight.outputs.exists == 'false'
 
-      - name: Setup Node.js
-        if: steps.check_release.outputs.exists == 'false'
-        uses: actions/setup-node@v4
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            os: windows-latest
+          - platform: macos
+            os: macos-latest
+          - platform: linux
+            os: ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: npm
+
+      - name: Install Linux build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            rpm \
+            libgtk-3-0 \
+            libnotify4 \
+            libnss3 \
+            libxss1 \
+            libxtst6 \
+            xdg-utils \
+            libatspi2.0-0 \
+            libdrm2 \
+            libgbm1 \
+            libxcb-dri3-0
 
       - name: Install dependencies
-        if: steps.check_release.outputs.exists == 'false'
         run: npm install
 
       - name: Build Application
-        if: steps.check_release.outputs.exists == 'false'
         run: npm run make
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cleanup Assets
-        if: steps.check_release.outputs.exists == 'false'
-        shell: bash
-        run: |
-          find out/make -type f \( -name "*.blockmap" -o -name "*.yml" \) -delete
-          ls -R out/make
-
-      - name: Rename NSIS installer
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Rename NSIS installer (Windows)
+        if: matrix.platform == 'windows'
         shell: pwsh
         run: |
           Get-ChildItem out\make\nsis\x64\*.exe | ForEach-Object {
@@ -61,8 +82,8 @@ jobs:
             Rename-Item $_.FullName -NewName $newName
           }
 
-      - name: Rename ZIP
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Rename ZIP (Windows)
+        if: matrix.platform == 'windows'
         shell: pwsh
         env:
           TAG_NAME: ${{ github.ref_name }}
@@ -72,29 +93,82 @@ jobs:
           $newName = "Void.Presence.Portable.$version.zip"
           Rename-Item $file.FullName -NewName $newName
 
-      - name: Upload Release
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Rename macOS artifacts
+        if: matrix.platform == 'macos'
+        shell: bash
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          version="${TAG_NAME#v}"
+          for f in out/make/*.dmg; do
+            [ -f "$f" ] && mv "$f" "Void.Presence.$version.dmg" && break
+          done
+          for f in out/make/zip/darwin/x64/*.zip out/make/zip/darwin/arm64/*.zip; do
+            [ -f "$f" ] || continue
+            arch=$(echo "$f" | grep -oE 'x64|arm64')
+            mv "$f" "Void.Presence.Portable.$version.$arch.zip"
+          done
+
+      - name: Rename Linux artifacts
+        if: matrix.platform == 'linux'
+        shell: bash
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          version="${TAG_NAME#v}"
+          for f in out/make/deb/x64/*.deb; do
+            [ -f "$f" ] && mv "$f" "Void.Presence.$version.amd64.deb" && break
+          done
+          for f in out/make/rpm/x64/*.rpm; do
+            [ -f "$f" ] && mv "$f" "Void.Presence.$version.x86_64.rpm" && break
+          done
+          for f in out/make/zip/linux/x64/*.zip; do
+            [ -f "$f" ] && mv "$f" "Void.Presence.Portable.$version.linux.zip" && break
+          done
+
+      - name: List build output
+        shell: bash
+        run: |
+          echo "=== out/make tree ==="
+          find out/make -type f | sort || true
+          echo "=== renamed artifacts ==="
+          ls -lh Void.Presence.* 2>/dev/null || true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          path: |
+            Void.Presence.*
+          retention-days: 1
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Show collected artifacts
+        run: find dist -type f | sort
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            out/make/nsis/x64/*.exe
-            out/make/zip/win32/x64/*.zip
-          body_path: RELEASE_NOTES.md
           tag_name: ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
           make_latest: true
           overwrite_files: true
+          files: dist/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update release description from RELEASE_NOTES.md
-        if: steps.check_release.outputs.exists == 'false'
-        run: |
-          gh release edit ${{ github.ref_name }} --notes-file RELEASE_NOTES.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete unwanted assets (latest.yml & blockmap & old .exe)
-        if: steps.check_release.outputs.exists == 'false'
+      - name: Delete unwanted auto-generated assets
         shell: bash
         run: |
           TAG="${{ github.ref_name }}"
@@ -102,13 +176,12 @@ jobs:
             --jq '.assets[].name' \
           | grep -E '^Void-Presence-Setup-.*\.exe$|^Void-Presence-Setup-.*\.exe\.blockmap$|^latest\.yml$' \
           | while read -r ASSET; do
-              gh release delete-asset "$TAG" "$ASSET" -y
+              gh release delete-asset "$TAG" "$ASSET" -y || true
             done || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trigger void-updates repo
-        if: steps.check_release.outputs.exists == 'false'
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.UPDATER_TOKEN }}

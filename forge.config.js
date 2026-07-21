@@ -1,4 +1,7 @@
 const { MakerZIP } = require('@electron-forge/maker-zip')
+const { MakerDMG } = require('@electron-forge/maker-dmg')
+const { MakerDeb } = require('@electron-forge/maker-deb')
+const { MakerRpm } = require('@electron-forge/maker-rpm')
 const { VitePlugin } = require('@electron-forge/plugin-vite')
 
 const ICON_BASE = './public/favicons/Group'
@@ -74,6 +77,50 @@ module.exports = {
 					},
 				},
 			},
+		},
+		{
+			name: '@electron-forge/maker-dmg',
+			platforms: ['darwin'],
+			config: {
+				name: 'Void Presence',
+				icon: './public/favicons/logo.png',
+				format: 'ULFO',
+			},
+		},
+		{
+			name: '@electron-forge/maker-zip',
+			platforms: ['darwin'],
+		},
+		{
+			name: '@electron-forge/maker-deb',
+			platforms: ['linux'],
+			config: {
+				options: {
+					name: 'void-presence',
+					productName: 'Void Presence',
+					icon: './public/favicons/logo.png',
+					categories: ['Utility'],
+					maintainer: 'Devollox',
+					homepage: 'https://github.com/Devollox/void-presence',
+				},
+			},
+		},
+		{
+			name: '@electron-forge/maker-rpm',
+			platforms: ['linux'],
+			config: {
+				options: {
+					name: 'void-presence',
+					productName: 'Void Presence',
+					icon: './public/favicons/logo.png',
+					categories: ['Utility'],
+					homepage: 'https://github.com/Devollox/void-presence',
+				},
+			},
+		},
+		{
+			name: '@electron-forge/maker-zip',
+			platforms: ['linux'],
 		},
 	],
 	plugins: [

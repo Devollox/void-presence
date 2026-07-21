@@ -22,13 +22,21 @@ type ApiLatestInfo = {
 
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
-		const res = await fetch('https://api.voidpresence.site/v1/github/releases', {
+		const res = await fetch('https://api.voidpresence.site/v2/github/releases', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ app: 'void-presence' }),
+			body: JSON.stringify({
+				app: 'void-presence',
+				platform:
+					process.platform === 'darwin'
+						? 'macos'
+						: process.platform === 'linux'
+							? 'linux'
+							: 'windows',
+			}),
 		})
 		if (!res.ok) {
 			return null
@@ -91,17 +99,32 @@ export async function checkForUpdates({ log }: { log: boolean }) {
 }
 
 function getInstallDir() {
-	const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
-	if (portableDir && portableDir.trim().length > 0) {
-		return portableDir
+	if (process.platform === 'win32') {
+		const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
+		if (portableDir && portableDir.trim().length > 0) {
+			return portableDir
+		}
 	}
 
 	const exePath = app.getPath('exe')
 	return path.dirname(exePath)
 }
 
+function platformInstallerExt(): string {
+	if (process.platform === 'win32') return '.exe'
+	if (process.platform === 'darwin') return '.dmg'
+
+	return '.deb'
+}
+
+function updateFileName(version: string): string {
+	if (process.platform === 'win32') return `Void.Presence.Setup.${version}.exe`
+	if (process.platform === 'darwin') return `Void.Presence.${version}.dmg`
+	return `Void.Presence.${version}.deb`
+}
+
 export async function downloadFile(url: string, version: string): Promise<{ filePath: string }> {
-	const fileName = `Void.Presence.Setup.${version}.exe`
+	const fileName = updateFileName(version)
 	const installDir = getInstallDir()
 	const filePath = path.join(installDir, fileName)
 
@@ -139,7 +162,8 @@ export async function downloadFile(url: string, version: string): Promise<{ file
 		file.end()
 		file.on('finish', () => {
 			fs.stat(filePath, (err, stats) => {
-				if (err || stats.size < 50 * 1024 * 1024) {
+				const minSizeBytes = process.platform === 'win32' ? 50 * 1024 * 1024 : 1 * 1024 * 1024
+				if (err || stats.size < minSizeBytes) {
 					if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
 					reject(new Error(t('updateInvalidExe', { size: String(stats?.size || 0) })))
 				} else {
@@ -156,12 +180,24 @@ export async function downloadFile(url: string, version: string): Promise<{ file
 }
 
 export function isPortable() {
-	const dir = getInstallDir().toLowerCase()
-	const inAppData = dir.includes('\\appdata\\local\\programs\\')
-	const inProgramFiles =
-		dir.includes('\\program files\\') || dir.includes('\\program files (x86)\\')
-	const portable = !(inAppData || inProgramFiles)
-	return portable
+	if (process.platform === 'win32') {
+		const portableDir = process.env.PORTABLE_EXECUTABLE_DIR
+		if (portableDir && portableDir.trim().length > 0) return true
+
+		const dir = getInstallDir().toLowerCase()
+		const inAppData = dir.includes('\\appdata\\local\\programs\\')
+		const inProgramFiles =
+			dir.includes('\\program files\\') || dir.includes('\\program files (x86)\\')
+		return !(inAppData || inProgramFiles)
+	}
+
+	if (process.platform === 'darwin') {
+		const dir = getInstallDir()
+		return !dir.startsWith('/Applications/')
+	}
+
+	const dir = getInstallDir()
+	return !dir.startsWith('/usr/') && !dir.startsWith('/opt/')
 }
 
 export { getInstallDir }

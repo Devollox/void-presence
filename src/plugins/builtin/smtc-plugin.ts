@@ -340,6 +340,7 @@ export const smtcPlugin: VoidPlugin = {
 	locked: false,
 	controls: smtcControls,
 	async start(ctx: PluginContext) {
+		if (process.platform !== 'win32') return
 		_ctx = ctx
 		const settings = await readSettings()
 		if (settings.musicFilter || settings.videoFilter) startWorker()
@@ -358,6 +359,7 @@ export const smtcPlugin: VoidPlugin = {
 }
 
 export async function refreshSmtcWorker(): Promise<void> {
+	if (process.platform !== 'win32') return
 	const s = await readSettings()
 	const shouldRun = !!(s.musicFilter || s.videoFilter)
 	if (shouldRun && !_worker) startWorker()

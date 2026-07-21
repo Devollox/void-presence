@@ -1,3 +1,9 @@
+if (process.platform !== 'win32') {
+	const { parentPort: _pp } = require('worker_threads')
+	if (_pp) _pp.postMessage({ type: 'nowPlaying', data: null })
+	process.exit(0)
+}
+
 const { SMTCMonitor } = require('@coooookies/windows-smtc-monitor')
 const { parentPort } = require('worker_threads')
 

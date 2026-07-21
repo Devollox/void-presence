@@ -6,7 +6,7 @@ on:
 
 jobs:
   finalize:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Parse payload
@@ -16,36 +16,83 @@ jobs:
           echo "source_tag=${{ github.event.client_payload.source_tag }}" >> "$GITHUB_OUTPUT"
           echo "updates_tag=${{ github.event.client_payload.updates_tag }}" >> "$GITHUB_OUTPUT"
 
-      - name: Download updated installer from void-updates
-        shell: pwsh
+      - name: Validate payload
+        shell: bash
         run: |
-          $sourceTag  = "${{ steps.payload.outputs.source_tag }}"
-          $updatesTag = "${{ steps.payload.outputs.updates_tag }}"
+          if [ -z "${{ steps.payload.outputs.source_tag }}" ]; then
+            echo "ERROR: source_tag is empty"
+            exit 1
+          fi
+          if [ -z "${{ steps.payload.outputs.updates_tag }}" ]; then
+            echo "ERROR: updates_tag is empty"
+            exit 1
+          fi
 
-          if (-not $sourceTag)  { throw "source_tag is empty" }
-          if (-not $updatesTag) { throw "updates_tag is empty" }
+      - name: Download all updater binaries from void-updates release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SOURCE_TAG="${{ steps.payload.outputs.source_tag }}"
+          UPDATES_TAG="${{ steps.payload.outputs.updates_tag }}"
+          VERSION="${SOURCE_TAG#v}"
 
-          $version = $sourceTag -replace '^v',''
-          $fileName = "Void.Presence.Updates.$version.exe"
+          echo "source_tag  = $SOURCE_TAG"
+          echo "updates_tag = $UPDATES_TAG"
+          echo "version     = $VERSION"
 
-          $url = "https://github.com/Devollox/void-updates/releases/download/$updatesTag/$fileName"
-          Write-Host "Downloading $url"
+          # Download all Void.Presence.Updates.* assets from the void-updates release
+          gh release download "$UPDATES_TAG" \
+            --repo "Devollox/void-updates" \
+            --pattern "Void.Presence.Updates.*" \
+            --dir downloaded
 
-          Invoke-WebRequest -Uri $url -OutFile $fileName
+          echo "=== downloaded files ==="
+          ls -lh downloaded/
 
-          if (-not (Test-Path $fileName)) {
-            throw "Failed to download $fileName from $url"
-          }
+      - name: Rename updater files to Setup names
+        shell: bash
+        run: |
+          VERSION="${{ steps.payload.outputs.source_tag }}"
+          VERSION="${VERSION#v}"
 
-          $setupName = "Void.Presence.Setup.$version.exe"
-          Rename-Item $fileName $setupName
-          Write-Host "Renamed to $setupName"
+          mkdir -p renamed
 
-      - name: Upload final Setup to existing release
+          for f in downloaded/*; do
+            name=$(basename "$f")
+            case "$name" in
+              *.exe)
+                # Windows NSIS updater → Setup exe
+                dest="renamed/Void.Presence.Setup.$VERSION.exe"
+                cp "$f" "$dest"
+                echo "Windows: $name → $(basename $dest)"
+                ;;
+              *.macos.zip)
+                # macOS updater zip
+                dest="renamed/Void.Presence.Setup.$VERSION.macos.zip"
+                cp "$f" "$dest"
+                echo "macOS: $name → $(basename $dest)"
+                ;;
+              *.linux)
+                # Linux binary
+                dest="renamed/Void.Presence.Setup.$VERSION.linux"
+                cp "$f" "$dest"
+                chmod +x "$dest"
+                echo "Linux: $name → $(basename $dest)"
+                ;;
+              *)
+                echo "Skipping unknown file: $name"
+                ;;
+            esac
+          done
+
+          echo "=== renamed files ==="
+          ls -lh renamed/
+
+      - name: Upload all updater files to void-presence release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            Void.Presence.Setup.*.exe
+          files: renamed/*
           tag_name: ${{ steps.payload.outputs.source_tag }}
           overwrite_files: true
           prerelease: false
