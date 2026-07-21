@@ -9,6 +9,7 @@ const ICON_BASE = './public/favicons/Group'
 module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
+		executableName: 'void-presence',
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 

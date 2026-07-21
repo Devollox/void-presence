@@ -103,10 +103,11 @@ jobs:
           for f in out/make/*.dmg; do
             [ -f "$f" ] && mv "$f" "Void.Presence.$version.dmg" && break
           done
-          for f in out/make/zip/darwin/x64/*.zip out/make/zip/darwin/arm64/*.zip; do
-            [ -f "$f" ] || continue
-            arch=$(echo "$f" | grep -oE 'x64|arm64')
-            mv "$f" "Void.Presence.Portable.$version.$arch.zip"
+          for f in out/make/zip/darwin/x64/*.zip; do
+            [ -f "$f" ] && mv "$f" "Void.Presence.Portable.$version.x64.zip"
+          done
+          for f in out/make/zip/darwin/arm64/*.zip; do
+            [ -f "$f" ] && mv "$f" "Void.Presence.Portable.$version.arm64.zip"
           done
 
       - name: Rename Linux artifacts
