@@ -15,7 +15,7 @@ jobs:
         id: check
         run: |
           if gh release view "${{ github.ref_name }}" \
-               --repo "${{ github.repository }}" >/dev/null 2>&1; then
+                 --repo "${{ github.repository }}" >/dev/null 2>&1; then
             echo "exists=true"  >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -132,15 +132,20 @@ jobs:
         run: |
           echo "=== out/make tree ==="
           find out/make -type f | sort || true
-          echo "=== renamed artifacts ==="
-          ls -lh Void.Presence.* 2>/dev/null || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.platform }}
           path: |
-            Void.Presence.*
+            out/make/nsis/x64/Void.Presence.Setup.*.exe
+            out/make/zip/win32/x64/Void.Presence.Portable.*.zip
+            out/make/Void.Presence.*.dmg
+            out/make/zip/darwin/x64/Void.Presence.Portable.*.x64.zip
+            out/make/zip/darwin/arm64/Void.Presence.Portable.*.arm64.zip
+            out/make/Void.Presence.*.amd64.deb
+            out/make/Void.Presence.*.x86_64.rpm
+            out/make/zip/linux/x64/Void.Presence.Portable.*.linux.zip
           retention-days: 1
 
   release:
