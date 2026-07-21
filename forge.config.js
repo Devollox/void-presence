@@ -10,6 +10,9 @@ module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
 		executableName: 'voidpresence',
+		asar: {
+			unpack: '**/node_modules/{.bin,sharp,@coooookies}/**',
+		},
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 
