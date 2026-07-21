@@ -194,3 +194,10 @@ jobs:
           repository: Devollox/void-updates
           event-type: main_repo_updated
           client-payload: '{"tag": "${{ github.ref_name }}", "sha": "${{ github.sha }}"}'
+
+      - name: Update release description from RELEASE_NOTES.md
+        if: steps.check_release.outputs.exists == 'false'
+        run: |
+          gh release edit ${{ github.ref_name }} --notes-file RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
