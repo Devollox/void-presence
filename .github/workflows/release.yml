@@ -133,16 +133,33 @@ jobs:
           echo "=== out/make tree ==="
           find out/make -type f | sort || true
 
-      - name: Upload build artifacts
+      - name: Upload build artifacts (Windows)
+        if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.platform }}
+          name: dist-windows
           path: |
             out/make/nsis/x64/Void.Presence.Setup.*.exe
             out/make/zip/win32/x64/Void.Presence.Portable.*.zip
+          retention-days: 1
+
+      - name: Upload build artifacts (macOS)
+        if: matrix.platform == 'macos'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-macos
+          path: |
             out/make/Void.Presence.*.dmg
             out/make/zip/darwin/x64/Void.Presence.Portable.*.x64.zip
             out/make/zip/darwin/arm64/Void.Presence.Portable.*.arm64.zip
+          retention-days: 1
+
+      - name: Upload build artifacts (Linux)
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux
+          path: |
             out/make/Void.Presence.*.amd64.deb
             out/make/Void.Presence.*.x86_64.rpm
             out/make/zip/linux/x64/Void.Presence.Portable.*.linux.zip
