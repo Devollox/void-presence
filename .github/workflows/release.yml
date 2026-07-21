@@ -114,14 +114,27 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
         run: |
           version="${TAG_NAME#v}"
-          for f in out/make/*.dmg; do
-            [ -f "$f" ] && mv "$f" "Void.Presence.$version.dmg" && break
+
+          dmg_dir="out/make/dmg/arm64"
+          zip_arm_dir="out/make/zip/darwin/arm64"
+          zip_x64_dir="out/make/zip/darwin/x64"
+
+          for f in "$dmg_dir"/*.dmg; do
+            [ -f "$f" ] || continue
+            mv "$f" "$dmg_dir/Void.Presence.$version.dmg"
+            break
           done
-          for f in out/make/zip/darwin/x64/*.zip; do
-            [ -f "$f" ] && mv "$f" "Void.Presence.Portable.$version.x64.zip"
+
+          for f in "$zip_x64_dir"/*.zip; do
+            [ -f "$f" ] || continue
+            mv "$f" "$zip_x64_dir/Void.Presence.Portable.$version.x64.zip"
+            break
           done
-          for f in out/make/zip/darwin/arm64/*.zip; do
-            [ -f "$f" ] && mv "$f" "Void.Presence.Portable.$version.arm64.zip"
+
+          for f in "$zip_arm_dir"/*.zip; do
+            [ -f "$f" ] || continue
+            mv "$f" "$zip_arm_dir/Void.Presence.Portable.$version.arm64.zip"
+            break
           done
 
       - name: Rename Linux artifacts
@@ -131,14 +144,27 @@ jobs:
           TAG_NAME: ${{ github.ref_name }}
         run: |
           version="${TAG_NAME#v}"
-          for f in out/make/deb/x64/*.deb; do
-            [ -f "$f" ] && mv "$f" "Void.Presence.$version.amd64.deb" && break
+
+          deb_dir="out/make/deb/x64"
+          rpm_dir="out/make/rpm/x64"
+          zip_dir="out/make/zip/linux/x64"
+
+          for f in "$deb_dir"/*.deb; do
+            [ -f "$f" || continue
+            mv "$f" "$deb_dir/Void.Presence.$version.amd64.deb"
+            break
           done
-          for f in out/make/rpm/x64/*.rpm; do
-            [ -f "$f" ] && mv "$f" "Void.Presence.$version.x86_64.rpm" && break
+
+          for f in "$rpm_dir"/*.rpm; do
+            [ -f "$f" ] || continue
+            mv "$f" "$rpm_dir/Void.Presence.$version.x86_64.rpm"
+            break
           done
-          for f in out/make/zip/linux/x64/*.zip; do
-            [ -f "$f" ] && mv "$f" "Void.Presence.Portable.$version.linux.zip" && break
+
+          for f in "$zip_dir"/*.zip; do
+            [ -f "$f" ] || continue
+            mv "$f" "$zip_dir/Void.Presence.Portable.$version.linux.zip"
+            break
           done
 
       - name: List build output
@@ -163,7 +189,7 @@ jobs:
         with:
           name: dist-macos
           path: |
-            out/make/Void.Presence.*.dmg
+            out/make/dmg/arm64/Void.Presence.*.dmg
             out/make/zip/darwin/x64/Void.Presence.Portable.*.x64.zip
             out/make/zip/darwin/arm64/Void.Presence.Portable.*.arm64.zip
           retention-days: 1
@@ -174,8 +200,8 @@ jobs:
         with:
           name: dist-linux
           path: |
-            out/make/Void.Presence.*.amd64.deb
-            out/make/Void.Presence.*.x86_64.rpm
+            out/make/deb/x64/Void.Presence.*.amd64.deb
+            out/make/rpm/x64/Void.Presence.*.x86_64.rpm
             out/make/zip/linux/x64/Void.Presence.Portable.*.linux.zip
           retention-days: 1
 
