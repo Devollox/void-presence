@@ -82,7 +82,7 @@ module.exports = {
 		{
 			name: '@electron-addons/electron-forge-maker-nsis',
 			config: {
-				productName: 'Void.Presence.Setup',
+				productName: 'Void Presence',
 				build: {
 					win: {
 						target: ['nsis'],
