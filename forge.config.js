@@ -33,11 +33,7 @@ module.exports = {
 	packagerConfig: {
 		icon: ICON_BASE,
 		executableName: process.env.FORGE_EXECUTABLE_NAME || 'Void Presence',
-		asar: isWindows
-			? false
-			: {
-					unpack: '**/node_modules/{sharp,@coooookies,sharp-win32-x64}**',
-				},
+		asar: false,
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 
