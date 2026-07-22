@@ -3,18 +3,10 @@ const { MakerDMG } = require('@electron-forge/maker-dmg')
 const { MakerDeb } = require('@electron-forge/maker-deb')
 const { MakerRpm } = require('@electron-forge/maker-rpm')
 const { VitePlugin } = require('@electron-forge/plugin-vite')
-const { AutoUnpackNativesPlugin } = require('@electron-forge/plugin-auto-unpack-natives')
 
 const ICON_BASE = './public/favicons/Group'
-const isWindows = process.platform === 'win32'
 
-const forgePlugins = []
-
-if (!isWindows) {
-	forgePlugins.push(new AutoUnpackNativesPlugin({}))
-}
-
-forgePlugins.push(
+const forgePlugins = [
 	new VitePlugin({
 		build: [
 			{ entry: 'src/main.ts', config: 'vite.main.config.ts' },
@@ -26,8 +18,8 @@ forgePlugins.push(
 				config: 'vite.renderer.config.ts',
 			},
 		],
-	})
-)
+	}),
+]
 
 module.exports = {
 	packagerConfig: {
