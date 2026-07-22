@@ -1,13 +1,11 @@
-# Cross-Platform Support
+﻿# Localization & Interval Control
 
 ## New
 
-- **macOS support** — Void Presence now builds and runs natively on macOS. A `.dmg` installer and a portable `.zip` are published with every release.
-- **Linux support** — Void Presence now builds and runs on Linux. A `.deb`, `.rpm`, and a portable `.zip` are published with every release.
+- **Multi-language support** — Void Presence now natively supports English, Russian, and Turkish. All UI strings and toast notifications adapt dynamically based on the selected user locale via `i18next`.
+- **Enforced interval initialization** — added absolute structural validation for the core activity update cycle. The system now guarantees a safe fallback by actively forcing a 30-second default if settings are missing or invalid.
 
 ## Improved
 
-- **Platform-aware hardware monitor** — the hardware worker now detects CPU name, CPU temperature, and GPU stats on macOS (`sysctl`, `system_profiler`) and Linux (`/proc/cpuinfo`, `/sys/class/thermal`, `sensors`, `/sys/class/drm`) in addition to Windows.
-- **Platform-aware updater** — `updates.ts` picks the correct installer extension (`.exe` / `.dmg` / `.deb`) and launch method per platform. The self-update flow opens the DMG on macOS and runs `pkexec dpkg -i` on Linux.
-- **SMTC plugin guarded** — the Windows Media Session (SMTC) plugin and its worker now exit gracefully on macOS and Linux instead of crashing on the missing native module.
-- **GitHub Actions matrix build** — the release workflow now builds all three platform bundles in parallel and publishes them in a single GitHub Release.
+- **Strict storage correction** — rebuilt `setupIntervalControl` to eliminate silent failures. The logic now directly overwrites corrupted or non-numeric `localStorage` entries with valid parameters.
+- **Synchronized backend state** — the runtime interval now triggers an immediate `window.electronAPI.setActivityInterval` broadcast during initialization, completely removing timing gaps between UI states and the background process.

@@ -516,5 +516,19 @@
 	"pluginInstallFolderDone": "Eklenti klasörü \"{dir}\" konumuna kuruldu.",
 	"pluginInstallLoadFailed": "Eklenti indirildi ancak yüklenemedi: {error}",
 	"pluginInstallFromUrlSuccess": "{url} adresinden eklenti yüklendi",
-	"pluginInstallFromUrlFailed": "{url} adresinden eklenti yüklenemedi"
+	"pluginInstallFromUrlFailed": "{url} adresinden eklenti yüklenemedi",
+	"toasts": {
+		"configSaved": "yapılandırma kaydedildi",
+		"clientIdCopied": "client id kopyalandı",
+		"configLoaded": "yapılandırma yüklendi",
+		"configUploaded": "yapılandırma yüklendi (karşıya)",
+		"configImported": "yapılandırma içe aktarıldı",
+		"configDeleted": "yapılandırma silindi",
+		"clientIdSaved": "client id kaydedildi",
+		"changesSaved": "değişiklikler kaydedildi",
+		"restartPresence": "varlığı yeniden başlat",
+		"restartStatus": "durumu yeniden başlat",
+		"stopPresence": "varlığı durdur",
+		"stopStatus": "durumu durdur"
+	}
 }

@@ -17,11 +17,28 @@ type BarStyle = 'unicode' | 'cmd' | 'block' | 'soft' | 'retro' | 'cyber'
 export async function setupIntervalControl(): Promise<void> {
 	const input = document.getElementById('update-interval-input') as HTMLInputElement | null
 	if (!input) return
-	const saved = parseInt(localStorage.getItem('updateIntervalSec') || '30', 10)
-	if (!Number.isNaN(saved) && saved > 0) {
-		input.value = String(saved)
+
+	const raw = localStorage.getItem('updateIntervalSec')
+
+	if (raw != null) {
+		const saved = parseInt(raw, 10)
+		if (!Number.isNaN(saved) && saved > 0) {
+			input.value = String(saved)
+			if (window.electronAPI?.setActivityInterval) {
+				await window.electronAPI.setActivityInterval(saved)
+			}
+		} else {
+			input.value = '30'
+			localStorage.setItem('updateIntervalSec', '30')
+			if (window.electronAPI?.setActivityInterval) {
+				await window.electronAPI.setActivityInterval(30)
+			}
+		}
+	} else {
+		input.value = '30'
+		localStorage.setItem('updateIntervalSec', '30')
 		if (window.electronAPI?.setActivityInterval) {
-			await window.electronAPI.setActivityInterval(saved)
+			await window.electronAPI.setActivityInterval(30)
 		}
 	}
 }
@@ -88,13 +105,13 @@ export function loadCurrentState(): FullState {
 
 	const rawUpdate = localStorage.getItem('updateIntervalSec')
 	const updateIntervalSec =
-		rawUpdate && !Number.isNaN(Number(rawUpdate)) && Number(rawUpdate) > 0 ? rawUpdate : ''
+		rawUpdate && !Number.isNaN(Number(rawUpdate)) && Number(rawUpdate) > 0 ? rawUpdate : '30'
 
 	const rawStatusUpdate = localStorage.getItem('updateIntervalSecStatus')
 	const updateIntervalSecStatus =
 		rawStatusUpdate && !Number.isNaN(Number(rawStatusUpdate)) && Number(rawStatusUpdate) > 0
 			? rawStatusUpdate
-			: ''
+			: '30'
 
 	return {
 		clientId,
@@ -176,6 +193,8 @@ export async function applyAndPushState(state: FullState): Promise<void> {
 
 	if (Number.isFinite(intervalSecRaw) && intervalSecRaw > 0) {
 		localStorage.setItem('updateIntervalSec', String(intervalSecRaw))
+	} else {
+		localStorage.setItem('updateIntervalSec', '30')
 	}
 
 	localStorage.setItem('updateIntervalSecStatus', String(updateIntervalSecStatus))
@@ -258,7 +277,7 @@ export async function applyStateToUIAndLists(
 	updateInput.value =
 		typeof state.updateIntervalSec === 'number'
 			? String(state.updateIntervalSec)
-			: (state.updateIntervalSec as string) || ''
+			: (state.updateIntervalSec as string) || '30'
 	if (tokenInput) tokenInput.value = (state as any).discordToken || ''
 
 	const su =

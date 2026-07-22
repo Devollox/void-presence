@@ -503,5 +503,19 @@
 	"pluginInstallFolderDone": "Plugin folder installed to \"{dir}\".",
 	"pluginInstallLoadFailed": "Plugin downloaded but failed to load: {error}",
 	"pluginInstallFromUrlSuccess": "Plugin installed from {url}",
-	"pluginInstallFromUrlFailed": "Failed to install plugin from {url}"
+	"pluginInstallFromUrlFailed": "Failed to install plugin from {url}",
+	"toasts": {
+		"configSaved": "config saved",
+		"clientIdCopied": "client id copied",
+		"configLoaded": "config loaded",
+		"configUploaded": "config uploaded",
+		"configImported": "config imported",
+		"configDeleted": "config delete",
+		"clientIdSaved": "client id saved",
+		"changesSaved": "changes saved",
+		"restartPresence": "restart presnce",
+		"restartStatus": "restart status",
+		"stopPresence": "stop presnce",
+		"stopStatus": "stop status"
+	}
 }

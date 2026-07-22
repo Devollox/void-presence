@@ -45,7 +45,7 @@ export function buildBaseStateFromConfig(cfgState: Partial<FullState>): FullStat
 	const state = cfgState || {}
 	const base: FullState = {
 		clientId: state.clientId || localStorage.getItem('clientId') || '',
-		updateIntervalSec: state.updateIntervalSec || localStorage.getItem('updateIntervalSec') || '',
+		updateIntervalSec: state.updateIntervalSec || localStorage.getItem('updateIntervalSec') || '30',
 		buttonPairs: Array.isArray(state.buttonPairs) ? state.buttonPairs : [],
 		cycles: Array.isArray(state.cycles) ? state.cycles : [],
 		imageCycles: Array.isArray(state.imageCycles) ? state.imageCycles : [],

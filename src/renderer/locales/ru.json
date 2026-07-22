@@ -516,5 +516,19 @@
 	"pluginInstallFolderDone": "Папка плагина установлена в \"{dir}\".",
 	"pluginInstallLoadFailed": "Плагин загружен, но не удалось запустить: {error}",
 	"pluginInstallFromUrlSuccess": "Плагин установлен из {url}",
-	"pluginInstallFromUrlFailed": "Не удалось установить плагин из {url}"
+	"pluginInstallFromUrlFailed": "Не удалось установить плагин из {url}",
+	"toasts": {
+		"configSaved": "конфигурация сохранена",
+		"clientIdCopied": "client id скопирован",
+		"configLoaded": "конфигурация загружена",
+		"configUploaded": "конфигурация отправлена",
+		"configImported": "конфигурация импортирована",
+		"configDeleted": "конфигурация удалена",
+		"clientIdSaved": "client id сохранен",
+		"changesSaved": "изменения сохранены",
+		"restartPresence": "перезапуск присутствия",
+		"restartStatus": "перезапуск статуса",
+		"stopPresence": "остановка присутствия",
+		"stopStatus": "остановка статуса"
+	}
 }

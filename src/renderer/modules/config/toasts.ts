@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import { VoidPresenceCtx } from '../../../types/types'
 
 function showToast(el: HTMLElement | null, message?: string) {
@@ -21,20 +22,20 @@ export type Toasts = {
 export function setupToasts() {
 	const blocksToast = document.getElementById('blocks-toast') as HTMLElement | null
 
-	const showConfigSavedToast = () => showToast(blocksToast, 'config saved')
-	const showPluginSavedToast = ({ message }: { message: string }) =>
-		showToast(blocksToast, `${message}`)
-	const showConfigCopiedToast = () => showToast(blocksToast, 'client id copied')
-	const showConfigLoadedToast = () => showToast(blocksToast, 'config loaded')
-	const showConfigUpLoadedToast = () => showToast(blocksToast, 'config uploaded')
-	const showConfigImportedToast = () => showToast(blocksToast, 'config imported')
-	const showConfigDeleteToast = () => showToast(blocksToast, 'config delete')
-	const showClientIdToast = () => showToast(blocksToast, 'client id saved')
-	const showBlocksToast = () => showToast(blocksToast, 'changes saved')
-	const showRestartPresnceToast = () => showToast(blocksToast, 'restart presnce')
-	const showRestartStatusToast = () => showToast(blocksToast, 'restart status')
-	const showStopPresnceToast = () => showToast(blocksToast, 'stop presnce')
-	const showStopStatusToast = () => showToast(blocksToast, 'stop status')
+	const showConfigSavedToast = () => showToast(blocksToast, t('toasts.configSaved'))
+	const showPluginSavedToast = ({ message }: { message: string }) => showToast(blocksToast, message)
+	const showConfigCopiedToast = () => showToast(blocksToast, t('toasts.clientIdCopied'))
+	const showConfigLoadedToast = () => showToast(blocksToast, t('toasts.configLoaded'))
+	const showConfigUpLoadedToast = () => showToast(blocksToast, t('toasts.configUploaded'))
+	const showConfigImportedToast = () => showToast(blocksToast, t('toasts.configImported'))
+	const showConfigDeleteToast = () => showToast(blocksToast, t('toasts.configDeleted'))
+	const showClientIdToast = () => showToast(blocksToast, t('toasts.clientIdSaved'))
+	const showBlocksToast = () => showToast(blocksToast, t('toasts.changesSaved'))
+	const showRestartPresnceToast = () => showToast(blocksToast, t('toasts.restartPresence'))
+	const showRestartStatusToast = () => showToast(blocksToast, t('toasts.restartStatus'))
+	const showStopPresnceToast = () => showToast(blocksToast, t('toasts.stopPresence'))
+	const showStopStatusToast = () => showToast(blocksToast, t('toasts.stopStatus'))
+
 	return {
 		showConfigSavedToast,
 		showConfigCopiedToast,
