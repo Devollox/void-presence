@@ -39,13 +39,13 @@ async function handleUrl(rawUrl: string) {
 
 		if (host === 'install-plugin') {
 			const pluginUrl = url.searchParams.get('url')
-			const zipUrl    = url.searchParams.get('zip')
-			const target    = pluginUrl || zipUrl
+			const zipUrl = url.searchParams.get('zip')
+			const target = pluginUrl || zipUrl
 			if (target) {
 				if (mainWindow && !mainWindow.isDestroyed()) {
 					mainWindow.webContents.send('INSTALL_PLUGIN_FROM_URL', {
-						url:    target,
-						isZip:  !!zipUrl,
+						url: target,
+						isZip: !!zipUrl,
 					})
 					mainWindow.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', { view: 'logs' })
 				} else {
@@ -87,6 +87,18 @@ async function handleUrl(rawUrl: string) {
 	}
 }
 
+function restoreOrCreateWindow() {
+	if (mainWindow && !mainWindow.isDestroyed()) {
+		if (mainWindow.isMinimized()) {
+			mainWindow.restore()
+		}
+		mainWindow.show()
+		mainWindow.focus()
+	} else {
+		mainWindow = createMainWindow(getAutoHide(), () => isQuitting)
+	}
+}
+
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
 	app.quit()
@@ -97,12 +109,7 @@ if (!gotTheLock) {
 		if (url) {
 			handleUrl(url)
 		}
-
-		if (mainWindow && !mainWindow.isDestroyed()) {
-			if (mainWindow.isMinimized()) mainWindow.restore()
-			mainWindow.show()
-			mainWindow.focus()
-		}
+		restoreOrCreateWindow()
 	})
 
 	app.on('open-url', (event, url) => {
@@ -126,10 +133,7 @@ if (!gotTheLock) {
 
 		createTray(
 			() => {
-				if (mainWindow && !mainWindow.isDestroyed()) {
-					mainWindow.show()
-					mainWindow.focus()
-				}
+				restoreOrCreateWindow()
 				return mainWindow
 			},
 			() => {
@@ -168,13 +172,11 @@ if (process.platform === 'darwin') {
 }
 
 app.on('activate', () => {
-	if (!getAutoHide() && !mainWindow) {
-		mainWindow = createMainWindow(getAutoHide(), () => isQuitting)
-	}
+	restoreOrCreateWindow()
 })
 
 app.on('window-all-closed', () => {
 	if (process.platform !== 'darwin') {
-		app.quit()
+		return
 	}
 })

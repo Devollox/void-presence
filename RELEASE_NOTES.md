@@ -11,3 +11,8 @@
 - **Strict storage correction** — rebuilt `setupIntervalControl` to eliminate silent failures. The logic now directly overwrites corrupted or non-numeric `localStorage` entries with valid parameters.
 - **Synchronized backend state** — the runtime interval now triggers an immediate `window.electronAPI.setActivityInterval` broadcast during initialization, completely removing timing gaps between UI states and the background process.
 - **Custom status stability** — the status worker now shares the same resilient Discord presence detection and interval handling, making token-based custom statuses more reliable across all platforms.
+
+## Fixed
+
+- **Window restoration on macOS & Linux** — fixed a critical Electron lifecycle issue where the application window could not be reopened after being closed or hidden. The application now correctly restores and focuses the UI when clicking the Dock icon on macOS or launching a second instance on Linux.
+- **Native module resolution (.asar bypass)** — resolved a fatal startup error (`ERR_DLOPEN_FAILED` / `Could not load the "sharp" module`) on Apple Silicon Mac devices by correcting how native C++ binary dependencies (`libvips`) are handled and read by the OS.
