@@ -30,8 +30,6 @@ export function resetPersistTimestampValue() {
 	persistOffsetSecBase = 0
 }
 
-const processName = 'Discord.exe'
-
 let client: DiscordClient | null = null
 let restartTimer: NodeJS.Timeout | null = null
 let restartInterval: NodeJS.Timeout | null = null
@@ -86,9 +84,39 @@ async function savePersistOffsetIfNeeded() {
 }
 
 function checkDiscordRunning(cb: (err: { message: string } | null, isRunning: boolean) => void) {
-	exec('tasklist', (err, stdout) => {
+	const platform = process.platform
+
+	if (platform === 'win32') {
+		exec('tasklist', (err, stdout) => {
+			if (err) return cb(err as any, false)
+			const lower = stdout.toLowerCase()
+			const found =
+				lower.includes('discord.exe') ||
+				lower.includes('discordcanary.exe') ||
+				lower.includes('discordptb.exe')
+			cb(null, found)
+		})
+		return
+	}
+
+	const cmd = platform === 'darwin' || platform === 'linux' ? 'ps aux' : ''
+
+	if (!cmd) {
+		cb({ message: `Unsupported platform: ${platform}` }, false)
+		return
+	}
+
+	exec(cmd, (err, stdout) => {
 		if (err) return cb(err as any, false)
-		cb(null, stdout.toLowerCase().includes(processName.toLowerCase()))
+		const lower = stdout.toLowerCase()
+		const found =
+			lower.includes('discord.app') ||
+			lower.includes(' discord ') ||
+			lower.includes('discord') ||
+			lower.includes('discordcanary') ||
+			lower.includes('discord ptb') ||
+			lower.includes('discordptb')
+		cb(null, found)
 	})
 }
 
@@ -304,7 +332,9 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 
 		function payloadSig(p: PresencePayload | null): string {
 			if (!p) return ''
-			return `${p.details}|${p.state}|${p.activityType}|${p.priority}|${JSON.stringify(p.buttons ?? [])}|${JSON.stringify(p.assets ?? {})}`
+			return `${p.details}|${p.state}|${p.activityType}|${p.priority}|${JSON.stringify(
+				p.buttons ?? []
+			)}|${JSON.stringify(p.assets ?? {})}`
 		}
 
 		async function onPluginUpdate() {

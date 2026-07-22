@@ -11,7 +11,6 @@ import { sendLog, sendStatusCustom, sendStatusCustomPayload } from '../../main/l
 import { t } from '../../main/translations'
 
 const DISCORD_API_URL = 'https://discord.com/api/v10/users/@me/settings'
-const processName = 'Discord.exe'
 
 let isStopped = true
 let currentSessionId = 0
@@ -46,9 +45,38 @@ function normalizeStatuses(list: any[] | undefined | null): CustomStatusItem[] {
 }
 
 function checkDiscordRunning(cb: (err: { message: string } | null, isRunning: boolean) => void) {
-	exec('tasklist', (err, stdout) => {
-		if (err) return cb(err, false)
-		const found = stdout.toLowerCase().includes(processName.toLowerCase())
+	const platform = process.platform
+
+	if (platform === 'win32') {
+		exec('tasklist', (err, stdout) => {
+			if (err) return cb(err as any, false)
+			const lower = stdout.toLowerCase()
+			const found =
+				lower.includes('discord.exe') ||
+				lower.includes('discordcanary.exe') ||
+				lower.includes('discordptb.exe')
+			cb(null, found)
+		})
+		return
+	}
+
+	const cmd = platform === 'darwin' || platform === 'linux' ? 'ps aux' : ''
+
+	if (!cmd) {
+		cb({ message: `Unsupported platform: ${platform}` }, false)
+		return
+	}
+
+	exec(cmd, (err, stdout) => {
+		if (err) return cb(err as any, false)
+		const lower = stdout.toLowerCase()
+		const found =
+			lower.includes('discord.app') ||
+			lower.includes(' discord ') ||
+			lower.includes('discord') ||
+			lower.includes('discordcanary') ||
+			lower.includes('discord ptb') ||
+			lower.includes('discordptb')
 		cb(null, found)
 	})
 }
