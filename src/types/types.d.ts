@@ -1,7 +1,6 @@
 ﻿export type ActivityType = 'playing' | 'watching' | 'listening' | 'competing'
 export type TimestampMode = 'now' | 'range' | 'persist'
 export type NowMode = 'plain' | 'progress' | 'cycles'
-export type ViewName = 'main' | 'logs' | 'config' | 'status' | 'settings' | 'plugins'
 
 export interface StatusStateResult {
 	enabled: boolean
