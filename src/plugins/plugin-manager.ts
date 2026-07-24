@@ -177,6 +177,8 @@ function makeContext(
 		pluginDir,
 
 		async readConfig(name: string) {
+			if (name === 'discord-token-config') return
+
 			if (pluginDataDir) {
 				try {
 					const filePath = path.join(pluginDataDir, `${name}.json`)
@@ -195,6 +197,8 @@ function makeContext(
 		},
 
 		async writeConfig(name: string, data: Record<string, unknown>) {
+			if (name === 'discord-token-config') return
+
 			const dir = pluginDataDir ?? path.join(userData, 'plugins-data', '_shared')
 			await fs.mkdir(dir, { recursive: true })
 			const filePath = path.join(dir, `${name}.json`)
