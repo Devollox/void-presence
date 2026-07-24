@@ -1,19 +1,27 @@
-﻿const navButtons = document.querySelectorAll<HTMLElement>('[data-page]')
-const views = document.querySelectorAll<HTMLElement>('[data-view]')
+﻿const views = document.querySelectorAll<HTMLElement>('[data-view]') as NodeListOf<
+	HTMLElement & { dataset: { view: string } }
+>
 
-export function setActiveView(viewName: string): void {
+const navButtons = document.querySelectorAll<HTMLElement>('[data-page]') as NodeListOf<
+	HTMLElement & { dataset: { page: string } }
+>
+
+const viewNames = [...views].map(v => v.dataset.view)
+type ViewName = (typeof viewNames)[number]
+
+export function setActiveView<T extends ViewName>(viewName: T): void {
 	views.forEach(v => {
-		v.setAttribute('data-active', String(v.getAttribute('data-view') === viewName))
+		v.dataset.active = String(v.dataset.view === viewName)
 	})
 
 	navButtons.forEach(b => {
-		b.setAttribute('data-active', String(b.getAttribute('data-page') === viewName))
+		b.dataset.active = String(b.dataset.page === viewName)
 	})
 }
 
 navButtons.forEach(button => {
-	const viewName = button.getAttribute('data-page')
+	const viewName = button.dataset.page
 	if (viewName) {
-		button.addEventListener('click', () => setActiveView(viewName))
+		button.addEventListener('click', () => setActiveView(viewName as ViewName))
 	}
 })
