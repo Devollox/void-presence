@@ -6,14 +6,14 @@ import {
 	StoredStatusProfile,
 	VoidPresenceCtx,
 } from '../../../types/types'
+import { downloadJson, pushLiveStateFromCtx } from '../config/live'
+import { setupToasts } from '../config/toasts'
+import { openStatusUploadConfirm } from '../config/upload-сonfirm'
 import { applyStateToUIAndLists, loadCurrentState } from '../core/state'
 import { appendLog, setActiveView } from '../shell/views'
-import { downloadJson, pushLiveStateFromCtx } from './live'
 import { openStatusDetails } from './status-details'
 import { filterStatusListByExistingInput } from './status-search'
 import { deepCloneStatusItems, getStatusProfiles, setStatusProfiles } from './status-storage'
-import { setupToasts } from './toasts'
-import { openStatusUploadConfirm } from './upload-сonfirm'
 
 function createStatusCard(
 	profile: StoredStatusProfile,

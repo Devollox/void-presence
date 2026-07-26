@@ -88,28 +88,30 @@ export function setupStatusEnabledBrowserToggle(): void {
 }
 
 export function setupPresenceControls() {
+	const api = window.electronAPI
+
 	const btnRestart = document.getElementById('restart-discord') as HTMLButtonElement | null
 	const btnStop = document.getElementById('stop-discord') as HTMLButtonElement | null
 
-	if (btnRestart && window.electronAPI?.customStatusRestart) {
+	if (btnRestart && api?.customStatusRestart) {
 		btnRestart.addEventListener('click', e => {
 			e.preventDefault()
 			setTimeout(() => {
 				updateStatus('RPC_RESTARTING')
 			}, 100)
-			window.electronAPI.restartDiscordRich()
+			api.restartDiscordRich?.()
 
 			const { showRestartPresnceToast } = setupToasts()
 			showRestartPresnceToast()
 		})
 	}
 
-	if (btnRestart && window.electronAPI?.stopDiscordRich) {
+	if (btnStop && api?.stopDiscordRich) {
 		btnStop.addEventListener('click', e => {
 			e.preventDefault()
 			updateStatus('RPC_DISABLED')
 			updateInfo(null)
-			void window.electronAPI.stopDiscordRich()
+			void api.stopDiscordRich?.()
 
 			const { showStopPresnceToast } = setupToasts()
 			showStopPresnceToast()
@@ -118,21 +120,23 @@ export function setupPresenceControls() {
 }
 
 export function setupCustomStatusControls() {
+	const api = window.electronAPI
+
 	const btnRestart = document.getElementById('custom-status-restart')
 	const btnStop = document.getElementById('custom-status-stop')
 
-	if (btnRestart && window.electronAPI?.customStatusRestart) {
+	if (btnRestart && api?.customStatusRestart) {
 		btnRestart.addEventListener('click', () => {
-			window.electronAPI.customStatusRestart()
+			api.customStatusRestart?.()
 
 			const { showRestartStatusToast } = setupToasts()
 			showRestartStatusToast()
 		})
 	}
 
-	if (btnStop && window.electronAPI?.customStatusStop) {
+	if (btnStop && api?.customStatusStop) {
 		btnStop.addEventListener('click', () => {
-			window.electronAPI.customStatusStop()
+			api.customStatusStop?.()
 
 			const { showStopStatusToast } = setupToasts()
 			showStopStatusToast()

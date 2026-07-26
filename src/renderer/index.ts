@@ -1,11 +1,7 @@
 ﻿import { t } from 'i18next'
+import { setupConfigPage } from './modules/config-page/config-page'
 import { setupActivityTypeControls } from './modules/config/activity'
 import { setupClientIdControls } from './modules/config/clientId-controls'
-import { setupConfigPage } from './modules/config/config-page'
-import { setupStatusDetailsOverlay } from './modules/config/status-details'
-import { setupStatusImportOverlay } from './modules/config/status-import'
-import { setupStatusPage } from './modules/config/status-page'
-import { renderStatusProfiles, setupStatusIntervalControl } from './modules/config/status-render'
 import { setupToasts } from './modules/config/toasts'
 import { setupCloudUpload } from './modules/config/upload'
 import { fetchNowPlaying } from './modules/core/now-playing'
@@ -33,6 +29,13 @@ import {
 } from './modules/shell/toggles'
 import { setActiveView, updateInfo, updateStatus } from './modules/shell/views'
 import { setupWindowControls } from './modules/shell/window-controls'
+import { setupStatusDetailsOverlay } from './modules/status-page/status-details'
+import { setupStatusImportOverlay } from './modules/status-page/status-import'
+import { setupStatusPage } from './modules/status-page/status-page'
+import {
+	renderStatusProfiles,
+	setupStatusIntervalControl,
+} from './modules/status-page/status-render'
 
 document.addEventListener('DOMContentLoaded', async () => {
 	initLanguage()
@@ -121,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			const { showPluginSavedToast } = setupToasts()
 
 			try {
-				const result = await window.electronAPI.pluginsInstallFromUrl(url)
+				const result = await window?.electronAPI?.pluginsInstallFromUrl?.(url)
 
 				if (result?.ok) {
 					showPluginSavedToast({

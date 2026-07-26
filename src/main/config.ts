@@ -341,9 +341,8 @@ const validatePartyConfig: Validator<PartyConfig | null> = (input): PartyConfig 
 	const obj = input as Partial<PartyConfig>
 	const entriesRaw = Array.isArray(obj.entries) ? obj.entries : []
 	const entries: PartyCycleEntry[] = entriesRaw.map((p: PartyCycleEntry) => ({
-		sizeCurrent:
-			p?.sizeCurrent === null || p?.sizeCurrent === undefined ? null : Number(p.sizeCurrent),
-		sizeMax: p?.sizeMax === null || p?.sizeMax === undefined ? null : Number(p.sizeMax),
+		sizeCurrent: p?.sizeCurrent === null || p?.sizeCurrent === '' ? '' : Number(p.sizeCurrent),
+		sizeMax: p?.sizeMax === null || p?.sizeMax === '' ? '' : Number(p.sizeMax),
 	}))
 	return { entries }
 }
@@ -428,8 +427,10 @@ export async function setTimestampConfig(config: Partial<TimestampConfig>) {
 		: current.persistOffsetSec
 
 	let persistOffsetSec =
-		Number.isFinite(persistOffsetSecRaw) && persistOffsetSecRaw > 0
-			? roundToNearest5(persistOffsetSecRaw)
+		typeof persistOffsetSecRaw === 'number'
+			? Number.isFinite(persistOffsetSecRaw) && persistOffsetSecRaw > 0
+				? roundToNearest5(persistOffsetSecRaw)
+				: 0
 			: 0
 
 	if (
@@ -535,9 +536,8 @@ export async function setImageCyclesConfig(
 export async function setPartyConfig(config: PartyConfig) {
 	const entriesRaw = Array.isArray(config.entries) ? config.entries : []
 	const cleaned: PartyCycleEntry[] = entriesRaw.map(p => ({
-		sizeCurrent:
-			p.sizeCurrent === null || p.sizeCurrent === undefined ? null : Number(p.sizeCurrent),
-		sizeMax: p.sizeMax === null || p.sizeMax === undefined ? null : Number(p.sizeMax),
+		sizeCurrent: p.sizeCurrent === null || p.sizeCurrent === '' ? '' : Number(p.sizeCurrent),
+		sizeMax: p.sizeMax === null || p.sizeMax === '' ? '' : Number(p.sizeMax),
 	}))
 	const finalCfg: PartyConfig = { entries: cleaned }
 	await writePartyConfig(finalCfg)

@@ -288,15 +288,17 @@ function renderPluginCard(plugin: PluginInfo): HTMLElement {
 }
 
 export function setupPluginsPage(): void {
+	const api = window.electronAPI
+
 	const list = document.getElementById('plugins-list') as HTMLElement | null
 	const empty = document.getElementById('plugins-empty') as HTMLElement | null
 	const count = document.getElementById('plugins-count') as HTMLElement | null
 
 	if (!list || !empty || !count) return
 
-	const api = (window as any).electronAPI
-
 	async function render() {
+		if (!list || !empty || !count) return
+
 		list.innerHTML = ''
 
 		let plugins: PluginInfo[] = []

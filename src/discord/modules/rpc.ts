@@ -176,7 +176,7 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 		let timestampConfig: TimestampConfig = await readTimestampConfig()
 		currentTimestampConfig = timestampConfig
 		let mode = timestampConfig.mode
-		let nowMode: NowMode = timestampConfig.nowMode
+		let nowMode: NowMode = timestampConfig.nowMode ?? 'plain'
 		let timeCycles: TimeCycleEntry[] = timestampConfig.timeCycles ?? []
 
 		if (mode === 'persist') {
@@ -248,7 +248,7 @@ export default function startDiscordRich(sendPayload: (payload: RpcPayload) => v
 				timestampConfig = ts
 				currentTimestampConfig = ts
 				mode = ts.mode
-				nowMode = ts.nowMode
+				nowMode = ts.nowMode ?? 'plain'
 				timeCycles = ts.timeCycles ?? []
 			} catch {}
 		}

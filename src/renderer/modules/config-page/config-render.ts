@@ -10,6 +10,9 @@ import {
 	TimestampMode,
 	VoidPresenceCtx,
 } from '../../../types/types'
+import { downloadJson, pushLiveStateFromCtx } from '../config/live'
+import { setupToasts } from '../config/toasts'
+import { openUploadConfirm } from '../config/upload-сonfirm'
 import { applyStateToUIAndLists } from '../core/state'
 import { reattachDnDForProfiles } from '../helpers/dnd'
 import { openConfigDetails } from '../modals/details'
@@ -22,9 +25,6 @@ import {
 	setConfigs,
 	StoredRecentApp,
 } from './config-storage'
-import { downloadJson, pushLiveStateFromCtx } from './live'
-import { setupToasts } from './toasts'
-import { openUploadConfirm } from './upload-сonfirm'
 
 export function addConfigFromState(name: string, state: FullState): void {
 	const configs = getConfigs()
@@ -266,7 +266,7 @@ function createConfigCard(
 		e.preventDefault()
 		const clonedCfg: StoredConfig = {
 			...cfg,
-			state: cfg.state ? deepCloneState(cfg.state as FullState) : undefined,
+			state: deepCloneState(cfg.state),
 		}
 		openConfigDetails(clonedCfg)
 	})

@@ -1,9 +1,9 @@
 import { CustomStatusItem } from 'src/types/types'
-import { downloadJson } from './live'
+import { downloadJson } from '../config/live'
+import { setupToasts } from '../config/toasts'
 import { renderStatusProfiles } from './status-render'
 import { attachStatusSearch } from './status-search'
 import { addStatusProfileFromState, deepCloneStatusItems } from './status-storage'
-import { setupToasts } from './toasts'
 
 export function setupStatusPage(): void {
 	const nameInput = document.getElementById('status-name-input') as HTMLInputElement | null

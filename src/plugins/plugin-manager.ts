@@ -177,7 +177,7 @@ function makeContext(
 		pluginDir,
 
 		async readConfig(name: string) {
-			if (name === 'discord-token-config') return
+			if (name === 'discord-token-config') return null
 
 			if (pluginDataDir) {
 				try {

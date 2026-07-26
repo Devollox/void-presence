@@ -1,6 +1,6 @@
 import { CustomStatusItem, FullState, StoredConfig } from 'src/types/types'
-import { getConfigs, setConfigs } from './config-storage'
-import { addStatusProfileFromItems } from './status-storage'
+import { getConfigs, setConfigs } from '../config-page/config-storage'
+import { addStatusProfileFromItems } from '../status-page/status-storage'
 
 type AnyJson = unknown
 
@@ -8,10 +8,7 @@ function isStatusItemArray(data: AnyJson): data is CustomStatusItem[] {
 	if (!Array.isArray(data)) return false
 	return data.every(
 		x =>
-			x &&
-			typeof x === 'object' &&
-			'text' in x &&
-			typeof (x as CustomStatusItem).text === 'string'
+			x && typeof x === 'object' && 'text' in x && typeof (x as CustomStatusItem).text === 'string'
 	)
 }
 
@@ -30,10 +27,7 @@ function isConfigObject(data: AnyJson): data is FullState | StoredConfig {
 
 export type ImportKind = 'status' | 'config' | 'invalid'
 
-export function applyImportedJson(
-	parsed: AnyJson,
-	baseName: string
-): ImportKind {
+export function applyImportedJson(parsed: AnyJson, baseName: string): ImportKind {
 	if (isStatusItemArray(parsed)) {
 		addStatusProfileFromItems(
 			baseName || `Imported status ${new Date().toISOString().slice(0, 19)}`,
@@ -45,8 +39,7 @@ export function applyImportedJson(
 	if (isConfigObject(parsed)) {
 		const configs = getConfigs()
 		const cfg: StoredConfig = {
-			name:
-				baseName || `Imported config ${new Date().toISOString().slice(0, 19)}`,
+			name: baseName || `Imported config ${new Date().toISOString().slice(0, 19)}`,
 			createdAt: new Date().toISOString(),
 			...(parsed as Partial<StoredConfig>),
 		} as StoredConfig

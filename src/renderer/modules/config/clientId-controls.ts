@@ -1,12 +1,12 @@
 import { VoidPresenceCtx } from 'src/types/types'
-import { reattachDnDForProfiles } from '../helpers/dnd'
 import {
 	getRecentApps,
 	removeRecentApp,
 	setRecentApps,
 	StoredRecentApp,
 	upsertRecentApp,
-} from './config-storage'
+} from '../config-page/config-storage'
+import { reattachDnDForProfiles } from '../helpers/dnd'
 import { createInitialCtx } from './ctx'
 import { attachDnD } from './dnd'
 import {

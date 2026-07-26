@@ -9,6 +9,8 @@ export function setupStatusImportOverlay(): void {
 	if (!overlay || !closeBtn || !fileInput) return
 
 	function close(): void {
+		if (!overlay || !fileInput) return
+
 		overlay.dataset.open = 'false'
 		fileInput.value = ''
 	}

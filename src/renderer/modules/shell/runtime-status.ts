@@ -477,6 +477,8 @@ export function updateStatusStatus(status: string): void {
 }
 
 export function updateStatusText(text: string | null): void {
+	if (!text) return
+
 	const el = document.getElementById('status-page-info-text') as HTMLElement | null
 	const elTitleBlock = document.getElementById(
 		'status-page-info-text-title-block'

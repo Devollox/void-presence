@@ -165,6 +165,8 @@ export function setupConfigDetailsOverlay(): void {
 	if (!overlay || !closeBtn) return
 
 	function close(): void {
+		if (!overlay) return
+
 		overlay.dataset.open = 'false'
 	}
 

@@ -1,8 +1,8 @@
+import { downloadJson } from '../config/live'
+import { setupToasts } from '../config/toasts'
 import { loadCurrentState } from '../core/state'
 import { addConfigFromState, attachAddConfigGlobal, renderConfigs } from './config-render'
 import { attachSearchToList } from './config-search'
-import { downloadJson } from './live'
-import { setupToasts } from './toasts'
 
 export function setupConfigPage(): void {
 	const nameInput = document.getElementById('config-name-input') as HTMLInputElement | null

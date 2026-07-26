@@ -10,14 +10,15 @@ function setupGenericTutorial(config: TutorialConfig) {
 	const closeBtn = document.getElementById(config.closeId)
 	const dontShowBtn = document.getElementById(config.dontShowId)
 
-	if (!card) return
+	if (!(card instanceof HTMLElement)) return
 
-	function hide(permanent: boolean) {
+	const hide = (permanent: boolean) => {
 		card.setAttribute('data-visible', 'false')
 
 		const onTransitionEnd = (e: TransitionEvent) => {
 			if (e.propertyName !== 'opacity') return
-			;(card as HTMLElement).style.display = 'none'
+
+			card.style.display = 'none'
 			card.removeEventListener('transitionend', onTransitionEnd)
 
 			if (permanent) {
@@ -31,10 +32,9 @@ function setupGenericTutorial(config: TutorialConfig) {
 	closeBtn?.addEventListener('click', () => hide(false))
 	dontShowBtn?.addEventListener('click', () => hide(true))
 
-	if (window.localStorage.getItem(config.storageKey) === '1') {
-		;(card as HTMLElement).style.display = 'none'
-	} else {
-		;(card as HTMLElement).style.display = ''
+	const isHidden = window.localStorage.getItem(config.storageKey) === '1'
+	card.style.display = isHidden ? 'none' : ''
+	if (!isHidden) {
 		card.setAttribute('data-visible', 'true')
 	}
 }
@@ -63,24 +63,27 @@ export function setupTutorials() {
 }
 
 export function setupStatusTutorialButtons() {
+	const api = window.electronAPI
+	if (!api) return
+
 	const openDevBtn = document.getElementById('tutorial-inline-open-dev')
 	const authorBtn = document.getElementById('get-author-id')
 	const videoBtn = document.getElementById('get-video-id')
 	const videoBtnError = document.getElementById('get-video-error-id')
 
 	openDevBtn?.addEventListener('click', () => {
-		window.electronAPI.openDiscordDeveloperPortal()
+		api.openDiscordDeveloperPortal?.()
 	})
 
 	authorBtn?.addEventListener('click', () => {
-		window.electronAPI.openDiscordDeveloperAuthorId()
+		api.openDiscordDeveloperAuthorId?.()
 	})
 
 	videoBtn?.addEventListener('click', () => {
-		window.electronAPI.openDiscordGetTokenVideo()
+		api.openDiscordGetTokenVideo?.()
 	})
 
 	videoBtnError?.addEventListener('click', () => {
-		window.electronAPI.openDiscordGetTokenVideoError()
+		api.openDiscordGetTokenVideoError?.()
 	})
 }

@@ -1,6 +1,6 @@
 import { NowPlayingData } from 'src/types/types'
 
-export async function fetchNowPlaying(): Promise<NowPlayingData> {
+export async function fetchNowPlaying(): Promise<NowPlayingData | null> {
 	if (!window.electronAPI?.invoke) {
 		return null
 	}
@@ -12,7 +12,7 @@ export async function fetchNowPlaying(): Promise<NowPlayingData> {
 
 		return {
 			sourceAppId: raw.sourceAppId || 'Player',
-			lastUpdatedTime: typeof raw.lastUpdatedTime === 'number' ? raw.lastUpdatedTime : null,
+			lastUpdatedTime: raw.lastUpdatedTime || 0,
 			title: raw.title || '',
 			artist: raw.artist || '',
 			albumTitle: raw.albumTitle || '',

@@ -1,6 +1,6 @@
 import { t } from 'i18next'
+import { updateRecentName } from '../config-page/config-storage'
 import { setActiveView } from '../shell/views-nav'
-import { updateRecentName } from './config-storage'
 import { setupToasts } from './toasts'
 
 export type RecentApp = {

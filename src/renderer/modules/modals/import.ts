@@ -1,8 +1,8 @@
 import { CustomStatusItem, FullState } from '../../../types/types'
-import { renderConfigs } from '../config/config-render'
-import { renderStatusProfiles } from '../config/status-render'
-import { addStatusProfileFromItems } from '../config/status-storage'
+import { renderConfigs } from '../config-page/config-render'
 import { setupToasts } from '../config/toasts'
+import { renderStatusProfiles } from '../status-page/status-render'
+import { addStatusProfileFromItems } from '../status-page/status-storage'
 
 function isStatusArray(data: unknown): data is CustomStatusItem[] {
 	return (
@@ -131,6 +131,8 @@ export function setupImportOverlay(): void {
 	}
 
 	function closeImport(): void {
+		if (!importOverlay || !importFileInput) return
+
 		importOverlay.dataset.open = 'false'
 		importFileInput.value = ''
 	}
