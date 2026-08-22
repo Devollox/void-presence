@@ -14,27 +14,27 @@ function getStatusTextMap(): Record<string, { title: string; second: string; val
 		IDLE: {
 			title: t('idle'),
 			second: t('waitingToStart'),
-			value: '-',
+			value: '–',
 		},
 		CONNECTING: {
 			title: t('idle'),
 			second: t('updatingDiscordStatus'),
-			value: '-',
+			value: '–',
 		},
 		RESTARTING: {
 			title: t('idle'),
 			second: t('customStatusRestarting'),
-			value: '-',
+			value: '–',
 		},
 		SEARCHING: {
 			title: t('idle'),
 			second: t('lookingForDiscordProcess'),
-			value: '-',
+			value: '–',
 		},
 		DISABLED: {
 			title: t('idle'),
 			second: t('waitingToStart'),
-			value: '-',
+			value: '–',
 		},
 	}
 }

@@ -124,7 +124,7 @@ function renderList(
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = `Current: ${it.sizeCurrent ?? '-'} | Max: ${it.sizeMax ?? '-'}`
+			sub.textContent = `Current: ${it.sizeCurrent ?? '–'} | Max: ${it.sizeMax ?? '–'}`
 
 			main.appendChild(label)
 			main.appendChild(sub)

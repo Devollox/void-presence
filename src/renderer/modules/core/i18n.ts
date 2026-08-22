@@ -12,7 +12,7 @@ const resources = {
 const supportedLanguages = ['en', 'ru', 'tr']
 
 function getInitialLanguage(): string {
-	const systemLanguage = navigator.language.split('-')[0]
+	const systemLanguage = navigator.language.split('–')[0]
 	const savedLanguage = localStorage.getItem('language')
 
 	if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
