@@ -104,7 +104,7 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 	const averageColors = imageUrls.length > 0 ? await getColorsFromImages(imageUrls) : []
 
 	const response = await fetch(
-		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
+		`https://api.voidpresence.com/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
 		{
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -129,7 +129,7 @@ export async function uploadConfigToCloud(config: UploadConfigPayload): Promise<
 
 export async function uploadStatusConfigToCloud(config: UploadConfigPayload): Promise<string> {
 	const response = await fetch(
-		`https://api.voidpresence.site/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
+		`https://api.voidpresence.com/v1/authors/${encodeURIComponent(config.authorId)}/add-config`,
 		{
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },

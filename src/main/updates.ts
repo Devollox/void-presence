@@ -22,7 +22,7 @@ type ApiLatestInfo = {
 
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
-		const res = await fetch('https://api.voidpresence.site/v2/github/releases', {
+		const res = await fetch('https://api.voidpresence.com/v2/github/releases', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',

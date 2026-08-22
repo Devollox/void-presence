@@ -1,6 +1,7 @@
 ﻿import { app, BrowserWindow, Menu, Tray } from 'electron'
 import * as path from 'path'
 import { stopDiscordRich } from '../discord'
+import { startDiscordRichLogic } from './ipc'
 import { sendStatus } from './logging'
 import { checkForUpdates } from './updates'
 import { getMainWindow } from './window'
@@ -42,11 +43,25 @@ export function createTray(createWindow: () => void, markQuitting: () => void) {
 		{
 			label: 'Restart Presence',
 			accelerator: 'CmdOrCtrl+R',
-			click: () => {
+			click: async () => {
 				const win = getMainWindow() || BrowserWindow.getAllWindows()[0]
 				if (!win || win.isDestroyed()) return
-				win.webContents.send('restart-discord-rich')
-				setTimeout(() => sendStatus('RPC_RESTARTING'), 100)
+				stopDiscordRich()
+
+				startDiscordRichLogic(payload => {
+					if (win.isDestroyed()) return
+					win.webContents.send('rpc-update', payload)
+				})
+			},
+		},
+		{
+			label: 'Stop Presence',
+			accelerator: 'CmdOrCtrl+D',
+			click: async () => {
+				const win = getMainWindow() || BrowserWindow.getAllWindows()[0]
+				if (!win || win.isDestroyed()) return
+				stopDiscordRich()
+				sendStatus('RPC_DISABLED')
 			},
 		},
 		{ type: 'separator' },

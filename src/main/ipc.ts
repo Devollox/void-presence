@@ -71,7 +71,7 @@ registerPlugin(defaultPlugin)
 registerPlugin(smtcPlugin)
 registerPlugin(hardwarePlugin)
 
-function startDiscordRich(sendPayload: (payload: RpcPayload) => void) {
+export function startDiscordRichLogic(sendPayload: (payload: RpcPayload) => void) {
 	if (stopCurrentRpc) {
 		stopCurrentRpc()
 		stopCurrentRpc = null
@@ -135,7 +135,7 @@ export async function initIpc() {
 			setTimeout(() => {
 				sendStatus('RPC_RESTARTING')
 			}, 100)
-			startDiscordRich(payload => {
+			startDiscordRichLogic(payload => {
 				if (win.isDestroyed()) return
 				win.webContents.send('rpc-update', payload)
 			})
@@ -238,7 +238,7 @@ export async function initIpc() {
 		try {
 			stopDiscordRich()
 
-			startDiscordRich(payload => {
+			startDiscordRichLogic(payload => {
 				if (win.isDestroyed()) return
 				win.webContents.send('rpc-update', payload)
 			})
@@ -252,8 +252,14 @@ export async function initIpc() {
 	})
 
 	ipcMain.handle('stop-discord-rich', async () => {
-		stopDiscordRich()
-		sendStatus('RPC_DISABLED')
+		try {
+			stopDiscordRich()
+			sendStatus('RPC_DISABLED')
+
+			return true
+		} catch (error) {
+			throw new Error('Error', { cause: error })
+		}
 	})
 
 	ipcMain.handle('set-client-id', async (_event, clientId: string) => {
@@ -280,7 +286,7 @@ export async function initIpc() {
 		await setTimestampConfig(cfg)
 
 		setTimeout(() => {
-			startDiscordRich(payload => {
+			startDiscordRichLogic(payload => {
 				if (win.isDestroyed()) return
 				win.webContents.send('rpc-update', payload)
 			})
@@ -625,7 +631,7 @@ export async function initIpc() {
 
 	ipcMain.handle('open-discord-author-id', async () => {
 		try {
-			await shell.openExternal('https://voidpresence.site/profile')
+			await shell.openExternal('https://voidpresence.com/profile')
 		} catch (error) {
 			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
 		}
@@ -659,7 +665,7 @@ export async function initIpc() {
 
 	ipcMain.handle('support:open-site', async () => {
 		try {
-			await shell.openExternal('https://voidpresence.site/docs')
+			await shell.openExternal('https://voidpresence.com/docs')
 			return true
 		} catch (error) {
 			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
@@ -767,7 +773,7 @@ export async function initIpc() {
 		stopDiscordRich()
 
 		setTimeout(() => {
-			startDiscordRich(payload => {
+			startDiscordRichLogic(payload => {
 				if (win.isDestroyed()) return
 				win.webContents.send('rpc-update', payload)
 			})
@@ -793,7 +799,7 @@ export async function initIpc() {
 		stopDiscordRich()
 
 		setTimeout(() => {
-			startDiscordRich(payload => {
+			startDiscordRichLogic(payload => {
 				if (win.isDestroyed()) return
 				win.webContents.send('rpc-update', payload)
 			})
@@ -857,7 +863,7 @@ export async function initIpc() {
 			stopDiscordRich()
 
 			setTimeout(() => {
-				startDiscordRich(payload => {
+				startDiscordRichLogic(payload => {
 					if (win.isDestroyed()) return
 					win.webContents.send('rpc-update', payload)
 				})

@@ -59,32 +59,42 @@ Plugins live in `%APPDATA%\Void Presence\plugins\`. Drop a `.js` file or a folde
 ```js
 // hello.js — minimal plugin
 module.exports = {
-  id: 'hello',
-  nameKey: 'Hello Plugin',
-  version: '1.0.0',
-  builtin: false,
-  priority: 60,
-  locked: false,
-  controls: [],
+	id: 'hello',
+	nameKey: 'Hello Plugin',
+	version: '1.0.0',
+	builtin: false,
+	priority: 60,
+	locked: false,
+	controls: [],
 
-  start(ctx) { /* ctx.readSettings(), ctx.sendLog(), ctx.writeConfig()… */ },
-  stop() {},
-  onUpdate(cb) { this._cb = cb },
-  getPayload() {
-    return { source: 'hello', details: 'Hello', state: 'from plugin', activityType: 'playing', priority: 60 }
-  },
+	start(ctx) {
+		/* ctx.readSettings(), ctx.sendLog(), ctx.writeConfig()… */
+	},
+	stop() {},
+	onUpdate(cb) {
+		this._cb = cb
+	},
+	getPayload() {
+		return {
+			source: 'hello',
+			details: 'Hello',
+			state: 'from plugin',
+			activityType: 'playing',
+			priority: 60,
+		}
+	},
 }
 ```
 
-Full plugin API docs → [voidpresence.site/plugins/docs](https://voidpresence.site/plugins/docs)
+Full plugin API docs → [voidpresence.com/plugins/docs](https://voidpresence.com/plugins/docs)
 
 ### Builtin plugin priorities
 
-| Plugin | Priority | Exclusive |
-|---|---|---|
-| `default` | 0 | No |
-| `hardware` | 50 | Yes |
-| `smtc` | 70 | No |
+| Plugin     | Priority | Exclusive |
+| ---------- | -------- | --------- |
+| `default`  | 0        | No        |
+| `hardware` | 50       | Yes       |
+| `smtc`     | 70       | No        |
 
 Use `priority > 70` to override everything.
 
@@ -92,22 +102,22 @@ Use `priority > 70` to override everything.
 
 ## RPC update intervals
 
-| Interval | Discord rate limit | Notes |
-|---|---|---|
-| **30 s** (default) | Safe | Smooth rotation, no limits |
-| **5–15 s** | Safe | Good for frequent status changes |
-| **< 5 s** | May throttle | Discord drops rapid updates |
+| Interval           | Discord rate limit | Notes                            |
+| ------------------ | ------------------ | -------------------------------- |
+| **30 s** (default) | Safe               | Smooth rotation, no limits       |
+| **5–15 s**         | Safe               | Good for frequent status changes |
+| **< 5 s**          | May throttle       | Discord drops rapid updates      |
 
 ---
 
 ## Keyboard shortcuts
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl+,` | Show / hide window |
+| Shortcut | Action                |
+| -------- | --------------------- |
+| `Ctrl+,` | Show / hide window    |
 | `Ctrl+R` | Restart Rich Presence |
-| `Ctrl+Q` | Quit |
-| `Ctrl+U` | Check for updates |
+| `Ctrl+Q` | Quit                  |
+| `Ctrl+U` | Check for updates     |
 
 ---
 
@@ -129,11 +139,13 @@ Use `priority > 70` to override everything.
 Void Presence uploads only **Rich Presence configuration data** when you use cloud features.
 
 **What is stored:**
+
 - Config data — button pairs, status cycles, image cycles (`buttonPairs`, `cycles`, `imageCycles`)
 - Metadata — title, description, upload timestamp, download counter
 - Author name — your display handle
 
 **What is never stored:**
+
 - Discord tokens, passwords, or OAuth keys
 - Personal messages or Discord account data
 - System files or arbitrary local data

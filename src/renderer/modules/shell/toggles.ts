@@ -185,7 +185,7 @@ export function setupPluginsExternalButtons() {
 
 	if (btnBrowse) {
 		btnBrowse.addEventListener('click', () => {
-			api?.openExternal?.('https://voidpresence.site/plugins')
+			api?.openExternal?.('https://voidpresence.com/plugins')
 		})
 	}
 
