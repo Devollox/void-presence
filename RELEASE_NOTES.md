@@ -1,16 +1,18 @@
-﻿# Tray & Presence Control & New Domain
+﻿# API v3 & Updates Download
 
 ## New
 
-- **Direct presence control from tray** — Restart Presence and Stop Presence actions now execute Discord Rich Presence logic directly in the main process, removing the previous IPC round-trip and ensuring immediate, reliable state changes from the tray menu.
+- **GitHub Releases API v3** — a new `/v3/github/releases` endpoint now serves release info with platform-aware asset selection (`windows`, `macos`, `linux`) and distinct handling for the auto-updater.
 
 ## Improved
 
-- **Simplified restart/stop flow** — tray menu handlers now call `stopDiscordRich()` and `startDiscordRichLogic()` directly, reducing indirection and making the presence lifecycle easier to reason about and debug.
-- **Consistent status updates** — stopping presence from the tray now always emits `RPC_DISABLED` status, keeping UI and logs in sync with the actual RPC state.
+- **Microservice-based releases** — the updater now fetches release data from the dedicated `void-updates` microservice repository instead of the main `void-presence` app repo, ensuring the correct installer assets and download URLs are always used for each platform.
+- **Consistent asset naming** — the embedded updater now expects and downloads files named `Void.Presence.Updates.{version}.exe/.dmg/.deb` on all platforms, matching the assets published in the `void-updates` repository.
+
+## Fixed
+
+- **Auto-update file naming** — corrected the updater's expected file names from `Void.Presence.Setup.*` / `Void.Presence.*` to `Void.Presence.Updates.*` on Windows, macOS, and Linux, which likely resolves broken auto-updates across all platforms.
 
 ## Infrastructure
 
-- **New primary domain** — Void Presence has moved to [`voidpresence.com`](https://voidpresence.com).
-- **Legacy-domain redirects** — requests to `voidpresence.site`, `www.voidpresence.site`, and `api.voidpresence.site` now permanently redirect to their corresponding `.com` endpoints, preserving existing links and API access.
-- **Dedicated API domain** — the API is now available at [`api.voidpresence.com`](https://api.voidpresence.com).
+- **Decoupled release flow** — release metadata for the auto-updater is now fully separated from the main application, allowing independent versioning and deployment of the updater microservice.

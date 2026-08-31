@@ -22,14 +22,13 @@ type ApiLatestInfo = {
 
 export async function checkForUpdates({ log }: { log: boolean }) {
 	try {
-		const res = await fetch('https://api.voidpresence.com/v2/github/releases', {
+		const res = await fetch('https://api.voidpresence.com/v3/github/releases', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				app: 'void-presence',
 				platform:
 					process.platform === 'darwin'
 						? 'macos'
@@ -110,17 +109,10 @@ function getInstallDir() {
 	return path.dirname(exePath)
 }
 
-function platformInstallerExt(): string {
-	if (process.platform === 'win32') return '.exe'
-	if (process.platform === 'darwin') return '.dmg'
-
-	return '.deb'
-}
-
 function updateFileName(version: string): string {
-	if (process.platform === 'win32') return `Void.Presence.Setup.${version}.exe`
-	if (process.platform === 'darwin') return `Void.Presence.${version}.dmg`
-	return `Void.Presence.${version}.deb`
+	if (process.platform === 'win32') return `Void.Presence.Updates.${version}.exe`
+	if (process.platform === 'darwin') return `Void.Presence.Updates.${version}.dmg`
+	return `Void.Presence.Updates.${version}.deb`
 }
 
 export async function downloadFile(url: string, version: string): Promise<{ filePath: string }> {
