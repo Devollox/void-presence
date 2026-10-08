@@ -675,7 +675,7 @@ export async function initIpc() {
 
 	ipcMain.handle('support:open-discord', async () => {
 		try {
-			await shell.openExternal('https://discord.gg/xHJrCNA8y5')
+			await shell.openExternal('https://discord.gg/9FEkxGPPmu')
 			return true
 		} catch (error) {
 			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
