@@ -10,7 +10,7 @@ const { VitePlugin } = require('@electron-forge/plugin-vite')
 
 const ICON_BASE = './public/favicons/Group'
 
-const MAC_ENTITLEMENTS = path.join(__dirname, 'build', 'entitlements.mac.plist')
+const MAC_ENTITLEMENTS = path.join(__dirname, 'entitlements.mac.plist')
 
 const HAS_MAC_IDENTITY = !!process.env.MACOS_SIGNING_IDENTITY
 
