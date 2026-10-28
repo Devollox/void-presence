@@ -1,3 +1,7 @@
+const { execSync } = require('child_process')
+const fs = require('fs')
+const path = require('path')
+
 const { MakerZIP } = require('@electron-forge/maker-zip')
 const { MakerDMG } = require('@electron-forge/maker-dmg')
 const { MakerDeb } = require('@electron-forge/maker-deb')
@@ -5,6 +9,40 @@ const { MakerRpm } = require('@electron-forge/maker-rpm')
 const { VitePlugin } = require('@electron-forge/plugin-vite')
 
 const ICON_BASE = './public/favicons/Group'
+
+const MAC_ENTITLEMENTS = path.join(__dirname, 'build', 'entitlements.mac.plist')
+
+const HAS_MAC_IDENTITY = !!process.env.MACOS_SIGNING_IDENTITY
+
+function findAppBundle(dir) {
+	if (typeof dir === 'string' && dir.endsWith('.app')) return dir
+	if (!dir || !fs.existsSync(dir)) return null
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		if (entry.isDirectory() && entry.name.endsWith('.app')) {
+			return path.join(dir, entry.name)
+		}
+	}
+	return null
+}
+
+function resignMacAdhoc(appPath) {
+	console.log(`\n[macOS adhoc re-sign] ${appPath}`)
+
+	execSync(
+		`codesign --force --deep --options runtime --entitlements "${MAC_ENTITLEMENTS}" --sign - "${appPath}"`,
+		{ stdio: 'inherit' }
+	)
+
+	try {
+		execSync(`codesign --verify --deep --strict --verbose=2 "${appPath}"`, {
+			stdio: 'inherit',
+		})
+		console.log('[macOS adhoc re-sign] signature OK')
+	} catch (err) {
+		console.warn('[macOS adhoc re-sign] WARNING: codesign --verify reported issues')
+		console.warn(String(err && err.message ? err.message : err))
+	}
+}
 
 const forgePlugins = [
 	new VitePlugin({
@@ -26,6 +64,22 @@ module.exports = {
 		icon: ICON_BASE,
 		executableName: process.env.FORGE_EXECUTABLE_NAME || 'Void Presence',
 		asar: false,
+		...(HAS_MAC_IDENTITY
+			? {
+					osxSign: {
+						identity: process.env.MACOS_SIGNING_IDENTITY,
+						'hardened-runtime': true,
+						entitlements: MAC_ENTITLEMENTS,
+						'entitlements-inherit': MAC_ENTITLEMENTS,
+						'gatekeeper-assess': false,
+					},
+					osxNotarize: {
+						appleId: process.env.APPLE_ID,
+						appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,
+						teamId: process.env.APPLE_TEAM_ID,
+					},
+				}
+			: {}),
 		ignore(p) {
 			const path = p.replace(/\\/g, '/')
 
@@ -145,4 +199,18 @@ module.exports = {
 		},
 	],
 	plugins: forgePlugins,
+	hooks: {
+		postPackage: async (_forgeConfig, options) => {
+			if (options.platform !== 'darwin') return
+			if (HAS_MAC_IDENTITY) return
+			for (const outPath of options.outputPaths) {
+				const app = findAppBundle(outPath)
+				if (!app) {
+					console.warn(`[macOS adhoc re-sign] no .app found under ${outPath}`)
+					continue
+				}
+				resignMacAdhoc(app)
+			}
+		},
+	},
 }

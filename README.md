@@ -50,6 +50,25 @@ Void Presence is an Electron-based Discord Rich Presence manager built around a 
 
 > **⏱️ Initial delay** — On first launch Discord presence may appear after ~25 seconds. This is normal.
 
+### macOS note (Apple Silicon / Intel)
+
+The macOS build is **ad-hoc signed** (no paid Apple Developer certificate). Its
+signature is structurally valid (`codesign --verify --deep --strict` passes), so macOS treats it as "unidentified developer" rather
+than "damaged". On first open macOS will say it can't verify the developer —
+bypass it once:
+
+- **Easiest:** right-click `Void Presence.app` → **Open** → **Open** in the dialog, **or**
+- Strip the quarantine flag and open normally:
+
+```bash
+xattr -cr "/Applications/Void Presence.app"
+open "/Applications/Void Presence.app"
+```
+
+This is expected for ad-hoc signed apps and is not an integrity problem. The
+"damaged and can't be opened" message should be gone; if you still see it, the
+download was corrupted — re-download and run `xattr -cr` again.
+
 ---
 
 ## Plugin system
