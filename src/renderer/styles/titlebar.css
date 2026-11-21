@@ -1,0 +1,81 @@
+.titlebar {
+	width: 100%;
+	height: var(--header-height);
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 0 12px;
+	gap: 4px;
+	background-color: var(--bg-color);
+	border-bottom: var(--editor-hairline) solid var(--bg-border-color);
+	z-index: 90;
+	-webkit-app-region: drag;
+	user-select: none;
+}
+
+.titlebar-buttons {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	-webkit-app-region: no-drag;
+	--electron-control-region: initial;
+}
+
+.titlebar-btn {
+	width: 26px;
+	height: 26px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border-radius: 8px;
+	border: var(--editor-hairline) solid transparent;
+	background-color: transparent;
+	color: var(--text-tertiary);
+	cursor: pointer;
+	-webkit-app-region: var(--electron-control-region, initial);
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease;
+}
+
+.titlebar-btn svg {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	transition: transform 140ms var(--ease-out-expo);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.titlebar-btn:hover:not(:disabled) {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+.titlebar-btn:active:not(:disabled) {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: var(--speed-highlightFadeIn);
+}
+
+.titlebar-btn:active svg {
+	transform: scale(0.94);
+}
+
+.titlebar-btn:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.titlebar-btn,
+	.titlebar-btn svg {
+		transition: none;
+	}
+	.titlebar-btn:active svg {
+		transform: none;
+	}
+}

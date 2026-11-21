@@ -1,11 +1,11 @@
 {
 	"tabs": {
-		"main": "main",
-		"status": "status",
-		"logs": "logs",
-		"config": "config",
-		"settings": "settings",
-		"plugins": "plugins"
+		"presence": "Presence",
+		"status": "Status",
+		"logs": "Logs",
+		"config": "Config",
+		"settings": "Settings",
+		"plugins": "Plugins"
 	},
 	"plugins": {
 		"label": "plugins",

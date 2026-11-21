@@ -1,11 +1,11 @@
 {
 	"tabs": {
-		"main": "главная",
-		"status": "статус",
-		"logs": "логи",
-		"config": "конфиг",
-		"settings": "настройки",
-		"plugins": "плагины"
+		"presence": "Презенс",
+		"status": "Статус",
+		"logs": "Логи",
+		"config": "Конфиг",
+		"settings": "Настройки",
+		"plugins": "Плагины"
 	},
 	"plugins": {
 		"label": "плагины",

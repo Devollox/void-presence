@@ -1,11 +1,11 @@
 {
 	"tabs": {
-		"main": "ana",
-		"status": "durum",
-		"logs": "günlükler",
-		"config": "yapılandırma",
-		"settings": "ayarlar",
-		"plugins": "eklentiler"
+		"presence": "Varlık",
+		"status": "Durum",
+		"logs": "Günlükler",
+		"config": "Yapılandırma",
+		"settings": "Ayarlar",
+		"plugins": "Eklentiler"
 	},
 	"plugins": {
 		"label": "eklentiler",

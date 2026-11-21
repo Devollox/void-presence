@@ -1,0 +1,213 @@
+.desktop-tabs-bar {
+	width: 100%;
+	height: 42px;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	min-width: 0;
+	padding: 0 12px 0 16px;
+	background-color: var(--bg-color);
+	border-bottom: var(--editor-hairline) solid var(--bg-border-color);
+	-webkit-app-region: drag;
+	user-select: none;
+}
+
+.nav-controls {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	gap: 4px;
+	margin-right: 12px;
+	-webkit-app-region: no-drag;
+}
+
+.nav-icon-btn {
+	width: 28px;
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	padding: 0;
+	border: none;
+	border-radius: var(--radius-rounded);
+	background-color: transparent;
+	color: var(--text-tertiary);
+	cursor: pointer;
+	-webkit-app-region: no-drag;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.nav-icon-btn svg {
+	width: 14px;
+	height: 14px;
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+.nav-icon-btn:active:not(:disabled) {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+.nav-icon-btn:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+.tabs-area {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.tabs-scroll-container {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	gap: 4px;
+	overflow: hidden;
+	-webkit-app-region: no-drag;
+}
+
+.desktop-tab {
+	width: 220px;
+	min-width: 0;
+	height: 26px;
+	display: flex;
+	align-items: center;
+	flex: 0 1 220px;
+	padding: 0 6px 0 10px;
+	overflow: hidden;
+	border: none;
+	border-radius: 8px;
+	background-color: transparent;
+	color: var(--text-secondary);
+	font-size: 12px;
+	font-weight: 500;
+	text-align: left;
+	cursor: pointer;
+	-webkit-app-region: no-drag;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.desktop-tab[data-active='true'] {
+	background-color: var(--loading-error-secondary-bg);
+	color: var(--content-highlight-color);
+	box-shadow: var(--loading-error-secondary-shadow);
+}
+
+.desktop-tab:active:not([data-active='true']) {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+.desktop-tab-content {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	gap: 6px;
+	overflow: hidden;
+}
+
+.desktop-tab-icon {
+	width: 14px;
+	height: 14px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: inherit;
+}
+
+.desktop-tab-icon svg,
+.desktop-tab-icon .preview-icon {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	color: inherit !important;
+	stroke: currentColor !important;
+	fill: none;
+	transition: none;
+}
+
+.desktop-tab-title {
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.nav-icon-btn:focus-visible,
+.desktop-tab:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: -1px;
+}
+
+.app-content > [data-view]:not([data-active='true']) {
+	display: none;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.nav-icon-btn:hover:not(:disabled) {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+
+	.desktop-tab:hover:not([data-active='true']) {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nav-icon-btn,
+	.desktop-tab {
+		transition: none;
+	}
+}
+
+.nav-status-indicator {
+	width: 28px;
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.status-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: var(--radius-rounded);
+	background: #22c55e;
+	animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-green {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.45;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.status-dot {
+		animation: none;
+	}
+}
