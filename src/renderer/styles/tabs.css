@@ -7,7 +7,6 @@
 	min-width: 0;
 	padding: 0 12px 0 16px;
 	background-color: var(--bg-color);
-	border-bottom: var(--editor-hairline) solid var(--bg-border-color);
 	-webkit-app-region: drag;
 	user-select: none;
 }
