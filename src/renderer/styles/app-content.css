@@ -1,0 +1,37 @@
+.app {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.titlebar,
+.desktop-tabs-bar {
+	flex-shrink: 0;
+}
+
+.app-workspace {
+	display: flex;
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.app-content {
+	flex: 1;
+	min-width: 0;
+	min-height: 0;
+	overflow: auto;
+	background-color: var(--bg-base-color);
+}
+
+.app-content > [data-view] {
+	min-height: 100%;
+	padding: 24px;
+}
+
+.app-content > [data-view]:not([data-active='true']) {
+	display: none;
+}

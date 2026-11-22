@@ -57,6 +57,14 @@
 	cursor: default;
 }
 
+@media (any-hover: hover) and (any-pointer: fine) {
+	.nav-icon-btn:hover:not(:disabled) {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
 .tabs-area {
 	display: flex;
 	align-items: center;
@@ -86,8 +94,8 @@
 	overflow: hidden;
 	border: none;
 	border-radius: 8px;
-	background-color: transparent;
-	color: var(--text-secondary);
+	background-color: var(--bg-base-color);
+	color: var(--text-tertiary);
 	font-size: 12px;
 	font-weight: 500;
 	text-align: left;
@@ -127,6 +135,12 @@
 	justify-content: center;
 	flex-shrink: 0;
 	color: inherit;
+	opacity: 0.7;
+	transition: opacity var(--speed-highlightFadeOut) ease;
+}
+
+.desktop-tab[data-active='true'] .desktop-tab-icon {
+	opacity: 1;
 }
 
 .desktop-tab-icon svg,
@@ -137,36 +151,17 @@
 	color: inherit !important;
 	stroke: currentColor !important;
 	fill: none;
-	transition: none;
-}
-
-.desktop-tab-title {
-	min-width: 0;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-
-.nav-icon-btn:focus-visible,
-.desktop-tab:focus-visible {
-	outline: var(--focus-ring-outline);
-	outline-offset: -1px;
-}
-
-.app-content > [data-view]:not([data-active='true']) {
-	display: none;
 }
 
 @media (any-hover: hover) and (any-pointer: fine) {
-	.nav-icon-btn:hover:not(:disabled) {
+	.desktop-tab:hover:not([data-active='true']) {
 		background-color: var(--control-tertiary-hover);
-		color: var(--content-highlight-color);
+		color: var(--text-secondary);
 		transition-duration: var(--speed-highlightFadeIn);
 	}
 
-	.desktop-tab:hover:not([data-active='true']) {
-		background-color: var(--control-tertiary-hover);
-		color: var(--content-highlight-color);
+	.desktop-tab:hover .desktop-tab-icon {
+		opacity: 1;
 		transition-duration: var(--speed-highlightFadeIn);
 	}
 }
@@ -205,8 +200,172 @@
 	}
 }
 
+.desktop-tab[data-badge='error'] {
+	color: #ef4444;
+}
+
+.desktop-tab[data-badge='success'] {
+	color: #22c55e;
+}
+
+.desktop-tab[data-badge='warn'] {
+	color: #eab308;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.status-dot {
 		animation: none;
 	}
+}
+
+.sidebar-toggle-btn .sidebar-icon-panel {
+	transition:
+		width 180ms var(--ease-out-expo),
+		x 180ms var(--ease-out-expo);
+}
+
+.sidebar-toggle-btn[aria-expanded='true'] .sidebar-icon-panel,
+.sidebar-toggle-btn[data-active='true'] .sidebar-icon-panel {
+	x: 3px;
+	width: 5px;
+	rx: 1.5px;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.sidebar-toggle-btn:hover:not(:disabled) {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sidebar-toggle-btn .sidebar-icon-panel {
+		transition: none;
+	}
+}
+
+.linear-tooltip {
+	min-height: 28px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 8px;
+	white-space: nowrap;
+	pointer-events: none;
+
+	background-color: var(--loading-error-secondary-bg);
+	border: var(--editor-hairline) solid var(--bg-border-color);
+	border-radius: 6px;
+	box-shadow:
+		0 4px 12px rgba(0, 0, 0, 0.28),
+		var(--loading-error-secondary-shadow);
+
+	font-size: 11.5px;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--content-highlight-color);
+
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-2px);
+	transition:
+		opacity var(--speed-highlightFadeOut) ease,
+		transform var(--speed-highlightFadeOut) var(--ease-out-cubic),
+		background-color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease,
+		visibility 0s linear var(--speed-highlightFadeOut);
+}
+
+.linear-tooltip[data-visible='true'] {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+	transition:
+		opacity var(--speed-quickTransition) ease,
+		transform var(--speed-quickTransition) var(--ease-out-cubic),
+		background-color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease,
+		visibility 0s linear 0s;
+}
+
+.linear-tooltip-keys {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.linear-tooltip,
+	.linear-kbd {
+		transition: none;
+	}
+}
+
+.linear-kbd {
+	min-width: 18px;
+	height: 18px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+
+	background-color: var(--color-bg-tertiary);
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: 4px;
+
+	font-family: var(--font-regular);
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--text-secondary);
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.linear-kbd[data-active='true'] {
+	background-color: var(--color-bg-quaternary);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+.desktop-tab {
+	position: relative;
+	z-index: 1;
+	touch-action: none;
+	will-change: transform;
+	transition:
+		transform var(--speed-regularTransition) var(--ease-out-cubic),
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.desktop-tab[data-dragging='true'] {
+	z-index: 100 !important;
+	background-color: var(--loading-error-secondary-bg) !important;
+	color: var(--content-highlight-color) !important;
+	box-shadow:
+		0 6px 16px rgba(0, 0, 0, 0.28),
+		0 0 0 var(--editor-hairline) var(--loading-error-secondary-border);
+	cursor: grabbing;
+	transition: none;
+	opacity: 1 !important;
+}
+
+.desktop-tab[data-dropping='true'] {
+	z-index: 100 !important;
+	background-color: var(--loading-error-secondary-bg) !important;
+	color: var(--content-highlight-color) !important;
+	box-shadow:
+		0 2px 6px rgba(0, 0, 0, 0.14),
+		0 0 0 var(--editor-hairline) var(--loading-error-secondary-border);
+	transition:
+		transform var(--speed-regularTransition) var(--ease-out-expo),
+		box-shadow var(--speed-regularTransition) var(--ease-out-expo);
 }

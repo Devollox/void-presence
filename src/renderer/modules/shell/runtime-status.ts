@@ -5,9 +5,13 @@ const logsViewList = document.getElementById('logs-view-list') as HTMLElement | 
 const logsCounter = document.getElementById('logs-counter') as HTMLElement | null
 const maxLogs = 120
 
+type LogBadgeType = 'error' | 'success' | 'warn' | null
+
 let activityStartMs: number | null = null
 let uptimeTimer: number | null = null
 let lastErrorItem: HTMLElement | null = null
+let lastDownloadItem: HTMLElement | null = null
+let badgeTimer: number | null = null
 
 function getStatusTextMap(): Record<string, { title: string; second: string; value: string }> {
 	return {
@@ -39,22 +43,110 @@ function getStatusTextMap(): Record<string, { title: string; second: string; val
 	}
 }
 
+function getLogBadgeType(rawText: string, level: string): LogBadgeType {
+	if (level === 'error' || /error/i.test(rawText) || /fails because/i.test(rawText)) {
+		return 'error'
+	}
+
+	if (level === 'success') {
+		return 'success'
+	}
+
+	if (level === 'warn') {
+		return 'warn'
+	}
+
+	return null
+}
+
+function getLogLevelText(type: LogBadgeType): string {
+	switch (type) {
+		case 'error':
+			return t('logLevelError')
+		case 'success':
+			return t('logLevelSuccess')
+		case 'warn':
+			return t('logLevelWarn')
+		default:
+			return t('logLevelInfo')
+	}
+}
+
+function setLogsTabBadge(type: LogBadgeType): void {
+	if (badgeTimer !== null) {
+		window.clearTimeout(badgeTimer)
+		badgeTimer = null
+	}
+
+	const navLogs = document.getElementById('nav-logs') as HTMLElement | null
+	if (!navLogs) return
+
+	navLogs.classList.remove(
+		'sidebar-nav-item-error',
+		'sidebar-nav-item-success',
+		'sidebar-nav-item-warn'
+	)
+
+	if (!type) {
+		delete navLogs.dataset.badge
+		return
+	}
+
+	navLogs.dataset.badge = type
+
+	badgeTimer = window.setTimeout(() => {
+		delete navLogs.dataset.badge
+		badgeTimer = null
+	}, 5000)
+}
+
+function updateLogsCounter(): void {
+	if (logsCounter && logsViewList) {
+		logsCounter.textContent = logsViewList.children.length + t('entries')
+	}
+}
+
+function renderLogMessage(element: HTMLElement, rawText: string): void {
+	element.textContent = ''
+
+	rawText.split('\n').forEach(line => {
+		const lineElement = document.createElement('div')
+		lineElement.textContent = line
+		element.appendChild(lineElement)
+	})
+}
+
+function applyLogType(item: HTMLElement, type: LogBadgeType): void {
+	item.classList.remove('log-error', 'log-success', 'log-warn')
+
+	if (type) {
+		item.classList.add(`log-${type}`)
+	}
+
+	const dot = item.querySelector<HTMLElement>('.log-level-dot')
+
+	if (dot) {
+		dot.classList.remove('dot-error', 'dot-success', 'dot-warn')
+
+		if (type) {
+			dot.classList.add(`dot-${type}`)
+		}
+	}
+}
+
 export function clearLogsView(): void {
 	if (logsViewList) {
 		logsViewList.innerHTML = ''
 	}
+
 	if (logsCounter) {
 		logsCounter.textContent = '0' + t('entries')
 	}
 
-	const navLogs = document.getElementById('nav-logs') as HTMLElement | null
-	if (navLogs) {
-		navLogs.classList.remove(
-			'sidebar-nav-item-error',
-			'sidebar-nav-item-success',
-			'sidebar-nav-item-warn'
-		)
-	}
+	lastErrorItem = null
+	lastDownloadItem = null
+
+	setLogsTabBadge(null)
 }
 
 export function downloadLogsFromView(): void {
@@ -63,15 +155,15 @@ export function downloadLogsFromView(): void {
 	const lines: string[] = []
 
 	logsViewList.querySelectorAll('.log-item').forEach(item => {
-		const meta = item.querySelector('.log-item-meta') as HTMLElement | null
-		const msg = item.querySelector('.log-item-message') as HTMLElement | null
-
+		const meta = item.querySelector<HTMLElement>('.log-item-meta')
+		const msg = item.querySelector<HTMLElement>('.log-item-message')
 		const metaText = meta?.textContent?.trim() || ''
 		const msgLines: string[] = []
 
 		if (msg) {
-			msg.querySelectorAll('div').forEach(lineEl => {
-				const text = lineEl.textContent || ''
+			msg.querySelectorAll('div').forEach(lineElement => {
+				const text = lineElement.textContent || ''
+
 				if (text.trim().length > 0) {
 					msgLines.push(text)
 				}
@@ -80,25 +172,31 @@ export function downloadLogsFromView(): void {
 
 		const msgText = msgLines.join(' | ')
 		const full = metaText ? `${metaText} :: ${msgText}` : msgText
+
 		if (full.trim().length > 0) {
 			lines.push(full)
 		}
 	})
 
-	if (!lines.length) {
-		return
-	}
+	if (!lines.length) return
 
 	const blob = new Blob([lines.join('\n')], {
 		type: 'text/plain;charset=utf-8',
 	})
 
 	const url = URL.createObjectURL(blob)
-	const a = document.createElement('a')
-	a.href = url
-	a.download = 'void-presence-logs.txt'
-	a.click()
-	URL.revokeObjectURL(url)
+	const anchor = document.createElement('a')
+
+	anchor.href = url
+	anchor.download = 'void-presence-logs.txt'
+
+	document.body.appendChild(anchor)
+	anchor.click()
+	anchor.remove()
+
+	window.setTimeout(() => {
+		URL.revokeObjectURL(url)
+	}, 1000)
 }
 
 function updateExistingLogItem(
@@ -107,33 +205,26 @@ function updateExistingLogItem(
 	level: string,
 	time: string
 ): boolean {
-	if (!item) return false
+	if (!item || !logsViewList?.contains(item)) {
+		return false
+	}
 
-	const msgEl = item.querySelector('.log-item-message') as HTMLElement | null
-	const metaEl = item.querySelector('.log-item-meta') as HTMLElement | null
+	const msgElement = item.querySelector<HTMLElement>('.log-item-message')
+	const metaElement = item.querySelector<HTMLElement>('.log-item-meta')
 
-	if (!msgEl || !metaEl) return false
+	if (!msgElement || !metaElement) {
+		return false
+	}
 
-	msgEl.textContent = ''
-	rawText.split('\n').forEach(line => {
-		const lineEl = document.createElement('div')
-		lineEl.textContent = line
-		msgEl.appendChild(lineEl)
-	})
+	const type = getLogBadgeType(rawText, level)
 
-	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
-	const isError = level === 'error' || isErrorText
-	const isSuccess = level === 'success'
-	const isWarn = level === 'warn'
+	renderLogMessage(msgElement, rawText)
+	applyLogType(item, type)
 
-	const levelText = isError
-		? t('logLevelError')
-		: isSuccess
-			? t('logLevelSuccess')
-			: isWarn
-				? t('logLevelWarn')
-				: t('logLevelInfo')
-	metaEl.textContent = `${levelText} · ${time}`
+	metaElement.textContent = `${getLogLevelText(type)} · ${time}`
+
+	setLogsTabBadge(type)
+
 	return true
 }
 
@@ -141,12 +232,9 @@ export function appendLog(entry: LogEntry | string): void {
 	if (!logsViewList) return
 
 	const now = new Date()
-	const time =
-		String(now.getHours()).padStart(2, '0') +
-		':' +
-		String(now.getMinutes()).padStart(2, '0') +
-		':' +
-		String(now.getSeconds()).padStart(2, '0')
+	const time = [now.getHours(), now.getMinutes(), now.getSeconds()]
+		.map(value => String(value).padStart(2, '0'))
+		.join(':')
 
 	const obj = typeof entry === 'string' ? ({} as LogEntry) : entry
 	const level = (obj.level || obj.type || 'info').toLowerCase()
@@ -156,71 +244,45 @@ export function appendLog(entry: LogEntry | string): void {
 		obj.error ||
 		(typeof entry === 'string' ? entry : JSON.stringify(entry))
 
-	const isDownloadProgress = rawText.startsWith(`${t('updateDownloadingLog')}`)
+	const isDownloadProgress = rawText.startsWith(t('updateDownloadingLog'))
 	const isCustomStatusError =
-		rawText.includes(`${t('customStatus.rateLimitLog')}`) ||
-		rawText.includes(`${t('customStatus.apiErrorLog')}`) ||
-		rawText.includes(`${t('customStatus.applyErrorLog')}`)
+		rawText.includes(t('customStatus.rateLimitLog')) ||
+		rawText.includes(t('customStatus.apiErrorLog')) ||
+		rawText.includes(t('customStatus.applyErrorLog'))
 
 	if (isDownloadProgress) {
-		const first = logsViewList.firstChild as HTMLElement | null
-		if (updateExistingLogItem(first, rawText, level, time)) {
+		if (updateExistingLogItem(lastDownloadItem, rawText, level, time)) {
 			return
 		}
+
+		lastDownloadItem = null
+	} else {
+		lastDownloadItem = null
 	}
 
 	if (isCustomStatusError) {
 		if (updateExistingLogItem(lastErrorItem, rawText, level, time)) {
 			return
 		}
+
 		lastErrorItem = null
 	}
 
-	const isErrorText = /error/i.test(rawText) || /fails because/i.test(rawText)
-	const isError = level === 'error' || isErrorText
-	const isSuccess = level === 'success'
-	const isWarn = level === 'warn'
-
+	const type = getLogBadgeType(rawText, level)
 	const item = document.createElement('div')
-	item.className = 'log-item'
-	if (isError) {
-		item.classList.add('log-error')
-	} else if (isSuccess) {
-		item.classList.add('log-success')
-	} else if (isWarn) {
-		item.classList.add('log-warn')
-	}
-
 	const dot = document.createElement('span')
-	dot.className = 'log-level-dot'
-	if (isError) {
-		dot.classList.add('dot-error')
-	} else if (isSuccess) {
-		dot.classList.add('dot-success')
-	} else if (isWarn) {
-		dot.classList.add('dot-warn')
-	}
-
 	const body = document.createElement('div')
-
 	const msg = document.createElement('div')
-	msg.className = 'log-item-message'
-	rawText.split('\n').forEach(line => {
-		const lineEl = document.createElement('div')
-		lineEl.textContent = line
-		msg.appendChild(lineEl)
-	})
-
 	const meta = document.createElement('div')
+
+	item.className = 'log-item'
+	dot.className = 'log-level-dot'
+	msg.className = 'log-item-message'
 	meta.className = 'log-item-meta'
-	const levelText = isError
-		? t('logLevelError')
-		: isSuccess
-			? t('logLevelSuccess')
-			: isWarn
-				? t('logLevelWarn')
-				: t('logLevelInfo')
-	meta.textContent = `${levelText} · ${time}`
+
+	renderLogMessage(msg, rawText)
+
+	meta.textContent = `${getLogLevelText(type)} · ${time}`
 
 	body.appendChild(msg)
 	body.appendChild(meta)
@@ -228,51 +290,35 @@ export function appendLog(entry: LogEntry | string): void {
 	item.appendChild(dot)
 	item.appendChild(body)
 
+	applyLogType(item, type)
+
 	if (isCustomStatusError) {
 		lastErrorItem = item
+	}
+
+	if (isDownloadProgress) {
+		lastDownloadItem = item
 	}
 
 	logsViewList.insertBefore(item, logsViewList.firstChild)
 
 	while (logsViewList.children.length > maxLogs) {
-		logsViewList.removeChild(logsViewList.lastChild as ChildNode)
-	}
+		const lastItem = logsViewList.lastElementChild
+		if (!lastItem) break
 
-	if (logsCounter) {
-		const count = logsViewList.children.length
-		logsCounter.textContent = count + t('entries')
-	}
-
-	const navLogs = document.getElementById('nav-logs') as HTMLElement | null
-	if (navLogs) {
-		const first = logsViewList.firstChild as HTMLElement | null
-		const firstIsError = first && first.classList.contains('log-error')
-		const firstIsSuccess = first && first.classList.contains('log-success')
-		const firstIsWarn = first && first.classList.contains('log-warn')
-
-		navLogs.classList.remove(
-			'sidebar-nav-item-error',
-			'sidebar-nav-item-success',
-			'sidebar-nav-item-warn'
-		)
-
-		let highlightClass: string | null = null
-
-		if (firstIsError) {
-			highlightClass = 'sidebar-nav-item-error'
-		} else if (firstIsSuccess) {
-			highlightClass = 'sidebar-nav-item-success'
-		} else if (firstIsWarn) {
-			highlightClass = 'sidebar-nav-item-warn'
+		if (lastItem === lastErrorItem) {
+			lastErrorItem = null
 		}
 
-		if (highlightClass) {
-			navLogs.classList.add(highlightClass)
-			setTimeout(() => {
-				navLogs.classList.remove(highlightClass as string)
-			}, 5000)
+		if (lastItem === lastDownloadItem) {
+			lastDownloadItem = null
 		}
+
+		lastItem.remove()
 	}
+
+	updateLogsCounter()
+	setLogsTabBadge(type)
 }
 
 if (window.electronAPI?.onLogMessage) {
@@ -282,13 +328,13 @@ if (window.electronAPI?.onLogMessage) {
 }
 
 if (window.electronAPI?.onLogsDownload) {
-	window.electronAPI?.onLogsDownload?.(() => {
+	window.electronAPI.onLogsDownload(() => {
 		downloadLogsFromView()
 	})
 }
 
 if (window.electronAPI?.onLogsClear) {
-	window.electronAPI?.onLogsClear?.(() => {
+	window.electronAPI.onLogsClear(() => {
 		clearLogsView()
 	})
 }
@@ -337,6 +383,30 @@ function mapStatusCustomToText(status: string): { chip: string; sub: string } {
 	}
 }
 
+export function updateTopStatusIndicator(status: string): void {
+	const indicator = document.getElementById('connection-status') as HTMLElement | null
+	if (!indicator) return
+
+	const { chip, sub } = mapStatusToText(status)
+	const tooltipText = sub ? `${sub}` : chip
+
+	let visualState: 'online' | 'syncing' | 'offline' = 'offline'
+
+	if (status === 'RPC_ACTIVE') {
+		visualState = 'online'
+	} else if (
+		status === 'RPC_CONNECTING' ||
+		status === 'RPC_SEARCHING_DISCORD' ||
+		status === 'RPC_RESTARTING'
+	) {
+		visualState = 'syncing'
+	}
+
+	indicator.dataset.status = visualState
+	indicator.dataset.tooltip = tooltipText
+	indicator.setAttribute('aria-label', tooltipText)
+}
+
 function formatDuration(ms: number): string {
 	const totalSeconds = Math.floor(ms / 1000)
 	const hours = Math.floor(totalSeconds / 3600)
@@ -350,32 +420,39 @@ function formatDuration(ms: number): string {
 	return `${h}:${m}:${s}`
 }
 
-function startUptimeTimer() {
+function startUptimeTimer(): void {
 	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
 	if (!infoUptime) return
 
-	if (uptimeTimer) {
+	if (uptimeTimer !== null) {
 		window.clearInterval(uptimeTimer)
 		uptimeTimer = null
 	}
 
-	uptimeTimer = window.setInterval(() => {
-		if (!activityStartMs) {
+	const updateUptime = (): void => {
+		if (activityStartMs === null) {
 			infoUptime.textContent = '–'
 			return
 		}
-		const diffMs = Date.now() - activityStartMs
-		infoUptime.textContent = formatDuration(diffMs)
-	}, 1000)
+
+		infoUptime.textContent = formatDuration(Date.now() - activityStartMs)
+	}
+
+	updateUptime()
+	uptimeTimer = window.setInterval(updateUptime, 1000)
 }
 
-function stopUptimeTimer() {
+function stopUptimeTimer(): void {
 	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
-	if (uptimeTimer) {
+
+	if (uptimeTimer !== null) {
 		window.clearInterval(uptimeTimer)
 		uptimeTimer = null
 	}
-	if (infoUptime) infoUptime.textContent = '–'
+
+	if (infoUptime) {
+		infoUptime.textContent = '–'
+	}
 }
 
 export function updateInfo(payload: RichPresencePayload | null): void {
@@ -385,7 +462,6 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	const infoObject = document.getElementById('info-object') as HTMLElement | null
 	const infoDetails = document.getElementById('info-details') as HTMLElement | null
 	const infoStatus = document.getElementById('info-status') as HTMLElement | null
-	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
 
 	if (!title || !sub || !infoButtons || !infoObject || !infoDetails || !infoStatus) {
 		return
@@ -398,9 +474,10 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		infoObject.textContent = '–'
 		infoDetails.textContent = '–'
 		infoStatus.textContent = t('waitingToStart')
-		if (infoUptime) infoUptime.textContent = '–'
+
 		activityStartMs = null
 		stopUptimeTimer()
+
 		return
 	}
 
@@ -409,7 +486,7 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 
 	const buttonsText =
 		payload.buttons && payload.buttons.length
-			? payload.buttons.map(b => b.label).join(' - ')
+			? payload.buttons.map(button => button.label).join(' - ')
 			: t('none')
 
 	infoButtons.textContent = buttonsText
@@ -417,27 +494,33 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	infoDetails.textContent = payload.state || '–'
 	infoStatus.textContent = t('active')
 
-	if (!activityStartMs) {
+	if (activityStartMs === null) {
 		activityStartMs = Date.now()
 	}
+
 	startUptimeTimer()
 }
 
 export function updateStatus(status: string): void {
-	const chip = document.querySelector('.status-chip span') as HTMLElement | null
-	const statusDot = document.querySelector('.status-dot') as HTMLElement | null
+	const chip = document.querySelector<HTMLElement>('.status-chip span')
+	const statusDot = document.querySelector<HTMLElement>('.status-dot')
 	const subLabel = document.getElementById('activity-sub') as HTMLElement | null
 	const mapped = mapStatusToText(status)
 
-	if (chip) chip.textContent = mapped.chip
-	if (subLabel) subLabel.textContent = mapped.sub
+	if (chip) {
+		chip.textContent = mapped.chip
+	}
+
+	if (subLabel) {
+		subLabel.textContent = mapped.sub
+	}
 
 	if (statusDot) {
 		if (status === 'RPC_ACTIVE') {
 			statusDot.style.background = 'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
 		} else if (status === 'RPC_DISCONNECTED') {
 			statusDot.style.background = 'radial-gradient(circle, #fb7185 0, #f97373 50%, #000000 100%)'
-		} else if (status === 'RPC_RESTARTING' || status === 'CONNECTING RPC') {
+		} else if (status === 'RPC_RESTARTING' || status === 'RPC_CONNECTING') {
 			statusDot.style.background = 'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
 		} else if (status === 'RPC_NO_CLIENT_ID') {
 			statusDot.style.background = 'radial-gradient(circle, #f97316 0, #ea580c 50%, #000000 100%)'
@@ -446,6 +529,8 @@ export function updateStatus(status: string): void {
 		}
 	}
 
+	updateTopStatusIndicator(status)
+
 	if (status !== 'RPC_ACTIVE') {
 		activityStartMs = null
 		stopUptimeTimer()
@@ -453,23 +538,24 @@ export function updateStatus(status: string): void {
 }
 
 export function updateStatusStatus(status: string): void {
-	const chip = document.querySelector('.status-chip-status span') as HTMLElement | null
-	const dot = document.querySelector('.status-dot-status') as HTMLElement | null
-	const textEl = document.getElementById('status-page-info-status') as HTMLElement | null
+	const chip = document.querySelector<HTMLElement>('.status-chip-status span')
+	const dot = document.querySelector<HTMLElement>('.status-dot-status')
+	const textElement = document.getElementById('status-page-info-status') as HTMLElement | null
 	const mapped = mapStatusCustomToText(status)
 
-	if (chip) chip.textContent = mapped.chip
-	if (textEl) textEl.textContent = mapped.sub
+	if (chip) {
+		chip.textContent = mapped.chip
+	}
+
+	if (textElement) {
+		textElement.textContent = mapped.sub
+	}
 
 	if (dot) {
 		if (status === 'CUSTOM_STATUS_READY') {
 			dot.style.background = 'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
-		} else if (status === 'CUSTOM_STATUS_DISABLED') {
-			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		} else if (status === 'CUSTOM_STATUS_RESTART') {
 			dot.style.background = 'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
-		} else if (status === 'CUSTOM_STATUS_SEARCHING_DISCORD') {
-			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		} else {
 			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
 		}
@@ -479,27 +565,26 @@ export function updateStatusStatus(status: string): void {
 export function updateStatusText(text: string | null): void {
 	if (!text) return
 
-	const el = document.getElementById('status-page-info-text') as HTMLElement | null
-	const elTitleBlock = document.getElementById(
+	const element = document.getElementById('status-page-info-text') as HTMLElement | null
+	const titleBlock = document.getElementById(
 		'status-page-info-text-title-block'
 	) as HTMLElement | null
-	const elSecondBlock = document.getElementById(
+	const secondBlock = document.getElementById(
 		'status-page-info-text-second-block'
 	) as HTMLElement | null
 
-	if (!el || !elTitleBlock || !elSecondBlock) return
+	if (!element || !titleBlock || !secondBlock) return
 
-	const value = text && text.length > 0 ? text : 'IDLE'
 	const mapped = getStatusTextMap()[text]
 
 	if (mapped) {
-		elTitleBlock.textContent = mapped.title
-		elSecondBlock.textContent = mapped.second
-		el.textContent = mapped.value
+		titleBlock.textContent = mapped.title
+		secondBlock.textContent = mapped.second
+		element.textContent = mapped.value
 		return
 	}
 
-	elTitleBlock.textContent = t('statusSettings')
-	elSecondBlock.textContent = value
-	el.textContent = value
+	titleBlock.textContent = t('statusSettings')
+	secondBlock.textContent = text
+	element.textContent = text
 }

@@ -14,6 +14,8 @@
 		<link rel="stylesheet" href="./styles/styles.css" />
 		<link rel="stylesheet" href="./styles/titlebar.css" />
 		<link rel="stylesheet" href="./styles/tabs.css" />
+		<link rel="stylesheet" href="./styles/app-content.css" />
+		<link rel="stylesheet" href="./styles/sidebar.css" />
 	</head>
 	<body>
 		<div class="app">
@@ -77,22 +79,44 @@
 
 			<header class="desktop-tabs-bar">
 				<div class="nav-controls">
-					<button type="button" class="nav-icon-btn" aria-label="Toggle sidebar">
+					<button
+						type="button"
+						class="nav-icon-btn sidebar-toggle-btn"
+						aria-label="Toggle sidebar"
+						aria-controls="app-sidebar"
+						aria-expanded="true"
+						data-tooltip="Toggle sidebar"
+						data-shortcut="["
+					>
 						<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
 							<path
 								fill-rule="evenodd"
 								clip-rule="evenodd"
 								d="M4.25 2C2.45508 2 1 3.45508 1 5.25V10.75C1 12.5449 2.45508 14 4.25 14H11.75C13.5449 14 15 12.5449 15 10.75V5.25C15 3.45508 13.5449 2 11.75 2H4.25ZM2.5 5.5C2.5 4.39543 3.39543 3.5 4.5 3.5H11.5C12.6046 3.5 13.5 4.39543 13.5 5.5V10.5C13.5 11.6046 12.6046 12.5 11.5 12.5H4.5C3.39543 12.5 2.5 11.6046 2.5 10.5V5.5Z"
 							/>
-							<rect x="4" y="5" width="1.5" height="6" rx="0.75" />
+							<rect class="sidebar-icon-panel" x="3.5" y="4.5" width="2.5" height="7" rx="0.75" />
 						</svg>
 					</button>
 
-					<div class="nav-status-indicator" title="Online" aria-label="Online">
+					<div
+						id="connection-status"
+						class="nav-status-indicator"
+						data-status="online"
+						data-tooltip="Online"
+						aria-label="Online"
+					>
 						<div class="status-dot"></div>
 					</div>
 
-					<button type="button" id="nav-back" class="nav-icon-btn" aria-label="Go back" disabled>
+					<button
+						type="button"
+						id="nav-back"
+						class="nav-icon-btn"
+						aria-label="Go back"
+						data-tooltip="Go back"
+						data-shortcut="Alt+←"
+						disabled
+					>
 						<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
 							<path
 								d="M10.53033 11.4697C10.82322 11.7626 10.82322 12.2374 10.53033 12.5303C10.23744 12.8232 9.76256 12.8232 9.46967 12.5303L5.46967 8.53033C5.1793 8.23999 5.1764 7.77014 5.4632 7.47624L9.36581 3.47624C9.65508 3.17976 10.12991 3.17391 10.42639 3.46318C10.72287 3.75244 10.72872 4.22728 10.43946 4.52376L7.05417 7.99351L10.53033 11.4697Z"
@@ -105,6 +129,8 @@
 						id="nav-forward"
 						class="nav-icon-btn"
 						aria-label="Go forward"
+						data-tooltip="Go forward"
+						data-shortcut="Alt+→"
 						disabled
 					>
 						<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
@@ -121,9 +147,11 @@
 							type="button"
 							id="nav-main"
 							class="tab-btn desktop-tab"
-							data-page="main"
+							data-page="presence"
 							data-desktop-tab="true"
 							data-active="true"
+							data-tooltip="Presence"
+							data-shortcut="Ctrl+1"
 						>
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
@@ -154,6 +182,8 @@
 							data-page="status"
 							data-desktop-tab="true"
 							data-active="false"
+							data-tooltip="Status"
+							data-shortcut="Ctrl+2"
 						>
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
@@ -184,6 +214,8 @@
 							data-page="logs"
 							data-desktop-tab="true"
 							data-active="false"
+							data-tooltip="Logs"
+							data-shortcut="Ctrl+3"
 						>
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
@@ -221,6 +253,8 @@
 							data-page="plugins"
 							data-desktop-tab="true"
 							data-active="false"
+							data-tooltip="Plugins"
+							data-shortcut="Ctrl+4"
 						>
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
@@ -252,6 +286,8 @@
 							data-page="config"
 							data-desktop-tab="true"
 							data-active="false"
+							data-tooltip="Configs"
+							data-shortcut="Ctrl+5"
 						>
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
@@ -289,6 +325,8 @@
 							data-page="settings"
 							data-desktop-tab="true"
 							data-active="false"
+							data-tooltip="Settings"
+							data-shortcut="Ctrl+6"
 						>
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
@@ -317,14 +355,20 @@
 				</div>
 			</header>
 
-			<main class="app-content">
-				<section data-view="main" data-active="true"></section>
-				<section data-view="status" data-active="false"></section>
-				<section data-view="logs" data-active="false"></section>
-				<section data-view="plugins" data-active="false"></section>
-				<section data-view="config" data-active="false"></section>
-				<section data-view="settings" data-active="false"></section>
-			</main>
+			<div class="app-workspace">
+				<aside id="app-sidebar" class="app-sidebar" data-open="true">
+					<div class="sidebar-content"></div>
+				</aside>
+
+				<main class="app-content">
+					<section data-view="presence" data-active="true">Presence page</section>
+					<section data-view="status" data-active="false">Status page</section>
+					<section data-view="logs" data-active="false">Logs page</section>
+					<section data-view="plugins" data-active="false">Plugins page</section>
+					<section data-view="config" data-active="false">Configs page</section>
+					<section data-view="settings" data-active="false">Settings page</section>
+				</main>
+			</div>
 		</div>
 
 		<div id="blocks-toast" class="copy-toast" data-visible="false"></div>

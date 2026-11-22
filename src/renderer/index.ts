@@ -36,6 +36,9 @@ import {
 	renderStatusProfiles,
 	setupStatusIntervalControl,
 } from './modules/status-page/status-render'
+import setupSidebarToggle from './modules/shell/view-sidebar'
+import setupTooltips from './modules/shell/tooltip'
+import setupTabsDnd from './modules/shell/dnd-tabs'
 
 document.addEventListener('DOMContentLoaded', async () => {
 	initLanguage()
@@ -54,6 +57,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupPresenceControls()
 	void setupIntervalControl()
 	void setupStatusTutorialButtons()
+	void setupSidebarToggle()
+	void setupTooltips()
+	void setupTabsDnd()
 	void initUpdateOverlay()
 	void setupImportOverlay()
 	void setupGlobalDrop()
@@ -66,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupStatusImportOverlay()
 	void setupStatusDetailsOverlay()
 	void setupStatusIntervalControl()
-
 	void setupPluginsPage()
 	void setupPluginsExternalButtons()
 
