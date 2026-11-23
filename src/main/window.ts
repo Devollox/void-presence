@@ -43,14 +43,14 @@ export function createMainWindow(autoHideOnStart: boolean, isQuitting: () => boo
 		try {
 			const parsed = new URL(url)
 
-			const allowed =
-				parsed.protocol === 'https:' &&
-				parsed.hostname === 'voidpresence.com' &&
-				!parsed.username &&
-				!parsed.password &&
-				!parsed.port
+			const isSecureUrl =
+				parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.port
 
-			if (allowed) {
+			const isSite = parsed.hostname === 'voidpresence.com'
+
+			const isDiscordInvite = parsed.hostname === 'discord.gg' && parsed.pathname === '/9FEkxGPPmu'
+
+			if (isSecureUrl && (isSite || isDiscordInvite)) {
 				void shell.openExternal(parsed.href).catch(error => {
 					console.error('[external-link:open]', error)
 				})
