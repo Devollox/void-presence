@@ -3,7 +3,7 @@
 		"presence": "Presence",
 		"status": "Status",
 		"logs": "Logs",
-		"config": "Config",
+		"configs": "Configs",
 		"settings": "Settings",
 		"plugins": "Plugins"
 	},
@@ -517,5 +517,30 @@
 		"restartStatus": "restart status",
 		"stopPresence": "stop presnce",
 		"stopStatus": "stop status"
+	},
+	"window": {
+		"minimize": "Minimize",
+		"maximize": "Maximize"
+	},
+	"navigation": {
+		"toggleSidebar": "Toggle sidebar",
+		"goBack": "Go back",
+		"goForward": "Go forward"
+	},
+	"connection": {
+		"online": "Online"
+	},
+	"sidebar": {
+		"workspace": "Workspace",
+		"toggleWorkspace": "Toggle workspace"
+	},
+	"account": {
+		"resources": "Account resources",
+		"yourAccount": "Your account",
+		"links": "Account links",
+		"docs": "Docs",
+		"help": "Help",
+		"login": "Log in",
+		"logout": "Log out"
 	}
 }

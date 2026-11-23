@@ -27,14 +27,53 @@ export default function setupTooltips(): void {
 	}
 
 	const getEventKeyId = (e: KeyboardEvent): string => {
-		if (e.code.startsWith('Digit')) return e.code.replace('Digit', '')
-		if (e.code.startsWith('Key')) return e.code.replace('Key', '').toLowerCase()
-		if (e.code === 'Backslash') return '\\'
-		if (e.code === 'BracketLeft') return '['
-		if (e.code === 'BracketRight') return ']'
-		if (e.code === 'ArrowLeft') return 'left'
-		if (e.code === 'ArrowRight') return 'right'
-		return normalizeKey(e.key)
+		const { code } = e
+
+		if (/^Key[A-Z]$/.test(code)) {
+			return code.slice(3).toLowerCase()
+		}
+
+		if (/^Digit[0-9]$/.test(code)) {
+			return code.slice(5)
+		}
+
+		const keys: Record<string, string> = {
+			ControlLeft: 'ctrl',
+			ControlRight: 'ctrl',
+			ShiftLeft: 'shift',
+			ShiftRight: 'shift',
+			AltLeft: 'alt',
+			AltRight: 'alt',
+			MetaLeft: 'meta',
+			MetaRight: 'meta',
+			Space: 'space',
+			ArrowLeft: 'left',
+			ArrowRight: 'right',
+			ArrowUp: 'up',
+			ArrowDown: 'down',
+			Backslash: '\\',
+			BracketLeft: '[',
+			BracketRight: ']',
+			Semicolon: ';',
+			Quote: "'",
+			Comma: ',',
+			Period: '.',
+			Slash: '/',
+			Minus: '-',
+			Equal: '=',
+			Backquote: '`',
+			Escape: 'escape',
+			Enter: 'enter',
+			Tab: 'tab',
+			Backspace: 'backspace',
+			Delete: 'delete',
+			Home: 'home',
+			End: 'end',
+			PageUp: 'pageup',
+			PageDown: 'pagedown',
+		}
+
+		return keys[code] ?? normalizeKey(e.key)
 	}
 
 	const isEditableTarget = (target: EventTarget | null): boolean => {
@@ -44,22 +83,27 @@ export default function setupTooltips(): void {
 	}
 
 	const matchesShortcut = (e: KeyboardEvent, shortcutAttr: string): boolean => {
-		const parts = shortcutAttr.split('+').map(normalizeKey)
+		const parts = shortcutAttr
+			.split('+')
+			.map(normalizeKey)
+			.filter(part => part !== '' && part !== 'then')
 
-		const needCtrl = parts.includes('ctrl')
-		const needAlt = parts.includes('alt')
-		const needShift = parts.includes('shift')
-		const needMeta = parts.includes('meta')
+		const modifiers = new Set(['ctrl', 'alt', 'shift', 'meta'])
 
-		if (e.ctrlKey !== needCtrl) return false
-		if (e.altKey !== needAlt) return false
-		if (e.shiftKey !== needShift) return false
-		if (e.metaKey !== needMeta) return false
+		if (e.ctrlKey !== parts.includes('ctrl')) return false
+		if (e.altKey !== parts.includes('alt')) return false
+		if (e.shiftKey !== parts.includes('shift')) return false
+		if (e.metaKey !== parts.includes('meta')) return false
 
-		const mainKey = parts.find(p => !['ctrl', 'alt', 'shift', 'meta'].includes(p))
-		if (!mainKey) return false
+		const keys = parts.filter(part => !modifiers.has(part))
 
-		return getEventKeyId(e) === mainKey
+		if (!keys.length) return false
+
+		const lastKey = keys[keys.length - 1]
+
+		if (getEventKeyId(e) !== lastKey) return false
+
+		return keys.every(key => pressedKeys.has(key))
 	}
 
 	const syncPressedKeysUI = (): void => {
@@ -76,16 +120,32 @@ export default function setupTooltips(): void {
 	const updatePosition = (target: HTMLElement): void => {
 		const rect = target.getBoundingClientRect()
 		const tipRect = tooltip.getBoundingClientRect()
-		const gap = 6
+		const gap = 8
 		const padding = 8
+		const isSidebar = target.closest('.app-sidebar') !== null
 
-		let left = rect.left + rect.width / 2 - tipRect.width / 2
+		let left: number
+		let top: number
+
+		if (isSidebar) {
+			left = rect.right + gap
+			top = rect.top + (rect.height - tipRect.height) / 2
+
+			if (left + tipRect.width > window.innerWidth - padding) {
+				left = rect.left - tipRect.width - gap
+			}
+		} else {
+			left = rect.left + (rect.width - tipRect.width) / 2
+			top = rect.bottom + gap
+
+			if (top + tipRect.height > window.innerHeight - padding) {
+				top = rect.top - tipRect.height - gap
+			}
+		}
+
 		left = Math.max(padding, Math.min(left, window.innerWidth - tipRect.width - padding))
 
-		let top = rect.bottom + gap
-		if (top + tipRect.height > window.innerHeight - padding) {
-			top = rect.top - tipRect.height - gap
-		}
+		top = Math.max(padding, Math.min(top, window.innerHeight - tipRect.height - padding))
 
 		tooltip.style.left = `${Math.round(left)}px`
 		tooltip.style.top = `${Math.round(top)}px`
@@ -108,14 +168,28 @@ export default function setupTooltips(): void {
 
 			shortcut.split('+').forEach(key => {
 				const trimmed = key.trim()
+
+				if (!trimmed) return
+
+				if (trimmed.toLowerCase() === 'then') {
+					const separator = document.createElement('span')
+					separator.className = 'linear-tooltip-then'
+					separator.textContent = 'then'
+					keysWrapper.appendChild(separator)
+					return
+				}
+
 				const keyId = normalizeKey(trimmed)
 				const kbd = document.createElement('kbd')
+
 				kbd.className = 'linear-kbd'
 				kbd.setAttribute('data-key', keyId)
+				kbd.textContent = trimmed
+
 				if (pressedKeys.has(keyId)) {
 					kbd.setAttribute('data-active', 'true')
 				}
-				kbd.textContent = trimmed
+
 				keysWrapper.appendChild(kbd)
 			})
 

@@ -1,203 +1,272 @@
-const TABS_ORDER_STORAGE_KEY = 'app.tabs.order'
+import { DragState } from 'src/types/types'
 
 export default function setupTabsDnd(onReorder?: (orderedIds: string[]) => void): void {
-	const container = document.querySelector<HTMLElement>('.tabs-scroll-container')
-	if (!container || container.dataset.dndInit === 'true') return
+	const element = document.querySelector<HTMLElement>('.tabs-scroll-container')
+
+	if (!element || element.dataset.dndInit === 'true') return
+
+	const container: HTMLElement = element
+
 	container.dataset.dndInit = 'true'
 
+	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+	let state: DragState | null = null
+	let timer: number | undefined
+	let blockClicksUntil = 0
+
+	const getItems = (): HTMLElement[] =>
+		Array.from(
+			container.querySelectorAll<HTMLElement>(':scope > .desktop-tab-wrapper:not([hidden])')
+		).filter(item => item.getClientRects().length > 0)
+
 	const updateShortcuts = (): void => {
-		const tabs = Array.from(container.querySelectorAll<HTMLElement>('.desktop-tab'))
-		tabs.forEach((tab, index) => {
-			if (index < 9) {
-				tab.setAttribute('data-shortcut', `Ctrl+${index + 1}`)
-			} else {
-				tab.removeAttribute('data-shortcut')
+		container
+			.querySelectorAll<HTMLElement>('.desktop-tab')
+			.forEach(tab => tab.removeAttribute('data-shortcut'))
+
+		getItems().forEach((wrapper, index) => {
+			const tab = wrapper.querySelector<HTMLElement>('.desktop-tab')
+
+			if (tab && index < 9) {
+				tab.dataset.shortcut = `Ctrl+${index + 1}`
 			}
 		})
 	}
 
-	const restoreOrder = (): void => {
-		try {
-			const raw = localStorage.getItem(TABS_ORDER_STORAGE_KEY)
-			if (!raw) return
-			const savedIds: unknown = JSON.parse(raw)
-			if (!Array.isArray(savedIds)) return
-
-			const tabsMap = new Map<string, HTMLElement>()
-			container.querySelectorAll<HTMLElement>('.desktop-tab').forEach(tab => {
-				if (tab.id) tabsMap.set(tab.id, tab)
-			})
-
-			savedIds.forEach(id => {
-				if (typeof id === 'string') {
-					const tab = tabsMap.get(id)
-					if (tab) {
-						container.appendChild(tab)
-						tabsMap.delete(id)
-					}
-				}
-			})
-
-			tabsMap.forEach(tab => container.appendChild(tab))
-		} catch {
-			localStorage.removeItem(TABS_ORDER_STORAGE_KEY)
-		}
-	}
-
-	const saveOrder = (): string[] => {
-		const ids = Array.from(container.querySelectorAll<HTMLElement>('.desktop-tab'))
-			.map(el => el.id)
-			.filter(Boolean)
-
-		localStorage.setItem(TABS_ORDER_STORAGE_KEY, JSON.stringify(ids))
-		return ids
-	}
-
-	restoreOrder()
-	updateShortcuts()
-
-	const DRAG_THRESHOLD = 4
-
-	let tabs: HTMLElement[] = []
-	let initialRects: DOMRect[] = []
-	let draggingIndex = -1
-	let targetIndex = -1
-	let startX = 0
-	let stepWidth = 0
-	let isDragging = false
-
-	const updateSiblingsShift = (newTargetIndex: number): void => {
-		if (newTargetIndex === targetIndex) return
-		targetIndex = newTargetIndex
-
-		tabs.forEach((tab, i) => {
-			if (i === draggingIndex) return
-
-			let shift = 0
-			if (draggingIndex < targetIndex && i > draggingIndex && i <= targetIndex) {
-				shift = -stepWidth
-			} else if (draggingIndex > targetIndex && i >= targetIndex && i < draggingIndex) {
-				shift = stepWidth
-			}
-
-			tab.style.transform = shift !== 0 ? `translate3d(${shift}px, 0, 0)` : ''
-		})
-	}
-
-	const onPointerMove = (e: PointerEvent): void => {
-		if (draggingIndex === -1) return
-
-		const dx = e.clientX - startX
-
-		if (!isDragging) {
-			if (Math.abs(dx) < DRAG_THRESHOLD) return
-			isDragging = true
-			tabs[draggingIndex].setAttribute('data-dragging', 'true')
-		}
-
-		const activeTab = tabs[draggingIndex]
-		const firstRect = initialRects[0]
-		const lastRect = initialRects[initialRects.length - 1]
-		const currentRect = initialRects[draggingIndex]
-
-		const minDx = firstRect.left - currentRect.left
-		const maxDx = lastRect.right - currentRect.right
-		const clampedDx = Math.max(minDx, Math.min(dx, maxDx))
-
-		activeTab.style.transform = `translate3d(${clampedDx}px, 0, 0)`
-
-		const draggedCenter = currentRect.left + currentRect.width / 2 + clampedDx
-		let closestIndex = draggingIndex
-		let minDistance = Infinity
-
-		initialRects.forEach((rect, i) => {
-			const center = rect.left + rect.width / 2
-			const distance = Math.abs(draggedCenter - center)
-			if (distance < minDistance) {
-				minDistance = distance
-				closestIndex = i
-			}
-		})
-
-		updateSiblingsShift(closestIndex)
-	}
-
-	const onPointerUp = (): void => {
+	const removeListeners = (): void => {
 		window.removeEventListener('pointermove', onPointerMove)
 		window.removeEventListener('pointerup', onPointerUp)
-		window.removeEventListener('pointercancel', onPointerUp)
+		window.removeEventListener('pointercancel', onPointerCancel)
+		window.removeEventListener('keydown', onKeyDown)
+		window.removeEventListener('blur', onBlur)
+	}
 
-		if (draggingIndex === -1) return
+	const finish = (commit: boolean): void => {
+		const current = state
 
-		const activeTab = tabs[draggingIndex]
-		const fromIdx = draggingIndex
-		const toIdx = targetIndex
+		if (!current) return
 
-		draggingIndex = -1
+		window.clearTimeout(timer)
+		removeListeners()
 
-		if (!isDragging) {
-			activeTab.removeAttribute('data-dragging')
+		for (const item of current.items) {
+			item.classList.add('desktop-tab-reset')
+			item.style.removeProperty('transform')
+			item.removeAttribute('data-dragging')
+			item.removeAttribute('data-dropping')
+		}
+
+		const active = current.items[current.from]
+		const target = current.items[current.to]
+
+		if (commit && active && target && current.from !== current.to) {
+			container.insertBefore(active, current.from < current.to ? target.nextSibling : target)
+		}
+
+		container.classList.remove('desktop-tabs-sorting')
+
+		if (current.active) {
+			blockClicksUntil = Date.now() + 250
+		}
+
+		state = null
+
+		void container.offsetWidth
+
+		for (const item of current.items) {
+			item.classList.remove('desktop-tab-reset')
+		}
+
+		updateShortcuts()
+
+		if (commit && current.active) {
+			container.dispatchEvent(new Event('desktop-tabs-reordered'))
+
+			const ids = getItems()
+				.map(item => item.querySelector<HTMLButtonElement>('.desktop-tab')?.id)
+				.filter((id): id is string => Boolean(id))
+
+			onReorder?.(ids)
+		}
+	}
+
+	function onPointerMove(event: PointerEvent): void {
+		const current = state
+
+		if (!current || current.dropping || event.pointerId !== current.pointerId) {
 			return
 		}
 
-		isDragging = false
+		const dx = event.clientX - current.startX
 
-		activeTab.removeAttribute('data-dragging')
-		activeTab.setAttribute('data-dropping', 'true')
+		if (!current.active) {
+			if (Math.abs(dx) < 4) return
 
-		const finalDx = (toIdx - fromIdx) * stepWidth
-		activeTab.style.transform = `translate3d(${finalDx}px, 0, 0)`
+			current.active = true
+			blockClicksUntil = Number.POSITIVE_INFINITY
 
-		window.setTimeout(() => {
-			tabs.forEach(tab => {
-				tab.style.transition = 'none'
-				tab.style.transform = ''
-				tab.removeAttribute('data-dragging')
-				tab.removeAttribute('data-dropping')
-			})
+			container.classList.add('desktop-tabs-sorting')
+			current.items[current.from]!.dataset.dragging = 'true'
+		}
 
-			if (fromIdx !== toIdx) {
-				if (fromIdx < toIdx) {
-					container.insertBefore(activeTab, tabs[toIdx].nextSibling)
-				} else {
-					container.insertBefore(activeTab, tabs[toIdx])
-				}
+		event.preventDefault()
+
+		const first = current.rects[0]!
+		const last = current.rects[current.rects.length - 1]!
+		const activeRect = current.rects[current.from]!
+
+		const minDx = first.left - activeRect.left
+		const maxDx = last.right - activeRect.right
+		const offset = Math.max(minDx, Math.min(dx, maxDx))
+
+		current.items[current.from]!.style.transform = `translate3d(${offset}px, 0, 0)`
+
+		const center = activeRect.left + activeRect.width / 2 + offset
+
+		let closest = current.from
+		let distance = Number.POSITIVE_INFINITY
+
+		current.rects.forEach((rect, index) => {
+			const next = Math.abs(center - (rect.left + rect.width / 2))
+
+			if (next < distance) {
+				distance = next
+				closest = index
+			}
+		})
+
+		current.to = closest
+
+		const gap = current.rects.length > 1 ? current.rects[1]!.left - current.rects[0]!.right : 0
+
+		const step = activeRect.width + gap
+
+		current.items.forEach((item, index) => {
+			if (index === current.from) return
+
+			let shift = 0
+
+			if (current.from < closest && index > current.from && index <= closest) {
+				shift = -step
+			} else if (current.from > closest && index >= closest && index < current.from) {
+				shift = step
 			}
 
-			requestAnimationFrame(() => {
-				tabs.forEach(tab => {
-					tab.style.transition = ''
-				})
-			})
-
-			const ids = saveOrder()
-			updateShortcuts()
-			if (onReorder) onReorder(ids)
-		}, 255)
+			item.style.transform = `translate3d(${shift}px, 0, 0)`
+		})
 	}
 
-	container.addEventListener('pointerdown', (e: PointerEvent) => {
-		if (e.button !== 0) return
-		const target = e.target as HTMLElement | null
-		if (target?.closest('.desktop-tab-close')) return
+	function onPointerUp(event: PointerEvent): void {
+		const current = state
 
-		const tab = target?.closest<HTMLElement>('.desktop-tab')
-		if (!tab) return
+		if (!current || current.dropping || event.pointerId !== current.pointerId) {
+			return
+		}
 
-		tabs = Array.from(container.querySelectorAll<HTMLElement>('.desktop-tab'))
-		if (tabs.length < 2) return
+		if (!current.active) {
+			finish(false)
+			return
+		}
 
-		initialRects = tabs.map(t => t.getBoundingClientRect())
-		draggingIndex = tabs.indexOf(tab)
-		targetIndex = draggingIndex
-		startX = e.clientX
-		isDragging = false
+		current.dropping = true
 
-		stepWidth =
-			initialRects.length > 1 ? initialRects[1].left - initialRects[0].left : initialRects[0].width
+		const active = current.items[current.from]!
+		const from = current.rects[current.from]!
+		const to = current.rects[current.to]!
 
-		window.addEventListener('pointermove', onPointerMove)
-		window.addEventListener('pointerup', onPointerUp)
-		window.addEventListener('pointercancel', onPointerUp)
+		active.removeAttribute('data-dragging')
+		active.dataset.dropping = 'true'
+
+		const offset = current.to > current.from ? to.right - from.right : to.left - from.left
+
+		active.style.transform = `translate3d(${offset}px, 0, 0)`
+
+		timer = window.setTimeout(() => finish(true), reducedMotion.matches ? 0 : 220)
+	}
+
+	function onPointerCancel(event: PointerEvent): void {
+		if (state?.pointerId === event.pointerId) {
+			finish(false)
+		}
+	}
+
+	function onKeyDown(event: KeyboardEvent): void {
+		if (event.key !== 'Escape' || !state) return
+
+		event.preventDefault()
+		finish(false)
+	}
+
+	function onBlur(): void {
+		finish(false)
+	}
+
+	container.addEventListener(
+		'click',
+		event => {
+			if (Date.now() >= blockClicksUntil) return
+
+			event.preventDefault()
+			event.stopImmediatePropagation()
+		},
+		true
+	)
+
+	container.addEventListener('dragstart', event => {
+		event.preventDefault()
 	})
+
+	container.addEventListener('pointerdown', event => {
+		if (
+			state ||
+			event.button !== 0 ||
+			!event.isPrimary ||
+			!(event.target instanceof Element) ||
+			event.target.closest('.desktop-tab-close')
+		) {
+			return
+		}
+
+		const wrapper = event.target.closest<HTMLElement>('.desktop-tab-wrapper')
+
+		if (!wrapper || wrapper.parentElement !== container) return
+
+		const items = getItems()
+		const from = items.indexOf(wrapper)
+
+		if (items.length < 2 || from === -1) return
+
+		state = {
+			pointerId: event.pointerId,
+			items,
+			rects: items.map(item => item.getBoundingClientRect()),
+			from,
+			to: from,
+			startX: event.clientX,
+			active: false,
+			dropping: false,
+		}
+
+		window.addEventListener('pointermove', onPointerMove, {
+			passive: false,
+		})
+		window.addEventListener('pointerup', onPointerUp)
+		window.addEventListener('pointercancel', onPointerCancel)
+		window.addEventListener('keydown', onKeyDown)
+		window.addEventListener('blur', onBlur)
+	})
+
+	const observer = new MutationObserver(() => {
+		if (!state) updateShortcuts()
+	})
+
+	observer.observe(container, {
+		childList: true,
+		subtree: true,
+		attributes: true,
+		attributeFilter: ['hidden'],
+	})
+
+	updateShortcuts()
 }

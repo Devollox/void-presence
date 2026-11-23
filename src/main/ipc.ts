@@ -66,6 +66,7 @@ import { downloadFile, getInstallDir, isPortable } from './updates'
 let autoHideOnStart = false
 let stopCurrentRpc: (() => void) | null = null
 let rpcStarted = false
+const DESKTOP_CONNECT_URL = 'https://voidpresence.com/desktop/connect'
 
 registerPlugin(defaultPlugin)
 registerPlugin(smtcPlugin)
@@ -1015,6 +1016,20 @@ export async function initIpc() {
 		sendStatusCustomPayload('IDLE')
 
 		return true
+	})
+
+	ipcMain.handle('account:open-login', async event => {
+		const win = BrowserWindow.fromWebContents(event.sender)
+
+		if (!win || win.isDestroyed()) {
+			throw new Error('Account window is not available.')
+		}
+
+		if (event.senderFrame !== event.sender.mainFrame) {
+			throw new Error('Unauthorized account request.')
+		}
+
+		await shell.openExternal(DESKTOP_CONNECT_URL)
 	})
 
 	const win = BrowserWindow.getAllWindows()[0]

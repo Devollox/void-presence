@@ -375,6 +375,46 @@ export interface PluginInfo {
 	controls: PluginControl[]
 }
 
+export type AccountProfile = {
+	authorId: string
+	authorName?: string
+	provider?: string
+	avatar?: string
+}
+
+export type SidebarAccount = {
+	authorId: string | number
+	authorName?: string | null
+}
+
+export type Layout = Record<string, string[]>
+
+export type DragStateSidebar = {
+	pointerId: number
+	container: HTMLElement
+	item: HTMLElement
+	items: HTMLElement[]
+	rects: DOMRect[]
+	from: number
+	to: number
+	startY: number
+	scrollTop: number
+	gap: number
+	active: boolean
+	dropping: boolean
+}
+
+export interface DragState {
+	pointerId: number
+	items: HTMLElement[]
+	rects: DOMRect[]
+	from: number
+	to: number
+	startX: number
+	active: boolean
+	dropping: boolean
+}
+
 export interface ElectronAPI {
 	openExternal(arg0: string): unknown
 	pluginsList?: () => Promise<PluginInfo[]>
@@ -495,6 +535,7 @@ export interface ElectronAPI {
 	onRpcStatus?: (handler: (status: string) => void) => void
 	onStatusStatus?: (handler: (status: string) => void) => void
 	invoke: <T = unknown>(channel: string, ...args: unknown[]) => Promise<T>
+	openLogin?: () => Promise<void>
 }
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string

@@ -3,7 +3,7 @@
 		"presence": "Презенс",
 		"status": "Статус",
 		"logs": "Логи",
-		"config": "Конфиг",
+		"configs": "Конфиги",
 		"settings": "Настройки",
 		"plugins": "Плагины"
 	},
@@ -530,5 +530,30 @@
 		"restartStatus": "перезапуск статуса",
 		"stopPresence": "остановка присутствия",
 		"stopStatus": "остановка статуса"
+	},
+	"window": {
+		"minimize": "Свернуть",
+		"maximize": "Развернуть"
+	},
+	"navigation": {
+		"toggleSidebar": "Показать или скрыть боковую панель",
+		"goBack": "Назад",
+		"goForward": "Вперёд"
+	},
+	"connection": {
+		"online": "В сети"
+	},
+	"sidebar": {
+		"workspace": "Рабочее пространство",
+		"toggleWorkspace": "Развернуть или свернуть рабочее пространство"
+	},
+	"account": {
+		"resources": "Ресурсы аккаунта",
+		"yourAccount": "Ваш аккаунт",
+		"links": "Ссылки аккаунта",
+		"docs": "Документация",
+		"help": "Помощь",
+		"login": "Войти",
+		"logout": "Выйти"
 	}
 }

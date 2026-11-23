@@ -171,8 +171,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	onPluginToast: (handler: (payload: { message: string }) => void) => {
 		ipcRenderer.on('plugin:toast', (_event, payload) => handler(payload))
 	},
-	pluginsInstallFromUrl: (url: string, isZip = false) => ipcRenderer.invoke('plugins:install-from-url', url, isZip),
+	pluginsInstallFromUrl: (url: string, isZip = false) =>
+		ipcRenderer.invoke('plugins:install-from-url', url, isZip),
 	onInstallPluginFromUrl: (handler: (payload: { url: string }) => void) => {
 		ipcRenderer.on('INSTALL_PLUGIN_FROM_URL', (_event, payload) => handler(payload))
 	},
+
+	openLogin: (): Promise<void> => ipcRenderer.invoke('account:open-login'),
 })

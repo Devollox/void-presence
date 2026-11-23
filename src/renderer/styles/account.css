@@ -1,0 +1,140 @@
+.workspace-avatar {
+	position: relative;
+	overflow: hidden;
+}
+
+.workspace-avatar-image {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+}
+
+.workspace-avatar-image[hidden],
+.workspace-avatar-fallback[hidden] {
+	display: none;
+}
+
+.workspace-trigger[aria-expanded='true'] {
+	background-color: var(--control-tertiary-selected);
+}
+
+.account-popover {
+	position: fixed;
+	z-index: 1000;
+	width: 260px;
+	max-width: calc(100vw - 16px);
+	max-height: calc(100vh - 16px);
+	padding: 6px;
+	overflow-y: auto;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: 10px;
+	background-color: var(--color-bg-secondary);
+	color: var(--content-highlight-color);
+	box-shadow:
+		0 12px 36px #00000030,
+		0 2px 8px #00000018;
+	transform-origin: top left;
+	animation: account-menu-enter var(--speed-highlightFadeOut) var(--ease-out-cubic);
+}
+
+.account-popover[hidden],
+.account-popover [hidden] {
+	display: none;
+}
+
+.account-menu {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.account-menu-item {
+	width: 100%;
+	min-height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0 8px;
+	border: none;
+	border-radius: 6px;
+	background-color: transparent;
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 450;
+	text-align: left;
+	cursor: pointer;
+	user-select: none;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.account-menu-item svg {
+	flex-shrink: 0;
+	color: var(--text-tertiary);
+}
+
+.account-menu-item:active {
+	background-color: var(--control-tertiary-selected);
+}
+
+.account-menu-item:disabled {
+	color: var(--text-tertiary);
+	cursor: default;
+}
+
+.account-menu-separator {
+	height: var(--editor-hairline);
+	flex-shrink: 0;
+	margin: 4px -6px;
+	background-color: var(--bg-border-color);
+}
+
+.account-menu-feedback {
+	margin: 6px 0 0;
+	padding: 8px;
+	border-top: var(--editor-hairline) solid var(--bg-border-color);
+	color: var(--text-secondary);
+	font-size: 11px;
+	line-height: 17px;
+}
+
+.account-menu-feedback[data-error='true'] {
+	color: #df7373;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.account-menu-item:hover:not(:disabled) {
+		background-color: var(--control-tertiary-hover);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+
+	.account-menu-item:active:not(:disabled) {
+		background-color: var(--control-tertiary-selected);
+	}
+}
+
+@keyframes account-menu-enter {
+	from {
+		opacity: 0;
+		transform: translateY(-3px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.account-popover {
+		animation: none;
+	}
+
+	.account-menu-item {
+		transition: none;
+	}
+}

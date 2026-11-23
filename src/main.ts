@@ -25,6 +25,7 @@ let pendingUrl: string | null = null
 async function handleUrl(rawUrl: string) {
 	try {
 		const url = new URL(rawUrl)
+		if (url.protocol !== `${PROTOCOL}:`) return
 		const authorId = url.searchParams.get('authorId')
 		const authorName = url.searchParams.get('name')
 		const provider = url.searchParams.get('provider')
@@ -69,18 +70,25 @@ async function handleUrl(rawUrl: string) {
 			}
 		}
 
-		if (authorId) {
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.webContents.send('AUTH_FROM_URL', {
-					authorId,
-					authorName,
-					provider,
-					avatar,
-				})
-				mainWindow.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', { view: 'config' })
-			} else {
+		if (host === 'auth' && authorId?.trim()) {
+			if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isLoadingMainFrame()) {
 				pendingUrl = rawUrl
+				return
 			}
+
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore()
+			}
+
+			mainWindow.show()
+			mainWindow.focus()
+
+			mainWindow.webContents.send('AUTH_FROM_URL', {
+				authorId: authorId.trim(),
+				authorName,
+				provider,
+				avatar,
+			})
 		}
 	} catch (e: any) {
 		console.error('Failed to parse URL or handle protocol data:', e?.message ?? e)
@@ -148,8 +156,9 @@ if (!gotTheLock) {
 				checkForUpdates({ log: true })
 
 				if (pendingUrl) {
-					handleUrl(pendingUrl)
+					const url = pendingUrl
 					pendingUrl = null
+					void handleUrl(url)
 				}
 			})
 		} else {

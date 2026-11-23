@@ -3,7 +3,7 @@
 		"presence": "Varlık",
 		"status": "Durum",
 		"logs": "Günlükler",
-		"config": "Yapılandırma",
+		"configs": "Yapılandırmalar",
 		"settings": "Ayarlar",
 		"plugins": "Eklentiler"
 	},
@@ -530,5 +530,30 @@
 		"restartStatus": "durumu yeniden başlat",
 		"stopPresence": "varlığı durdur",
 		"stopStatus": "durumu durdur"
+	},
+	"window": {
+		"minimize": "Simge durumuna küçült",
+		"maximize": "Ekranı kapla"
+	},
+	"navigation": {
+		"toggleSidebar": "Kenar çubuğunu göster veya gizle",
+		"goBack": "Geri",
+		"goForward": "İleri"
+	},
+	"connection": {
+		"online": "Çevrimiçi"
+	},
+	"sidebar": {
+		"workspace": "Çalışma alanı",
+		"toggleWorkspace": "Çalışma alanını genişlet veya daralt"
+	},
+	"account": {
+		"resources": "Hesap kaynakları",
+		"yourAccount": "Hesabınız",
+		"links": "Hesap bağlantıları",
+		"docs": "Dokümantasyon",
+		"help": "Yardım",
+		"login": "Giriş yap",
+		"logout": "Çıkış yap"
 	}
 }

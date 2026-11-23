@@ -13,6 +13,7 @@ import { setupStatusTutorialButtons, setupTutorials } from './modules/modals/tut
 import './modules/modals/update'
 import { initUpdateOverlay } from './modules/modals/update'
 import { setupPluginsPage } from './modules/plugins/plugins-page'
+import setupTabsDnd from './modules/shell/dnd-tabs'
 import { initLanguage } from './modules/shell/language'
 import { updatePlaceholders } from './modules/shell/placeholders'
 import { updateStatusStatus, updateStatusText } from './modules/shell/runtime-status'
@@ -27,7 +28,10 @@ import {
 	setupStatusEnabledToggle,
 	setupSupportAndLogsButtons,
 } from './modules/shell/toggles'
-import { setActiveView, updateInfo, updateStatus } from './modules/shell/views'
+import setupTooltips from './modules/shell/tooltip'
+import setupSidebarToggle from './modules/shell/view-sidebar'
+import { updateInfo, updateStatus } from './modules/shell/views'
+import setupViewsNavigation, { setActiveView } from './modules/shell/views-nav'
 import { setupWindowControls } from './modules/shell/window-controls'
 import { setupStatusDetailsOverlay } from './modules/status-page/status-details'
 import { setupStatusImportOverlay } from './modules/status-page/status-import'
@@ -36,9 +40,9 @@ import {
 	renderStatusProfiles,
 	setupStatusIntervalControl,
 } from './modules/status-page/status-render'
-import setupSidebarToggle from './modules/shell/view-sidebar'
-import setupTooltips from './modules/shell/tooltip'
-import setupTabsDnd from './modules/shell/dnd-tabs'
+import setupAccountModal, { acceptAccountProfile } from './modules/shell/account'
+import setupSidebarDnd from './modules/shell/sidebar-dnd'
+import initSidebarPeek from './modules/shell/sidebar-peek'
 
 document.addEventListener('DOMContentLoaded', async () => {
 	initLanguage()
@@ -57,9 +61,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 	void setupPresenceControls()
 	void setupIntervalControl()
 	void setupStatusTutorialButtons()
-	void setupSidebarToggle()
 	void setupTooltips()
 	void setupTabsDnd()
+	void setupViewsNavigation()
+	void setupSidebarToggle()
+	void setupAccountModal()
+	void setupSidebarDnd()
+	void initSidebarPeek()
 	void initUpdateOverlay()
 	void setupImportOverlay()
 	void setupGlobalDrop()
@@ -119,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 				const payload = raw as { data: unknown; title?: string }
 				importJsonPayload(payload.data, payload.title)
 			} catch (err: any) {
-				console.error('Failed to import config from protocol', err?.message ?? err)
+				console.error('Failed to import status from protocol', err?.message ?? err)
 			}
 		})
 	}
@@ -129,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 			const { showPluginSavedToast } = setupToasts()
 
 			try {
-				const result = await window?.electronAPI?.pluginsInstallFromUrl?.(url)
+				const result = await window.electronAPI?.pluginsInstallFromUrl?.(url)
 
 				if (result?.ok) {
 					showPluginSavedToast({
@@ -140,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 						message: t('pluginInstallFromUrlFailed', { url }),
 					})
 				}
-			} catch (err: any) {
+			} catch {
 				showPluginSavedToast({
 					message: t('pluginInstallFromUrlFailed', { url }),
 				})
@@ -156,22 +164,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 	if (window.electronAPI?.onAuthFromUrl) {
 		window.electronAPI.onAuthFromUrl(user => {
-			localStorage.setItem('authorId', user.authorId)
-			if (user.authorName) localStorage.setItem('authorName', user.authorName)
-			if (user.provider) localStorage.setItem('authorProvider', user.provider)
-			if (user.avatar) localStorage.setItem('authorAvatar', user.avatar)
+			try {
+				acceptAccountProfile({
+					authorId: user.authorId,
+					authorName: user.authorName ?? '',
+					provider: user.provider ?? '',
+					avatar: user.avatar ?? '',
+				})
 
-			const input = document.getElementById('config-author-input') as HTMLInputElement
-			if (input) input.value = user.authorId
+				const input = document.querySelector<HTMLInputElement>('#config-author-input')
 
-			const label = document.getElementById('config-author-label')
-			if (label) label.textContent = user.authorName || user.authorId
+				const label = document.querySelector<HTMLElement>('#config-author-label')
+
+				if (input) {
+					input.value = user.authorId
+				}
+
+				if (label) {
+					label.textContent = user.authorName || user.authorId
+				}
+			} catch (error) {
+				console.error('Failed to connect account profile', error)
+			}
 		})
 	}
 
-	async function pollNowPlayingUi() {
-		const info = await fetchNowPlaying()
-		setTimeout(pollNowPlayingUi, 4000)
+	async function pollNowPlayingUi(): Promise<void> {
+		try {
+			await fetchNowPlaying()
+		} catch (err) {
+			console.error('Failed to fetch now playing', err)
+		} finally {
+			setTimeout(() => {
+				void pollNowPlayingUi()
+			}, 4000)
+		}
 	}
 
 	void pollNowPlayingUi()

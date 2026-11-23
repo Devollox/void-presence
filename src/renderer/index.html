@@ -16,14 +16,56 @@
 		<link rel="stylesheet" href="./styles/tabs.css" />
 		<link rel="stylesheet" href="./styles/app-content.css" />
 		<link rel="stylesheet" href="./styles/sidebar.css" />
+		<link rel="stylesheet" href="./styles/account.css" />
 	</head>
 	<body>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="0"
+			height="0"
+			aria-hidden="true"
+			style="position: absolute; overflow: hidden; pointer-events: none"
+		>
+			<defs>
+				<symbol id="icon-presence" viewBox="0 0 24 24">
+					<path d="M21 11a8 8 0 0 0-8-8" />
+					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+				</symbol>
+
+				<symbol id="icon-status" viewBox="0 0 24 24">
+					<rect width="18" height="18" x="3" y="3" rx="2" />
+					<path d="M17 12h-2l-2 5-2-10-2 5H7" />
+				</symbol>
+
+				<symbol id="icon-logs" viewBox="0 0 24 24">
+					<path d="M3 5h1M3 12h1M3 19h1M8 5h1M8 12h1M8 19h1" />
+					<path d="M13 5h8M13 12h8M13 19h8" />
+				</symbol>
+
+				<symbol id="icon-plugins" viewBox="0 0 24 24">
+					<path
+						d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"
+					/>
+				</symbol>
+
+				<symbol id="icon-configs" viewBox="0 0 24 24">
+					<path d="M10 5H3M12 19H3M14 3v4M16 17v4M21 12h-9M21 19h-5M21 5h-7M8 10v4M8 12H3" />
+				</symbol>
+
+				<symbol id="icon-settings" viewBox="0 0 24 24">
+					<path
+						d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
+					/>
+					<circle cx="12" cy="12" r="3" />
+				</symbol>
+			</defs>
+		</svg>
+
 		<div class="app">
 			<div class="titlebar">
 				<div class="titlebar-buttons">
 					<button type="button" id="window-minimize" class="titlebar-btn" aria-label="Minimize">
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
 							width="14"
 							height="14"
 							viewBox="0 0 24 24"
@@ -32,15 +74,14 @@
 							stroke-width="1"
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							class="lucide lucide-minus preview-icon"
 							aria-hidden="true"
 						>
 							<path d="M5 12h14" />
 						</svg>
 					</button>
+
 					<button type="button" id="window-maximize" class="titlebar-btn" aria-label="Maximize">
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
 							width="16"
 							height="16"
 							viewBox="0 0 24 24"
@@ -49,16 +90,15 @@
 							stroke-width="1"
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							class="lucide lucide-square-arrow-down-left-exit preview-icon"
+							aria-hidden="true"
 						>
 							<path d="M13 21h6a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6" />
-							<path d="m3 21 9-9" />
-							<path d="M9 21H3v-6" />
+							<path d="m3 21 9-9M9 21H3v-6" />
 						</svg>
 					</button>
+
 					<button type="button" id="window-close" class="titlebar-btn" aria-label="Close">
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
 							width="14"
 							height="14"
 							viewBox="0 0 24 24"
@@ -67,11 +107,9 @@
 							stroke-width="1"
 							stroke-linecap="round"
 							stroke-linejoin="round"
-							class="lucide lucide-x preview-icon"
 							aria-hidden="true"
 						>
-							<path d="M18 6 6 18" />
-							<path d="m6 6 12 12" />
+							<path d="m18 6-12 12M6 6l12 12" />
 						</svg>
 					</button>
 				</div>
@@ -156,19 +194,15 @@
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
 									<svg
-										xmlns="http://www.w3.org/2000/svg"
 										width="14"
 										height="14"
-										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
 										stroke-width="1"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="lucide lucide-square-round-corner preview-icon"
 									>
-										<path d="M21 11a8 8 0 0 0-8-8" />
-										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+										<use href="#icon-presence" />
 									</svg>
 								</span>
 								<span class="desktop-tab-title" data-i18n="tabs.presence">Presence</span>
@@ -188,19 +222,15 @@
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
 									<svg
-										xmlns="http://www.w3.org/2000/svg"
 										width="14"
 										height="14"
-										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
 										stroke-width="1"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="lucide lucide-square-activity preview-icon"
 									>
-										<rect width="18" height="18" x="3" y="3" rx="2" />
-										<path d="M17 12h-2l-2 5-2-10-2 5H7" />
+										<use href="#icon-status" />
 									</svg>
 								</span>
 								<span class="desktop-tab-title" data-i18n="tabs.status">Status</span>
@@ -220,26 +250,15 @@
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
 									<svg
-										xmlns="http://www.w3.org/2000/svg"
 										width="14"
 										height="14"
-										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
 										stroke-width="1"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="lucide lucide-logs preview-icon"
 									>
-										<path d="M3 5h1" />
-										<path d="M3 12h1" />
-										<path d="M3 19h1" />
-										<path d="M8 5h1" />
-										<path d="M8 12h1" />
-										<path d="M8 19h1" />
-										<path d="M13 5h8" />
-										<path d="M13 12h8" />
-										<path d="M13 19h8" />
+										<use href="#icon-logs" />
 									</svg>
 								</span>
 								<span class="desktop-tab-title" data-i18n="tabs.logs">Logs</span>
@@ -259,20 +278,15 @@
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
 									<svg
-										xmlns="http://www.w3.org/2000/svg"
 										width="14"
 										height="14"
-										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
 										stroke-width="1"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="lucide lucide-puzzle preview-icon"
 									>
-										<path
-											d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"
-										/>
+										<use href="#icon-plugins" />
 									</svg>
 								</span>
 								<span class="desktop-tab-title" data-i18n="tabs.plugins">Plugins</span>
@@ -281,9 +295,9 @@
 
 						<button
 							type="button"
-							id="nav-config"
+							id="nav-configs"
 							class="tab-btn desktop-tab"
-							data-page="config"
+							data-page="configs"
 							data-desktop-tab="true"
 							data-active="false"
 							data-tooltip="Configs"
@@ -292,29 +306,18 @@
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
 									<svg
-										xmlns="http://www.w3.org/2000/svg"
 										width="14"
 										height="14"
-										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
 										stroke-width="1"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="lucide lucide-sliders-horizontal preview-icon"
 									>
-										<path d="M10 5H3" />
-										<path d="M12 19H3" />
-										<path d="M14 3v4" />
-										<path d="M16 17v4" />
-										<path d="M21 12h-9" />
-										<path d="M21 19h-5" />
-										<path d="M21 5h-7" />
-										<path d="M8 10v4" />
-										<path d="M8 12H3" />
+										<use href="#icon-configs" />
 									</svg>
 								</span>
-								<span class="desktop-tab-title" data-i18n="tabs.config">Configs</span>
+								<span class="desktop-tab-title" data-i18n="tabs.configs">Configs</span>
 							</span>
 						</button>
 
@@ -331,21 +334,15 @@
 							<span class="desktop-tab-content">
 								<span class="desktop-tab-icon" aria-hidden="true">
 									<svg
-										xmlns="http://www.w3.org/2000/svg"
 										width="14"
 										height="14"
-										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
 										stroke-width="1"
 										stroke-linecap="round"
 										stroke-linejoin="round"
-										class="lucide lucide-settings preview-icon"
 									>
-										<path
-											d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
-										/>
-										<circle cx="12" cy="12" r="3" />
+										<use href="#icon-settings" />
 									</svg>
 								</span>
 								<span class="desktop-tab-title" data-i18n="tabs.settings">Settings</span>
@@ -356,24 +353,519 @@
 			</header>
 
 			<div class="app-workspace">
-				<aside id="app-sidebar" class="app-sidebar" data-open="true">
-					<div class="sidebar-content"></div>
+				<aside id="app-sidebar" class="app-sidebar" data-sidebar-surface="true" data-open="true">
+					<div class="sidebar-header">
+						<button
+							type="button"
+							id="account-trigger"
+							class="workspace-trigger"
+							aria-haspopup="menu"
+							aria-controls="account-menu"
+							aria-expanded="false"
+						>
+							<span class="workspace-avatar" aria-hidden="true">
+								<img class="workspace-avatar-image" alt="" hidden />
+								<span class="workspace-avatar-fallback">VP</span>
+							</span>
+
+							<span class="workspace-title">Void Presence</span>
+
+							<svg
+								class="workspace-caret"
+								width="10"
+								height="8"
+								viewBox="0 0 16 16"
+								aria-hidden="true"
+							>
+								<path
+									d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 0 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+								/>
+							</svg>
+						</button>
+					</div>
+
+					<div class="sidebar-scroll-viewport" data-vertical-scroll-container="true">
+						<div class="sidebar-group">
+							<button
+								type="button"
+								id="sidebar-changelog"
+								class="sidebar-item"
+								data-page="changelogs"
+								data-tooltip="Changelogs"
+								data-unread="true"
+							>
+								<span class="sidebar-item-icon" aria-hidden="true">
+									<svg
+										width="14"
+										height="14"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.6"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="M12 8v4l3 2" />
+										<path d="M3 11a9 9 0 1 1 2.7 7.4" />
+										<path d="M3 4v7h7" />
+									</svg>
+								</span>
+								<span class="sidebar-item-label">Change Logs</span>
+								<span class="sidebar-item-dot-wrap" aria-hidden="true">
+									<span class="sidebar-item-dot"></span>
+								</span>
+							</button>
+						</div>
+
+						<div class="sidebar-section" data-open="true">
+							<div class="sidebar-section-header">
+								<button
+									type="button"
+									class="sidebar-section-toggle"
+									aria-expanded="true"
+									aria-controls="sidebar-workspace-list"
+									data-tooltip="Toggle workspace"
+								>
+									<span>Workspace</span>
+									<svg
+										class="sidebar-section-caret"
+										width="10"
+										height="10"
+										viewBox="0 0 16 16"
+										aria-hidden="true"
+									>
+										<path
+											d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+										/>
+									</svg>
+								</button>
+							</div>
+
+							<div class="sidebar-section-body">
+								<nav
+									id="sidebar-workspace-list"
+									class="sidebar-section-list"
+									aria-label="Workspace"
+								>
+									<button
+										type="button"
+										class="sidebar-item"
+										data-page="presence"
+										data-active="true"
+										data-tooltip="Presence"
+										data-shortcut="G+Then+P"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<use href="#icon-presence" />
+											</svg>
+										</span>
+										<span class="sidebar-item-label" data-i18n="tabs.presence">Presence</span>
+									</button>
+
+									<button
+										type="button"
+										class="sidebar-item"
+										data-page="status"
+										data-active="false"
+										data-tooltip="Status"
+										data-shortcut="G+Then+S"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<use href="#icon-status" />
+											</svg>
+										</span>
+										<span class="sidebar-item-label" data-i18n="tabs.status">Status</span>
+									</button>
+
+									<button
+										type="button"
+										class="sidebar-item"
+										data-page="logs"
+										data-active="false"
+										data-tooltip="Logs"
+										data-shortcut="G+Then+L"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<use href="#icon-logs" />
+											</svg>
+										</span>
+										<span class="sidebar-item-label" data-i18n="tabs.logs">Logs</span>
+									</button>
+
+									<button
+										type="button"
+										class="sidebar-item"
+										data-page="plugins"
+										data-active="false"
+										data-tooltip="Plugins"
+										data-shortcut="G+Then+E"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<use href="#icon-plugins" />
+											</svg>
+										</span>
+										<span class="sidebar-item-label" data-i18n="tabs.plugins">Plugins</span>
+									</button>
+
+									<button
+										type="button"
+										class="sidebar-item"
+										data-page="configs"
+										data-active="false"
+										data-tooltip="Configs"
+										data-shortcut="G+Then+C"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<use href="#icon-configs" />
+											</svg>
+										</span>
+										<span class="sidebar-item-label" data-i18n="tabs.configs">Configs</span>
+									</button>
+
+									<button
+										type="button"
+										class="sidebar-item"
+										data-page="settings"
+										data-active="false"
+										data-tooltip="Settings"
+										data-shortcut="G+Then+O"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<use href="#icon-settings" />
+											</svg>
+										</span>
+										<span class="sidebar-item-label" data-i18n="tabs.settings">Settings</span>
+									</button>
+								</nav>
+							</div>
+						</div>
+
+						<section
+							id="sidebar-account-section"
+							class="sidebar-account-section"
+							aria-label="Account resources"
+							hidden
+						>
+							<details class="sidebar-account-group" open>
+								<summary class="sidebar-account-heading">
+									<span class="sidebar-account-heading-icon" aria-hidden="true">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<circle cx="12" cy="8" r="4" />
+											<path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+										</svg>
+									</span>
+
+									<span id="sidebar-account-name" class="sidebar-account-name"> Your account </span>
+
+									<span class="sidebar-account-chevron" aria-hidden="true">
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 16 16"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.5"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path d="m6 4 4 4-4 4" />
+										</svg>
+									</span>
+								</summary>
+
+								<nav class="sidebar-account-links" aria-label="Account links">
+									<a
+										class="sidebar-item sidebar-account-link"
+										data-account-path="/profile"
+										href="https://voidpresence.com/profile"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.5"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												class="lucide lucide-shield-user preview-icon"
+											>
+												<path
+													d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+												/>
+												<path d="M6.376 18.91a6 6 0 0 1 11.249.003" />
+												<circle cx="12" cy="11" r="4" />
+											</svg>
+										</span>
+
+										<span class="sidebar-item-label">Profile</span>
+									</a>
+
+									<a
+										class="sidebar-item sidebar-account-link"
+										data-account-path="/docs"
+										href="https://voidpresence.com/docs"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+												<path d="M14 2v6h6M8 13h8M8 17h6" />
+											</svg>
+										</span>
+
+										<span class="sidebar-item-label">Docs</span>
+									</a>
+
+									<a
+										class="sidebar-item sidebar-account-link"
+										href="https://discord.gg/9FEkxGPPmu"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<span class="sidebar-item-icon" aria-hidden="true">
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.6"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<circle cx="12" cy="12" r="9" />
+												<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+												<path d="M12 17h.01" />
+											</svg>
+										</span>
+
+										<span class="sidebar-item-label">Help</span>
+									</a>
+								</nav>
+							</details>
+						</section>
+					</div>
+					<div
+						class="sidebar-resizer"
+						role="separator"
+						aria-orientation="vertical"
+						aria-label="Resize sidebar"
+					>
+						<div class="sidebar-resizer-line"></div>
+
+						<div class="sidebar-resizer-tooltip" aria-hidden="true">
+							<div class="resizer-tip-row">Drag to resize</div>
+							<div class="resizer-tip-row">
+								<span>Click to collapse</span>
+								<kbd class="linear-kbd">[</kbd>
+							</div>
+						</div>
+					</div>
 				</aside>
 
-				<main class="app-content">
-					<section data-view="presence" data-active="true">Presence page</section>
-					<section data-view="status" data-active="false">Status page</section>
-					<section data-view="logs" data-active="false">Logs page</section>
-					<section data-view="plugins" data-active="false">Plugins page</section>
-					<section data-view="config" data-active="false">Configs page</section>
-					<section data-view="settings" data-active="false">Settings page</section>
-				</main>
+				<div class="app-content-column">
+					<main class="app-content">
+						<section data-view="presence" data-active="true">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Presence</h2>
+								</div>
+							</header>
+						</section>
+						<section data-view="status" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Status</h2>
+								</div>
+							</header>
+						</section>
+						<section data-view="logs" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Logs</h2>
+								</div>
+							</header>
+						</section>
+						<section data-view="plugins" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Plugins</h2>
+								</div>
+							</header>
+						</section>
+						<section data-view="configs" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Configs</h2>
+								</div>
+							</header>
+						</section>
+						<section data-view="settings" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Settings</h2>
+								</div>
+							</header>
+						</section>
+						<section data-view="changelogs" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title">
+									<h2>Change Logs</h2>
+								</div>
+							</header>
+						</section>
+					</main>
+
+					<footer class="view-content-footer"></footer>
+				</div>
 			</div>
 		</div>
 
 		<div id="blocks-toast" class="copy-toast" data-visible="false"></div>
-
 		<div id="global-drop-overlay" data-active="false"></div>
+
+		<div id="account-popover" class="account-popover" hidden>
+			<div id="account-menu" class="account-menu" role="menu" aria-labelledby="account-trigger">
+				<button
+					type="button"
+					id="account-settings"
+					class="account-menu-item"
+					role="menuitem"
+					tabindex="-1"
+				>
+					<span>Settings</span>
+				</button>
+
+				<div class="account-menu-separator" role="separator"></div>
+
+				<button
+					type="button"
+					id="account-login"
+					class="account-menu-item"
+					role="menuitem"
+					tabindex="-1"
+				>
+					<span>Log in</span>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M15 3h6v6M10 14 21 3" />
+						<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+					</svg>
+				</button>
+
+				<button
+					type="button"
+					id="account-logout"
+					class="account-menu-item"
+					role="menuitem"
+					tabindex="-1"
+					hidden
+				>
+					<span>Log out</span>
+				</button>
+			</div>
+
+			<p
+				id="account-feedback"
+				class="account-menu-feedback"
+				role="status"
+				aria-live="polite"
+				hidden
+			></p>
+		</div>
 
 		<script type="module" src="../../build/renderer/renderer.js"></script>
 	</body>

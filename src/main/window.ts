@@ -1,4 +1,4 @@
-﻿import { BrowserWindow, app, screen } from 'electron'
+﻿import { BrowserWindow, app, screen, shell } from 'electron'
 import * as path from 'path'
 
 let mainWindow: BrowserWindow | null = null
@@ -38,6 +38,30 @@ export function createMainWindow(autoHideOnStart: boolean, isQuitting: () => boo
 	})
 
 	mainWindow.setMenuBarVisibility(false)
+
+	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+		try {
+			const parsed = new URL(url)
+
+			const allowed =
+				parsed.protocol === 'https:' &&
+				parsed.hostname === 'voidpresence.com' &&
+				!parsed.username &&
+				!parsed.password &&
+				!parsed.port
+
+			if (allowed) {
+				void shell.openExternal(parsed.href).catch(error => {
+					console.error('[external-link:open]', error)
+				})
+			}
+		} catch (error) {
+			console.error('[external-link:invalid-url]', error)
+		}
+
+		return { action: 'deny' }
+	})
+
 	mainWindow.loadFile('src/renderer/index.html')
 
 	mainWindow.webContents.once('did-finish-load', () => {
