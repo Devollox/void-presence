@@ -13,6 +13,8 @@
 - **Changelog Unread Indicator** — added an unread dot badge on the `Changelog` sidebar item with hover scaling and persistent read state.
 - **Live Status Indicator** — added a pulsing connection status dot (`Online`, `Syncing`, `Offline`) synced with real-time Discord RPC states.
 - **Japanese & Chinese Localization** — added full Japanese (`ja`) and Chinese (`zh`) language support across the interface.
+- **Synchronized Status Indicators** — unified the main connection dot and the `Logs` indicators in the sidebar and tab bar around real-time Discord RPC states. The main dot pulses while online; the `Logs` dots appear only for syncing (warning) or offline (error) states, with the tab indicator positioned next to the close button.
+-
 
 ## Improved
 
@@ -25,3 +27,4 @@
 - **Tab Styling & Title Fade** — restored flexible tab sizing, enforced single-line titles with a right-edge gradient fade mask on narrow inactive tabs, and added hover, focus, active, dragging, and dropping states.
 - **Drag Interaction Handling** — added click suppression after tab dragging and cancellation handling for `Escape`, pointer cancellation, and window focus loss.
 - **Reduced Motion** — added reduced-motion support for tab dragging, close-button transitions, sidebar resizing, previews, and backdrop animations.
+- **Sidebar Toggle** — added animated panel expansion for the sidebar toggle icon with state persistence.

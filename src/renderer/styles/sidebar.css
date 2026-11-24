@@ -1077,3 +1077,55 @@
 html.dark .app-workspace {
 	--sidebar-peek-backdrop: rgb(0 0 0 / 38%);
 }
+
+.sidebar-item[data-page='logs'][data-badge='error'] {
+	--logs-badge-color: var(--logs-error-indicator);
+}
+
+.sidebar-item[data-page='logs'][data-badge='success'] {
+	--logs-badge-color: var(--logs-success-indicator);
+}
+
+.sidebar-item[data-page='logs'][data-badge='warn'] {
+	--logs-badge-color: var(--logs-warn-indicator);
+}
+
+.sidebar-item[data-page='logs'] > .sidebar-item-dot-wrap {
+	width: 14px;
+	height: 14px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 14px;
+	margin-left: auto;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--speed-highlightFadeOut) var(--ease-out-quad);
+}
+
+.sidebar-item[data-page='logs'] > .sidebar-item-dot-wrap > .sidebar-item-dot {
+	width: 12px;
+	height: 12px;
+	flex: 0 0 12px;
+	border-radius: var(--radius-rounded);
+	background-color: var(--logs-badge-color, var(--text-tertiary));
+	transform: scale(0.571429);
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+.sidebar-item[data-page='logs']:is(
+		[data-badge='error'],
+		[data-badge='success'],
+		[data-badge='warn']
+	)
+	> .sidebar-item-dot-wrap {
+	opacity: 1;
+	transition-duration: var(--speed-highlightFadeIn);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sidebar-item[data-page='logs'] > .sidebar-item-dot-wrap,
+	.sidebar-item[data-page='logs'] > .sidebar-item-dot-wrap > .sidebar-item-dot {
+		transition: none;
+	}
+}

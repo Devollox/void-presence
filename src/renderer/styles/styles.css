@@ -78,6 +78,10 @@
 	--text-secondary-dark: #97979a;
 	--text-tertiary-dark: #6b6f76;
 
+	--logs-error-indicator: #dc4545;
+	--logs-success-indicator: #23864b;
+	--logs-warn-indicator: #a66b12;
+
 	--loading-error-muted-color-dark: #97979a;
 	--loading-error-secondary-bg-dark: #1c1c1d;
 	--loading-error-secondary-border-dark: #ffffff22;
@@ -148,6 +152,10 @@ html.dark {
 	--loading-error-secondary-hover-bg: var(--loading-error-secondary-hover-bg-dark);
 	--loading-error-secondary-label: var(--loading-error-secondary-label-dark);
 	--loading-error-secondary-shadow: var(--loading-error-secondary-shadow-dark);
+
+	--logs-error-indicator: #ed6666;
+	--logs-success-indicator: #4caf78;
+	--logs-warn-indicator: #d5a24a;
 }
 
 * {

@@ -182,12 +182,72 @@
 	flex-shrink: 0;
 }
 
-.status-dot {
+#connection-status[data-status='online'] > .status-dot {
+	animation: connection-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes connection-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.45;
+	}
+}
+
+#connection-status[data-status='idle'] {
+	--connection-dot-color: var(--content-highlight-color);
+}
+
+#connection-status[data-status='online'] {
+	--connection-dot-color: var(--logs-success-indicator);
+}
+
+#connection-status[data-status='syncing'] {
+	--connection-dot-color: var(--logs-warn-indicator);
+}
+
+#connection-status[data-status='offline'] {
+	--connection-dot-color: var(--logs-error-indicator);
+}
+
+#connection-status > .status-dot {
 	width: 6px;
 	height: 6px;
 	border-radius: var(--radius-rounded);
-	background: #22c55e;
-	animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	background: var(--connection-dot-color, var(--content-highlight-color));
+	opacity: 1;
+	animation: none;
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+#connection-status[data-status='online'] > .status-dot {
+	animation: connection-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes connection-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.45;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#connection-status > .status-dot {
+		animation: none;
+		transition: none;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	#connection-status > .status-dot {
+		transition: none;
+	}
 }
 
 @keyframes pulse-green {
@@ -198,18 +258,6 @@
 	50% {
 		opacity: 0.45;
 	}
-}
-
-.desktop-tab[data-badge='error'] {
-	color: #ef4444;
-}
-
-.desktop-tab[data-badge='success'] {
-	color: #22c55e;
-}
-
-.desktop-tab[data-badge='warn'] {
-	color: #eab308;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -532,4 +580,67 @@
 	-webkit-mask-image: none;
 	mask-image: none;
 	text-overflow: ellipsis;
+}
+
+.desktop-tab[data-page='logs'] {
+	position: relative;
+}
+
+.desktop-tab-wrapper > .desktop-tab[data-page='logs'] {
+	padding-right: 48px;
+}
+
+.desktop-tab[data-page='logs'] > .sidebar-item-dot-wrap {
+	position: absolute;
+	top: 50%;
+	right: 29px;
+
+	width: 14px;
+	height: 14px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 14px;
+
+	opacity: 0;
+	transform: translateY(-50%);
+	pointer-events: none;
+
+	transition: opacity var(--speed-highlightFadeOut) var(--ease-out-quad);
+}
+
+.desktop-tab[data-page='logs'] > .sidebar-item-dot-wrap > .sidebar-item-dot {
+	width: 12px;
+	height: 12px;
+	flex: 0 0 12px;
+	border-radius: var(--radius-rounded);
+	background-color: var(--logs-badge-color, var(--text-tertiary));
+	transform: scale(0.571429);
+
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+.desktop-tab[data-page='logs'][data-badge='error'] {
+	--logs-badge-color: var(--logs-error-indicator);
+}
+
+.desktop-tab[data-page='logs'][data-badge='success'] {
+	--logs-badge-color: var(--logs-success-indicator);
+}
+
+.desktop-tab[data-page='logs'][data-badge='warn'] {
+	--logs-badge-color: var(--logs-warn-indicator);
+}
+
+.desktop-tab[data-page='logs']:is([data-badge='error'], [data-badge='success'], [data-badge='warn'])
+	> .sidebar-item-dot-wrap {
+	opacity: 1;
+	transition-duration: var(--speed-highlightFadeIn);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.desktop-tab[data-page='logs'] > .sidebar-item-dot-wrap,
+	.desktop-tab[data-page='logs'] > .sidebar-item-dot-wrap > .sidebar-item-dot {
+		transition: none;
+	}
 }
