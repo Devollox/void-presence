@@ -242,6 +242,86 @@ function registerTab(button: HTMLButtonElement): void {
 	})
 }
 
+function setupTabShortcutHints(container: HTMLElement): void {
+	let ctrlPressed = false
+
+	const syncHints = (): void => {
+		const wrappers = Array.from(
+			container.querySelectorAll<HTMLElement>(':scope > .desktop-tab-wrapper')
+		)
+
+		wrappers.forEach(wrapper => {
+			const button = wrapper.querySelector<HTMLButtonElement>('.desktop-tab')
+			const icon = button?.querySelector<HTMLElement>('.desktop-tab-icon')
+
+			if (!button || !icon) return
+
+			let hint = icon.querySelector<HTMLElement>('.desktop-tab-shortcut-hint')
+
+			if (!hint) {
+				hint = document.createElement('span')
+				hint.className = 'desktop-tab-shortcut-hint'
+				hint.setAttribute('aria-hidden', 'true')
+				icon.append(hint)
+			}
+
+			const shortcut = button.getAttribute('data-shortcut')
+			const match = shortcut?.match(/^ctrl\s*\+\s*([1-9])$/i)
+			const number = match?.[1] ?? ''
+
+			if (hint.textContent !== number) {
+				hint.textContent = number
+			}
+
+			if (ctrlPressed && number && !wrapper.hidden) {
+				button.dataset.shortcutHint = 'true'
+			} else {
+				delete button.dataset.shortcutHint
+			}
+		})
+	}
+
+	const setPressed = (pressed: boolean): void => {
+		ctrlPressed = pressed
+		syncHints()
+	}
+
+	window.addEventListener('keydown', event => {
+		if (event.ctrlKey && !ctrlPressed) {
+			setPressed(true)
+		}
+	})
+
+	window.addEventListener('keyup', event => {
+		if (!event.ctrlKey && ctrlPressed) {
+			setPressed(false)
+		}
+	})
+
+	window.addEventListener('blur', () => {
+		setPressed(false)
+	})
+
+	document.addEventListener('visibilitychange', () => {
+		if (document.hidden) {
+			setPressed(false)
+		}
+	})
+
+	const observer = new MutationObserver(() => {
+		syncHints()
+	})
+
+	observer.observe(container, {
+		childList: true,
+		subtree: true,
+		attributes: true,
+		attributeFilter: ['data-shortcut', 'hidden'],
+	})
+
+	syncHints()
+}
+
 export default function setupViewsNavigation(): void {
 	if (initialized) return
 
@@ -351,4 +431,6 @@ export default function setupViewsNavigation(): void {
 	document.querySelector<HTMLButtonElement>('#nav-back')?.addEventListener('click', goBack)
 
 	document.querySelector<HTMLButtonElement>('#nav-forward')?.addEventListener('click', goForward)
+
+	setupTabShortcutHints(container)
 }

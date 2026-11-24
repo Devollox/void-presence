@@ -345,4 +345,206 @@ export function setupPluginsPage(): void {
 			}
 		})
 	}
+
+	if (api?.onInstallPluginFromUrl) {
+		api.onInstallPluginFromUrl(payload => {
+			showInstallConfirm(payload, api)
+		})
+	}
+}
+
+function showInstallConfirm(
+	payload: {
+		pluginId: string
+		title: string
+		version: string
+		isFolder: boolean
+	},
+	api: NonNullable<typeof window.electronAPI>
+): void {
+	document.getElementById('plugin-install-confirm')?.remove()
+
+	const previousFocus = document.activeElement
+
+	const overlay = document.createElement('div')
+	overlay.id = 'plugin-install-confirm'
+	overlay.setAttribute('role', 'dialog')
+	overlay.setAttribute('aria-modal', 'true')
+	overlay.setAttribute('aria-labelledby', 'plugin-install-title')
+
+	Object.assign(overlay.style, {
+		position: 'fixed',
+		inset: '0',
+		zIndex: '1000',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		padding: '20px',
+		background: 'rgba(0, 0, 0, 0.8)',
+	})
+
+	const modal = document.createElement('div')
+	modal.className = 'import-modal'
+
+	const title = document.createElement('h2')
+	title.id = 'plugin-install-title'
+	title.className = 'import-title'
+	title.textContent = 'Install plugin?'
+
+	const body = document.createElement('div')
+	body.className = 'import-body'
+
+	const pluginName = document.createElement('p')
+	pluginName.textContent = `${payload.title} · v${payload.version}`
+
+	const warning = document.createElement('p')
+	warning.textContent =
+		'Plugin code runs with the same permissions as Void Presence. Install only plugins you trust.'
+
+	const feedback = document.createElement('p')
+	feedback.setAttribute('role', 'status')
+	feedback.setAttribute('aria-live', 'polite')
+	feedback.hidden = true
+
+	const actions = document.createElement('div')
+
+	Object.assign(actions.style, {
+		display: 'flex',
+		justifyContent: 'flex-end',
+		gap: '8px',
+		marginTop: '12px',
+	})
+
+	const cancel = document.createElement('button')
+	cancel.type = 'button'
+	cancel.className = 'config-activity-btn'
+	cancel.textContent = 'Cancel'
+
+	const confirm = document.createElement('button')
+	confirm.type = 'button'
+	confirm.className = 'config-activity-btn'
+	confirm.textContent = 'Install'
+
+	let installing = false
+	let closed = false
+
+	function close(): void {
+		if (installing || closed) return
+
+		closed = true
+		document.removeEventListener('keydown', onKeyDown)
+		overlay.remove()
+
+		if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+			previousFocus.focus()
+		}
+	}
+
+	function onKeyDown(event: KeyboardEvent): void {
+		if (!overlay.isConnected) {
+			document.removeEventListener('keydown', onKeyDown)
+			return
+		}
+
+		if (event.key === 'Escape') {
+			event.preventDefault()
+			close()
+			return
+		}
+
+		if (event.key !== 'Tab') return
+
+		const buttons = [cancel, confirm].filter(button => !button.disabled && !button.hidden)
+
+		const first = buttons[0]
+		const last = buttons[buttons.length - 1]
+
+		if (!first || !last) {
+			event.preventDefault()
+			return
+		}
+
+		if (
+			event.shiftKey &&
+			(document.activeElement === first || !modal.contains(document.activeElement))
+		) {
+			event.preventDefault()
+			last.focus()
+		} else if (
+			!event.shiftKey &&
+			(document.activeElement === last || !modal.contains(document.activeElement))
+		) {
+			event.preventDefault()
+			first.focus()
+		}
+	}
+
+	cancel.addEventListener('click', close)
+
+	overlay.addEventListener('click', event => {
+		if (event.target === overlay) close()
+	})
+
+	confirm.addEventListener('click', () => {
+		void (async () => {
+			if (installing || closed) return
+
+			installing = true
+			cancel.disabled = true
+			confirm.disabled = true
+			confirm.textContent = 'Installing…'
+			feedback.hidden = false
+			feedback.textContent = 'Downloading plugin…'
+
+			console.info('[plugins] User confirmed install', {
+				pluginId: payload.pluginId,
+			})
+
+			try {
+				if (typeof api.pluginsInstallConfirmed !== 'function') {
+					throw new Error('Plugin installation API is unavailable.')
+				}
+
+				const result = await api.pluginsInstallConfirmed(payload.pluginId)
+
+				if (!result?.ok) {
+					throw new Error(result?.error || 'Plugin installation failed.')
+				}
+
+				feedback.textContent = 'Plugin downloaded successfully.'
+				confirm.hidden = true
+
+				console.info('[plugins] Install completed', {
+					pluginId: payload.pluginId,
+				})
+			} catch (error) {
+				feedback.textContent =
+					error instanceof Error ? error.message : 'Plugin installation failed.'
+
+				confirm.hidden = true
+
+				console.warn('[plugins] Install failed', {
+					pluginId: payload.pluginId,
+				})
+			} finally {
+				installing = false
+				cancel.disabled = false
+				cancel.textContent = 'Close'
+				cancel.focus()
+			}
+		})()
+	})
+
+	body.append(pluginName, warning, feedback)
+	actions.append(cancel, confirm)
+	modal.append(title, body, actions)
+	overlay.appendChild(modal)
+	document.body.appendChild(overlay)
+	document.addEventListener('keydown', onKeyDown)
+
+	cancel.focus()
+
+	console.info('[plugins] Install confirmation opened', {
+		pluginId: payload.pluginId,
+	})
 }

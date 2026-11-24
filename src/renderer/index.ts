@@ -1,5 +1,4 @@
-﻿import { t } from 'i18next'
-import { setupConfigPage } from './modules/config-page/config-page'
+﻿import { setupConfigPage } from './modules/config-page/config-page'
 import { setupActivityTypeControls } from './modules/config/activity'
 import { setupClientIdControls } from './modules/config/clientId-controls'
 import { setupToasts } from './modules/config/toasts'
@@ -44,9 +43,15 @@ import setupAccountModal, { acceptAccountProfile } from './modules/shell/account
 import setupSidebarDnd from './modules/shell/sidebar-dnd'
 import initSidebarPeek from './modules/shell/sidebar-peek'
 
-document.addEventListener('DOMContentLoaded', async () => {
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+document.addEventListener('DOMContentLoaded', () => {
 	initLanguage()
 	updatePlaceholders()
+
+	const toasts = setupToasts()
 
 	void setupClientIdControls()
 	void setupAutoLaunchToggle()
@@ -86,84 +91,134 @@ document.addEventListener('DOMContentLoaded', async () => {
 	updateStatusStatus('CUSTOM_STATUS_DISABLED')
 	updateStatus('RPC_DISABLED')
 
-	if (window.electronAPI?.onRpcUpdate) {
-		window.electronAPI.onRpcUpdate(payload => {
+	const api = window.electronAPI
+
+	if (api?.onRpcUpdate) {
+		api.onRpcUpdate(payload => {
 			updateInfo(payload)
 		})
 	}
 
-	if (window.electronAPI?.onRpcStatus) {
-		window.electronAPI.onRpcStatus(status => {
+	if (api?.onRpcStatus) {
+		api.onRpcStatus(status => {
 			updateStatus(status)
 		})
 	}
 
-	if (window.electronAPI?.onStatusStatus) {
-		window.electronAPI.onStatusStatus(status => {
+	if (api?.onStatusStatus) {
+		api.onStatusStatus(status => {
 			updateStatusStatus(status)
 		})
 	}
 
-	if (window.electronAPI?.onStatusPayload) {
-		window.electronAPI.onStatusPayload(payload => {
+	if (api?.onStatusPayload) {
+		api.onStatusPayload(payload => {
 			updateStatusText(payload)
 		})
 	}
 
-	if (window.electronAPI?.onImportConfigFromProtocol) {
-		window.electronAPI.onImportConfigFromProtocol(raw => {
-			try {
-				const payload = raw as { data: unknown; title?: string }
-				importJsonPayload(payload.data, payload.title)
-			} catch (err: any) {
-				console.error('Failed to import config from protocol', err?.message ?? err)
-			}
-		})
-	}
+	if (api?.onImportConfigFromProtocol) {
+		api.onImportConfigFromProtocol(raw => {
+			void (async () => {
+				try {
+					if (
+						!isRecord(raw) ||
+						raw.kind !== 'import-config' ||
+						typeof raw.configId !== 'string' ||
+						!raw.configId ||
+						typeof raw.title !== 'string' ||
+						!isRecord(raw.configData)
+					) {
+						throw new Error('Invalid config import payload.')
+					}
 
-	if (window.electronAPI?.onImportStatusFromProtocol) {
-		window.electronAPI.onImportStatusFromProtocol(raw => {
-			try {
-				const payload = raw as { data: unknown; title?: string }
-				importJsonPayload(payload.data, payload.title)
-			} catch (err: any) {
-				console.error('Failed to import status from protocol', err?.message ?? err)
-			}
-		})
-	}
-
-	if (window.electronAPI?.onInstallPluginFromUrl) {
-		window.electronAPI.onInstallPluginFromUrl(async ({ url }) => {
-			const { showPluginSavedToast } = setupToasts()
-
-			try {
-				const result = await window.electronAPI?.pluginsInstallFromUrl?.(url)
-
-				if (result?.ok) {
-					showPluginSavedToast({
-						message: t('pluginInstallFromUrlSuccess', { url }),
+					await importJsonPayload(raw.configData, raw.title)
+				} catch (error) {
+					console.error('[protocol] Config import failed', {
+						message: error instanceof Error ? error.message : 'Unknown error',
 					})
-				} else {
-					showPluginSavedToast({
-						message: t('pluginInstallFromUrlFailed', { url }),
+
+					toasts.showMessageToast({
+						message: 'Could not open this config for import.',
 					})
 				}
-			} catch {
-				showPluginSavedToast({
-					message: t('pluginInstallFromUrlFailed', { url }),
-				})
+			})()
+		})
+	}
+
+	if (api?.onImportStatusFromProtocol) {
+		api.onImportStatusFromProtocol(raw => {
+			void (async () => {
+				try {
+					if (
+						!isRecord(raw) ||
+						raw.kind !== 'import-status' ||
+						typeof raw.configId !== 'string' ||
+						!raw.configId ||
+						typeof raw.title !== 'string' ||
+						!isRecord(raw.configData) ||
+						!Array.isArray(raw.configData.statusCycles)
+					) {
+						throw new Error('Invalid status import payload.')
+					}
+
+					await importJsonPayload(raw.configData, raw.title)
+				} catch (error) {
+					console.error('[protocol] Status import failed', {
+						message: error instanceof Error ? error.message : 'Unknown error',
+					})
+
+					toasts.showMessageToast({
+						message: 'Could not open this status for import.',
+					})
+				}
+			})()
+		})
+	}
+
+	if (api?.onProtocolError) {
+		api.onProtocolError(({ code, message }) => {
+			console.warn('[protocol] Action rejected', { code })
+
+			toasts.showMessageToast({
+				message:
+					typeof message === 'string' && message.trim()
+						? message.slice(0, 500)
+						: 'Could not process this link.',
+			})
+		})
+	}
+
+	if (api?.onActivateView) {
+		api.onActivateView(payload => {
+			if (!payload || typeof payload.view !== 'string') {
+				return
 			}
+
+			const view = payload.view === 'config' ? 'configs' : payload.view
+
+			const allowedViews = new Set([
+				'presence',
+				'status',
+				'logs',
+				'plugins',
+				'configs',
+				'settings',
+				'changelogs',
+			])
+
+			if (!allowedViews.has(view)) return
+
+			setActiveView(view)
 		})
 	}
 
-	if (window.electronAPI?.onActivateView) {
-		window.electronAPI.onActivateView(payload => {
-			setActiveView(payload.view)
-		})
-	}
+	if (api?.onAuthFromUrl) {
+		console.info('[account] Auth listener registered')
 
-	if (window.electronAPI?.onAuthFromUrl) {
-		window.electronAPI.onAuthFromUrl(user => {
+		api.onAuthFromUrl(user => {
+			console.info('[account] Verified profile received')
+
 			try {
 				acceptAccountProfile({
 					authorId: user.authorId,
@@ -172,47 +227,72 @@ document.addEventListener('DOMContentLoaded', async () => {
 					avatar: user.avatar ?? '',
 				})
 
-				const input = document.querySelector<HTMLInputElement>('#config-author-input')
+				console.info('[account] Profile saved', {
+					hasAuthorId: Boolean(localStorage.getItem('authorId')),
+				})
+			} catch {
+				console.error('[account] Could not save profile')
 
-				const label = document.querySelector<HTMLElement>('#config-author-label')
-
-				if (input) {
-					input.value = user.authorId
-				}
-
-				if (label) {
-					label.textContent = user.authorName || user.authorId
-				}
-			} catch (error) {
-				console.error('Failed to connect account profile', error)
+				toasts.showMessageToast({
+					message: 'Could not save the connected account.',
+				})
 			}
 		})
+	} else {
+		console.error('[account] electronAPI.onAuthFromUrl is missing')
 	}
 
+	let stopped = false
+	let pollTimer: ReturnType<typeof setTimeout> | null = null
+
 	async function pollNowPlayingUi(): Promise<void> {
+		if (stopped) return
+
 		try {
 			await fetchNowPlaying()
-		} catch (err) {
-			console.error('Failed to fetch now playing', err)
+		} catch {
+			console.error('Failed to fetch now playing')
 		} finally {
-			setTimeout(() => {
-				void pollNowPlayingUi()
-			}, 4000)
+			if (!stopped) {
+				pollTimer = setTimeout(() => {
+					void pollNowPlayingUi()
+				}, 4000)
+			}
 		}
 	}
 
+	window.addEventListener(
+		'beforeunload',
+		() => {
+			stopped = true
+
+			if (pollTimer !== null) {
+				clearTimeout(pollTimer)
+				pollTimer = null
+			}
+		},
+		{ once: true }
+	)
+
 	void pollNowPlayingUi()
 
-	if (window.electronAPI?.onPluginToast) {
-		window.electronAPI.onPluginToast(({ message }: { message: string }) => {
-			const { showPluginSavedToast } = setupToasts()
-			showPluginSavedToast({ message: `plugin ${message} load` })
+	if (api?.onPluginToast) {
+		api.onPluginToast(({ message }) => {
+			if (typeof message !== 'string') return
+
+			toasts.showPluginSavedToast({
+				message,
+			})
 		})
 	}
 
-	if (window.electronAPI?.onPluginsListUpdated) {
-		window.electronAPI.onPluginsListUpdated(plugins => {
-			document.dispatchEvent(new CustomEvent('plugins-reload', { detail: plugins }))
+	if (api?.onPluginsListUpdated) {
+		api.onPluginsListUpdated(plugins => {
+			document.dispatchEvent(
+				new CustomEvent('plugins-reload', {
+					detail: plugins,
+				})
+			)
 		})
 	}
 })

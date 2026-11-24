@@ -1,4 +1,4 @@
-import { AccountProfile } from 'src/types/types'
+import type { AccountProfile } from 'src/types/types'
 import { setActiveView } from './views-nav'
 import { syncSidebarAccount } from './sidebar-account'
 
@@ -70,6 +70,19 @@ function setFeedback(message: string, isError = false): void {
 	feedback.textContent = message
 	feedback.hidden = !message
 	feedback.dataset.error = String(isError)
+}
+
+function syncAuthorFields(profile: AccountProfile | null): void {
+	const input = document.querySelector<HTMLInputElement>('#config-author-input')
+	const label = document.querySelector<HTMLElement>('#config-author-label')
+
+	if (input) {
+		input.value = profile?.authorId ?? ''
+	}
+
+	if (label) {
+		label.textContent = profile ? cleanText(profile.authorName) || profile.authorId : ''
+	}
 }
 
 export function refreshAccountUI(): void {
@@ -146,11 +159,18 @@ export function acceptAccountProfile(profile: AccountProfile): void {
 		throw new Error('The profile does not contain an author ID.')
 	}
 
-	const values: Record<(typeof STORAGE_KEYS)[number], string> = {
+	const normalized: AccountProfile = {
 		authorId,
 		authorName: cleanText(profile.authorName),
-		authorProvider: cleanText(profile.provider),
-		authorAvatar: getAvatarUrl(profile.avatar),
+		provider: cleanText(profile.provider),
+		avatar: getAvatarUrl(profile.avatar),
+	}
+
+	const values: Record<(typeof STORAGE_KEYS)[number], string> = {
+		authorId: normalized.authorId,
+		authorName: cleanText(normalized.authorName),
+		authorProvider: cleanText(normalized.provider),
+		authorAvatar: getAvatarUrl(normalized.avatar),
 	}
 
 	for (const key of STORAGE_KEYS) {
@@ -164,6 +184,7 @@ export function acceptAccountProfile(profile: AccountProfile): void {
 	}
 
 	setFeedback('')
+	syncAuthorFields(normalized)
 	refreshAccountUI()
 }
 
@@ -172,17 +193,7 @@ export function clearAccountProfile(): void {
 		localStorage.removeItem(key)
 	}
 
-	const authorInput = document.querySelector<HTMLInputElement>('#config-author-input')
-	const authorLabel = document.querySelector<HTMLElement>('#config-author-label')
-
-	if (authorInput) {
-		authorInput.value = ''
-	}
-
-	if (authorLabel) {
-		authorLabel.textContent = ''
-	}
-
+	syncAuthorFields(null)
 	setFeedback('')
 	refreshAccountUI()
 }
@@ -224,7 +235,6 @@ export default function setupAccountModal(): void {
 		}
 
 		left = Math.max(padding, Math.min(left, window.innerWidth - menuRect.width - padding))
-
 		top = Math.max(padding, Math.min(top, window.innerHeight - menuRect.height - padding))
 
 		popover.style.left = `${Math.round(left)}px`
@@ -278,10 +288,16 @@ export default function setupAccountModal(): void {
 
 		if (event.key === 'ArrowDown') {
 			event.preventDefault()
-			items[(index + 1) % items.length]?.focus()
+
+			if (items.length > 0) {
+				items[(index + 1) % items.length]?.focus()
+			}
 		} else if (event.key === 'ArrowUp') {
 			event.preventDefault()
-			items[(index - 1 + items.length) % items.length]?.focus()
+
+			if (items.length > 0) {
+				items[(index - 1 + items.length) % items.length]?.focus()
+			}
 		} else if (event.key === 'Home') {
 			event.preventDefault()
 			items[0]?.focus()
@@ -349,7 +365,6 @@ export default function setupAccountModal(): void {
 		'scroll',
 		event => {
 			if (popover.hidden) return
-
 			if (event.target instanceof Node && popover.contains(event.target)) return
 
 			closeMenu(true)
@@ -370,6 +385,8 @@ export default function setupAccountModal(): void {
 		if (openingBrowser) return
 
 		openingBrowser = true
+		setFeedback('')
+		refreshAccountUI()
 
 		try {
 			const api = window.electronAPI
@@ -378,10 +395,8 @@ export default function setupAccountModal(): void {
 				throw new Error('electronAPI.openLogin is missing. Check preload.')
 			}
 
-			const request = api.openLogin()
-
 			closeMenu(true)
-			await request
+			await api.openLogin()
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error)
 
@@ -409,6 +424,7 @@ export default function setupAccountModal(): void {
 	window.addEventListener('storage', event => {
 		if (event.key === null || STORAGE_KEYS.some(key => key === event.key)) {
 			closeMenu(true)
+			syncAuthorFields(readProfile())
 			refreshAccountUI()
 		}
 	})

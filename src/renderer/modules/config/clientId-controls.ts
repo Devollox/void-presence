@@ -67,10 +67,7 @@ export function setupClientIdControls(): void {
 		!cyclesList ||
 		!addCycle ||
 		!imagesList ||
-		!addImage ||
-		!recentList ||
-		!$statusList ||
-		!$addStatus
+		!addImage
 	) {
 		return
 	}
@@ -112,10 +109,12 @@ export function setupClientIdControls(): void {
 
 		upsertRecentApp(readyId, '')
 		storedRecent.splice(0, storedRecent.length, ...getRecentApps())
-		renderRecentApps(
-			recentList as HTMLElement,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
-		)
+		if (recentList) {
+			renderRecentApps(
+				recentList as HTMLElement,
+				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
+			)
+		}
 		showClientIdToast()
 	})
 
@@ -128,19 +127,25 @@ export function setupClientIdControls(): void {
 	setupCycles(ctx, showBlocksToast)
 	setupImageCycles(ctx, showBlocksToast)
 	setupParty(ctx, showBlocksToast)
-	setupStatusCycles(ctx, showBlocksToast)
+	if ($statusList && $addStatus) {
+		setupStatusCycles(ctx, showBlocksToast)
+	}
 
 	ctx.renderButtonPairs()
 	ctx.renderCycles()
 	ctx.renderImageCycles()
 	ctx.renderPartyCycles()
 	ctx.renderTimeCycles?.()
-	ctx.renderStatusCycles?.()
+	if ($statusList && $addStatus) {
+		ctx.renderStatusCycles?.()
+	}
 
-	renderRecentApps(
-		recentList as HTMLElement,
-		storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
-	)
+	if (recentList) {
+		renderRecentApps(
+			recentList as HTMLElement,
+			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
+		)
+	}
 
 	const partyList = document.getElementById('party-list') as HTMLElement | null
 	const timeList = document.getElementById('time-list') as HTMLElement | null
@@ -151,7 +156,7 @@ export function setupClientIdControls(): void {
 		[cyclesList, ctx.cycles, ctx.renderCycles as (() => void) | undefined],
 		[imagesList, ctx.imageCycles, ctx.renderImageCycles as (() => void) | undefined],
 		[timeList, ctx.timeCycles, ctx.renderTimeCycles as (() => void) | undefined],
-		[$statusList, ctx.statusCycles, ctx.renderStatusCycles as (() => void) | undefined],
+		[$statusList && $addStatus ? $statusList : null, ctx.statusCycles, ctx.renderStatusCycles as (() => void) | undefined],
 	] as const
 
 	for (const [list, items, render] of lists) {
@@ -163,24 +168,26 @@ export function setupClientIdControls(): void {
 		})
 	}
 
-	attachDnD<StoredRecentApp>(recentList as HTMLElement, storedRecent, () => {
-		setRecentApps(storedRecent)
-		renderRecentApps(
-			recentList as HTMLElement,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
-		)
-	})
-	;(recentList as HTMLElement).addEventListener('recent:remove', e => {
-		const id = (e as CustomEvent<{ id: string }>).detail.id
-		removeRecentApp(id)
-		const next = getRecentApps()
-		storedRecent.splice(0, storedRecent.length, ...next)
-		setRecentApps(storedRecent)
-		renderRecentApps(
-			recentList as HTMLElement,
-			storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
-		)
-	})
+	if (recentList) {
+		attachDnD<StoredRecentApp>(recentList as HTMLElement, storedRecent, () => {
+			setRecentApps(storedRecent)
+			renderRecentApps(
+				recentList as HTMLElement,
+				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
+			)
+		})
+		;(recentList as HTMLElement).addEventListener('recent:remove', e => {
+			const id = (e as CustomEvent<{ id: string }>).detail.id
+			removeRecentApp(id)
+			const next = getRecentApps()
+			storedRecent.splice(0, storedRecent.length, ...next)
+			setRecentApps(storedRecent)
+			renderRecentApps(
+				recentList as HTMLElement,
+				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
+			)
+		})
+	}
 
 	let clientIdDebounce: number | undefined
 	let intervalDebounce: number | undefined
@@ -203,10 +210,12 @@ export function setupClientIdControls(): void {
 			upsertRecentApp(newClientId, '')
 			const updated = getRecentApps()
 			storedRecent.splice(0, storedRecent.length, ...updated)
-			renderRecentApps(
-				recentList as HTMLElement,
-				storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
-			)
+			if (recentList) {
+				renderRecentApps(
+					recentList as HTMLElement,
+					storedRecent.map<RecentApp>(x => ({ id: x.id, name: x.name }))
+				)
+			}
 			showClientIdToast()
 		}, 600)
 	})
@@ -275,7 +284,7 @@ export function setupClientIdControls(): void {
 	}
 
 	const initialClientId = $clientInput.value.trim()
-	if (initialClientId) {
+	if (initialClientId && recentList) {
 		upsertRecentApp(initialClientId, '')
 		const updated = getRecentApps()
 		storedRecent.splice(0, storedRecent.length, ...updated)

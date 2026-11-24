@@ -423,10 +423,17 @@ export interface ElectronAPI {
 	pluginsSetStorage?: (pluginId: string, key: string, value: string) => Promise<boolean>
 	pluginsRemove?: (id: string) => Promise<{ ok: boolean; error?: string }>
 	pluginsSetPriority?: (id: string, priority: number) => Promise<boolean>
-	pluginsInstallFromUrl?: (url: string) => Promise<{ ok: boolean; path?: string; error?: string }>
-	onInstallPluginFromUrl?: (handler: (payload: { url: string }) => void) => void
+	pluginsInstallConfirmed?: (pluginId: string) => Promise<{ ok: boolean; path?: string; error?: string }>
+	onInstallPluginFromUrl?: (handler: (payload: {
+		pluginId: string
+		title: string
+		version: string
+		sourceUrl: string
+		isFolder: boolean
+	}) => void) => void
 	onPluginsListUpdated?: (handler: (plugins: PluginInfo[]) => void) => void
 	onPluginToast?: (handler: (payload: { message: string }) => void) => void
+	onProtocolError?: (handler: (payload: { code: string; message: string }) => void) => void
 	openSupportSite?: () => Promise<boolean> | boolean
 	openSupportDiscord?: () => Promise<boolean> | boolean
 	clearLogs?: () => Promise<boolean> | boolean

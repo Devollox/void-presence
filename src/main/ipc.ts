@@ -20,9 +20,6 @@ import { smtcPlugin } from '../plugins/builtin/smtc-plugin'
 import {
 	getActivePluginId,
 	getPluginInfoList,
-	hotLoadPlugin,
-	markPluginInstallDone,
-	markPluginInstalling,
 	notifyConfigChanged,
 	registerPlugin,
 	setPluginEnabled,
@@ -30,6 +27,7 @@ import {
 	startAll as startAllPlugins,
 	startPluginsWatcher,
 } from '../plugins/plugin-manager'
+import { consumePendingInstall, installPluginFromUrl } from '../plugins/plugin-installer'
 import {
 	ActivityType,
 	BarStyle,
@@ -62,11 +60,11 @@ import {
 import { sendLog, sendStatus, sendStatusCustom, sendStatusCustomPayload } from './logging'
 import { t } from './translations'
 import { downloadFile, getInstallDir, isPortable } from './updates'
+import { openDesktopLogin } from './desktop-auth'
 
 let autoHideOnStart = false
 let stopCurrentRpc: (() => void) | null = null
 let rpcStarted = false
-const DESKTOP_CONNECT_URL = 'https://voidpresence.com/desktop/connect'
 
 registerPlugin(defaultPlugin)
 registerPlugin(smtcPlugin)
@@ -890,125 +888,19 @@ export async function initIpc() {
 		return true
 	})
 
-	ipcMain.handle('plugins:install-from-url', async (_event, pluginUrl: string, isZip = false) => {
+	ipcMain.handle('plugins:install-from-url', async (event, pluginUrl: string, isZip = false) => {
+		if (event.senderFrame !== event.sender.mainFrame) {
+			return { ok: false, error: 'Unauthorized' }
+		}
 		try {
-			const { promises: fsp } = await import('fs')
-			const https = await import('https')
-			const http = await import('http')
-
-			const pluginsDir = path.join(app.getPath('userData'), 'plugins')
-			await fsp.mkdir(pluginsDir, { recursive: true })
-
-			const downloadToBuffer = (url: string): Promise<Buffer> =>
-				new Promise((resolve, reject) => {
-					const proto = url.startsWith('https') ? https : http
-					const chunks: Buffer[] = []
-					const req = proto.get(url, { headers: { 'User-Agent': 'void-presence' } }, (res: any) => {
-						if (res.statusCode === 301 || res.statusCode === 302) {
-							downloadToBuffer(res.headers.location).then(resolve).catch(reject)
-							return
-						}
-						if (res.statusCode !== 200) {
-							reject(new Error(`HTTP ${res.statusCode} for ${url}`))
-							return
-						}
-						res.on('data', (c: Buffer) => chunks.push(c))
-						res.on('end', () => resolve(Buffer.concat(chunks)))
-					})
-					req.on('error', reject)
-				})
-
-			const ghTreeMatch = pluginUrl.match(
-				/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)$/
+			return await installPluginFromUrl(pluginUrl, isZip, (msg, level) =>
+				sendLog(msg, level as any)
 			)
-
-			if (isZip || ghTreeMatch) {
-				let apiUrl: string
-				let pluginId: string
-
-				if (ghTreeMatch) {
-					const [, owner, repo, branch, folderPath] = ghTreeMatch
-					pluginId = folderPath.split('/').pop() || 'plugin'
-					apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}?ref=${branch}`
-				} else {
-					const urlObj = new URL(pluginUrl)
-					pluginId =
-						urlObj.pathname
-							.split('/')
-							.pop()
-							?.replace(/\.zip$/, '') || 'plugin'
-
-					const m = pluginUrl.match(
-						/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+?)\/[^/]+\.zip/
-					)
-					if (!m) throw new Error(`Cannot parse folder URL: ${pluginUrl}`)
-					const [, owner, repo, branch, folderPath] = m
-					apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}/${pluginId}?ref=${branch}`
-				}
-
-				const destDir = path.join(pluginsDir, pluginId)
-				await fsp.mkdir(destDir, { recursive: true })
-
-				markPluginInstalling(pluginId)
-				sendLog(t('pluginInstallDownloadingFolder', { id: pluginId }), 'info')
-
-				async function downloadDir(apiDirUrl: string, localDir: string): Promise<void> {
-					const buf = await downloadToBuffer(apiDirUrl)
-					const items = JSON.parse(buf.toString('utf-8'))
-					if (!Array.isArray(items)) {
-						throw new Error(`Unexpected API response from ${apiDirUrl}`)
-					}
-
-					await fsp.mkdir(localDir, { recursive: true })
-
-					for (const item of items) {
-						const localPath = path.join(localDir, item.name)
-						if (item.type === 'dir') {
-							await downloadDir(item.url, localPath)
-						} else if (item.type === 'file' && item.download_url) {
-							const fileBuf = await downloadToBuffer(item.download_url)
-							await fsp.writeFile(localPath, fileBuf)
-							sendLog(t('pluginInstallFileProgress', { path: item.path }), 'info')
-						}
-					}
-				}
-
-				try {
-					await downloadDir(apiUrl, destDir)
-					await fsp.unlink(path.join(destDir, '.rebuilt')).catch(() => {})
-
-					sendLog(t('pluginInstallFolderDone', { dir: destDir }), 'success')
-
-					try {
-						await hotLoadPlugin(path.join(destDir, 'index.js'), pluginId, destDir)
-					} catch (e: any) {
-						sendLog(t('pluginInstallLoadFailed', { error: e?.message ?? String(e) }), 'warn')
-					}
-				} finally {
-					markPluginInstallDone(pluginId)
-				}
-
-				return { ok: true, path: destDir, folder: true }
-			}
-
-			const urlObj = new URL(pluginUrl)
-			const rawName = urlObj.pathname.split('/').pop() || 'plugin'
-			const fileName = rawName.endsWith('.js') ? rawName : `${rawName}.js`
-			const destPath = path.join(pluginsDir, fileName)
-
-			sendLog(t('pluginMgrDownloadingFromUrl', { url: pluginUrl }), 'info')
-			const buf = await downloadToBuffer(pluginUrl)
-			await fsp.writeFile(destPath, buf)
-
-			sendLog(t('pluginMgrSavedFile', { path: destPath }), 'success')
-
-			return { ok: true, path: destPath, folder: false }
 		} catch (e: any) {
 			sendLog(t('pluginMgrInstallFailedGeneric', { error: e?.message ?? String(e) }), 'error')
 			return { ok: false, error: e?.message ?? String(e) }
 		}
 	})
-
 	ipcMain.handle('custom-status:stop', async () => {
 		stopCustomStatusWorker()
 
@@ -1029,9 +921,39 @@ export async function initIpc() {
 			throw new Error('Unauthorized account request.')
 		}
 
-		await shell.openExternal(DESKTOP_CONNECT_URL)
+		console.info('[account] Starting login', {
+			webContentsId: event.sender.id,
+		})
+
+		await openDesktopLogin(event.sender.id)
+
+		console.info('[account] Browser opened')
 	})
 
+	ipcMain.handle('plugins:install-confirmed', async (event, pluginId: string) => {
+		if (event.senderFrame !== event.sender.mainFrame) {
+			return { ok: false, error: 'Unauthorized' }
+		}
+		if (typeof pluginId !== 'string' || !pluginId) {
+			return { ok: false, error: 'Invalid plugin ID.' }
+		}
+
+		const entry = consumePendingInstall(pluginId)
+		if (!entry) {
+			return { ok: false, error: 'No pending install for this plugin ID.' }
+		}
+
+		console.info('[plugins] Confirmed install from pending store', { pluginId })
+
+		try {
+			return await installPluginFromUrl(entry.sourceUrl, entry.isFolder, (msg, level) =>
+				sendLog(msg, level as any)
+			)
+		} catch (e: any) {
+			sendLog(t('pluginMgrInstallFailedGeneric', { error: e?.message ?? String(e) }), 'error')
+			return { ok: false, error: e?.message ?? String(e) }
+		}
+	})
 	const win = BrowserWindow.getAllWindows()[0]
 	if (win && !win.isDestroyed()) {
 		win.webContents.on('ipc-message', () => {})

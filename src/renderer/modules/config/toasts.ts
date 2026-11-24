@@ -1,15 +1,31 @@
 import { t } from 'i18next'
 import { VoidPresenceCtx } from '../../../types/types'
 
-function showToast(el: HTMLElement | null, message?: string) {
+const toastTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>()
+
+function showToast(el: HTMLElement | null, message?: string, duration = 1800): void {
 	if (!el) return
+
+	const previousTimer = toastTimers.get(el)
+
+	if (previousTimer !== undefined) {
+		clearTimeout(previousTimer)
+	}
+
 	if (typeof message === 'string') {
 		el.textContent = message
 	}
+
+	el.setAttribute('role', 'status')
+	el.setAttribute('aria-live', 'polite')
 	el.dataset.visible = 'true'
-	setTimeout(() => {
+
+	const timer = setTimeout(() => {
 		el.dataset.visible = 'false'
-	}, 1800)
+		toastTimers.delete(el)
+	}, duration)
+
+	toastTimers.set(el, timer)
 }
 
 export type Toasts = {
@@ -20,21 +36,37 @@ export type Toasts = {
 }
 
 export function setupToasts() {
-	const blocksToast = document.getElementById('blocks-toast') as HTMLElement | null
+	const getToastElement = () => document.getElementById('blocks-toast')
 
-	const showConfigSavedToast = () => showToast(blocksToast, t('toasts.configSaved'))
-	const showPluginSavedToast = ({ message }: { message: string }) => showToast(blocksToast, message)
-	const showConfigCopiedToast = () => showToast(blocksToast, t('toasts.clientIdCopied'))
-	const showConfigLoadedToast = () => showToast(blocksToast, t('toasts.configLoaded'))
-	const showConfigUpLoadedToast = () => showToast(blocksToast, t('toasts.configUploaded'))
-	const showConfigImportedToast = () => showToast(blocksToast, t('toasts.configImported'))
-	const showConfigDeleteToast = () => showToast(blocksToast, t('toasts.configDeleted'))
-	const showClientIdToast = () => showToast(blocksToast, t('toasts.clientIdSaved'))
-	const showBlocksToast = () => showToast(blocksToast, t('toasts.changesSaved'))
-	const showRestartPresnceToast = () => showToast(blocksToast, t('toasts.restartPresence'))
-	const showRestartStatusToast = () => showToast(blocksToast, t('toasts.restartStatus'))
-	const showStopPresnceToast = () => showToast(blocksToast, t('toasts.stopPresence'))
-	const showStopStatusToast = () => showToast(blocksToast, t('toasts.stopStatus'))
+	const showConfigSavedToast = () => showToast(getToastElement(), t('toasts.configSaved'))
+
+	const showPluginSavedToast = ({ message }: { message: string }) =>
+		showToast(getToastElement(), message)
+
+	const showConfigCopiedToast = () => showToast(getToastElement(), t('toasts.clientIdCopied'))
+
+	const showConfigLoadedToast = () => showToast(getToastElement(), t('toasts.configLoaded'))
+
+	const showConfigUpLoadedToast = () => showToast(getToastElement(), t('toasts.configUploaded'))
+
+	const showConfigImportedToast = () => showToast(getToastElement(), t('toasts.configImported'))
+
+	const showConfigDeleteToast = () => showToast(getToastElement(), t('toasts.configDeleted'))
+
+	const showClientIdToast = () => showToast(getToastElement(), t('toasts.clientIdSaved'))
+
+	const showBlocksToast = () => showToast(getToastElement(), t('toasts.changesSaved'))
+
+	const showRestartPresnceToast = () => showToast(getToastElement(), t('toasts.restartPresence'))
+
+	const showRestartStatusToast = () => showToast(getToastElement(), t('toasts.restartStatus'))
+
+	const showStopPresnceToast = () => showToast(getToastElement(), t('toasts.stopPresence'))
+
+	const showStopStatusToast = () => showToast(getToastElement(), t('toasts.stopStatus'))
+
+	const showMessageToast = ({ message }: { message: string }) =>
+		showToast(getToastElement(), message, 4000)
 
 	return {
 		showConfigSavedToast,
@@ -50,6 +82,7 @@ export function setupToasts() {
 		showStopPresnceToast,
 		showStopStatusToast,
 		showPluginSavedToast,
+		showMessageToast,
 	}
 }
 

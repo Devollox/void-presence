@@ -644,3 +644,49 @@
 		transition: none;
 	}
 }
+
+.desktop-tab-icon {
+	position: relative;
+}
+
+.desktop-tab-icon > :not(.desktop-tab-shortcut-hint) {
+	opacity: 1;
+	transition: opacity var(--speed-highlightFadeOut) var(--ease-out-quad);
+}
+
+.desktop-tab-shortcut-hint {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+
+	color: inherit;
+	font-family: var(--font-regular);
+	font-size: 11px;
+	font-weight: 550;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+
+	opacity: 0;
+	transition: opacity var(--speed-regularTransition) var(--ease-out-quad);
+}
+
+.desktop-tab[data-shortcut-hint='true'] .desktop-tab-icon > :not(.desktop-tab-shortcut-hint) {
+	opacity: 0;
+	transition: opacity var(--speed-regularTransition) var(--ease-out-quad) 1s;
+}
+
+.desktop-tab[data-shortcut-hint='true'] .desktop-tab-shortcut-hint {
+	opacity: 1;
+	transition: opacity var(--speed-regularTransition) var(--ease-out-quad) 1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.desktop-tab-icon,
+	.desktop-tab-icon > :not(.desktop-tab-shortcut-hint),
+	.desktop-tab-shortcut-hint {
+		transition: none;
+	}
+}

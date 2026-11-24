@@ -137,10 +137,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	getLanguage: () => ipcRenderer.invoke('get-language'),
 	setLanguage: (lang: Language) => ipcRenderer.invoke('set-language', lang),
 	onImportConfigFromProtocol: (callback: (payload: unknown) => void) => {
-		ipcRenderer.on('IMPORT_CONFIG_FROM_PROTOCOL', (_event, payload) => callback(payload))
+		ipcRenderer.on('ACTION_IMPORT_CONFIG', (_event, payload) => callback(payload))
 	},
 	onImportStatusFromProtocol: (callback: (payload: unknown) => void) => {
-		ipcRenderer.on('IMPORT_STATUS_FROM_PROTOCOL', (_event, payload) => callback(payload))
+		ipcRenderer.on('ACTION_IMPORT_STATUS', (_event, payload) => callback(payload))
 	},
 	onActivateView: (callback: (payload: { view: string }) => void) => {
 		ipcRenderer.on('ACTIVATE_VIEW_FROM_PROTOCOL', (_event, payload) => callback(payload))
@@ -171,11 +171,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	onPluginToast: (handler: (payload: { message: string }) => void) => {
 		ipcRenderer.on('plugin:toast', (_event, payload) => handler(payload))
 	},
-	pluginsInstallFromUrl: (url: string, isZip = false) =>
-		ipcRenderer.invoke('plugins:install-from-url', url, isZip),
+	pluginsInstallConfirmed: (pluginId: string) =>
+		ipcRenderer.invoke('plugins:install-confirmed', pluginId),
 	onInstallPluginFromUrl: (handler: (payload: { url: string }) => void) => {
-		ipcRenderer.on('INSTALL_PLUGIN_FROM_URL', (_event, payload) => handler(payload))
+		ipcRenderer.on('ACTION_INSTALL_PLUGIN', (_event, payload) => handler(payload))
 	},
 
 	openLogin: (): Promise<void> => ipcRenderer.invoke('account:open-login'),
+
+	onProtocolError: (handler: (payload: { code: string; message: string }) => void) => {
+		ipcRenderer.on('PROTOCOL_ERROR', (_event, payload) => handler(payload))
+	},
 })
