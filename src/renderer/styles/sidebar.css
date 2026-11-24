@@ -62,11 +62,15 @@
 	flex-shrink: 0;
 	border-radius: 6px;
 	color: #ffffff;
-	background-color: var(--control-tertiary-selected);
+	background-color: var(--color-bg-secondary);
 	font-size: 11px;
 	font-weight: 600;
 	line-height: 1;
 	letter-spacing: -0.01em;
+}
+
+.workspace-avatar-fallback {
+	display: none;
 }
 
 .workspace-title {

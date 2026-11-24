@@ -351,6 +351,7 @@
 						>
 							<span class="workspace-avatar" aria-hidden="true">
 								<img class="workspace-avatar-image" alt="" hidden />
+								<span class="workspace-avatar-fallback">VP</span>
 							</span>
 							<span class="workspace-title">Void Presence</span>
 							<svg
@@ -2368,11 +2369,69 @@
 				role="status"
 				aria-live="polite"
 				hidden
+			!-- Toast & dropoast" class="copy-toast" data-visible="false"></div>
+		<div id="global-drop-overlay" data-active="false"></div>
+isible="false"></div>
+		<div id="global-drop-overlay" data-active="false"></div>
+
+		<div id="account-popover" class="account-popover" hidden>
+			<div id="account-menu" class="account-menu" role="menu" aria-labelledby="account-trigger">
+				<button
+					type="button"
+					id="account-settings"
+					class="account-menu-item"
+					role="menuitem"
+					tabindex="-1"
+				>
+					<span>Settings</span>
+				</button>
+
+				<div class="account-menu-separator" role="separator"></div>
+
+				<button
+					type="button"
+					id="account-login"
+					class="account-menu-item"
+					role="menuitem"
+					tabindex="-1"
+				>
+					<span>Log in</span>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M15 3h6v6M10 14 21 3" />
+						<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+					</svg>
+				</button>
+
+				<button
+					type="button"
+					id="account-logout"
+					class="account-menu-item"
+					role="menuitem"
+					tabindex="-1"
+					hidden
+				>
+					<span>Log out</span>
+				</button>
+			</div>
+
+			<p
+				id="account-feedback"
+				class="account-menu-feedback"
+				role="status"
+				aria-live="polite"
+				hidden
 			></p>
 		</div>
-
-		<div id="blocks-toast" class="copy-toast" data-visible="false"></div>
-		<div id="global-drop-overlay" data-active="false"></div>
 
 		<script type="module" src="../../build/renderer/renderer.js"></script>
 	</body>
