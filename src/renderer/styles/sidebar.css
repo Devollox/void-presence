@@ -61,8 +61,8 @@
 	justify-content: center;
 	flex-shrink: 0;
 	border-radius: 6px;
-	background-color: lch(70% 60 220 / 1);
 	color: #ffffff;
+	background-color: var(--color-bg-quaternary);
 	font-size: 11px;
 	font-weight: 600;
 	line-height: 1;
