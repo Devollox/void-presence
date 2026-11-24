@@ -28,4 +28,3 @@
 - **Tab Styling & Title Fade** — restored flexible tab sizing, enforced single-line titles with a right-edge gradient fade mask on narrow inactive tabs, and added hover, focus, active, dragging, and dropping states.
 - **Drag Interaction Handling** — added click suppression after tab dragging and cancellation handling for `Escape`, pointer cancellation, and window focus loss.
 - **Reduced Motion** — added reduced-motion support for tab dragging, close-button transitions, sidebar resizing, previews, and backdrop animations.
-- **Sidebar Toggle** — added animated panel expansion for the sidebar toggle icon with state persistence.
