@@ -15,6 +15,7 @@
 - **Japanese & Chinese Localization** — added full Japanese (`ja`) and Chinese (`zh`) language support across the interface.
 - **Synchronized Status Indicators** — unified the main connection dot and the `Logs` indicators in the sidebar and tab bar around real-time Discord RPC states. The main dot pulses while online; the `Logs` dots appear only for syncing (warning) or offline (error) states, with the tab indicator positioned next to the close button.
 - **Ticket-Based Deep Links** — added a unified one-time ticket system for configuration imports and plugin installation. Deep links now carry only a short-lived ticket instead of raw payloads or download URLs; the app exchanges it for server-validated action data.
+- **Held Ctrl Tab Hints** — added a 1-second delay before `Ctrl+1..9` shortcut hints replace desktop tab icons. Releasing `Ctrl` immediately restores the regular icons.
 
 ## Improved
 
