@@ -1,59 +1,18 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { net, shell } from 'electron'
+import {
+	LoginAttempt,
+	DesktopProfile,
+	ActionPayload,
+	ImportConfigAction,
+	ImportStatusAction,
+} from 'src/types/types'
 
 const CONNECT_URL = 'https://voidpresence.com/desktop/connect'
 const EXCHANGE_URL = 'https://voidpresence.com/api/auth/desktop/exchange'
 const ACTION_EXCHANGE_URL = 'https://voidpresence.com/api/action/exchange'
 const ATTEMPT_TTL = 10 * 60 * 1000
-const REQUEST_TIMEOUT = 15_000
-
-export interface DesktopProfile {
-	authorId: string
-	authorName: string
-	provider: string
-	avatar: string
-}
-
-export interface ImportConfigAction {
-	kind: 'import-config'
-	configId: string
-	title: string
-	configData: {
-		cycles?: unknown[]
-		imageCycles?: unknown[]
-		buttonPairs?: unknown[]
-		party?: unknown[]
-		timeCycles?: unknown[]
-	}
-}
-
-export interface ImportStatusAction {
-	kind: 'import-status'
-	configId: string
-	title: string
-	configData: {
-		statusCycles: unknown[]
-	}
-}
-
-export interface InstallPluginAction {
-	kind: 'install-plugin'
-	pluginId: string
-	title: string
-	version: string
-	sourceUrl: string
-	isFolder: boolean
-}
-
-export type ActionPayload = ImportConfigAction | ImportStatusAction | InstallPluginAction
-
-interface LoginAttempt {
-	state: string
-	verifier: string
-	webContentsId: number
-	expiresAt: number
-	exchanging: boolean
-}
+const REQUEST_TIMEOUT = 15000
 
 let pendingAttempt: LoginAttempt | null = null
 

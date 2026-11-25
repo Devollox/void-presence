@@ -415,6 +415,54 @@ export interface DragState {
 	dropping: boolean
 }
 
+export interface DesktopProfile {
+	authorId: string
+	authorName: string
+	provider: string
+	avatar: string
+}
+
+export interface ImportConfigAction {
+	kind: 'import-config'
+	configId: string
+	title: string
+	configData: {
+		cycles?: unknown[]
+		imageCycles?: unknown[]
+		buttonPairs?: unknown[]
+		party?: unknown[]
+		timeCycles?: unknown[]
+	}
+}
+
+export interface ImportStatusAction {
+	kind: 'import-status'
+	configId: string
+	title: string
+	configData: {
+		statusCycles: unknown[]
+	}
+}
+
+export interface InstallPluginAction {
+	kind: 'install-plugin'
+	pluginId: string
+	title: string
+	version: string
+	sourceUrl: string
+	isFolder: boolean
+}
+
+export type ActionPayload = ImportConfigAction | ImportStatusAction | InstallPluginAction
+
+export interface LoginAttempt {
+	state: string
+	verifier: string
+	webContentsId: number
+	expiresAt: number
+	exchanging: boolean
+}
+
 export interface ElectronAPI {
 	openExternal(arg0: string): unknown
 	pluginsList?: () => Promise<PluginInfo[]>
@@ -423,14 +471,18 @@ export interface ElectronAPI {
 	pluginsSetStorage?: (pluginId: string, key: string, value: string) => Promise<boolean>
 	pluginsRemove?: (id: string) => Promise<{ ok: boolean; error?: string }>
 	pluginsSetPriority?: (id: string, priority: number) => Promise<boolean>
-	pluginsInstallConfirmed?: (pluginId: string) => Promise<{ ok: boolean; path?: string; error?: string }>
-	onInstallPluginFromUrl?: (handler: (payload: {
+	pluginsInstallConfirmed?: (
 		pluginId: string
-		title: string
-		version: string
-		sourceUrl: string
-		isFolder: boolean
-	}) => void) => void
+	) => Promise<{ ok: boolean; path?: string; error?: string }>
+	onInstallPluginFromUrl?: (
+		handler: (payload: {
+			pluginId: string
+			title: string
+			version: string
+			sourceUrl: string
+			isFolder: boolean
+		}) => void
+	) => void
 	onPluginsListUpdated?: (handler: (plugins: PluginInfo[]) => void) => void
 	onPluginToast?: (handler: (payload: { message: string }) => void) => void
 	onProtocolError?: (handler: (payload: { code: string; message: string }) => void) => void
