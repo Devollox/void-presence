@@ -169,7 +169,6 @@
 	min-width: 0;
 	gap: 8px;
 	padding: 0 12px;
-	background-color: var(--bg-color);
 	color: var(--text-tertiary);
 	font-size: 11px;
 	line-height: 16px;
