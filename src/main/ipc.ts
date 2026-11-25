@@ -31,6 +31,7 @@ import { consumePendingInstall, installPluginFromUrl } from '../plugins/plugin-i
 import {
 	ActivityType,
 	BarStyle,
+	Language,
 	NowMode,
 	PartyConfig,
 	RpcPayload,
@@ -834,8 +835,8 @@ export async function initIpc() {
 		return await getLanguage()
 	})
 
-	ipcMain.handle('set-language', async (_event, lang: string) => {
-		if (lang === 'ru' || lang === 'en' || lang === 'tr') {
+	ipcMain.handle('set-language', async (_event, lang: Language) => {
+		if (lang === 'ru' || lang === 'en' || lang === 'tr' || lang === 'zh' || lang === 'ja') {
 			await setLanguage(lang)
 
 			BrowserWindow.getAllWindows().forEach(win => {
@@ -843,8 +844,10 @@ export async function initIpc() {
 					win.webContents.send('language-changed', lang)
 				}
 			})
+
 			return lang
 		}
+
 		return await getLanguage()
 	})
 
@@ -921,13 +924,13 @@ export async function initIpc() {
 			throw new Error('Unauthorized account request.')
 		}
 
-		console.info('[account] Starting login', {
-			webContentsId: event.sender.id,
-		})
+		const profile = await openDesktopLogin()
 
-		await openDesktopLogin(event.sender.id)
+		if (!win.isDestroyed()) {
+			win.webContents.send('AUTH_FROM_URL', profile)
+		}
 
-		console.info('[account] Browser opened')
+		return profile
 	})
 
 	ipcMain.handle('plugins:install-confirmed', async (event, pluginId: string) => {

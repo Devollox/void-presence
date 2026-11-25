@@ -13,11 +13,13 @@ import {
 	DiscordTokenConfig,
 	ImageCycle,
 	ImageCyclesConfig,
+	Language,
 	LanguageConfig,
 	NowMode,
 	PartyConfig,
 	PartyCycleEntry,
 	Settings,
+	StatusCycleEntry,
 	TimerConfig,
 	TimestampConfig,
 } from '../types/types'
@@ -667,9 +669,6 @@ export async function setStatusIntervalConfig(sec: number | null) {
 		typeof sec === 'number' && Number.isFinite(sec) && sec > 0 ? Math.max(5, Math.floor(sec)) : null
 	await writeTimerConfig(cfg)
 }
-
-import { StatusCycleEntry } from '../types/types'
-import { Language } from './translations'
 
 const defaultStatusCyclesConfig = {
 	cycles: [] as StatusCycleEntry[],

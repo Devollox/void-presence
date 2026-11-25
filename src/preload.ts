@@ -1,11 +1,11 @@
 ﻿import { contextBridge, ipcRenderer } from 'electron'
-import { Language } from './main/translations'
 import { PluginInfo } from './plugins/plugin-types'
 import {
 	ButtonPair,
 	CycleEntry,
 	FullState,
 	ImageCycleEntry,
+	Language,
 	LogEntry,
 	PartyConfig,
 	RpcPayload,

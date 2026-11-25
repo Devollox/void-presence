@@ -1,11 +1,22 @@
 {
+	"welcome": {
+		"title": "Welcome to Void Presence",
+		"subtitle": "Choose your preferred appearance and language before getting started",
+		"themeLabel": "Appearance",
+		"themeLight": "Light",
+		"themeDark": "Dark",
+		"continueBtn": "Continue",
+		"languageLabel": "Language",
+		"startup": "Startup"
+	},
 	"tabs": {
 		"presence": "Presence",
 		"status": "Status",
 		"logs": "Logs",
 		"configs": "Configs",
 		"settings": "Settings",
-		"plugins": "Plugins"
+		"plugins": "Plugins",
+		"changelogs": "Changelogs"
 	},
 	"plugins": {
 		"label": "plugins",
@@ -18,7 +29,10 @@
 		"version": "version",
 		"available": "available",
 		"comingSoon": "Plugin support is coming soon.",
-		"comingSoonHint": "Check back later for updates."
+		"comingSoonHint": "Check back later for updates.",
+		"morePlugins": "More Plugins",
+		"browseCommunity": "Browse community plugins",
+		"addYours": "Add your plugin"
 	},
 	"tutorial": {
 		"title": "tutorial",
@@ -120,10 +134,10 @@
 		"add": "Add party"
 	},
 	"settings": {
-		"autoStart": "AUTO START",
-		"autoStartHint": "launch app with Windows",
-		"autoHide": "AUTO HIDE",
-		"autoHideHint": "minimize to tray on start"
+		"autoStart": "Auto start",
+		"autoStartHint": "Launch app with Windows",
+		"autoHide": "Auto hide",
+		"autoHideHint": "Minimize to tray on start"
 	},
 	"payload": {
 		"title": "current payload",
@@ -513,14 +527,15 @@
 		"configDeleted": "config delete",
 		"clientIdSaved": "client id saved",
 		"changesSaved": "changes saved",
-		"restartPresence": "restart presnce",
+		"restartPresence": "restart presence",
 		"restartStatus": "restart status",
-		"stopPresence": "stop presnce",
+		"stopPresence": "stop presence",
 		"stopStatus": "stop status"
 	},
 	"window": {
 		"minimize": "Minimize",
-		"maximize": "Maximize"
+		"maximize": "Maximize",
+		"close": "Close"
 	},
 	"navigation": {
 		"toggleSidebar": "Toggle sidebar",
@@ -532,15 +547,27 @@
 	},
 	"sidebar": {
 		"workspace": "Workspace",
-		"toggleWorkspace": "Toggle workspace"
+		"toggleWorkspace": "Toggle workspace",
+		"resizeSidebar": "Resize sidebar",
+		"dragToResize": "Drag to resize",
+		"clickToCollapse": "Click to collapse"
 	},
 	"account": {
 		"resources": "Account resources",
 		"yourAccount": "Your account",
 		"links": "Account links",
+		"profile": "Profile",
 		"docs": "Docs",
 		"help": "Help",
 		"login": "Log in",
 		"logout": "Log out"
+	},
+	"help": {
+		"menu": "Help menu",
+		"docs": "Docs",
+		"settings": "Settings",
+		"downloadApps": "Download apps",
+		"voidStatus": "Void status",
+		"keyboardShortcuts": "Keyboard shortcuts"
 	}
 }

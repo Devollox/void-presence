@@ -1,4 +1,7 @@
 ﻿const STORAGE_KEY = 'desktop-tabs-v1'
+const RESET_FLAG_KEY = 'desktop-tabs-reset-v1'
+
+const DEFAULT_OPEN_TABS = ['presence', 'settings']
 
 const NAVIGATION_SELECTOR = '.tab-btn[data-page], .sidebar-item[data-page]'
 
@@ -416,12 +419,21 @@ export default function setupViewsNavigation(): void {
 		openTabs = [tabs.keys().next().value!]
 	}
 
-	const active =
-		saved && openTabs.includes(saved.active)
-			? saved.active
-			: initialView && openTabs.includes(initialView)
-				? initialView
-				: openTabs[0]!
+	const needsFirstRunReset = !localStorage.getItem(RESET_FLAG_KEY)
+
+	if (needsFirstRunReset) {
+		const tabsToClose = openTabs.filter(page => !DEFAULT_OPEN_TABS.includes(page))
+
+		tabsToClose.forEach(page => {
+			closeTab(page)
+		})
+
+		localStorage.setItem(RESET_FLAG_KEY, '1')
+	}
+
+	const active = openTabs.includes(initialView ?? '')
+		? initialView!
+		: (DEFAULT_OPEN_TABS.find(page => openTabs.includes(page)) ?? openTabs[0]!)
 
 	viewHistory = [active]
 	historyIndex = 0

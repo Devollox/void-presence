@@ -16,15 +16,20 @@ const resources = {
 const supportedLanguages = ['en', 'ru', 'tr', 'zh', 'ja']
 
 function getInitialLanguage(): string {
-	const systemLanguage = navigator.language.split('–')[0]
 	const savedLanguage = localStorage.getItem('language')
 
 	if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
 		return savedLanguage
 	}
 
-	if (supportedLanguages.includes(systemLanguage)) {
-		return systemLanguage
+	const languages = navigator.languages || [navigator.language || 'en']
+
+	for (const language of languages) {
+		const code = String(language).split('-')[0].toLowerCase()
+
+		if (supportedLanguages.includes(code)) {
+			return code
+		}
 	}
 
 	return 'en'

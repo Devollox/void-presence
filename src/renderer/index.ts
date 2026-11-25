@@ -42,14 +42,19 @@ import {
 import setupAccountModal, { acceptAccountProfile } from './modules/shell/account'
 import setupSidebarDnd from './modules/shell/sidebar-dnd'
 import initSidebarPeek from './modules/shell/sidebar-peek'
+import { setupWelcomeScreen } from './modules/shell/welcome'
+import { initTheme } from './modules/shell/theme'
+import setupHelpMenu from './modules/shell/help-menu'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	initTheme()
 	initLanguage()
 	updatePlaceholders()
+	setupWelcomeScreen()
 
 	const toasts = setupToasts()
 
@@ -68,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupStatusTutorialButtons()
 	void setupTooltips()
 	void setupTabsDnd()
+	void setupHelpMenu()
 	void setupViewsNavigation()
 	void setupSidebarToggle()
 	void setupAccountModal()

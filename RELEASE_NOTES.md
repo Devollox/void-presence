@@ -16,6 +16,17 @@
 - **Synchronized Status Indicators** — unified the main connection dot and the `Logs` indicators in the sidebar and tab bar around real-time Discord RPC states. The main dot pulses while online; the `Logs` dots appear only for syncing (warning) or offline (error) states, with the tab indicator positioned next to the close button.
 - **Ticket-Based Deep Links** — added a unified one-time ticket system for configuration imports and plugin installation. Deep links now carry only a short-lived ticket instead of raw payloads or download URLs; the app exchanges it for server-validated action data.
 - **Held Ctrl Tab Hints** — added a 1-second delay before `Ctrl+1..9` shortcut hints replace desktop tab icons. Releasing `Ctrl` immediately restores the regular icons.
+- **Refined Welcome Styling** — cleaned up the welcome stylesheet and retained support for theme and language selection.
+- **Polished Onboarding Controls** — improved theme previews, language pills, and the primary continue action with consistent visual states.
+- **System-Aware Theme Selection** — the welcome screen now preselects Light or Dark based on the operating system color scheme.
+- **Persistent Theme Preference** — a user-selected theme continues to override the system default after onboarding.
+- **Added Silent Update Cleanup** — introduced a background cleanup function that removes obsolete Void Presence update and installer files.
+- **Preserved Active Installer** — cleanup retains update artifacts matching the currently running application version.
+- **Cross-Platform File Maintenance** — cleanup supports Windows, macOS, and Linux update installer formats without user-facing logs.
+- **Added First-Run Desktop Tab Reset** — legacy open desktop tabs are closed during first initialization.
+- **Added Reset Flag** — added `desktop-tabs-reset-v1` to ensure the cleanup runs only once.
+- **Reused Close Tab Behavior** — non-default tabs are closed through the existing `closeTab()` logic.
+- **Reset Saved Tab State** — `desktop-tabs-v1` is updated to contain only Presence and Settings after the first-run reset.
 
 ## Improved
 

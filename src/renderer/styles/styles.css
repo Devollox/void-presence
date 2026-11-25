@@ -89,11 +89,11 @@
 	--loading-error-secondary-label-dark: #e2e3e5;
 	--loading-error-secondary-shadow-dark: 0px 4px 4px -1px #0000000a, 0px 1px 1px 0px #00000014;
 
-	--focus-ring-color: #5e6ad2;
+	--focus-ring-color: #3f424a;
 	--focus-ring-width: 1px;
 	--focus-ring-outline: var(--focus-ring-width) solid var(--focus-ring-color);
-	--selection-bg: rgba(94, 106, 210, 0.25);
-	--selection-bg-active: rgba(94, 106, 210, 0.35);
+	--selection-bg: rgba(63, 66, 74, 0.16);
+	--selection-bg-active: rgba(63, 66, 74, 0.26);
 
 	--bg-color: var(--bg-sidebar-light);
 	--bg-sidebar-color: var(--bg-sidebar-light);
@@ -128,6 +128,10 @@
 }
 
 html.dark {
+	--focus-ring-color: #a1a6b3;
+	--selection-bg: rgba(161, 166, 179, 0.22);
+	--selection-bg-active: rgba(161, 166, 179, 0.32);
+
 	--bg-color: var(--bg-sidebar-dark);
 	--bg-sidebar-color: var(--bg-sidebar-dark);
 	--bg-base-color: var(--bg-base-color-dark);
@@ -156,6 +160,18 @@ html.dark {
 	--logs-error-indicator: #ed6666;
 	--logs-success-indicator: #4caf78;
 	--logs-warn-indicator: #d5a24a;
+}
+
+html {
+	background-color: var(--bg-color);
+}
+
+html.light {
+	background-color: var(--bg-color);
+}
+
+html.dark {
+	background-color: var(--bg-color);
 }
 
 * {

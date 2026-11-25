@@ -228,10 +228,10 @@ export default function setupAccountModal(): void {
 		const menuRect = popover.getBoundingClientRect()
 
 		let left = rect.left
-		let top = rect.bottom + gap
+		let top = rect.top - menuRect.height - gap
 
-		if (top + menuRect.height > window.innerHeight - padding) {
-			top = rect.top - menuRect.height - gap
+		if (top < padding) {
+			top = rect.bottom + gap
 		}
 
 		left = Math.max(padding, Math.min(left, window.innerWidth - menuRect.width - padding))

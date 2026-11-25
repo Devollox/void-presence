@@ -458,9 +458,18 @@ export type ActionPayload = ImportConfigAction | ImportStatusAction | InstallPlu
 export interface LoginAttempt {
 	state: string
 	verifier: string
-	webContentsId: number
+	redirectUri: string
+	server: http.Server
 	expiresAt: number
 	exchanging: boolean
+}
+
+export type AppTheme = 'light' | 'dark'
+export type Language = 'en' | 'ru' | 'tr' | 'zh' | 'ja'
+
+export type WelcomeLanguageOption = {
+	code: WelcomeLanguage
+	label: string
 }
 
 export interface ElectronAPI {

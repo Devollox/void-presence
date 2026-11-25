@@ -24,7 +24,6 @@ export function createMainWindow(autoHideOnStart: boolean, isQuitting: () => boo
 		icon: iconPath,
 		frame: false,
 		titleBarStyle: 'hidden',
-		backgroundColor: '#000000',
 		show: shouldShow,
 		width,
 		height,

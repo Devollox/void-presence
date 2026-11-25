@@ -1,5 +1,5 @@
 ﻿<!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,8 +24,225 @@
 		<link rel="stylesheet" href="./styles/configs.css" />
 		<link rel="stylesheet" href="./styles/settings.css" />
 		<link rel="stylesheet" href="./styles/modals.css" />
+		<link rel="stylesheet" href="./styles/welcome.css" />
 	</head>
 	<body>
+		<div class="welcome" id="welcome">
+			<div class="welcome-drag-area"></div>
+
+			<div class="welcome-logo" id="welcomeLogo">
+				<div class="welcome-logo-icon" aria-hidden="true">
+					<svg viewBox="0 0 120 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<g fill="currentColor">
+							<polygon points="8,36 22,36 42,60 42,36 53,36 53,76 41,76" />
+							<rect x="61" y="23" width="12" height="53" />
+							<rect x="73" y="10" width="23" height="13" />
+							<rect x="73" y="36" width="23" height="13" />
+							<path
+								d="M96 23 H108 V36.5 C108 40.09 105.09 43 101.5 43 C97.91 43 96 40.09 96 36.5 V23 Z"
+							/>
+						</g>
+					</svg>
+				</div>
+			</div>
+
+			<div class="welcome-settings" id="welcomeSettings">
+				<div class="welcome-content">
+					<div class="welcome-heading">
+						<h1 id="welcome-title" data-i18n="welcome.title">Welcome to Void Presence</h1>
+
+						<p id="welcome-subtitle" data-i18n="welcome.subtitle">
+							Choose your preferred appearance and language before getting started
+						</p>
+					</div>
+
+					<div class="welcome-option">
+						<span
+							class="welcome-option-label"
+							id="welcome-theme-label"
+							data-i18n="welcome.themeLabel"
+						>
+							Appearance
+						</span>
+
+						<div class="welcome-theme-list" role="radiogroup" aria-label="Theme">
+							<button
+								type="button"
+								class="welcome-theme"
+								data-theme="light"
+								aria-checked="false"
+								role="radio"
+							>
+								<div class="welcome-theme-preview welcome-theme-preview-light">
+									<div class="preview-sidebar">
+										<span class="preview-dot"></span>
+										<span class="preview-line"></span>
+										<span class="preview-line-short"></span>
+									</div>
+
+									<div class="preview-body">
+										<div class="preview-card"></div>
+										<div class="preview-card"></div>
+									</div>
+								</div>
+
+								<div class="welcome-theme-footer">
+									<span
+										class="welcome-theme-name"
+										id="welcome-theme-light"
+										data-i18n="welcome.themeLight"
+									>
+										Light
+									</span>
+
+									<span class="welcome-theme-dot" aria-hidden="true"></span>
+								</div>
+							</button>
+
+							<button
+								type="button"
+								class="welcome-theme"
+								data-theme="dark"
+								aria-checked="true"
+								role="radio"
+							>
+								<div class="welcome-theme-preview welcome-theme-preview-dark">
+									<div class="preview-sidebar">
+										<span class="preview-dot"></span>
+										<span class="preview-line"></span>
+										<span class="preview-line-short"></span>
+									</div>
+
+									<div class="preview-body">
+										<div class="preview-card"></div>
+										<div class="preview-card"></div>
+									</div>
+								</div>
+
+								<div class="welcome-theme-footer">
+									<span
+										class="welcome-theme-name"
+										id="welcome-theme-dark"
+										data-i18n="welcome.themeDark"
+									>
+										Dark
+									</span>
+
+									<span class="welcome-theme-dot" aria-hidden="true"></span>
+								</div>
+							</button>
+						</div>
+					</div>
+
+					<div class="welcome-option">
+						<label
+							for="welcome-language-trigger"
+							class="welcome-option-label"
+							id="welcome-language-label"
+							data-i18n="welcome.languageLabel"
+						>
+							Language
+						</label>
+
+						<div class="welcome-select" id="welcome-language-select">
+							<button
+								type="button"
+								id="welcome-language-trigger"
+								class="welcome-select-trigger"
+								role="combobox"
+								aria-expanded="false"
+								aria-haspopup="listbox"
+								aria-labelledby="welcome-language-label"
+								aria-controls="welcome-language-listbox"
+							>
+								<span class="welcome-select-value" id="welcome-language-value"> English </span>
+
+								<svg
+									class="welcome-select-arrow"
+									width="9"
+									height="5"
+									viewBox="0 0 9 5"
+									role="img"
+									focusable="false"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M1.915.557a.667.667 0 0 0-.943.943l2.862 2.862a.942.942 0 0 0 1.333 0L8.028 1.5a.667.667 0 0 0-.943-.943L4.5 3.14 1.915.557Z"
+									/>
+								</svg>
+							</button>
+
+							<div class="welcome-select-popup" data-open="false">
+								<div
+									id="welcome-language-listbox"
+									class="welcome-select-list"
+									role="listbox"
+									aria-labelledby="welcome-language-label"
+								></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="welcome-option">
+						<span class="welcome-option-label" data-i18n="welcome.startup"> Startup </span>
+
+						<div class="welcome-toggles-card">
+							<div class="welcome-toggle-row" data-toggle-row="auto-launch-toggle">
+								<div class="welcome-toggle-info">
+									<span class="welcome-toggle-title" data-i18n="settings.autoStart">
+										Auto start
+									</span>
+
+									<span class="welcome-toggle-hint" data-i18n="settings.autoStartHint">
+										Launch app with Windows
+									</span>
+								</div>
+
+								<button
+									type="button"
+									role="switch"
+									id="auto-launch-toggle"
+									class="welcome-switch"
+									aria-checked="false"
+									data-on="false"
+								>
+									<span class="welcome-switch-knob"></span>
+								</button>
+							</div>
+
+							<div class="welcome-toggle-row" data-toggle-row="auto-hide-toggle">
+								<div class="welcome-toggle-info">
+									<span class="welcome-toggle-title" data-i18n="settings.autoHide">
+										Auto hide
+									</span>
+
+									<span class="welcome-toggle-hint" data-i18n="settings.autoHideHint">
+										Minimize to tray on start
+									</span>
+								</div>
+
+								<button
+									type="button"
+									role="switch"
+									id="auto-hide-toggle"
+									class="welcome-switch"
+									aria-checked="false"
+									data-on="false"
+								>
+									<span class="welcome-switch-knob"></span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<button type="button" class="welcome-continue" id="welcome-continue">
+					<span id="welcome-continue-label" data-i18n="welcome.continueBtn"> Continue </span>
+				</button>
+			</div>
+		</div>
+
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			width="0"
@@ -66,7 +283,13 @@
 		<div class="app">
 			<div class="titlebar">
 				<div class="titlebar-buttons">
-					<button type="button" id="window-minimize" class="titlebar-btn" aria-label="Minimize">
+					<button
+						type="button"
+						id="window-minimize"
+						class="titlebar-btn"
+						aria-label="Minimize"
+						data-i18n-aria-label="window.minimize"
+					>
 						<svg
 							width="14"
 							height="14"
@@ -81,7 +304,14 @@
 							<path d="M5 12h14" />
 						</svg>
 					</button>
-					<button type="button" id="window-maximize" class="titlebar-btn" aria-label="Maximize">
+
+					<button
+						type="button"
+						id="window-maximize"
+						class="titlebar-btn"
+						aria-label="Maximize"
+						data-i18n-aria-label="window.maximize"
+					>
 						<svg
 							width="16"
 							height="16"
@@ -97,7 +327,14 @@
 							<path d="m3 21 9-9M9 21H3v-6" />
 						</svg>
 					</button>
-					<button type="button" id="window-close" class="titlebar-btn" aria-label="Close">
+
+					<button
+						type="button"
+						id="window-close"
+						class="titlebar-btn"
+						aria-label="Close"
+						data-i18n-aria-label="window.close"
+					>
 						<svg
 							width="14"
 							height="14"
@@ -124,6 +361,8 @@
 						aria-controls="app-sidebar"
 						aria-expanded="true"
 						data-tooltip="Toggle sidebar"
+						data-i18n-aria-label="navigation.toggleSidebar"
+						data-i18n-tooltip="navigation.toggleSidebar"
 						data-shortcut="["
 					>
 						<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
@@ -135,21 +374,27 @@
 							<rect class="sidebar-icon-panel" x="3.5" y="4.5" width="2.5" height="7" rx="0.75" />
 						</svg>
 					</button>
+
 					<div
 						id="connection-status"
 						class="nav-status-indicator"
 						data-status="online"
 						data-tooltip="Online"
 						aria-label="Online"
+						data-i18n-aria-label="connection.online"
+						data-i18n-tooltip="connection.online"
 					>
 						<div class="status-dot"></div>
 					</div>
+
 					<button
 						type="button"
 						id="nav-back"
 						class="nav-icon-btn"
 						aria-label="Go back"
 						data-tooltip="Go back"
+						data-i18n-aria-label="navigation.goBack"
+						data-i18n-tooltip="navigation.goBack"
 						data-shortcut="Alt+←"
 						disabled
 					>
@@ -159,12 +404,15 @@
 							/>
 						</svg>
 					</button>
+
 					<button
 						type="button"
 						id="nav-forward"
 						class="nav-icon-btn"
 						aria-label="Go forward"
 						data-tooltip="Go forward"
+						data-i18n-aria-label="navigation.goForward"
+						data-i18n-tooltip="navigation.goForward"
 						data-shortcut="Alt+→"
 						disabled
 					>
@@ -186,6 +434,7 @@
 							data-desktop-tab="true"
 							data-active="true"
 							data-tooltip="Presence"
+							data-i18n-tooltip="tabs.presence"
 							data-shortcut="Ctrl+1"
 						>
 							<span class="desktop-tab-content">
@@ -204,6 +453,7 @@
 								<span class="desktop-tab-title" data-i18n="tabs.presence">Presence</span>
 							</span>
 						</button>
+
 						<button
 							type="button"
 							id="nav-status"
@@ -212,6 +462,7 @@
 							data-desktop-tab="true"
 							data-active="false"
 							data-tooltip="Status"
+							data-i18n-tooltip="tabs.status"
 							data-shortcut="Ctrl+2"
 						>
 							<span class="desktop-tab-content">
@@ -230,6 +481,7 @@
 								<span class="desktop-tab-title" data-i18n="tabs.status">Status</span>
 							</span>
 						</button>
+
 						<button
 							type="button"
 							id="nav-logs"
@@ -238,6 +490,7 @@
 							data-desktop-tab="true"
 							data-active="false"
 							data-tooltip="Logs"
+							data-i18n-tooltip="tabs.logs"
 							data-shortcut="Ctrl+3"
 						>
 							<span class="desktop-tab-content">
@@ -256,6 +509,7 @@
 								<span class="desktop-tab-title" data-i18n="tabs.logs">Logs</span>
 							</span>
 						</button>
+
 						<button
 							type="button"
 							id="nav-plugins"
@@ -264,6 +518,7 @@
 							data-desktop-tab="true"
 							data-active="false"
 							data-tooltip="Plugins"
+							data-i18n-tooltip="tabs.plugins"
 							data-shortcut="Ctrl+4"
 						>
 							<span class="desktop-tab-content">
@@ -282,6 +537,7 @@
 								<span class="desktop-tab-title" data-i18n="tabs.plugins">Plugins</span>
 							</span>
 						</button>
+
 						<button
 							type="button"
 							id="nav-configs"
@@ -290,6 +546,7 @@
 							data-desktop-tab="true"
 							data-active="false"
 							data-tooltip="Configs"
+							data-i18n-tooltip="tabs.configs"
 							data-shortcut="Ctrl+5"
 						>
 							<span class="desktop-tab-content">
@@ -308,6 +565,7 @@
 								<span class="desktop-tab-title" data-i18n="tabs.configs">Configs</span>
 							</span>
 						</button>
+
 						<button
 							type="button"
 							id="nav-settings"
@@ -316,6 +574,7 @@
 							data-desktop-tab="true"
 							data-active="false"
 							data-tooltip="Settings"
+							data-i18n-tooltip="tabs.settings"
 							data-shortcut="Ctrl+6"
 						>
 							<span class="desktop-tab-content">
@@ -332,6 +591,38 @@
 										<use href="#icon-settings" /></svg
 								></span>
 								<span class="desktop-tab-title" data-i18n="tabs.settings">Settings</span>
+							</span>
+						</button>
+
+						<button
+							type="button"
+							id="nav-changelogs"
+							class="tab-btn desktop-tab"
+							data-page="changelogs"
+							data-desktop-tab="true"
+							data-active="false"
+							data-tooltip="Changelogs"
+							data-i18n-tooltip="tabs.changelogs"
+							data-shortcut="Ctrl+7"
+						>
+							<span class="desktop-tab-content">
+								<span class="desktop-tab-icon" aria-hidden="true">
+									<svg
+										width="14"
+										height="14"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.6"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="M12 8v4l3 2" />
+										<path d="M3 11a9 9 0 1 1 2.7 7.4" />
+										<path d="M3 4v7h7" />
+									</svg>
+								</span>
+								<span class="desktop-tab-title" data-i18n="tabs.changelogs">Changelogs</span>
 							</span>
 						</button>
 					</div>
@@ -353,7 +644,9 @@
 								<img class="workspace-avatar-image" alt="" hidden />
 								<span class="workspace-avatar-fallback">VP</span>
 							</span>
+
 							<span class="workspace-title">Void Presence</span>
+
 							<svg
 								class="workspace-caret"
 								width="10"
@@ -376,6 +669,7 @@
 								class="sidebar-item"
 								data-page="changelogs"
 								data-tooltip="Changelogs"
+								data-i18n-tooltip="tabs.changelogs"
 								data-unread="true"
 							>
 								<span class="sidebar-item-icon" aria-hidden="true">
@@ -394,7 +688,9 @@
 										<path d="M3 4v7h7" />
 									</svg>
 								</span>
-								<span class="sidebar-item-label">Change Logs</span>
+
+								<span class="sidebar-item-label" data-i18n="tabs.changelogs"> Change Logs </span>
+
 								<span class="sidebar-item-dot-wrap" aria-hidden="true"
 									><span class="sidebar-item-dot"></span
 								></span>
@@ -409,8 +705,10 @@
 									aria-expanded="true"
 									aria-controls="sidebar-workspace-list"
 									data-tooltip="Toggle workspace"
+									data-i18n-tooltip="sidebar.toggleWorkspace"
 								>
-									<span>Workspace</span>
+									<span data-i18n="sidebar.workspace">Workspace</span>
+
 									<svg
 										class="sidebar-section-caret"
 										width="10"
@@ -424,11 +722,13 @@
 									</svg>
 								</button>
 							</div>
+
 							<div class="sidebar-section-body">
 								<nav
 									id="sidebar-workspace-list"
 									class="sidebar-section-list"
 									aria-label="Workspace"
+									data-i18n-aria-label="sidebar.workspace"
 								>
 									<button
 										type="button"
@@ -436,6 +736,7 @@
 										data-page="presence"
 										data-active="true"
 										data-tooltip="Presence"
+										data-i18n-tooltip="tabs.presence"
 										data-shortcut="G+Then+P"
 									>
 										<span class="sidebar-item-icon" aria-hidden="true"
@@ -451,14 +752,17 @@
 											>
 												<use href="#icon-presence" /></svg
 										></span>
-										<span class="sidebar-item-label" data-i18n="tabs.presence">Presence</span>
+
+										<span class="sidebar-item-label" data-i18n="tabs.presence"> Presence </span>
 									</button>
+
 									<button
 										type="button"
 										class="sidebar-item"
 										data-page="status"
 										data-active="false"
 										data-tooltip="Status"
+										data-i18n-tooltip="tabs.status"
 										data-shortcut="G+Then+S"
 									>
 										<span class="sidebar-item-icon" aria-hidden="true"
@@ -474,14 +778,17 @@
 											>
 												<use href="#icon-status" /></svg
 										></span>
-										<span class="sidebar-item-label" data-i18n="tabs.status">Status</span>
+
+										<span class="sidebar-item-label" data-i18n="tabs.status"> Status </span>
 									</button>
+
 									<button
 										type="button"
 										class="sidebar-item"
 										data-page="logs"
 										data-active="false"
 										data-tooltip="Logs"
+										data-i18n-tooltip="tabs.logs"
 										data-shortcut="G+Then+L"
 									>
 										<span class="sidebar-item-icon" aria-hidden="true"
@@ -497,14 +804,17 @@
 											>
 												<use href="#icon-logs" /></svg
 										></span>
-										<span class="sidebar-item-label" data-i18n="tabs.logs">Logs</span>
+
+										<span class="sidebar-item-label" data-i18n="tabs.logs"> Logs </span>
 									</button>
+
 									<button
 										type="button"
 										class="sidebar-item"
 										data-page="plugins"
 										data-active="false"
 										data-tooltip="Plugins"
+										data-i18n-tooltip="tabs.plugins"
 										data-shortcut="G+Then+E"
 									>
 										<span class="sidebar-item-icon" aria-hidden="true"
@@ -520,14 +830,17 @@
 											>
 												<use href="#icon-plugins" /></svg
 										></span>
-										<span class="sidebar-item-label" data-i18n="tabs.plugins">Plugins</span>
+
+										<span class="sidebar-item-label" data-i18n="tabs.plugins"> Plugins </span>
 									</button>
+
 									<button
 										type="button"
 										class="sidebar-item"
 										data-page="configs"
 										data-active="false"
 										data-tooltip="Configs"
+										data-i18n-tooltip="tabs.configs"
 										data-shortcut="G+Then+C"
 									>
 										<span class="sidebar-item-icon" aria-hidden="true"
@@ -543,30 +856,8 @@
 											>
 												<use href="#icon-configs" /></svg
 										></span>
-										<span class="sidebar-item-label" data-i18n="tabs.configs">Configs</span>
-									</button>
-									<button
-										type="button"
-										class="sidebar-item"
-										data-page="settings"
-										data-active="false"
-										data-tooltip="Settings"
-										data-shortcut="G+Then+O"
-									>
-										<span class="sidebar-item-icon" aria-hidden="true"
-											><svg
-												width="14"
-												height="14"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.6"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<use href="#icon-settings" /></svg
-										></span>
-										<span class="sidebar-item-label" data-i18n="tabs.settings">Settings</span>
+
+										<span class="sidebar-item-label" data-i18n="tabs.configs"> Configs </span>
 									</button>
 								</nav>
 							</div>
@@ -576,6 +867,7 @@
 							id="sidebar-account-section"
 							class="sidebar-account-section"
 							aria-label="Account resources"
+							data-i18n-aria-label="account.resources"
 							hidden
 						>
 							<details class="sidebar-account-group" open>
@@ -595,7 +887,15 @@
 											<path d="M5 21v-2a7 7 0 0 1 14 0v2" />
 										</svg>
 									</span>
-									<span id="sidebar-account-name" class="sidebar-account-name">Your account</span>
+
+									<span
+										id="sidebar-account-name"
+										class="sidebar-account-name"
+										data-i18n="account.yourAccount"
+									>
+										Your account
+									</span>
+
 									<span class="sidebar-account-chevron" aria-hidden="true">
 										<svg
 											width="12"
@@ -611,7 +911,12 @@
 										</svg>
 									</span>
 								</summary>
-								<nav class="sidebar-account-links" aria-label="Account links">
+
+								<nav
+									class="sidebar-account-links"
+									aria-label="Account links"
+									data-i18n-aria-label="account.links"
+								>
 									<a
 										class="sidebar-item sidebar-account-link"
 										data-account-path="/profile"
@@ -638,8 +943,10 @@
 												<circle cx="12" cy="11" r="4" />
 											</svg>
 										</span>
-										<span class="sidebar-item-label">Profile</span>
+
+										<span class="sidebar-item-label" data-i18n="account.profile"> Profile </span>
 									</a>
+
 									<a
 										class="sidebar-item sidebar-account-link"
 										data-account-path="/docs"
@@ -662,8 +969,10 @@
 												<path d="M14 2v6h6M8 13h8M8 17h6" />
 											</svg>
 										</span>
-										<span class="sidebar-item-label">Docs</span>
+
+										<span class="sidebar-item-label" data-i18n="account.docs"> Docs </span>
 									</a>
+
 									<a
 										class="sidebar-item sidebar-account-link"
 										href="https://discord.gg/9FEkxGPPmu"
@@ -686,7 +995,8 @@
 												<path d="M12 17h.01" />
 											</svg>
 										</span>
-										<span class="sidebar-item-label">Help</span>
+
+										<span class="sidebar-item-label" data-i18n="account.help"> Help </span>
 									</a>
 								</nav>
 							</details>
@@ -698,13 +1008,158 @@
 						role="separator"
 						aria-orientation="vertical"
 						aria-label="Resize sidebar"
+						data-i18n-aria-label="sidebar.resizeSidebar"
 					>
 						<div class="sidebar-resizer-line"></div>
+
 						<div class="sidebar-resizer-tooltip" aria-hidden="true">
-							<div class="resizer-tip-row">Drag to resize</div>
+							<div class="resizer-tip-row" data-i18n="sidebar.dragToResize">Drag to resize</div>
+
 							<div class="resizer-tip-row">
-								<span>Click to collapse</span><kbd class="linear-kbd">[</kbd>
+								<span data-i18n="sidebar.clickToCollapse">Click to collapse</span
+								><kbd class="linear-kbd">[</kbd>
 							</div>
+						</div>
+					</div>
+
+					<div class="view-content-footer">
+						<button
+							type="button"
+							id="help-menu-trigger"
+							class="sidebar-item sidebar-footer-item"
+							aria-haspopup="menu"
+							aria-expanded="false"
+							aria-controls="help-menu-popover"
+							data-tooltip="Help menu"
+							data-i18n-tooltip="help.menu"
+						>
+							<span class="sidebar-item-icon" aria-hidden="true">
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.6"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<circle cx="12" cy="12" r="9" />
+									<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+									<path d="M12 17h.01" />
+								</svg>
+							</span>
+						</button>
+					</div>
+
+					<div id="help-menu-popover" class="help-menu-popover" hidden>
+						<div id="help-menu" class="help-menu" role="menu" aria-labelledby="help-menu-trigger">
+							<a
+								class="help-menu-item"
+								role="menuitem"
+								tabindex="-1"
+								href="https://voidpresence.com/docs"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<span data-i18n="help.docs">Docs</span>
+
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<path d="M15 3h6v6M10 14 21 3" />
+									<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+								</svg>
+							</a>
+
+							<button
+								type="button"
+								id="help-menu-settings"
+								class="help-menu-item"
+								role="menuitem"
+								tabindex="-1"
+							>
+								<span data-i18n="help.settings">Settings</span>
+
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<circle cx="12" cy="12" r="3" />
+									<path
+										d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.36.4.67.74.87"
+									/>
+								</svg>
+							</button>
+
+							<div class="help-menu-separator" role="separator"></div>
+
+							<a
+								class="help-menu-item"
+								role="menuitem"
+								tabindex="-1"
+								href="https://voidpresence.com/download"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<span data-i18n="help.downloadApps">Download apps</span>
+
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+									<path d="M7 10l5 5 5-5" />
+									<path d="M12 15V3" />
+								</svg>
+							</a>
+
+							<a
+								class="help-menu-item"
+								role="menuitem"
+								tabindex="-1"
+								href="https://status.voidpresence.com"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<span data-i18n="help.voidStatus">Void status</span>
+
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+								</svg>
+							</a>
 						</div>
 					</div>
 				</aside>
@@ -2375,9 +2830,10 @@
 				role="status"
 				aria-live="polite"
 				hidden
-			!-- Toast & dropoast" class="copy-toast" data-visible="false"></div>
-		<div id="global-drop-overlay" data-active="false"></div>
-isible="false"></div>
+			></p>
+		</div>
+
+		<div id="copy-toast" class="copy-toast" data-visible="false"></div>
 		<div id="global-drop-overlay" data-active="false"></div>
 
 		<div id="account-popover" class="account-popover" hidden>

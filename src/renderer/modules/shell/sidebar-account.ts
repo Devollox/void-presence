@@ -24,7 +24,6 @@ export function syncSidebarAccount(
 	const displayName = account?.authorName?.trim() || 'Your account'
 
 	name.textContent = displayName
-	name.title = displayName
 
 	section.querySelectorAll<HTMLAnchorElement>('a[data-account-path]').forEach(link => {
 		const path = link.dataset.accountPath
