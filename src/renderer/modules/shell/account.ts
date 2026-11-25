@@ -419,7 +419,7 @@ export default function setupAccountModal(): void {
 			clearAccountProfile()
 			closeMenu(true)
 		} catch {
-			setFeedback('Could not remove the saved profile.', true)
+			setFeedback(i18n.t('account.logoutError'), true)
 			positionMenu()
 		}
 	})

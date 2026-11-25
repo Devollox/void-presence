@@ -560,6 +560,16 @@
 		"help": "ヘルプ",
 		"login": "ログイン",
 		"logout": "ログアウト",
-		"openingBrowser": "ブラウザを開いています…"
+		"openingBrowser": "ブラウザを開いています…",
+		"settings": "設定",
+		"logoutError": "保存されたプロフィールを削除できませんでした。"
+	},
+	"help": {
+		"menu": "ヘルプメニュー",
+		"docs": "ドキュメント",
+		"settings": "設定",
+		"downloadApps": "アプリをダウンロード",
+		"voidStatus": "Void ステータス",
+		"keyboardShortcuts": "キーボードショートカット"
 	}
 }

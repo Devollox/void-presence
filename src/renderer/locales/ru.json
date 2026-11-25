@@ -561,6 +561,16 @@
 		"help": "Помощь",
 		"login": "Войти",
 		"logout": "Выйти",
-		"openingBrowser": "Открываем браузер…"
+		"openingBrowser": "Открываем браузер…",
+		"settings": "Настройки",
+		"logoutError": "Не удалось удалить сохранённый профиль."
+	},
+	"help": {
+		"menu": "Меню помощи",
+		"docs": "Документация",
+		"settings": "Настройки",
+		"downloadApps": "Скачать приложения",
+		"voidStatus": "Статус Void",
+		"keyboardShortcuts": "Горячие клавиши"
 	}
 }

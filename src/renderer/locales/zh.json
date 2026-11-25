@@ -561,6 +561,16 @@
 		"help": "帮助",
 		"login": "登录",
 		"logout": "退出登录",
-		"openingBrowser": "正在打开浏览器…"
+		"openingBrowser": "正在打开浏览器…",
+		"settings": "设置",
+		"logoutError": "无法移除已保存的配置文件。"
+	},
+	"help": {
+		"menu": "帮助菜单",
+		"docs": "文档",
+		"settings": "设置",
+		"downloadApps": "下载应用",
+		"voidStatus": "Void 状态",
+		"keyboardShortcuts": "键盘快捷键"
 	}
 }

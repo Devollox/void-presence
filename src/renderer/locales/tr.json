@@ -560,6 +560,16 @@
 		"help": "Yardım",
 		"login": "Giriş yap",
 		"logout": "Çıkış yap",
-		"openingBrowser": "Tarayıcı açılıyor…"
+		"openingBrowser": "Tarayıcı açılıyor…",
+		"settings": "Ayarlar",
+		"logoutError": "Kayıtlı profil kaldırılamadı."
+	},
+	"help": {
+		"menu": "Yardım menüsü",
+		"docs": "Belgeler",
+		"settings": "Ayarlar",
+		"downloadApps": "Uygulamaları indir",
+		"voidStatus": "Void durumu",
+		"keyboardShortcuts": "Klavye kısayolları"
 	}
 }

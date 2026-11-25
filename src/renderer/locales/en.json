@@ -561,7 +561,9 @@
 		"help": "Help",
 		"login": "Log in",
 		"logout": "Log out",
-		"openingBrowser": "Opening browser…"
+		"openingBrowser": "Opening browser…",
+		"settings": "Settings",
+		"logoutError": "Could not remove the saved profile."
 	},
 	"help": {
 		"menu": "Help menu",
