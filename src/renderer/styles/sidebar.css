@@ -312,7 +312,7 @@
 	overflow: hidden;
 	transition:
 		grid-template-rows var(--speed-regularTransition) var(--ease-out-cubic),
-		opacity var(--speed-highlightFadeOut) ease;
+		opacity var(--speed-regularTransition) var(--ease-out-cubic);
 }
 
 .sidebar-section[data-open='true'] .sidebar-section-body,
@@ -954,6 +954,29 @@ html.dark .app-workspace {
 	color: var(--text-tertiary);
 }
 
+.help-menu-item-keys {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	flex-shrink: 0;
+}
+
+.help-menu-kbd {
+	min-width: 18px;
+	height: 18px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	background-color: var(--color-bg-tertiary);
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: 4px;
+	font-family: var(--font-regular);
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--text-secondary);
+}
+
 .help-menu-item:active {
 	background-color: var(--control-tertiary-selected);
 }
@@ -990,7 +1013,7 @@ html.dark .app-workspace {
 @keyframes help-menu-enter {
 	from {
 		opacity: 0;
-		transform: translateY(3px) scale(0.98);
+		transform: translateY(-3px) scale(0.98);
 	}
 
 	to {

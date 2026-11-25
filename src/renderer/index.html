@@ -1040,6 +1040,7 @@
 							aria-controls="help-menu-popover"
 							data-tooltip="Help menu"
 							data-i18n-tooltip="help.menu"
+							data-shortcut="Shift+/"
 						>
 							<span class="sidebar-item-icon" aria-hidden="true">
 								<svg
@@ -1059,115 +1060,130 @@
 							</span>
 						</button>
 					</div>
-
-					<div id="help-menu-popover" class="help-menu-popover" hidden>
-						<div id="help-menu" class="help-menu" role="menu" aria-labelledby="help-menu-trigger">
-							<a
-								class="help-menu-item"
-								role="menuitem"
-								tabindex="-1"
-								href="https://voidpresence.com/docs"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<span data-i18n="help.docs">Docs</span>
-
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.5"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									aria-hidden="true"
-								>
-									<path d="M15 3h6v6M10 14 21 3" />
-									<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
-								</svg>
-							</a>
-
-							<button
-								type="button"
-								id="help-menu-settings"
-								class="help-menu-item"
-								role="menuitem"
-								tabindex="-1"
-							>
-								<span data-i18n="help.settings">Settings</span>
-
-								<span class="help-menu-item-icon" aria-hidden="true">
-									<svg
-										width="14"
-										height="14"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="2"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-									>
-										<use href="#icon-settings" />
-									</svg>
-								</span>
-							</button>
-
-							<div class="help-menu-separator" role="separator"></div>
-
-							<a
-								class="help-menu-item"
-								role="menuitem"
-								tabindex="-1"
-								href="https://voidpresence.com/download"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<span data-i18n="help.downloadApps">Download apps</span>
-
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.5"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									aria-hidden="true"
-								>
-									<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-									<path d="M7 10l5 5 5-5" />
-									<path d="M12 15V3" />
-								</svg>
-							</a>
-
-							<a
-								class="help-menu-item"
-								role="menuitem"
-								tabindex="-1"
-								href="https://status.voidpresence.com"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<span data-i18n="help.voidStatus">Void status</span>
-
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1.5"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									aria-hidden="true"
-								>
-									<path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-								</svg>
-							</a>
-						</div>
-					</div>
 				</aside>
+
+				<div id="help-menu-popover" class="help-menu-popover" hidden>
+					<div id="help-menu" class="help-menu" role="menu" aria-labelledby="help-menu-trigger">
+						<a
+							class="help-menu-item"
+							role="menuitem"
+							tabindex="-1"
+							href="https://voidpresence.com/docs"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<span data-i18n="help.docs">Docs</span>
+
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M15 3h6v6M10 14 21 3" />
+								<path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5" />
+							</svg>
+						</a>
+
+						<button
+							type="button"
+							id="help-menu-settings"
+							class="help-menu-item"
+							role="menuitem"
+							tabindex="-1"
+						>
+							<span data-i18n="help.settings">Settings</span>
+
+							<span class="help-menu-item-icon" aria-hidden="true">
+								<svg
+									width="14"
+									height="14"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<use href="#icon-settings" />
+								</svg>
+							</span>
+						</button>
+
+						<button
+							type="button"
+							id="help-menu-shortcuts"
+							class="help-menu-item"
+							role="menuitem"
+							tabindex="-1"
+						>
+							<span data-i18n="help.keyboardShortcuts">Keyboard shortcuts</span>
+
+							<span class="help-menu-item-keys" aria-hidden="true">
+								<kbd class="help-menu-kbd">Shift</kbd>
+								<kbd class="help-menu-kbd">/</kbd>
+							</span>
+						</button>
+
+						<div class="help-menu-separator" role="separator"></div>
+
+						<a
+							class="help-menu-item"
+							role="menuitem"
+							tabindex="-1"
+							href="https://voidpresence.com/download"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<span data-i18n="help.downloadApps">Download apps</span>
+
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+								<path d="M7 10l5 5 5-5" />
+								<path d="M12 15V3" />
+							</svg>
+						</a>
+
+						<a
+							class="help-menu-item"
+							role="menuitem"
+							tabindex="-1"
+							href="https://status.voidpresence.com"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<span data-i18n="help.voidStatus">Void status</span>
+
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+							</svg>
+						</a>
+					</div>
+				</div>
 
 				<div class="app-content-column">
 					<main class="app-content">
