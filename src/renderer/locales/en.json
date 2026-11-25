@@ -560,7 +560,8 @@
 		"docs": "Docs",
 		"help": "Help",
 		"login": "Log in",
-		"logout": "Log out"
+		"logout": "Log out",
+		"openingBrowser": "Opening browser…"
 	},
 	"help": {
 		"menu": "Help menu",

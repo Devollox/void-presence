@@ -1,6 +1,7 @@
 import type { AccountProfile } from 'src/types/types'
 import { setActiveView } from './views-nav'
 import { syncSidebarAccount } from './sidebar-account'
+import i18n from '../core/i18n'
 
 const STORAGE_KEYS = ['authorId', 'authorName', 'authorProvider', 'authorAvatar'] as const
 
@@ -109,7 +110,9 @@ export function refreshAccountUI(): void {
 		const label = login.querySelector('span')
 
 		if (label) {
-			label.textContent = openingBrowser ? 'Opening browser…' : 'Log in'
+			label.textContent = openingBrowser
+				? i18n.t('account.openingBrowser')
+				: i18n.t('account.login')
 		}
 	}
 

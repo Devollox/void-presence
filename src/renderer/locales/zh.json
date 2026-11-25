@@ -560,6 +560,7 @@
 		"docs": "文档",
 		"help": "帮助",
 		"login": "登录",
-		"logout": "退出登录"
+		"logout": "退出登录",
+		"openingBrowser": "正在打开浏览器…"
 	}
 }
