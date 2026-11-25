@@ -868,10 +868,15 @@
 							class="sidebar-account-section"
 							aria-label="Account resources"
 							data-i18n-aria-label="account.resources"
-							hidden
+							data-open="false"
 						>
-							<details class="sidebar-account-group" open>
-								<summary class="sidebar-account-heading">
+							<div class="sidebar-account-group" data-open="false">
+								<button
+									type="button"
+									class="sidebar-account-heading"
+									aria-expanded="false"
+									aria-controls="sidebar-account-links"
+								>
 									<span class="sidebar-account-heading-icon" aria-hidden="true">
 										<svg
 											width="14"
@@ -910,96 +915,99 @@
 											<path d="m6 4 4 4-4 4" />
 										</svg>
 									</span>
-								</summary>
+								</button>
 
-								<nav
-									class="sidebar-account-links"
-									aria-label="Account links"
-									data-i18n-aria-label="account.links"
-								>
-									<a
-										class="sidebar-item sidebar-account-link"
-										data-account-path="/profile"
-										href="https://voidpresence.com/profile"
-										target="_blank"
-										rel="noopener noreferrer"
+								<div class="sidebar-account-body">
+									<nav
+										id="sidebar-account-links"
+										class="sidebar-account-links"
+										aria-label="Account links"
+										data-i18n-aria-label="account.links"
 									>
-										<span class="sidebar-item-icon" aria-hidden="true">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="14"
-												height="14"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.5"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<path
-													d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
-												/>
-												<path d="M6.376 18.91a6 6 0 0 1 11.249.003" />
-												<circle cx="12" cy="11" r="4" />
-											</svg>
-										</span>
+										<a
+											class="sidebar-item sidebar-account-link"
+											data-account-path="/profile"
+											href="https://voidpresence.com/profile"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span class="sidebar-item-icon" aria-hidden="true">
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="1.5"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path
+														d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+													/>
+													<path d="M6.376 18.91a6 6 0 0 1 11.249.003" />
+													<circle cx="12" cy="11" r="4" />
+												</svg>
+											</span>
 
-										<span class="sidebar-item-label" data-i18n="account.profile"> Profile </span>
-									</a>
+											<span class="sidebar-item-label" data-i18n="account.profile"> Profile </span>
+										</a>
 
-									<a
-										class="sidebar-item sidebar-account-link"
-										data-account-path="/docs"
-										href="https://voidpresence.com/docs"
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										<span class="sidebar-item-icon" aria-hidden="true">
-											<svg
-												width="14"
-												height="14"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.6"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-												<path d="M14 2v6h6M8 13h8M8 17h6" />
-											</svg>
-										</span>
+										<a
+											class="sidebar-item sidebar-account-link"
+											data-account-path="/docs"
+											href="https://voidpresence.com/docs"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span class="sidebar-item-icon" aria-hidden="true">
+												<svg
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="1.6"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+													<path d="M14 2v6h6M8 13h8M8 17h6" />
+												</svg>
+											</span>
 
-										<span class="sidebar-item-label" data-i18n="account.docs"> Docs </span>
-									</a>
+											<span class="sidebar-item-label" data-i18n="account.docs"> Docs </span>
+										</a>
 
-									<a
-										class="sidebar-item sidebar-account-link"
-										href="https://discord.gg/9FEkxGPPmu"
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										<span class="sidebar-item-icon" aria-hidden="true">
-											<svg
-												width="14"
-												height="14"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.6"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<circle cx="12" cy="12" r="9" />
-												<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
-												<path d="M12 17h.01" />
-											</svg>
-										</span>
+										<a
+											class="sidebar-item sidebar-account-link"
+											href="https://discord.gg/9FEkxGPPmu"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span class="sidebar-item-icon" aria-hidden="true">
+												<svg
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="1.6"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<circle cx="12" cy="12" r="9" />
+													<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+													<path d="M12 17h.01" />
+												</svg>
+											</span>
 
-										<span class="sidebar-item-label" data-i18n="account.help"> Help </span>
-									</a>
-								</nav>
-							</details>
+											<span class="sidebar-item-label" data-i18n="account.help"> Help </span>
+										</a>
+									</nav>
+								</div>
+							</div>
 						</section>
 					</div>
 
@@ -1089,7 +1097,8 @@
 							>
 								<span data-i18n="help.settings">Settings</span>
 
-								><svg
+								<span class="help-menu-item-icon" aria-hidden="true">
+									<svg
 										width="14"
 										height="14"
 										fill="none"
@@ -1098,8 +1107,9 @@
 										stroke-linecap="round"
 										stroke-linejoin="round"
 									>
-										<use href="#icon-settings" /></svg
-								></span>
+										<use href="#icon-settings" />
+									</svg>
+								</span>
 							</button>
 
 							<div class="help-menu-separator" role="separator"></div>

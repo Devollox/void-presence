@@ -182,9 +182,20 @@ export default function setupSidebarToggle(): void {
 		setPeek(false)
 	})
 
-	sidebar.querySelectorAll<HTMLElement>('.sidebar-section').forEach(section => {
-		const button = section.querySelector<HTMLButtonElement>('.sidebar-section-toggle')
-		const body = section.querySelector<HTMLElement>('.sidebar-section-body')
+	const collapsibleSections = sidebar.querySelectorAll<HTMLElement>(
+		'.sidebar-section, .sidebar-account-group'
+	)
+
+	collapsibleSections.forEach(section => {
+		const isAccount = section.classList.contains('sidebar-account-group')
+
+		const button = isAccount
+			? section.querySelector<HTMLButtonElement>('.sidebar-account-heading')
+			: section.querySelector<HTMLButtonElement>('.sidebar-section-toggle')
+
+		const body = isAccount
+			? section.querySelector<HTMLElement>('.sidebar-account-body')
+			: section.querySelector<HTMLElement>('.sidebar-section-body')
 
 		if (!button || !body) return
 

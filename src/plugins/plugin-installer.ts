@@ -1,13 +1,3 @@
-/**
- * Plugin installer — shared download logic used by both the IPC handler
- * (plugins:install-from-url for dev convenience) and the action-ticket
- * confirmed install path (plugins:install-confirmed).
- *
- * Security boundary: callers must supply a validated sourceUrl from a
- * trusted source (Firebase catalogue or server-issued action ticket).
- * This module does NOT validate the origin of the URL.
- */
-
 import { app } from 'electron'
 import path from 'path'
 import { hotLoadPlugin, markPluginInstallDone, markPluginInstalling } from './plugin-manager'
