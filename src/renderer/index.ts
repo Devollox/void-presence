@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	initLanguage()
 	updatePlaceholders()
 	setupWelcomeScreen()
-
 	const toasts = setupToasts()
 
 	void setupClientIdControls()

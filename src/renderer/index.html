@@ -26,6 +26,7 @@
 		<link rel="stylesheet" href="./styles/modals.css" />
 		<link rel="stylesheet" href="./styles/welcome.css" />
 		<link rel="stylesheet" href="./styles/shortcuts.css" />
+		<link rel="stylesheet" href="./styles/settings.css" />
 	</head>
 	<body>
 		<div class="welcome" id="welcome">
@@ -2299,71 +2300,118 @@
 						</section>
 
 						<section data-view="settings" data-active="false">
-							<header class="view-header">
-								<div class="view-header-title"><h2 data-i18n="tabs.settings">Settings</h2></div>
-							</header>
-							<div class="content-scroll wrapper">
-								<div class="main-content-block">
-									<div class="card">
-										<div class="card-header">
-											<div class="card-label" data-i18n="settingsPage.label">settings</div>
-											<div class="card-title-block">
-												<div class="card-title" data-i18n="settingsPage.title">Settings</div>
-												<div class="card-label" data-i18n="settingsPage.subtitle">
-													settings the void presence
+							<div class="content-scroll">
+								<div class="settings-page">
+									<h1 class="settings-page-title" data-i18n="settingsPage.title">Settings</h1>
+
+									<div class="settings-group">
+										<h2 class="settings-group-title" data-i18n="settingsPage.generalSection">
+											General
+										</h2>
+
+										<div class="settings-card">
+											<div class="settings-row" data-toggle-row="auto-launch-toggle">
+												<div class="settings-row-info">
+													<span class="settings-row-label" data-i18n="settings.autoStart"
+														>Auto start</span
+													>
+													<span class="settings-row-hint" data-i18n="settings.autoStartHint"
+														>Launch app with Windows</span
+													>
 												</div>
+												<button
+													type="button"
+													role="switch"
+													id="auto-launch-toggle"
+													class="welcome-switch settings-switch"
+													aria-checked="false"
+													data-on="false"
+												>
+													<span class="welcome-switch-knob"></span>
+												</button>
+											</div>
+
+											<div class="settings-row-divider"></div>
+
+											<div class="settings-row" data-toggle-row="auto-hide-toggle">
+												<div class="settings-row-info">
+													<span class="settings-row-label" data-i18n="settings.autoHide"
+														>Auto hide</span
+													>
+													<span class="settings-row-hint" data-i18n="settings.autoHideHint"
+														>Minimize to tray on start</span
+													>
+												</div>
+												<button
+													type="button"
+													role="switch"
+													id="auto-hide-toggle"
+													class="welcome-switch settings-switch"
+													aria-checked="false"
+													data-on="false"
+												>
+													<span class="welcome-switch-knob"></span>
+												</button>
 											</div>
 										</div>
 									</div>
-									<div class="card">
-										<div class="card-header">
-											<div class="card-title-label" data-i18n="settingsPage.settingsTitle">
-												Settings
+
+									<div class="settings-group">
+										<h2 class="settings-group-title" data-i18n="settingsPage.languageSection">
+											Language
+										</h2>
+
+										<div class="settings-card">
+											<div class="settings-row">
+												<div class="settings-row-info">
+													<span class="settings-row-label" data-i18n="settingsPage.languageLabel"
+														>Interface language</span
+													>
+													<span class="settings-row-hint" data-i18n="settingsPage.languageHint"
+														>Choose the language used in the app</span
+													>
+												</div>
+												<select id="settings-language-selector" class="settings-select">
+													<option value="en">English</option>
+													<option value="ru">Русский</option>
+													<option value="tr">Türkçe</option>
+													<option value="zh">中文</option>
+													<option value="ja">日本語</option>
+												</select>
 											</div>
 										</div>
-										<div class="client-row">
-											<span data-i18n="settingsPage.languageLabel">Language</span>
-											<div class="timestamp-mode-wrap">
-												<button class="timestamp-mode-btn" data-language="en" data-active="false">
-													en
-												</button>
-												<button class="timestamp-mode-btn" data-language="ru" data-active="false">
-													ru
-												</button>
-												<button class="timestamp-mode-btn" data-language="tr" data-active="false">
-													tr
-												</button>
-												<button class="timestamp-mode-btn" data-language="zh" data-active="false">
-													zh
-												</button>
-												<button class="timestamp-mode-btn" data-language="ja" data-active="false">
-													ja
-												</button>
-											</div>
-										</div>
-										<div class="auto-row">
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="settings.autoStart">AUTO START</span>
-													<div class="hint-text" data-i18n="settings.autoStartHint">
-														launch app with Windows
-													</div>
+									</div>
+
+									<div class="settings-group">
+										<h2 class="settings-group-title" data-i18n="settingsPage.appearanceSection">
+											Appearance
+										</h2>
+
+										<div class="settings-card">
+											<div class="settings-row">
+												<div class="settings-row-info">
+													<span class="settings-row-label" data-i18n="settingsPage.themeLabel"
+														>Interface theme</span
+													>
+													<span class="settings-row-hint" data-i18n="settingsPage.themeHint"
+														>Select your preferred appearance</span
+													>
 												</div>
-												<div id="auto-launch-toggle" class="auto-toggle" data-on="false">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-											<div>
-												<div class="wrapper-auto-label">
-													<div class="auto-label">
-														<span data-i18n="settings.autoHide">AUTO HIDE</span>
-														<div class="hint-text" data-i18n="settings.autoHideHint">
-															minimize to tray on start
-														</div>
-													</div>
-													<div id="auto-hide-toggle" class="auto-toggle" data-on="false">
-														<div class="auto-toggle-knob"></div>
-													</div>
+												<div class="settings-theme-btns">
+													<button
+														class="settings-theme-btn welcome-theme"
+														data-theme="light"
+														data-i18n="welcome.themeLight"
+													>
+														Light
+													</button>
+													<button
+														class="settings-theme-btn welcome-theme"
+														data-theme="dark"
+														data-i18n="welcome.themeDark"
+													>
+														Dark
+													</button>
 												</div>
 											</div>
 										</div>
