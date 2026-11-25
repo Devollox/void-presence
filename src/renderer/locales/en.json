@@ -572,5 +572,16 @@
 		"downloadApps": "Download apps",
 		"voidStatus": "Void status",
 		"keyboardShortcuts": "Keyboard shortcuts"
+	},
+	"shortcuts": {
+		"title": "Keyboard shortcuts",
+		"close": "Close",
+		"search": "Search shortcuts…",
+		"then": "then",
+		"noResults": "No shortcuts found",
+		"sectionNavigation": "Navigation",
+		"sectionTabs": "Tabs",
+		"sectionSidebar": "Sidebar",
+		"sectionHelp": "Help"
 	}
 }

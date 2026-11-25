@@ -572,5 +572,16 @@
 		"downloadApps": "Скачать приложения",
 		"voidStatus": "Статус Void",
 		"keyboardShortcuts": "Горячие клавиши"
+	},
+	"shortcuts": {
+		"title": "Горячие клавиши",
+		"close": "Закрыть",
+		"search": "Поиск по клавишам…",
+		"then": "затем",
+		"noResults": "Ничего не найдено",
+		"sectionNavigation": "Навигация",
+		"sectionTabs": "Вкладки",
+		"sectionSidebar": "Боковая панель",
+		"sectionHelp": "Помощь"
 	}
 }

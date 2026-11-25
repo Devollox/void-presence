@@ -571,5 +571,16 @@
 		"downloadApps": "アプリをダウンロード",
 		"voidStatus": "Void ステータス",
 		"keyboardShortcuts": "キーボードショートカット"
+	},
+	"shortcuts": {
+		"title": "キーボードショートカット",
+		"close": "閉じる",
+		"search": "ショートカットを検索…",
+		"then": "次に",
+		"noResults": "見つかりません",
+		"sectionNavigation": "ナビゲーション",
+		"sectionTabs": "タブ",
+		"sectionSidebar": "サイドバー",
+		"sectionHelp": "ヘルプ"
 	}
 }

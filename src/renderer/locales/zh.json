@@ -572,5 +572,16 @@
 		"downloadApps": "下载应用",
 		"voidStatus": "Void 状态",
 		"keyboardShortcuts": "键盘快捷键"
+	},
+	"shortcuts": {
+		"title": "键盘快捷键",
+		"close": "关闭",
+		"search": "搜索快捷键…",
+		"then": "然后",
+		"noResults": "未找到快捷键",
+		"sectionNavigation": "导航",
+		"sectionTabs": "标签页",
+		"sectionSidebar": "侧边栏",
+		"sectionHelp": "帮助"
 	}
 }

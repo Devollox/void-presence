@@ -45,6 +45,7 @@ import initSidebarPeek from './modules/shell/sidebar-peek'
 import { setupWelcomeScreen } from './modules/shell/welcome'
 import { initTheme } from './modules/shell/theme'
 import setupHelpMenu from './modules/shell/help-menu'
+import setupShortcutsModal, { openShortcutsModal } from './modules/shell/shortcuts-modal'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupTooltips()
 	void setupTabsDnd()
 	void setupHelpMenu()
+	void setupShortcutsModal()
 	void setupViewsNavigation()
 	void setupSidebarToggle()
 	void setupAccountModal()

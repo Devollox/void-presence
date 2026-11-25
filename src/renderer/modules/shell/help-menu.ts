@@ -1,4 +1,5 @@
 import { setActiveView } from './views-nav'
+import { openShortcutsModal } from './shortcuts-modal'
 
 let initialized = false
 
@@ -171,5 +172,6 @@ export default function setupHelpMenu(): void {
 
 	shortcutsItem?.addEventListener('click', () => {
 		closeMenu(true)
+		openShortcutsModal()
 	})
 }

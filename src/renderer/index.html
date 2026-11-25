@@ -25,6 +25,7 @@
 		<link rel="stylesheet" href="./styles/settings.css" />
 		<link rel="stylesheet" href="./styles/modals.css" />
 		<link rel="stylesheet" href="./styles/welcome.css" />
+		<link rel="stylesheet" href="./styles/shortcuts.css" />
 	</head>
 	<body>
 		<div class="welcome" id="welcome">
@@ -1040,7 +1041,6 @@
 							aria-controls="help-menu-popover"
 							data-tooltip="Help menu"
 							data-i18n-tooltip="help.menu"
-							data-shortcut="Shift+/"
 						>
 							<span class="sidebar-item-icon" aria-hidden="true">
 								<svg
@@ -2915,6 +2915,212 @@
 				aria-live="polite"
 				hidden
 			></p>
+		</div>
+
+		<div
+			id="shortcuts-modal"
+			class="shortcuts-modal"
+			hidden
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="shortcuts-modal-title"
+		>
+			<div class="shortcuts-modal-backdrop"></div>
+
+			<div class="shortcuts-modal-panel">
+				<header class="shortcuts-modal-header">
+					<h2 id="shortcuts-modal-title" class="shortcuts-modal-title" data-i18n="shortcuts.title">
+						Keyboard shortcuts
+					</h2>
+
+					<button
+						type="button"
+						id="shortcuts-modal-close"
+						class="shortcuts-modal-close"
+						aria-label="Close"
+						data-i18n-aria-label="shortcuts.close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="m18 6-12 12M6 6l12 12" />
+						</svg>
+					</button>
+				</header>
+
+				<div class="shortcuts-modal-search-wrap">
+					<svg
+						class="shortcuts-modal-search-icon"
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<circle cx="11" cy="11" r="8" />
+						<path d="m21 21-4.35-4.35" />
+					</svg>
+					<input
+						type="search"
+						id="shortcuts-modal-search"
+						class="shortcuts-modal-search"
+						placeholder="Search shortcuts…"
+						data-i18n-placeholder="shortcuts.search"
+						autocomplete="off"
+						spellcheck="false"
+					/>
+				</div>
+
+				<div class="shortcuts-modal-body" id="shortcuts-modal-body">
+					<section class="shortcuts-section" data-section>
+						<h3 class="shortcuts-section-title" data-i18n="shortcuts.sectionNavigation">
+							Navigation
+						</h3>
+						<dl class="shortcuts-list">
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="navigation.toggleSidebar">Toggle sidebar</dt>
+								<dd class="shortcuts-keys"><kbd class="shortcuts-kbd">[</kbd></dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="navigation.goBack">Go back</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Alt</kbd><kbd class="shortcuts-kbd">←</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="navigation.goForward">Go forward</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Alt</kbd><kbd class="shortcuts-kbd">→</kbd>
+								</dd>
+							</div>
+						</dl>
+					</section>
+
+					<section class="shortcuts-section" data-section>
+						<h3 class="shortcuts-section-title" data-i18n="shortcuts.sectionTabs">Tabs</h3>
+						<dl class="shortcuts-list">
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.presence">Presence</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">1</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.status">Status</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">2</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.logs">Logs</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">3</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.plugins">Plugins</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">4</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.configs">Configs</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">5</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.settings">Settings</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">6</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.changelogs">Changelogs</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Ctrl</kbd><kbd class="shortcuts-kbd">7</kbd>
+								</dd>
+							</div>
+						</dl>
+					</section>
+
+					<section class="shortcuts-section" data-section>
+						<h3 class="shortcuts-section-title" data-i18n="shortcuts.sectionSidebar">Sidebar</h3>
+						<dl class="shortcuts-list">
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.presence">Presence</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">P</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.status">Status</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">S</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.logs">Logs</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">L</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.plugins">Plugins</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">E</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.configs">Configs</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">C</kbd>
+								</dd>
+							</div>
+						</dl>
+					</section>
+
+					<section class="shortcuts-section" data-section>
+						<h3 class="shortcuts-section-title" data-i18n="shortcuts.sectionHelp">Help</h3>
+						<dl class="shortcuts-list">
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="help.keyboardShortcuts">
+									Keyboard shortcuts
+								</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">Shift</kbd><kbd class="shortcuts-kbd">/</kbd>
+								</dd>
+							</div>
+						</dl>
+					</section>
+
+					<p class="shortcuts-empty" id="shortcuts-empty" hidden data-i18n="shortcuts.noResults">
+						No shortcuts found
+					</p>
+				</div>
+			</div>
 		</div>
 
 		<script type="module" src="../../build/renderer/renderer.js"></script>

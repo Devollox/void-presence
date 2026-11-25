@@ -571,5 +571,16 @@
 		"downloadApps": "Uygulamaları indir",
 		"voidStatus": "Void durumu",
 		"keyboardShortcuts": "Klavye kısayolları"
+	},
+	"shortcuts": {
+		"title": "Klavye kısayolları",
+		"close": "Kapat",
+		"search": "Kısayol ara…",
+		"then": "sonra",
+		"noResults": "Sonuç bulunamadı",
+		"sectionNavigation": "Gezinme",
+		"sectionTabs": "Sekmeler",
+		"sectionSidebar": "Kenar çubuğu",
+		"sectionHelp": "Yardım"
 	}
 }
