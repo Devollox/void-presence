@@ -293,6 +293,7 @@ export interface Settings {
 	statusEnabledBrowser: boolean
 	lastUpdateNotified: string | null
 	lastUpdateNotifiedVersion: string | null
+	theme: AppTheme | null
 }
 
 export type NowPlayingInfo = {
@@ -404,6 +405,19 @@ export type DragStateSidebar = {
 	dropping: boolean
 }
 
+export type DragStateList = {
+	pointerId: number
+	row: HTMLElement
+	rows: HTMLElement[]
+	rects: DOMRect[]
+	from: number
+	to: number
+	startY: number
+	gap: number
+	active: boolean
+	dropping: boolean
+}
+
 export interface DragState {
 	pointerId: number
 	items: HTMLElement[]
@@ -465,7 +479,9 @@ export interface LoginAttempt {
 }
 
 export type AppTheme = 'light' | 'dark'
-export type Language = 'en' | 'ru' | 'tr' | 'zh' | 'ja'
+export type Language = 'en' | 'ru' | 'tr' | 'zh' | 'ja' | 'de' | 'fr' | 'ko' | 'pt' | 'es'
+
+export type WelcomeLanguage = Language
 
 export type WelcomeLanguageOption = {
 	code: WelcomeLanguage
@@ -595,6 +611,9 @@ export interface ElectronAPI {
 	stopDiscordRich?: () => Promise<void>
 	setAutoLaunch?: (on: boolean) => Promise<void> | void
 	setAutoHide?: (on: boolean) => Promise<void> | void
+	getAutoHide?: () => Promise<boolean>
+	setTheme?: (theme: string) => Promise<boolean> | boolean
+	rendererReady?: () => void
 	windowClose?: () => void
 	windowMinimize?: () => void
 	windowToggleMaximize?: () => void

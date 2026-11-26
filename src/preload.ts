@@ -65,6 +65,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 	},
 	setAutoHide: (value: boolean) => ipcRenderer.invoke('set-auto-hide', value),
 	getAutoHide: () => ipcRenderer.invoke('get-auto-hide'),
+	setTheme: (theme: string) => ipcRenderer.invoke('settings:set-theme', theme),
+	rendererReady: () => ipcRenderer.send('renderer:ready'),
 	setActivityInterval: (sec: number) => ipcRenderer.invoke('set-activity-interval', sec),
 	uploadConfig: (config: {
 		title: string

@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto'
+﻿import { randomUUID } from 'crypto'
 import { app } from 'electron'
 import { promises as fs } from 'fs'
 import * as path from 'path'
@@ -599,6 +599,7 @@ const defaultSettings: Settings = {
 	barStyle: 'unicode',
 	lastUpdateNotified: null,
 	lastUpdateNotifiedVersion: null,
+	theme: null,
 }
 
 const validateSettings: Validator<Settings> = (input): Settings => {
@@ -632,6 +633,7 @@ const validateSettings: Validator<Settings> = (input): Settings => {
 			obj.lastUpdateNotifiedVersion.trim().length > 0
 				? obj.lastUpdateNotifiedVersion.trim()
 				: null,
+		theme: (obj as any).theme === 'light' || (obj as any).theme === 'dark' ? (obj as any).theme : null,
 	}
 }
 

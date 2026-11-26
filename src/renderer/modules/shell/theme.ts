@@ -35,6 +35,8 @@ export function applyTheme(theme: AppTheme): void {
 export function setTheme(theme: AppTheme): void {
 	localStorage.setItem(THEME_STORAGE_KEY, theme)
 	applyTheme(theme)
+	window.electronAPI?.setTheme?.(theme)
+	document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme } }))
 }
 
 export function initTheme(): void {

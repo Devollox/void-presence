@@ -23,10 +23,16 @@
 	--scrollbar-width: 12px;
 	--header-height: 34px;
 
+	--radius-card: 10px;
+	--radius-control: 8px;
+	--radius-badge: 4px;
+	--radius-chip: 6px;
+	--radius-rounded: 9999px;
+
 	--control-border-radius: 4px;
 	--editor-block-radius: 6px;
 	--settings-list-view-item-radius: 10px;
-	--radius-rounded: 9999px;
+
 	--loading-error-thin-pixel: 1px;
 	--editor-hairline: 1px;
 
@@ -211,4 +217,14 @@ select {
 button,
 input {
 	outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }

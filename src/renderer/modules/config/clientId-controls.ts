@@ -107,6 +107,10 @@ export function setupClientIdControls(): void {
 			await window.electronAPI.useReadyClientId()
 		}
 
+		if (useReadyIdBtn) {
+			useReadyIdBtn.dataset.success = 'true'
+		}
+
 		upsertRecentApp(readyId, '')
 		storedRecent.splice(0, storedRecent.length, ...getRecentApps())
 		if (recentList) {
@@ -156,7 +160,11 @@ export function setupClientIdControls(): void {
 		[cyclesList, ctx.cycles, ctx.renderCycles as (() => void) | undefined],
 		[imagesList, ctx.imageCycles, ctx.renderImageCycles as (() => void) | undefined],
 		[timeList, ctx.timeCycles, ctx.renderTimeCycles as (() => void) | undefined],
-		[$statusList && $addStatus ? $statusList : null, ctx.statusCycles, ctx.renderStatusCycles as (() => void) | undefined],
+		[
+			$statusList && $addStatus ? $statusList : null,
+			ctx.statusCycles,
+			ctx.renderStatusCycles as (() => void) | undefined,
+		],
 	] as const
 
 	for (const [list, items, render] of lists) {

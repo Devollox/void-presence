@@ -22,7 +22,8 @@ export function renderRecentApps(recentList: HTMLElement, items: RecentApp[]): v
 
 		const handle = document.createElement('div')
 		handle.className = 'drag-handle'
-		handle.draggable = true
+		handle.setAttribute('aria-hidden', 'true')
+		handle.draggable = false
 
 		const inputsWrap = document.createElement('div')
 		inputsWrap.className = 'cycle-inputs'

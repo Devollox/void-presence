@@ -1,0 +1,408 @@
+.dialog {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+}
+
+.dialog[hidden] {
+	display: none;
+}
+
+.dialog-backdrop {
+	position: absolute;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.45);
+	animation: dialog-backdrop-in var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+}
+
+.dialog[data-closing] .dialog-backdrop {
+	animation: dialog-backdrop-out var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+}
+
+.dialog-panel {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	max-width: 400px;
+	max-height: calc(100vh - 48px);
+	display: flex;
+	flex-direction: column;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-card);
+	background-color: var(--color-bg-secondary);
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.28);
+	overflow: hidden;
+	animation: dialog-panel-in var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+}
+
+.dialog[data-closing] .dialog-panel {
+	animation: dialog-panel-out var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+}
+
+.dialog-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-shrink: 0;
+	padding: 20px 16px 12px;
+	border-bottom: var(--editor-hairline) solid var(--border-secondary);
+}
+
+.dialog-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--content-highlight-color);
+	margin: 0;
+}
+
+.dialog-close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: none;
+	border-radius: var(--radius-chip);
+	background-color: transparent;
+	color: var(--text-tertiary);
+	cursor: pointer;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.dialog-close:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: 2px;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.dialog-close:hover {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+	}
+}
+
+.dialog-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px 8px 16px;
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+}
+
+.dialog-body:hover {
+	scrollbar-color: var(--border-secondary) transparent;
+}
+
+.dialog-section {
+	margin-bottom: 0;
+}
+
+.dialog-section + .dialog-section {
+	margin-top: 8px;
+}
+
+.dialog-section[data-visible='false'] {
+	display: none;
+}
+
+.dialog-section-title {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-tertiary);
+	padding: 8px 8px 4px;
+	margin: 0;
+}
+
+.dialog-section-header-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 8px 4px;
+}
+
+.dialog-section-header-row .dialog-section-title {
+	padding: 0;
+}
+
+.dialog-option-list {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.dialog-option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	min-height: 32px;
+	padding: 0 8px;
+	border: none;
+	border-radius: var(--radius-chip);
+	background-color: transparent;
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	text-align: left;
+	cursor: pointer;
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+.dialog-option[data-active='true'] {
+	background-color: var(--control-tertiary-selected);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.dialog-option:hover:not([data-active='true']) {
+		background-color: var(--control-tertiary-hover);
+	}
+}
+
+.dialog-option:active {
+	background-color: var(--control-tertiary-selected);
+	transition-duration: 0s;
+}
+
+.dialog-option:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: -2px;
+}
+
+.dialog-option-left {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+	min-width: 0;
+}
+
+.dialog-option-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	color: var(--text-secondary);
+}
+
+.dialog-option[data-active='true'] .dialog-option-icon {
+	color: var(--content-highlight-color);
+}
+
+.dialog-option-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.dialog-option-label {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--content-highlight-color);
+}
+
+.dialog-option-hint {
+	font-size: 12px;
+	font-weight: 450;
+	color: var(--text-tertiary);
+}
+
+.dialog-option-check {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--content-highlight-color);
+	opacity: 0;
+}
+
+.dialog-option[data-active='true'] .dialog-option-check {
+	opacity: 0.4;
+}
+
+.dialog-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	min-height: 32px;
+	padding: 0 8px;
+}
+
+.dialog-row + .dialog-row {
+	border-top: var(--editor-hairline) solid var(--border-secondary);
+}
+
+.dialog-row-label {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--content-highlight-color);
+	flex: 1;
+}
+
+.dialog-row-hint {
+	font-size: 12px;
+	font-weight: 450;
+	color: var(--text-tertiary);
+}
+
+.dialog-input {
+	height: 28px;
+	padding: 0 8px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-control);
+	background-color: var(--color-bg-tertiary);
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 13px;
+	outline: none;
+	flex-shrink: 0;
+	transition: border-color var(--speed-highlightFadeOut) ease;
+}
+
+.dialog-input:focus {
+	border-color: var(--focus-ring-color);
+}
+
+.dialog-input::placeholder {
+	color: var(--text-tertiary);
+	font-weight: 450;
+}
+
+.dialog-btn {
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	padding: 0 12px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: 6px;
+	background-color: var(--color-bg-tertiary);
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.dialog-btn:hover {
+		background-color: var(--control-tertiary-hover);
+	}
+}
+
+.dialog-btn:active {
+	background-color: var(--control-tertiary-selected);
+	transition-duration: 0s;
+}
+
+.presence-trigger-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 26px;
+	padding: 0 10px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: 8px;
+	background-color: var(--color-bg-tertiary);
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	white-space: nowrap;
+	flex-shrink: 0;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease;
+}
+
+.presence-trigger-btn svg {
+	opacity: 0.4;
+}
+
+.presence-trigger-btn:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: 2px;
+}
+
+.presence-trigger-btn:active {
+	background-color: var(--control-tertiary-selected);
+	transition-duration: 0s;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.presence-trigger-btn:hover {
+		background-color: var(--control-tertiary-hover);
+	}
+}
+
+#time-list[data-visible='false'] {
+	display: none;
+}
+
+.dialog-section[data-visible='false'] {
+	display: none;
+}
+
+@keyframes dialog-backdrop-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes dialog-backdrop-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes dialog-panel-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.97);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes dialog-panel-out {
+	from {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(4px) scale(0.98);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dialog-backdrop,
+	.dialog-panel {
+		animation: none;
+	}
+}

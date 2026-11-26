@@ -46,6 +46,9 @@ import { setupWelcomeScreen } from './modules/shell/welcome'
 import { initTheme } from './modules/shell/theme'
 import setupHelpMenu from './modules/shell/help-menu'
 import setupShortcutsModal, { openShortcutsModal } from './modules/shell/shortcuts-modal'
+import { setupSettingsTheme, setupSettingsLanguage } from './modules/shell/settings-controls'
+import { setupTimestampModal } from './modules/presence/timestamp-modal'
+import { setupActivityDialog } from './modules/presence/activity-dialog'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -53,9 +56,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 document.addEventListener('DOMContentLoaded', () => {
 	initTheme()
+	window.electronAPI?.rendererReady?.()
 	initLanguage()
 	updatePlaceholders()
 	setupWelcomeScreen()
+	setupSettingsTheme()
+	setupSettingsLanguage()
+	setupTimestampModal()
+	setupActivityDialog()
 	const toasts = setupToasts()
 
 	void setupClientIdControls()

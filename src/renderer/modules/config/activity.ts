@@ -1,30 +1,22 @@
+import { updateActivityTypeSummary } from '../presence/activity-dialog'
+
 type ActivityTypeLocal = 'playing' | 'watching' | 'listening' | 'competing'
 
 export function setupActivityTypeControls(): void {
 	const activityButtons = [
-		{
-			type: 'playing' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-playing'),
-		},
-		{
-			type: 'watching' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-watching'),
-		},
-		{
-			type: 'listening' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-listening'),
-		},
-		{
-			type: 'competing' as ActivityTypeLocal,
-			el: document.getElementById('activity-type-competing'),
-		},
+		{ type: 'playing' as ActivityTypeLocal, el: document.getElementById('activity-type-playing') },
+		{ type: 'watching' as ActivityTypeLocal, el: document.getElementById('activity-type-watching') },
+		{ type: 'listening' as ActivityTypeLocal, el: document.getElementById('activity-type-listening') },
+		{ type: 'competing' as ActivityTypeLocal, el: document.getElementById('activity-type-competing') },
 	]
 
 	function applyActivity(type: ActivityTypeLocal) {
 		activityButtons.forEach(btn => {
 			if (!btn.el) return
 			btn.el.dataset.active = btn.type === type ? 'true' : 'false'
+			btn.el.setAttribute('aria-checked', btn.type === type ? 'true' : 'false')
 		})
+		updateActivityTypeSummary()
 	}
 
 	const stored: ActivityTypeLocal =
@@ -36,7 +28,6 @@ export function setupActivityTypeControls(): void {
 		btn.el?.addEventListener('click', e => {
 			e.preventDefault()
 			const type = btn.type
-
 			localStorage.setItem('activityType', type)
 			applyActivity(type)
 

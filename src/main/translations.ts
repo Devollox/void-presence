@@ -3,6 +3,11 @@ import ru from '../renderer/locales/ru.json'
 import tr from '../renderer/locales/tr.json'
 import zh from '../renderer/locales/zh.json'
 import ja from '../renderer/locales/ja.json'
+import de from '../renderer/locales/de.json'
+import fr from '../renderer/locales/fr.json'
+import ko from '../renderer/locales/ko.json'
+import pt from '../renderer/locales/pt.json'
+import es from '../renderer/locales/es.json'
 import { Language } from 'src/types/types'
 
 interface TranslationDict {
@@ -10,11 +15,16 @@ interface TranslationDict {
 }
 
 export const mainTranslations: Record<Language, TranslationDict> = {
-	ru: ru as unknown as TranslationDict,
 	en: en as unknown as TranslationDict,
+	ru: ru as unknown as TranslationDict,
 	tr: tr as unknown as TranslationDict,
 	zh: zh as unknown as TranslationDict,
 	ja: ja as unknown as TranslationDict,
+	de: de as unknown as TranslationDict,
+	fr: fr as unknown as TranslationDict,
+	ko: ko as unknown as TranslationDict,
+	pt: pt as unknown as TranslationDict,
+	es: es as unknown as TranslationDict,
 }
 
 let currentLang: Language = 'en'

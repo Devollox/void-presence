@@ -957,6 +957,13 @@ export async function initIpc() {
 			return { ok: false, error: e?.message ?? String(e) }
 		}
 	})
+
+	ipcMain.handle('settings:set-theme', async (_event, theme: string) => {
+		if (theme !== 'light' && theme !== 'dark') return false
+		const current = await readSettings()
+		await writeSettings({ ...current, theme })
+		return true
+	})
 	const win = BrowserWindow.getAllWindows()[0]
 	if (win && !win.isDestroyed()) {
 		win.webContents.on('ipc-message', () => {})

@@ -1,5 +1,6 @@
 import { VoidPresenceCtx } from 'src/types/types'
 import { pushLiveStateFromCtx } from '../config/live'
+import { attachDnD } from '../config/dnd'
 
 type ListKey = 'buttonPairs' | 'cycles' | 'imageCycles' | 'party' | 'timeCycles' | 'statusCycles'
 
@@ -38,6 +39,9 @@ export function createListManager<T>(
 	const render = (): void => {
 		if (!listEl) return
 		listEl.innerHTML = ''
+		if (!listEl.classList.contains('presence-list')) {
+			listEl.classList.add('presence-list')
+		}
 		getList().forEach((item, idx) => {
 			const row = cfg.createRowFn(
 				item,
@@ -58,6 +62,7 @@ export function createListManager<T>(
 			)
 			listEl.appendChild(row)
 		})
+		attachDnD<T>(listEl, getList(), render)
 	}
 
 	addBtn?.addEventListener('click', e => {

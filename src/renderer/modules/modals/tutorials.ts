@@ -12,30 +12,32 @@ function setupGenericTutorial(config: TutorialConfig) {
 
 	if (!(card instanceof HTMLElement)) return
 
+	const isOnboarding = card.classList.contains('presence-onboarding')
+
 	const hide = (permanent: boolean) => {
-		card.setAttribute('data-visible', 'false')
-
-		const onTransitionEnd = (e: TransitionEvent) => {
-			if (e.propertyName !== 'opacity') return
-
-			card.style.display = 'none'
-			card.removeEventListener('transitionend', onTransitionEnd)
-
-			if (permanent) {
-				window.localStorage.setItem(config.storageKey, '1')
-			}
+		if (isOnboarding) {
+			card.dataset.done = 'true'
+		} else {
+			card.setAttribute('data-visible', 'false')
 		}
 
-		card.addEventListener('transitionend', onTransitionEnd)
+		if (permanent) {
+			window.localStorage.setItem(config.storageKey, '1')
+		}
 	}
 
-	closeBtn?.addEventListener('click', () => hide(false))
+	closeBtn?.addEventListener('click', () => hide(true))
 	dontShowBtn?.addEventListener('click', () => hide(true))
 
 	const isHidden = window.localStorage.getItem(config.storageKey) === '1'
-	card.style.display = isHidden ? 'none' : ''
-	if (!isHidden) {
-		card.setAttribute('data-visible', 'true')
+
+	if (isOnboarding) {
+		card.dataset.done = isHidden ? 'true' : 'false'
+	} else {
+		card.style.display = isHidden ? 'none' : ''
+		if (!isHidden) {
+			card.setAttribute('data-visible', 'true')
+		}
 	}
 }
 

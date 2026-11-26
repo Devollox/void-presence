@@ -33,18 +33,27 @@ function setupGenericToggle<K extends ToggleKey, A extends ToggleApi>(
 	}
 
 	toggle.dataset.on = saved ? 'true' : 'false'
+	toggle.setAttribute('aria-checked', String(saved))
 
 	toggle.addEventListener('click', () => {
 		const current = toggle.dataset.on === 'true'
 		const next = !current
-		toggle.dataset.on = next ? 'true' : 'false'
 		localStorage.setItem(cfg.storageKey, String(next))
+
+		document.querySelectorAll<HTMLElement>(`[data-storage-key="${cfg.storageKey}"]`).forEach(el => {
+			el.dataset.on = next ? 'true' : 'false'
+			el.setAttribute('aria-checked', String(next))
+		})
+		toggle.dataset.on = next ? 'true' : 'false'
+		toggle.setAttribute('aria-checked', String(next))
 
 		const api = window.electronAPI as any
 		if (api?.[cfg.apiMethod]) {
 			api[cfg.apiMethod](next)
 		}
 	})
+
+	toggle.dataset.storageKey = cfg.storageKey
 }
 
 export function setupAutoLaunchToggle(): void {
@@ -53,11 +62,32 @@ export function setupAutoLaunchToggle(): void {
 		storageKey: 'autoLaunch',
 		apiMethod: 'setAutoLaunch',
 	})
+	setupGenericToggle({
+		id: 'settings-auto-launch-toggle',
+		storageKey: 'autoLaunch',
+		apiMethod: 'setAutoLaunch',
+	})
 }
 
 export function setupAutoHideToggle(): void {
 	setupGenericToggle({
 		id: 'auto-hide-toggle',
+		storageKey: 'autoHide',
+		apiMethod: 'setAutoHide',
+	})
+	void window.electronAPI?.getAutoHide?.().then((val: unknown) => {
+		const enabled = !!val
+		localStorage.setItem('autoHide', String(enabled))
+		for (const id of ['auto-hide-toggle', 'settings-auto-hide-toggle']) {
+			const el = document.getElementById(id)
+			if (el) {
+				el.dataset.on = String(enabled)
+				el.setAttribute('aria-checked', String(enabled))
+			}
+		}
+	})
+	setupGenericToggle({
+		id: 'settings-auto-hide-toggle',
 		storageKey: 'autoHide',
 		apiMethod: 'setAutoHide',
 	})

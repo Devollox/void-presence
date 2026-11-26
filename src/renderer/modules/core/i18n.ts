@@ -4,6 +4,11 @@ import ru from '../../locales/ru.json'
 import tr from '../../locales/tr.json'
 import zh from '../../locales/zh.json'
 import ja from '../../locales/ja.json'
+import de from '../../locales/de.json'
+import fr from '../../locales/fr.json'
+import ko from '../../locales/ko.json'
+import pt from '../../locales/pt.json'
+import es from '../../locales/es.json'
 
 const resources = {
 	en: { translation: en },
@@ -11,9 +16,14 @@ const resources = {
 	tr: { translation: tr },
 	zh: { translation: zh },
 	ja: { translation: ja },
+	de: { translation: de },
+	fr: { translation: fr },
+	ko: { translation: ko },
+	pt: { translation: pt },
+	es: { translation: es },
 }
 
-const supportedLanguages = ['en', 'ru', 'tr', 'zh', 'ja']
+const supportedLanguages = ['en', 'ru', 'tr', 'zh', 'ja', 'de', 'fr', 'ko', 'pt', 'es']
 
 function getInitialLanguage(): string {
 	const savedLanguage = localStorage.getItem('language')

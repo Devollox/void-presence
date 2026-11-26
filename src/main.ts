@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+﻿import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { getLanguage, readSettings } from './main/config'
 import { getAutoHide, initIpc } from './main/ipc'
@@ -300,7 +300,7 @@ function restoreOrCreateWindow(): void {
 		return
 	}
 
-	mainWindow = createMainWindow(getAutoHide(), () => isQuitting)
+	void createMainWindow(getAutoHide(), () => isQuitting).then(w => { mainWindow = w })
 }
 
 const gotTheLock = app.requestSingleInstanceLock()
@@ -346,7 +346,7 @@ if (!gotTheLock) {
 
 		setMainLanguage(language)
 
-		mainWindow = createMainWindow(autoHideOnStart, () => isQuitting)
+		mainWindow = await createMainWindow(autoHideOnStart, () => isQuitting)
 
 		initIpc()
 

@@ -521,13 +521,13 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	const infoDetails = document.getElementById('info-details') as HTMLElement | null
 	const infoStatus = document.getElementById('info-status') as HTMLElement | null
 
-	if (!title || !sub || !infoButtons || !infoObject || !infoDetails || !infoStatus) {
+	if (!infoButtons || !infoObject || !infoDetails || !infoStatus) {
 		return
 	}
 
 	if (!payload) {
-		title.textContent = t('idle')
-		sub.textContent = t('waitingForDiscord')
+		if (title) title.textContent = t('idle')
+		if (sub) sub.textContent = t('waitingForDiscord')
 		infoButtons.textContent = '–'
 		infoObject.textContent = '–'
 		infoDetails.textContent = '–'
@@ -539,8 +539,8 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 		return
 	}
 
-	title.textContent = payload.details || t('richPresence')
-	sub.textContent = payload.state || ''
+	if (title) title.textContent = payload.details || t('richPresence')
+	if (sub) sub.textContent = payload.state || ''
 
 	const buttonsText =
 		payload.buttons && payload.buttons.length

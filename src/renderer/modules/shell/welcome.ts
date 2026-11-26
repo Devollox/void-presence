@@ -11,6 +11,11 @@ const SUPPORTED_LANGUAGES: WelcomeLanguageOption[] = [
 	{ code: 'tr', label: 'Türkçe' },
 	{ code: 'zh', label: '中文' },
 	{ code: 'ja', label: '日本語' },
+	{ code: 'de', label: 'Deutsch' },
+	{ code: 'fr', label: 'Français' },
+	{ code: 'ko', label: '한국어' },
+	{ code: 'pt', label: 'Português' },
+	{ code: 'es', label: 'Español' },
 ]
 
 function detectLanguage(): Language {
@@ -122,6 +127,7 @@ export function setupWelcomeScreen(): void {
 
 	if (hasSeenWelcome) {
 		overlay.dataset.done = 'true'
+		overlay.inert = true
 		return
 	}
 
@@ -273,6 +279,7 @@ export function setupWelcomeScreen(): void {
 		localStorage.setItem(WELCOME_STORAGE_KEY, 'true')
 
 		overlay.dataset.done = 'true'
+		overlay.inert = true
 	})
 
 	const autoLaunchToggle = document.getElementById('welcome-auto-launch-toggle')

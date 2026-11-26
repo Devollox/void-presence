@@ -28,12 +28,12 @@
 	padding: 6px;
 	overflow-y: auto;
 	border: var(--editor-hairline) solid var(--border-secondary);
-	border-radius: 10px;
+	border-radius: var(--radius-card);
 	background-color: var(--color-bg-secondary);
 	color: var(--content-highlight-color);
 	box-shadow:
-		0 12px 36px #00000030,
-		0 2px 8px #00000018;
+		0 12px 36px rgba(0, 0, 0, 0.18),
+		0 2px 8px rgba(0, 0, 0, 0.08);
 	transform-origin: top left;
 	animation: account-menu-enter var(--speed-highlightFadeOut) var(--ease-out-cubic);
 }
@@ -58,7 +58,7 @@
 	gap: 16px;
 	padding: 0 8px;
 	border: none;
-	border-radius: 6px;
+	border-radius: var(--radius-chip);
 	background-color: transparent;
 	color: var(--content-highlight-color);
 	font: inherit;
@@ -79,6 +79,7 @@
 
 .account-menu-item:active {
 	background-color: var(--control-tertiary-selected);
+	transition-duration: 0s;
 }
 
 .account-menu-item:disabled {
@@ -109,11 +110,13 @@
 @media (any-hover: hover) and (any-pointer: fine) {
 	.account-menu-item:hover:not(:disabled) {
 		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
 		transition-duration: var(--speed-highlightFadeIn);
 	}
 
 	.account-menu-item:active:not(:disabled) {
 		background-color: var(--control-tertiary-selected);
+		transition-duration: 0s;
 	}
 }
 

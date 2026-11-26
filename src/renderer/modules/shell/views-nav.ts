@@ -138,6 +138,11 @@ function renderView(viewName: string): void {
 		}
 	})
 
+	const footerPayload = document.getElementById('footer-payload')
+	if (footerPayload) {
+		footerPayload.style.display = viewName === 'presence' ? '' : 'none'
+	}
+
 	updateHistoryButtons()
 	saveTabs()
 }
@@ -439,6 +444,11 @@ export default function setupViewsNavigation(): void {
 	historyIndex = 0
 
 	renderView(active)
+
+	const footerPayload = document.getElementById('footer-payload')
+	if (footerPayload) {
+		footerPayload.style.display = active === 'presence' ? '' : 'none'
+	}
 
 	document.querySelector<HTMLButtonElement>('#nav-back')?.addEventListener('click', goBack)
 

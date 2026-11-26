@@ -3,14 +3,19 @@ import { setMainLanguage } from '../../../main/translations'
 import i18n from '../core/i18n'
 import { updatePlaceholders } from './placeholders'
 
-const SUPPORTED_LANGUAGES = ['en', 'ru', 'tr', 'zh', 'ja']
+const SUPPORTED_LANGUAGES = ['en', 'ru', 'tr', 'zh', 'ja', 'de', 'fr', 'ko', 'pt', 'es']
 
-function isSupportedLanguage(language: string): language is 'en' | 'ru' | 'tr' | 'zh' | 'ja' {
+type SupportedLanguage = 'en' | 'ru' | 'tr' | 'zh' | 'ja' | 'de' | 'fr' | 'ko' | 'pt' | 'es'
+
+function isSupportedLanguage(language: string): language is SupportedLanguage {
 	return SUPPORTED_LANGUAGES.includes(language)
 }
 
 export function applyLanguage(lang: string): void {
-	document.body.classList.remove('lang-en', 'lang-ru', 'lang-tr', 'lang-zh', 'lang-ja')
+	document.body.classList.remove(
+		'lang-en', 'lang-ru', 'lang-tr', 'lang-zh', 'lang-ja',
+		'lang-de', 'lang-fr', 'lang-ko', 'lang-pt', 'lang-es'
+	)
 
 	document.body.classList.add(`lang-${lang}`)
 
@@ -83,21 +88,6 @@ export async function initLanguage(): Promise<void> {
 			}
 		})
 	})
-
-	const settingsLangSelector = document.getElementById(
-		'settings-language-selector'
-	) as HTMLSelectElement | null
-
-	if (settingsLangSelector) {
-		settingsLangSelector.value = i18n.language
-
-		settingsLangSelector.addEventListener('change', event => {
-			const lang = (event.target as HTMLSelectElement).value
-
-			setLanguage(lang)
-			updatePlaceholders()
-		})
-	}
 
 	if (isSupportedLanguage(initialLanguage)) {
 		setMainLanguage(initialLanguage)
