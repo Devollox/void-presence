@@ -1,4 +1,4 @@
-﻿# Desktop Tabs, Navigation & Tooltips
+﻿# Desktop Interface Redesign
 
 ## New
 
@@ -43,4 +43,22 @@
 - **Tab Drag-and-Drop** — updated dragging to move the entire tab together with its close button, exclude hidden tabs, and synchronize reordered tabs with navigation persistence.
 - **Tab Styling & Title Fade** — restored flexible tab sizing, enforced single-line titles with a right-edge gradient fade mask on narrow inactive tabs, and added hover, focus, active, dragging, and dropping states.
 - **Drag Interaction Handling** — added click suppression after tab dragging and cancellation handling for `Escape`, pointer cancellation, and window focus loss.
--
+- **Reduced Motion** — extended reduced-motion support to all drag-and-drop surfaces, including tab dragging, sidebar reordering, presence-list reordering, close-button transitions, sidebar resizing, previews, and backdrop animations.
+- **External Link Validation** — improved URL validation for external links opened from the main window.
+- **Account Localization** — expanded localization for account settings, error messages, and the account login flow.
+- **UI Cleanup** — removed the bottom border from the tab bar, removed the sidebar toggle animation and state persistence, and updated app content background styling.
+
+## Added
+
+- **Settings Page** — added a settings page with General, Language, and Appearance sections.
+- **Keyboard Shortcuts Modal** — added a searchable keyboard shortcuts modal with localization support.
+- **Help Menu Accessibility** — added keyboard navigation, shortcut support, tooltip data attributes, and improved help menu structure.
+- **Account Management** — added account login, logout, profile display, sidebar synchronization, fallback avatars, and enhanced account menu styling.
+- **Plugin Installation Flow** — added an installation confirmation dialog, improved toast notifications, configuration import validation, client ID controls, and account profile synchronization.
+- **Status Tutorial Card** — added a tutorial card to the Status section.
+- **Timestamp Language Support** — added Chinese (`zh`) and Japanese (`ja`) support for timestamp formatting.
+- **Desktop Authentication Types** — added desktop authentication types and interfaces.
+
+## Chore
+
+- **Version Bump** — bumped the application version to `4.5.0`.
