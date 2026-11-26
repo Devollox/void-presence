@@ -26,9 +26,9 @@ export function createButtonPairRow(
 		onChange: (values: any) =>
 			onChange({
 				label1: values.input1,
-				url1: values.input2,
+				url1: (values.input2 as string).replace(/\s+/g, ''),
 				label2: values.input3,
-				url2: values.input4,
+				url2: (values.input4 as string).replace(/\s+/g, ''),
 			}),
 		onRemove,
 	})
@@ -137,9 +137,9 @@ export function createImageCycleRow(
 		],
 		onChange: (values: any) =>
 			onChange({
-				largeImage: values.input1,
+				largeImage: (values.input1 as string).replace(/\s+/g, ''),
 				largeText: values.input2,
-				smallImage: values.input3,
+				smallImage: (values.input3 as string).replace(/\s+/g, ''),
 				smallText: values.input4,
 			}),
 		onRemove,

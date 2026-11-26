@@ -27,6 +27,8 @@
 - **Added Reset Flag** — added `desktop-tabs-reset-v1` to ensure the cleanup runs only once.
 - **Reused Close Tab Behavior** — non-default tabs are closed through the existing `closeTab()` logic.
 - **Reset Saved Tab State** — `desktop-tabs-v1` is updated to contain only Presence and Settings after the first-run reset.
+- **Config Migration** — added automatic migration that runs on startup, detects missing fields in existing config files in `userData`, and fills them with default values. Adding a new field to any config object in `config.ts` is enough — no manual migration steps required.
+- **URL Whitespace Stripping** — spaces are now automatically removed from button URLs and image URLs at input time and on save, preventing broken links caused by accidental whitespace.
 
 ## Improved
 

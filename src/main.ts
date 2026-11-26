@@ -10,6 +10,7 @@ import { createMainWindow } from './main/window'
 import { cancelPendingLogin, exchangeActionTicket } from './main/desktop-auth'
 import { registerPendingInstall } from './plugins/plugin-installer'
 import { cleanupInstallerFolders } from './main/cleanup-updater'
+import { runMigrations } from './main/migration'
 
 const PROTOCOL = 'voidpresence'
 
@@ -335,6 +336,8 @@ if (!gotTheLock) {
 
 	app.whenReady().then(async () => {
 		await cleanupInstallerFolders()
+
+		await runMigrations()
 
 		const initialSettings = await readSettings()
 		const autoHideOnStart = !!initialSettings.autoHideOnStart

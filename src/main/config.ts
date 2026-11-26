@@ -224,9 +224,9 @@ export async function setDiscordTokenConfig(token: string | null) {
 
 const normalizeButtonPairLoose = (p: ButtonPair): ButtonPair => ({
 	label1: typeof p.label1 === 'string' ? p.label1 : '',
-	url1: typeof p.url1 === 'string' ? p.url1 : '',
+	url1: typeof p.url1 === 'string' ? p.url1.replace(/\s+/g, '') : '',
 	label2: typeof p.label2 === 'string' && p.label2.length > 0 ? p.label2 : undefined,
-	url2: typeof p.url2 === 'string' && p.url2.length > 0 ? p.url2 : undefined,
+	url2: typeof p.url2 === 'string' && p.url2.length > 0 ? p.url2.replace(/\s+/g, '') : undefined,
 })
 
 const defaultButtonsConfig: ButtonsConfig = { pairs: [] }
@@ -486,8 +486,8 @@ export async function setActivityType(type: ActivityTypeConfig['type']) {
 
 export async function setButtonsConfig(pairs: ButtonPair[]) {
 	const cleaned: ButtonPair[] = (Array.isArray(pairs) ? pairs : []).map(p => {
-		const rawUrl1 = (p.url1 ?? '').toString().trim()
-		const rawUrl2 = (p.url2 ?? '').toString().trim()
+		const rawUrl1 = (p.url1 ?? '').toString().replace(/\s+/g, '')
+		const rawUrl2 = (p.url2 ?? '').toString().replace(/\s+/g, '')
 		const url1 = rawUrl1.length > 0 && !rawUrl1.includes(' ') ? rawUrl1 : ''
 		const url2 = rawUrl2.length > 0 && !rawUrl2.includes(' ') ? rawUrl2 : undefined
 		return {
@@ -784,4 +784,49 @@ export async function readExternalPluginsState(): Promise<Record<string, boolean
 export async function writeExternalPluginsState(state: Record<string, boolean>): Promise<void> {
 	const filePath = path.join(app.getPath('userData'), 'external-plugins-state.json')
 	await writeJsonSafe(filePath, state)
+}
+
+export function getConfigRegistry(): Array<{
+	filePath: string
+	defaults: Record<string, unknown>
+}> {
+	return [
+		{
+			filePath: getSettingsPath(),
+			defaults: defaultSettings as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getClientConfigPath(),
+			defaults: defaultClientConfig as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getTimerConfigPath(),
+			defaults: defaultTimerConfig as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getButtonsConfigPath(),
+			defaults: defaultButtonsConfig as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getCyclesConfigPath(),
+			defaults: defaultCyclesConfig as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getImageCyclesConfigPath(),
+			defaults: defaultImageCyclesConfig as unknown as Record<string, unknown>,
+		},
+		{ filePath: getPartyConfigPath(), defaults: { entries: [] } },
+		{
+			filePath: getTimestampConfigPath(),
+			defaults: defaultTimestampConfig as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getActivityTypeConfigPath(),
+			defaults: defaultActivityTypeConfig as unknown as Record<string, unknown>,
+		},
+		{
+			filePath: getLanguageConfigPath(),
+			defaults: defaultLanguageConfig as unknown as Record<string, unknown>,
+		},
+	]
 }
