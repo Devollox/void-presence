@@ -8,7 +8,7 @@ import { setupIntervalControl } from './modules/core/state'
 import { setupConfigDetailsOverlay } from './modules/modals/details'
 import { setupGlobalDrop } from './modules/modals/global-drop'
 import { importJsonPayload, setupImportOverlay } from './modules/modals/import'
-import { setupStatusTutorialButtons, setupTutorials } from './modules/modals/tutorials'
+import { setupTutorials } from './modules/modals/tutorials'
 import './modules/modals/update'
 import { initUpdateOverlay } from './modules/modals/update'
 import { setupPluginsPage } from './modules/plugins/plugins-page'
@@ -64,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	setupSettingsLanguage()
 	setupTimestampModal()
 	setupActivityDialog()
+	setupTutorials()
+
 	const toasts = setupToasts()
 
 	void setupClientIdControls()
@@ -78,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupSupportAndLogsButtons()
 	void setupPresenceControls()
 	void setupIntervalControl()
-	void setupStatusTutorialButtons()
 	void setupTooltips()
 	void setupTabsDnd()
 	void setupHelpMenu()
@@ -93,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupGlobalDrop()
 	void setupStatusPage()
 	void setupCloudUpload()
-	void setupTutorials()
 	void setupRpcEnabledToggle()
 	void setupStatusEnabledBrowserToggle()
 	void renderStatusProfiles()

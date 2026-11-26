@@ -13,12 +13,13 @@ function setupGenericTutorial(config: TutorialConfig) {
 	if (!(card instanceof HTMLElement)) return
 
 	const isOnboarding = card.classList.contains('presence-onboarding')
+	const isHidden = window.localStorage.getItem(config.storageKey) === '1'
 
 	const hide = (permanent: boolean) => {
 		if (isOnboarding) {
 			card.dataset.done = 'true'
 		} else {
-			card.setAttribute('data-visible', 'false')
+			card.hidden = true
 		}
 
 		if (permanent) {
@@ -29,15 +30,10 @@ function setupGenericTutorial(config: TutorialConfig) {
 	closeBtn?.addEventListener('click', () => hide(true))
 	dontShowBtn?.addEventListener('click', () => hide(true))
 
-	const isHidden = window.localStorage.getItem(config.storageKey) === '1'
-
 	if (isOnboarding) {
 		card.dataset.done = isHidden ? 'true' : 'false'
 	} else {
-		card.style.display = isHidden ? 'none' : ''
-		if (!isHidden) {
-			card.setAttribute('data-visible', 'true')
-		}
+		card.hidden = isHidden
 	}
 }
 
@@ -61,31 +57,5 @@ export function setupTutorials() {
 		closeId: 'status-tutorial-close',
 		dontShowId: 'status-tutorial-dont-show',
 		storageKey: 'vp_hide_status_tutorial',
-	})
-}
-
-export function setupStatusTutorialButtons() {
-	const api = window.electronAPI
-	if (!api) return
-
-	const openDevBtn = document.getElementById('tutorial-inline-open-dev')
-	const authorBtn = document.getElementById('get-author-id')
-	const videoBtn = document.getElementById('get-video-id')
-	const videoBtnError = document.getElementById('get-video-error-id')
-
-	openDevBtn?.addEventListener('click', () => {
-		api.openDiscordDeveloperPortal?.()
-	})
-
-	authorBtn?.addEventListener('click', () => {
-		api.openDiscordDeveloperAuthorId?.()
-	})
-
-	videoBtn?.addEventListener('click', () => {
-		api.openDiscordGetTokenVideo?.()
-	})
-
-	videoBtnError?.addEventListener('click', () => {
-		api.openDiscordGetTokenVideoError?.()
 	})
 }

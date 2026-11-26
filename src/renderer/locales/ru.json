@@ -132,8 +132,8 @@
 		"persistOptions": "Параметры фиксации"
 	},
 	"details_cycle": {
-		"title": "Details и State",
-		"add": "Добавить details и state"
+		"title": "Подробности и состояние",
+		"add": "Добавить подробности и состояние"
 	},
 	"images_cycle": {
 		"title": "Изображения",
@@ -299,7 +299,7 @@
 		"backToProfiles": "Назад к профилям",
 		"backToStatusProfiles": "Назад к профилям статуса",
 		"profileConfiguration": "Конфигурация профиля",
-		"detailsState": "Details и State",
+		"detailsState": "Подробности и состояние",
 		"images": "Изображения",
 		"buttons": "Кнопки",
 		"party": "Party",
@@ -376,7 +376,7 @@
 	"rpcDisconnected": "RPC отключён",
 	"rpcLoginError": "Ошибка входа RPC: {error}",
 	"rpcActivityError": "Ошибка SET_ACTIVITY: {error}",
-	"rpcNoClientId": "Не задан Client ID или не настроены details и state",
+	"rpcNoClientId": "Не задан Client ID или не настроены подробности и состояние",
 	"rpcConnecting": "Подключение RPC Client ID: {clientId}",
 	"configRefreshError": "Ошибка обновления конфига: {error}",
 	"persistOffsetSaveError": "Не удалось сохранить смещение persist: {error}",
@@ -412,8 +412,8 @@
 	"presenceIsBroadcasting": "Presence транслируется",
 	"lostConnectionToDiscord": "Потеряно соединение с Discord",
 	"noClientId": "Укажите ID, циклы и update",
-	"active": "АКТИВНО",
-	"unknown": "НЕИЗВЕСТНО",
+	"active": "Активно",
+	"unknown": "Неизвестно",
 	"buttonName1": "Название кнопки #1",
 	"url1": "URL #1",
 	"buttonName2Optional": "Название кнопки #2 (необязательно)",
@@ -487,7 +487,7 @@
 	"tray.checkUpdates": "Проверить обновления",
 	"tray.quit": "Выйти",
 	"buttons.title": "Пары кнопок",
-	"details.title": "Details и State",
+	"details.title": "Подробности и состояние",
 	"pluginMgrInstallingDeps": "Установка зависимостей в \"{dir}\"...",
 	"pluginMgrDepsInstalled": "Зависимости успешно установлены.",
 	"pluginMgrInstallFailed": "Npm install завершился с кодом {code}",

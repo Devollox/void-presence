@@ -1,7 +1,8 @@
 .settings-page {
 	max-width: 720px;
 	margin: 0 auto;
-	padding: 36px 28px 56px;
+	/* padding: 36px 28px 56px; */
+	padding: 24px 28px 56px;
 	display: flex;
 	flex-direction: column;
 	gap: 36px;

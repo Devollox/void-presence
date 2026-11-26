@@ -2,9 +2,11 @@
 	position: fixed;
 	inset: 0;
 	z-index: 2000;
+
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
 	padding: 24px;
 }
 
@@ -15,7 +17,9 @@
 .dialog-backdrop {
 	position: absolute;
 	inset: 0;
+
 	background-color: rgba(0, 0, 0, 0.45);
+
 	animation: dialog-backdrop-in var(--speed-regularTransition) var(--ease-out-cubic) forwards;
 }
 
@@ -26,16 +30,22 @@
 .dialog-panel {
 	position: relative;
 	z-index: 1;
+
 	width: 100%;
 	max-width: 400px;
 	max-height: calc(100vh - 48px);
+
 	display: flex;
 	flex-direction: column;
+
 	border: var(--editor-hairline) solid var(--border-secondary);
 	border-radius: var(--radius-card);
+
 	background-color: var(--color-bg-secondary);
 	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.28);
+
 	overflow: hidden;
+
 	animation: dialog-panel-in var(--speed-regularTransition) var(--ease-out-cubic) forwards;
 }
 
@@ -47,30 +57,41 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
 	flex-shrink: 0;
-	padding: 20px 16px 12px;
+
+	padding: 16px 16px 12px;
+
 	border-bottom: var(--editor-hairline) solid var(--border-secondary);
 }
 
 .dialog-title {
+	margin: 0;
+
 	font-size: 14px;
 	font-weight: 600;
+
 	color: var(--content-highlight-color);
-	margin: 0;
 }
 
 .dialog-close {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+
 	width: 24px;
 	height: 24px;
+
 	padding: 0;
+
 	border: none;
 	border-radius: var(--radius-chip);
+
 	background-color: transparent;
 	color: var(--text-tertiary);
+
 	cursor: pointer;
+
 	transition:
 		background-color var(--speed-highlightFadeOut) ease,
 		color var(--speed-highlightFadeOut) ease;
@@ -90,8 +111,11 @@
 
 .dialog-body {
 	flex: 1;
+
 	overflow-y: auto;
-	padding: 8px 8px 16px;
+
+	padding: 8px 8px 8px;
+
 	scrollbar-width: thin;
 	scrollbar-color: transparent transparent;
 }
@@ -113,19 +137,23 @@
 }
 
 .dialog-section-title {
+	margin: 0;
+
+	padding: 8px 8px 4px;
+
 	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
+
 	color: var(--text-tertiary);
-	padding: 8px 8px 4px;
-	margin: 0;
 }
 
 .dialog-section-header-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
 	padding: 8px 8px 4px;
 }
 
@@ -136,6 +164,7 @@
 .dialog-option-list {
 	display: flex;
 	flex-direction: column;
+
 	gap: 2px;
 }
 
@@ -143,19 +172,30 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 10px;
-	min-height: 32px;
-	padding: 0 8px;
+
+	gap: 12px;
+
+	min-height: 34px;
+
+	padding: 5px 8px;
+
 	border: none;
-	border-radius: var(--radius-chip);
+	border-radius: var(--radius-control);
+
 	background-color: transparent;
+
 	color: var(--content-highlight-color);
+
 	font: inherit;
 	font-size: 13px;
 	font-weight: 500;
 	text-align: left;
+
 	cursor: pointer;
-	transition: background-color var(--speed-highlightFadeOut) ease;
+
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
 }
 
 .dialog-option[data-active='true'] {
@@ -170,6 +210,7 @@
 
 .dialog-option:active {
 	background-color: var(--control-tertiary-selected);
+
 	transition-duration: 0s;
 }
 
@@ -181,7 +222,9 @@
 .dialog-option-left {
 	display: flex;
 	align-items: center;
+
 	gap: 10px;
+
 	flex: 1;
 	min-width: 0;
 }
@@ -190,9 +233,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 24px;
-	height: 24px;
+
+	width: 20px;
+	height: 20px;
+
 	flex-shrink: 0;
+
 	color: var(--text-secondary);
 }
 
@@ -203,43 +249,61 @@
 .dialog-option-body {
 	display: flex;
 	flex-direction: column;
+
 	gap: 1px;
+
 	min-width: 0;
+	flex: 1;
 }
 
 .dialog-option-label {
 	font-size: 13px;
 	font-weight: 500;
+
 	color: var(--content-highlight-color);
 }
 
 .dialog-option-hint {
 	font-size: 12px;
 	font-weight: 450;
+
 	color: var(--text-tertiary);
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .dialog-option-check {
-	width: 16px;
-	height: 16px;
-	flex-shrink: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
+	width: 16px;
+	height: 16px;
+
+	flex-shrink: 0;
+
 	color: var(--content-highlight-color);
+
 	opacity: 0;
+
+	transition: opacity var(--speed-highlightFadeOut) ease;
 }
 
 .dialog-option[data-active='true'] .dialog-option-check {
-	opacity: 0.4;
+	opacity: 0.45;
 }
 
 .dialog-row {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+
 	gap: 16px;
+
 	min-height: 32px;
+
 	padding: 0 8px;
 }
 
@@ -248,29 +312,40 @@
 }
 
 .dialog-row-label {
+	flex: 1;
+
 	font-size: 13px;
 	font-weight: 500;
+
 	color: var(--content-highlight-color);
-	flex: 1;
 }
 
 .dialog-row-hint {
 	font-size: 12px;
 	font-weight: 450;
+
 	color: var(--text-tertiary);
 }
 
 .dialog-input {
 	height: 28px;
+
 	padding: 0 8px;
+
 	border: var(--editor-hairline) solid var(--border-secondary);
 	border-radius: var(--radius-control);
+
 	background-color: var(--color-bg-tertiary);
+
 	color: var(--content-highlight-color);
+
 	font: inherit;
 	font-size: 13px;
+
 	outline: none;
+
 	flex-shrink: 0;
+
 	transition: border-color var(--speed-highlightFadeOut) ease;
 }
 
@@ -284,19 +359,27 @@
 }
 
 .dialog-btn {
-	height: 28px;
 	display: inline-flex;
 	align-items: center;
+
+	height: 28px;
+
 	padding: 0 12px;
+
 	border: var(--editor-hairline) solid var(--border-secondary);
-	border-radius: 6px;
+	border-radius: var(--radius-control);
+
 	background-color: var(--color-bg-tertiary);
+
 	color: var(--content-highlight-color);
+
 	font: inherit;
 	font-size: 12px;
 	font-weight: 500;
+
 	cursor: pointer;
 	white-space: nowrap;
+
 	transition: background-color var(--speed-highlightFadeOut) ease;
 }
 
@@ -308,25 +391,36 @@
 
 .dialog-btn:active {
 	background-color: var(--control-tertiary-selected);
+
 	transition-duration: 0s;
 }
 
 .presence-trigger-btn {
 	display: inline-flex;
 	align-items: center;
+
 	gap: 6px;
+
 	height: 26px;
+
 	padding: 0 10px;
+
 	border: var(--editor-hairline) solid var(--border-secondary);
-	border-radius: 8px;
+	border-radius: var(--radius-control);
+
 	background-color: var(--color-bg-tertiary);
+
 	color: var(--content-highlight-color);
+
 	font: inherit;
 	font-size: 12px;
 	font-weight: 500;
+
 	cursor: pointer;
 	white-space: nowrap;
+
 	flex-shrink: 0;
+
 	transition:
 		background-color var(--speed-highlightFadeOut) ease,
 		border-color var(--speed-highlightFadeOut) ease;
@@ -343,6 +437,7 @@
 
 .presence-trigger-btn:active {
 	background-color: var(--control-tertiary-selected);
+
 	transition-duration: 0s;
 }
 
@@ -356,14 +451,11 @@
 	display: none;
 }
 
-.dialog-section[data-visible='false'] {
-	display: none;
-}
-
 @keyframes dialog-backdrop-in {
 	from {
 		opacity: 0;
 	}
+
 	to {
 		opacity: 1;
 	}
@@ -373,6 +465,7 @@
 	from {
 		opacity: 1;
 	}
+
 	to {
 		opacity: 0;
 	}
@@ -383,6 +476,7 @@
 		opacity: 0;
 		transform: translateY(8px) scale(0.97);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0) scale(1);
@@ -394,6 +488,7 @@
 		opacity: 1;
 		transform: translateY(0) scale(1);
 	}
+
 	to {
 		opacity: 0;
 		transform: translateY(4px) scale(0.98);
