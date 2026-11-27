@@ -67,6 +67,7 @@
 }
 
 .settings-row-info {
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
@@ -81,6 +82,7 @@
 }
 
 .settings-row-hint {
+	width: 100%;
 	font-size: 12px;
 	font-weight: 450;
 	line-height: 1.4;
