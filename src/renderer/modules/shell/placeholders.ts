@@ -5,7 +5,6 @@ const elementPlaceholders = {
 	'status-search-input': 'config.searchStatusesPlaceholder',
 	'config-name-input': 'config.configNamePlaceholder',
 	'status-name-input': 'config.statusProfileNamePlaceholder',
-	'config-author-input': 'config.authorIdPlaceholder',
 	'config-name-input-current': 'config.configNamePlaceholder',
 	'discord-token-input': 'status.discordTokenPlaceholder',
 	'status-update-interval-input': 'status.statusUpdatePlaceholder',

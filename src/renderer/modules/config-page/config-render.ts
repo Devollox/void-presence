@@ -70,7 +70,7 @@ function createConfigCard(
 	cfg: StoredConfig,
 	list: HTMLElement,
 	nameInput: HTMLInputElement,
-	showConfigToast: () => void
+	_showConfigToast: () => void
 ): void {
 	const state = cfg.state || {}
 	const cycles: CycleEntry[] = Array.isArray(state.cycles) ? state.cycles : []
@@ -197,15 +197,14 @@ function createConfigCard(
 	uploadCloudBtn.addEventListener('click', e => {
 		e.preventDefault()
 		openUploadConfirm(cfg, async () => {
-			const authorInput = document.getElementById('config-author-input') as HTMLInputElement | null
-			if (!authorInput?.value.trim()) {
+			const authorId = localStorage.getItem('authorId')?.trim() || ''
+			if (!authorId) {
 				appendLog({
-					message: 'Enter author ID(get from voidpresence.com/profile) first',
+					message: 'Log in to your account to upload configs',
 					level: 'error',
 				})
 				return
 			}
-			const authorId = authorInput.value.trim()
 			if (!window.electronAPI?.uploadConfig) {
 				appendLog({
 					message: 'Cloud upload is not available',

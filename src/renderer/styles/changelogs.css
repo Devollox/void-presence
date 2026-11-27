@@ -6,21 +6,22 @@
 	flex-direction: column;
 }
 
-.changelogs-toolbar {
+.changelogs-toolbar,
+.page-toolbar {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	padding: 20px 0 24px;
+	padding: 20px 0 28px;
 	position: sticky;
 	top: 0;
 	z-index: 10;
 	background: var(--color-bg-primary);
 	-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
 	mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
-	padding-bottom: 28px;
 }
 
-.changelogs-toolbar-btn {
+.changelogs-toolbar-btn,
+.page-toolbar-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -42,35 +43,63 @@
 		color var(--speed-highlightFadeOut) ease;
 }
 
-.changelogs-toolbar-btn svg {
+.changelogs-toolbar-btn svg,
+.page-toolbar-btn svg {
 	flex-shrink: 0;
 	color: var(--text-tertiary);
 	transition: color var(--speed-highlightFadeOut) ease;
 }
 
-.changelogs-toolbar-btn[data-loading='true'] svg {
+.changelogs-toolbar-btn[data-loading='true'] svg,
+.page-toolbar-btn[data-loading='true'] svg {
 	animation: changelog-spin 0.75s linear infinite;
 }
 
-.changelogs-toolbar-btn:active {
+.page-toolbar-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+	pointer-events: none;
+}
+
+.changelogs-toolbar-btn:active,
+.page-toolbar-btn:active:not(:disabled) {
 	background-color: var(--control-tertiary-selected);
 	transition-duration: 0s;
 }
 
-.changelogs-toolbar-btn:focus-visible {
+.changelogs-toolbar-btn:focus-visible,
+.page-toolbar-btn:focus-visible {
 	outline: var(--focus-ring-outline);
 	outline-offset: 2px;
 }
 
+.page-toolbar-btn--primary {
+	background-color: var(--color-bg-secondary);
+	border-color: var(--border-secondary);
+	color: var(--content-highlight-color);
+}
+
+.page-toolbar-btn--danger {
+	color: var(--logs-error-indicator);
+	border-color: color-mix(in srgb, var(--logs-error-indicator) 30%, var(--border-secondary));
+}
+
 @media (any-hover: hover) and (any-pointer: fine) {
-	.changelogs-toolbar-btn:hover {
+	.changelogs-toolbar-btn:hover,
+	.page-toolbar-btn:hover:not(:disabled) {
 		background-color: var(--control-tertiary-hover);
 		color: var(--content-highlight-color);
 		transition-duration: var(--speed-highlightFadeIn);
 	}
 
-	.changelogs-toolbar-btn:hover svg {
+	.changelogs-toolbar-btn:hover svg,
+	.page-toolbar-btn:hover:not(:disabled) svg {
 		color: var(--content-highlight-color);
+	}
+
+	.page-toolbar-btn--danger:hover:not(:disabled) {
+		background-color: color-mix(in srgb, var(--logs-error-indicator) 10%, transparent);
+		color: var(--logs-error-indicator);
 	}
 }
 
@@ -172,6 +201,10 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0;
+}
+
+.changelogs-feed > .changelog-entry:first-child {
+	padding-top: 0;
 }
 
 .changelogs-feed[hidden] {
@@ -374,6 +407,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.page-toolbar-btn,
 	.changelogs-toolbar-btn,
 	.changelog-entry,
 	.changelogs-skeleton-line {

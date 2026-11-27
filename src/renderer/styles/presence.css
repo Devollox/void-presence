@@ -9,8 +9,59 @@ html[data-status-tutorial-done] #status-tutorial-card {
 	display: none !important;
 }
 
-html[data-cloud-tutorial-done] #cloud-tutorial-card {
+html[data-cloud-tutorial-done] #cloud-tutorial-presence-card,
+html[data-cloud-tutorial-done] #cloud-tutorial-status-card {
 	display: none !important;
+}
+
+[data-view='status']:has(#status-tutorial-card:not([data-done='true'])) .status-page,
+[data-view='status']:has(#status-tutorial-card:not([data-done='true'])) .view-header {
+	opacity: 0;
+	pointer-events: none;
+}
+
+[data-view='status'] .view-header,
+[data-view='status'] .status-page {
+	transition: opacity 350ms var(--ease-out-cubic);
+}
+
+[data-view='configs-presence']:has(#cloud-tutorial-presence-card:not([data-done='true']))
+	.configs-page,
+[data-view='configs-presence']:has(#cloud-tutorial-presence-card:not([data-done='true']))
+	.view-header {
+	opacity: 0;
+	pointer-events: none;
+}
+
+[data-view='configs-presence'] .view-header,
+[data-view='configs-presence'] .configs-page {
+	transition: opacity 350ms var(--ease-out-cubic);
+}
+
+[data-view='configs-status']:has(#cloud-tutorial-status-card:not([data-done='true'])) .configs-page,
+[data-view='configs-status']:has(#cloud-tutorial-status-card:not([data-done='true'])) .view-header {
+	opacity: 0;
+	pointer-events: none;
+}
+
+[data-view='configs-status'] .view-header,
+[data-view='configs-status'] .configs-page {
+	transition: opacity 350ms var(--ease-out-cubic);
+}
+
+.presence-onboarding-step--warn {
+	background-color: color-mix(in srgb, var(--logs-warn-indicator) 8%, var(--color-bg-secondary));
+	border-color: color-mix(in srgb, var(--logs-warn-indicator) 25%, var(--border-secondary));
+	color: var(--text-secondary);
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.presence-onboarding-step-warn-icon {
+	flex-shrink: 0;
+	color: var(--logs-warn-indicator);
+	margin-top: 1px;
+	display: flex;
 }
 
 .presence-onboarding {
@@ -274,7 +325,11 @@ html[data-cloud-tutorial-done] #cloud-tutorial-card {
 	.presence-onboarding-inner,
 	.presence-onboarding-continue,
 	[data-view='presence'] .view-header,
-	[data-view='presence'] .presence-page {
+	[data-view='presence'] .presence-page,
+	[data-view='status'] .view-header,
+	[data-view='status'] .status-page,
+	[data-view='configs'] .view-header,
+	[data-view='configs'] .configs-page {
 		transition: none;
 		animation: none;
 		opacity: 1;
@@ -407,13 +462,47 @@ html[data-cloud-tutorial-done] #cloud-tutorial-card {
 	}
 }
 
+.status-footer-payload {
+	display: none;
+}
+
+.app-workspace:has([data-view='status'][data-active='true']) .status-footer-payload {
+	display: flex;
+}
+
+.app-workspace:has([data-view='status'][data-active='true']) #footer-payload {
+	display: none;
+}
+
+.status-dot-status {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--border-secondary);
+	flex-shrink: 0;
+}
+
+.status-dot-status[data-state='active'] {
+	background: var(--logs-success-indicator);
+	box-shadow: 0 0 6px color-mix(in srgb, var(--logs-success-indicator) 50%, transparent);
+}
+
+.status-dot-status[data-state='warn'] {
+	background: var(--logs-warn-indicator);
+	box-shadow: 0 0 6px color-mix(in srgb, var(--logs-warn-indicator) 50%, transparent);
+}
+
 .presence-page {
-	max-width: 720px;
+	max-width: 680px;
 	margin: 0 auto;
-	padding: 24px 28px 56px;
+	padding: 0px 28px 56px;
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+}
+
+.presence-page > :first-child {
+	margin-bottom: -24px;
 }
 
 .presence-group-header {
@@ -820,7 +909,6 @@ html[data-cloud-tutorial-done] #cloud-tutorial-card {
 	justify-content: space-between;
 	padding: 8px 8px 4px;
 }
-
 
 #time-list[data-visible='false'] {
 	display: none;

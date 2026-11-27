@@ -555,8 +555,6 @@ export function updateInfo(payload: RichPresencePayload | null): void {
 	if (activityStartMs === null) {
 		activityStartMs = Date.now()
 	}
-
-	startUptimeTimer()
 }
 
 export function updateStatus(status: string): void {
@@ -585,6 +583,7 @@ export function updateStatusStatus(status: string): void {
 	const chip = document.querySelector<HTMLElement>('.status-chip-status span')
 	const dot = document.querySelector<HTMLElement>('.status-dot-status')
 	const textElement = document.getElementById('status-page-info-status') as HTMLElement | null
+	const infoText = document.getElementById('status-page-info-text') as HTMLElement | null
 
 	const mapped = mapStatusCustomToText(status)
 
@@ -598,12 +597,16 @@ export function updateStatusStatus(status: string): void {
 
 	if (dot) {
 		if (status === 'CUSTOM_STATUS_READY') {
-			dot.style.background = 'radial-gradient(circle, #4ade80 0, #22c55e 50%, #000000 100%)'
+			dot.dataset.state = 'active'
 		} else if (status === 'CUSTOM_STATUS_RESTART') {
-			dot.style.background = 'radial-gradient(circle, #facc15 0, #eab308 50%, #000000 100%)'
+			dot.dataset.state = 'warn'
 		} else {
-			dot.style.background = 'radial-gradient(circle, #ffffff 0, #ffffff 50%, #000000 100%)'
+			dot.dataset.state = 'idle'
 		}
+	}
+
+	if (status === 'CUSTOM_STATUS_DISABLED' && infoText) {
+		infoText.textContent = '–'
 	}
 }
 
@@ -611,29 +614,24 @@ export function updateStatusText(text: string | null): void {
 	if (!text) return
 
 	const element = document.getElementById('status-page-info-text') as HTMLElement | null
-
 	const titleBlock = document.getElementById(
 		'status-page-info-text-title-block'
 	) as HTMLElement | null
-
 	const secondBlock = document.getElementById(
 		'status-page-info-text-second-block'
 	) as HTMLElement | null
 
-	if (!element || !titleBlock || !secondBlock) return
-
 	const mapped = getStatusTextMap()[text]
 
 	if (mapped) {
-		titleBlock.textContent = mapped.title
-		secondBlock.textContent = mapped.second
-		element.textContent = mapped.value
+		if (titleBlock) titleBlock.textContent = mapped.title
+		if (secondBlock) secondBlock.textContent = mapped.second
 		return
 	}
 
-	titleBlock.textContent = t('statusSettings')
-	secondBlock.textContent = text
-	element.textContent = text
+	if (titleBlock) titleBlock.textContent = t('statusSettings')
+	if (secondBlock) secondBlock.textContent = text
+	if (element) element.textContent = text
 }
 
 updateTopStatusIndicator('RPC_DISABLED')

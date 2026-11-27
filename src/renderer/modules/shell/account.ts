@@ -73,19 +73,6 @@ function setFeedback(message: string, isError = false): void {
 	feedback.dataset.error = String(isError)
 }
 
-function syncAuthorFields(profile: AccountProfile | null): void {
-	const input = document.querySelector<HTMLInputElement>('#config-author-input')
-	const label = document.querySelector<HTMLElement>('#config-author-label')
-
-	if (input) {
-		input.value = profile?.authorId ?? ''
-	}
-
-	if (label) {
-		label.textContent = profile ? cleanText(profile.authorName) || profile.authorId : ''
-	}
-}
-
 export function refreshAccountUI(): void {
 	const profile = readProfile()
 
@@ -187,7 +174,6 @@ export function acceptAccountProfile(profile: AccountProfile): void {
 	}
 
 	setFeedback('')
-	syncAuthorFields(normalized)
 	refreshAccountUI()
 }
 
@@ -196,7 +182,6 @@ export function clearAccountProfile(): void {
 		localStorage.removeItem(key)
 	}
 
-	syncAuthorFields(null)
 	setFeedback('')
 	refreshAccountUI()
 }
@@ -427,7 +412,6 @@ export default function setupAccountModal(): void {
 	window.addEventListener('storage', event => {
 		if (event.key === null || STORAGE_KEYS.some(key => key === event.key)) {
 			closeMenu(true)
-			syncAuthorFields(readProfile())
 			refreshAccountUI()
 		}
 	})

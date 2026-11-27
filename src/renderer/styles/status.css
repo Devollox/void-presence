@@ -1,10 +1,14 @@
 .status-page {
-	max-width: 720px;
+	max-width: 680px;
 	margin: 0 auto;
-	padding: 24px 28px 56px;
+	padding: 0 28px 56px;
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+}
+
+.status-page > .page-toolbar {
+	margin-bottom: -24px;
 }
 
 html[data-status-tutorial-done] #status-tutorial-card {
@@ -48,11 +52,11 @@ html[data-status-tutorial-done] #status-tutorial-card {
 }
 
 #discord-token-input {
-	width: 200px;
+	width: 120px;
 	flex-shrink: 0;
 }
 
 #status-update-interval-input {
-	width: 80px;
+	width: 120px;
 	flex-shrink: 0;
 }

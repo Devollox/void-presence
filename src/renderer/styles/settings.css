@@ -1,10 +1,10 @@
 .settings-page {
-	max-width: 720px;
+	max-width: 680px;
 	margin: 0 auto;
-	padding: 24px 28px 56px;
+	padding: 20px 28px 56px;
 	display: flex;
 	flex-direction: column;
-	gap: 36px;
+	gap: 24px;
 }
 
 .settings-page-title {
@@ -12,7 +12,6 @@
 	font-weight: 600;
 	letter-spacing: -0.015em;
 	color: var(--content-highlight-color);
-	margin: 0 0 6px;
 }
 
 .settings-group {

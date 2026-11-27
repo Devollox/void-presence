@@ -1281,43 +1281,46 @@
 
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.presence">Presence</h2></div>
-								<div class="view-header-actions">
-									<button id="restart-discord" class="view-action-btn">
+							</header>
+
+							<div class="presence-page">
+								<div class="page-toolbar">
+									<button id="restart-discord" class="page-toolbar-btn" type="button">
 										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="16"
-											height="16"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											class="lucide lucide-circle preview-icon"
-										>
-											<circle cx="12" cy="12" r="10" />
-										</svg>
-										<span data-i18n="activity.restartPresence">Restart</span>
-									</button>
-									<button id="stop-discord" class="view-action-btn">
-										<svg
-											width="14"
-											height="14"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
 											stroke-width="2"
 											stroke-linecap="round"
 											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+											<path d="M21 3v5h-5" />
+											<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+											<path d="M8 16H3v5" />
+										</svg>
+										<span data-i18n="activity.restartPresence">Restart</span>
+									</button>
+									<button id="stop-discord" class="page-toolbar-btn" type="button">
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
 										>
 											<rect width="18" height="18" x="3" y="3" rx="2" />
 										</svg>
 										<span data-i18n="activity.stopPresence">Stop</span>
 									</button>
 								</div>
-							</header>
-
-							<div class="presence-page">
 								<div class="settings-group">
 									<p class="settings-group-title">Connection</p>
 									<div class="settings-card">
@@ -1931,14 +1934,135 @@
 							</div>
 						</div>
 						<section data-view="status" data-active="false">
+							<div class="presence-onboarding" id="status-tutorial-card" data-done="false">
+								<div class="presence-onboarding-inner">
+									<div class="presence-onboarding-icon" aria-hidden="true">
+										<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											stroke="currentColor"
+											stroke-width="1.5"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<rect width="18" height="18" x="3" y="3" rx="2" />
+											<path d="M17 12h-2l-2 5-2-10-2 5H7" />
+										</svg>
+									</div>
+									<h2 class="presence-onboarding-title" data-i18n="status.tutorialTitle">
+										Custom status
+									</h2>
+									<div class="presence-onboarding-steps">
+										<div class="presence-onboarding-step presence-onboarding-step--warn">
+											<span class="presence-onboarding-step-warn-icon" aria-hidden="true">
+												<svg
+													width="14"
+													height="14"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<path
+														d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+													/>
+													<line x1="12" y1="9" x2="12" y2="13" />
+													<line x1="12" y1="17" x2="12.01" y2="17" />
+												</svg>
+											</span>
+											<span data-i18n="status.tutorialWarning1"
+												>Use this feature with caution. It relies on a user token and behaves like a
+												third-party client, which is against Discord's Terms of Service, so you use
+												it at your own risk.</span
+											>
+										</div>
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">1</span>
+											<span>
+												<span data-i18n="status.toggle">Toggle</span>
+												<strong data-i18n="status.customStatus">Custom status</strong>
+												<span data-i18n="status.toTurnWorkerOn">to turn the worker on.</span>
+												<span data-i18n="status.set"> Set</span>
+												<strong data-i18n="status.discordToken">Discord token</strong>
+												<span data-i18n="status.inFieldBelow">in the field below.</span>
+											</span>
+										</div>
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">2</span>
+											<span>
+												<span data-i18n="status.step2Li2Open">Open DevTools with</span>
+												<strong>F12</strong><span data-i18n="status.step2Li2Or"> or </span
+												><strong>Ctrl+Shift+I</strong>.
+												<span data-i18n="status.step2Li3Switch"> Switch to the</span>
+												<strong data-i18n="status.network">Network</strong>
+												<span data-i18n="status.step2Li3Tab">tab, select the</span>
+												<strong data-i18n="status.science">science</strong>
+												<span data-i18n="status.step2Li3Request">request, find the</span>
+												<strong data-i18n="status.authorization">authorization</strong>
+												<span data-i18n="status.step2Li4Header">header and copy its value.</span>
+											</span>
+										</div>
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">3</span>
+											<span>
+												<span data-i18n="status.step2Li5Paste">Paste the copied</span>
+												<strong data-i18n="status.userToken">user token</strong>
+												<span data-i18n="status.step2Li5Into">into the</span>
+												<strong data-i18n="status.discordToken">DISCORD TOKEN</strong>
+												<span data-i18n="status.step2Li5Field"
+													>field, set update interval (60–90s recommended), add status cycles.</span
+												>
+											</span>
+										</div>
+									</div>
+									<div class="presence-onboarding-extra">
+										<button
+											id="get-video-error-id"
+											class="presence-onboarding-extra-btn"
+											type="button"
+										>
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												aria-hidden="true"
+											>
+												<circle cx="12" cy="12" r="10" />
+												<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+												<path d="M12 17h.01" />
+											</svg>
+											<span data-i18n="status.ifItDoesntOpen">If it doesn't open the console</span>
+										</button>
+									</div>
+									<div class="presence-onboarding-actions">
+										<button
+											id="status-tutorial-dont-show"
+											class="presence-onboarding-continue"
+											type="button"
+										>
+											<span data-i18n="welcome.continueBtn">Continue</span>
+										</button>
+									</div>
+								</div>
+							</div>
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.status">Status</h2></div>
-								<div class="view-header-actions">
-									<button id="custom-status-restart" class="view-action-btn" type="button">
+							</header>
+
+							<div class="status-page content-scroll">
+								<div class="page-toolbar">
+									<button id="custom-status-restart" class="page-toolbar-btn" type="button">
 										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="13"
-											height="13"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
@@ -1952,11 +2076,10 @@
 										</svg>
 										<span data-i18n="status.restartStatus">Restart</span>
 									</button>
-									<button id="custom-status-stop" class="view-action-btn" type="button">
+									<button id="custom-status-stop" class="page-toolbar-btn" type="button">
 										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="13"
-											height="13"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
@@ -1969,14 +2092,20 @@
 										</svg>
 										<span data-i18n="status.stopStatus">Stop</span>
 									</button>
-									<button id="get-video-id" class="view-action-btn" type="button">
+									<a
+										id="get-video-id"
+										class="page-toolbar-btn"
+										href="https://www.youtube.com/results?search_query=discord+custom+status+token"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
 										<svg
-											width="14"
-											height="14"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="1.6"
+											stroke-width="2"
 											stroke-linecap="round"
 											stroke-linejoin="round"
 											aria-hidden="true"
@@ -1985,179 +2114,11 @@
 											<rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
 										</svg>
 										<span data-i18n="status.openVideoGuide">Video guide</span>
-									</button>
-								</div>
-							</header>
-
-							<div class="status-page content-scroll">
-								<div id="status-tutorial-card" class="page-tutorial" data-visible="true">
-									<div class="page-tutorial-header">
-										<div class="page-tutorial-titles">
-											<span class="page-tutorial-eyebrow" data-i18n="tutorial.title">Tutorial</span>
-											<span class="page-tutorial-title" data-i18n="status.tutorialTitle"
-												>Custom status</span
-											>
-										</div>
-										<button id="status-tutorial-close" class="page-tutorial-close" type="button">
-											<span data-i18n="tutorial.skip">Skip</span>
-										</button>
-									</div>
-									<div class="page-tutorial-warning">
-										<p class="page-tutorial-warn-text" data-i18n="status.tutorialWarning1">
-											Use this feature with caution. It relies on a user token and behaves like a
-											third-party client, which is against Discord's Terms of Service, so you use it
-											at your own risk.
-										</p>
-										<p class="page-tutorial-warn-text" data-i18n="status.tutorialWarning2">
-											We do not accept any responsibility for possible consequences, including
-											warnings or account restrictions, although we have not observed bans for this
-											specific use case so far.
-										</p>
-										<p class="page-tutorial-warn-danger">
-											<span data-i18n="status.tutorialWarning3"
-												>Never share your Discord token with anyone!</span
-											>
-											<span data-i18n="status.tutorialWarning4"
-												>Never show it to anyone, never send it to anyone, and never paste it
-												anywhere except this field. Your token gives full access to your Discord
-												account.</span
-											>
-										</p>
-									</div>
-									<div class="page-tutorial-body">
-										<div class="page-tutorial-col">
-											<p class="page-tutorial-step" data-i18n="status.tutorialStep1">
-												Step 1 — Enable status and set up cycles
-											</p>
-											<ol class="page-tutorial-list">
-												<li>
-													<span data-i18n="status.toggle">Toggle</span>
-													<strong data-i18n="status.customStatus">Custom status</strong>
-													<span data-i18n="status.toTurnWorkerOn">to turn the worker on.</span>
-												</li>
-												<li>
-													<span data-i18n="status.set">Set</span>
-													<strong data-i18n="status.discordToken">Discord token</strong>
-													<span data-i18n="status.inFieldBelow">in the field below.</span>
-												</li>
-												<li>
-													<span data-i18n="status.set">Set</span>
-													<strong data-i18n="activity.updateSec">update(sec)</strong>
-													<span data-i18n="status.howOftenStatusChange"
-														>— how often the status should change (minimum 5 seconds).</span
-													>
-												</li>
-												<li>
-													<span data-i18n="status.addOneOrMore">Add one or more</span>
-													<strong data-i18n="status.statusCycles">status cycles</strong>
-													<span data-i18n="status.withTextAndEmoji"
-														>with text and optional emoji.</span
-													>
-												</li>
-											</ol>
-										</div>
-										<div class="page-tutorial-col">
-											<p class="page-tutorial-step" data-i18n="status.tutorialStep2">
-												Step 2 — Get Discord token
-											</p>
-											<ul class="page-tutorial-list">
-												<li data-i18n="status.step2Li1">
-													Open Discord in a desktop browser and log in to your account.
-												</li>
-												<li>
-													<span data-i18n="status.step2Li2Open">Open DevTools with</span>
-													<strong>F12</strong> <span data-i18n="status.step2Li2Or">or</span>
-													<strong>Ctrl+Shift+I</strong>.
-												</li>
-												<li>
-													<span data-i18n="status.step2Li3Switch">Switch to the</span>
-													<strong data-i18n="status.network">Network</strong>
-													<span data-i18n="status.step2Li3Tab"
-														>tab and in the lower panel select the</span
-													>
-													<strong data-i18n="status.science">science</strong>
-													<span data-i18n="status.step2Li3Request">request.</span>
-												</li>
-												<li>
-													<span data-i18n="status.step2Li4Inside">Inside the</span>
-													<strong data-i18n="status.science">science</strong>
-													<span data-i18n="status.step2Li4Request">request, find the</span>
-													<strong data-i18n="status.authorization">authorization</strong>
-													<span data-i18n="status.step2Li4Header"
-														>header and copy its full value.</span
-													>
-												</li>
-												<li>
-													<span data-i18n="status.step2Li5Paste">Paste the copied</span>
-													<strong data-i18n="status.userToken">user token</strong>
-													<span data-i18n="status.step2Li5Into">into the</span>
-													<strong data-i18n="status.discordToken">DISCORD TOKEN</strong>
-													<span data-i18n="status.step2Li5Field">field below.</span>
-												</li>
-											</ul>
-										</div>
-										<div class="page-tutorial-col">
-											<p class="page-tutorial-step" data-i18n="status.tutorialStep3">
-												Step 3 — Important notes
-											</p>
-											<ul class="page-tutorial-list">
-												<li>
-													<span data-i18n="status.step3Li1WeDoNot">We do not store your</span>
-													<strong data-i18n="status.discordToken">Discord token</strong>
-													<span data-i18n="status.step3Li1OnAnyServer"
-														>on any server. It is used locally on your machine only.</span
-													>
-												</li>
-												<li>
-													<span data-i18n="status.step3Li2ForMost"
-														>For most setups we recommend an update interval between</span
-													>
-													<strong data-i18n="status.sixtyToNinety">60 and 90 seconds</strong>
-													<span data-i18n="status.step3Li2ToKeep"
-														>to keep your status responsive without spamming Discord.</span
-													>
-												</li>
-												<li>
-													<span data-i18n="status.step3Li3IfYour"
-														>If your main RPC presence already updates every</span
-													>
-													<strong data-i18n="status.fiveSeconds">5 seconds</strong>,
-													<span data-i18n="status.step3Li3ItIsNot"
-														>it is not recommended to set the status interval lower than</span
-													>
-													<strong class="page-tutorial-warn-inline" data-i18n="status.sixtySeconds"
-														>60 seconds</strong
-													>.
-												</li>
-											</ul>
-											<button
-												id="get-video-error-id"
-												class="logs-action-btn"
-												type="button"
-												data-i18n="status.ifItDoesntOpen"
-											>
-												If it doesn't open the console
-											</button>
-											<button
-												id="status-tutorial-dont-show"
-												class="logs-action-btn"
-												type="button"
-												data-i18n="status.dontShowAgain"
-											>
-												Do not show this again
-											</button>
-										</div>
-									</div>
+									</a>
 								</div>
 
 								<div class="settings-group">
-									<p
-										class="settings-group-title"
-										id="status-page-info-text-title-block"
-										data-i18n="status.customStatus"
-									>
-										Custom status
-									</p>
+									<p class="settings-group-title" data-i18n="status.customStatus">Custom status</p>
 									<div class="settings-card">
 										<div class="settings-row">
 											<div class="settings-row-info">
@@ -2238,7 +2199,6 @@
 											<input
 												id="status-update-interval-input"
 												class="dialog-field-input"
-												type="number"
 												placeholder="60"
 												min="5"
 											/>
@@ -2282,19 +2242,18 @@
 						<section data-view="logs" data-active="false">
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.logs">Logs</h2></div>
-								<div class="view-header-actions">
-									<button
-										id="logs-download-btn"
-										class="view-action-btn"
-										data-i18n="logs.downloadTxt"
-									>
+							</header>
+
+							<div class="logs-page">
+								<div class="page-toolbar">
+									<button id="logs-download-btn" class="page-toolbar-btn" type="button">
 										<svg
-											width="14"
-											height="14"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="1.6"
+											stroke-width="2"
 											stroke-linecap="round"
 											stroke-linejoin="round"
 											aria-hidden="true"
@@ -2303,16 +2262,16 @@
 											<polyline points="7 10 12 15 17 10" />
 											<line x1="12" y1="15" x2="12" y2="3" />
 										</svg>
-										Download
+										<span data-i18n="logs.downloadTxt">Download</span>
 									</button>
-									<button id="logs-clear-btn" class="view-action-btn" data-i18n="logs.clearConsole">
+									<button id="logs-clear-btn" class="page-toolbar-btn" type="button">
 										<svg
-											width="14"
-											height="14"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="1.6"
+											stroke-width="2"
 											stroke-linecap="round"
 											stroke-linejoin="round"
 											aria-hidden="true"
@@ -2321,13 +2280,8 @@
 												d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
 											/>
 										</svg>
-										Clear
+										<span data-i18n="logs.clearConsole">Clear</span>
 									</button>
-								</div>
-							</header>
-
-							<div class="logs-page">
-								<div class="logs-actions-group">
 									<a
 										id="support-open-site"
 										class="logs-action-btn"
@@ -2392,22 +2346,24 @@
 						<section data-view="plugins" data-active="false">
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.plugins">Plugins</h2></div>
-								<div class="view-header-actions">
+							</header>
+							<div class="plugins-page">
+								<div class="page-toolbar">
 									<a
 										id="plugins-open-site"
-										class="view-action-btn"
+										class="page-toolbar-btn"
 										href="https://voidpresence.com/plugins"
 										target="_blank"
 										rel="noopener noreferrer"
 										aria-label="Browse community plugins"
 									>
 										<svg
-											width="14"
-											height="14"
+											width="12"
+											height="12"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
-											stroke-width="1.6"
+											stroke-width="2"
 											stroke-linecap="round"
 											stroke-linejoin="round"
 											aria-hidden="true"
@@ -2419,8 +2375,6 @@
 										<span data-i18n="plugins.browseCommunity">Browse plugins</span>
 									</a>
 								</div>
-							</header>
-							<div class="plugins-page">
 								<div class="settings-group">
 									<p class="settings-group-title" data-i18n="plugins.label">Plugins</p>
 									<div class="settings-card" id="plugins-list-card">
@@ -2449,136 +2403,110 @@
 								<div class="view-header-title"><h2 data-i18n="tabs.configs">Configs</h2></div>
 							</header>
 							<div class="content-scroll">
-								<div class="configs-page">
-									<div id="cloud-tutorial-card" class="page-tutorial" data-visible="true">
-										<div class="page-tutorial-header">
-											<div class="page-tutorial-titles">
-												<span class="page-tutorial-eyebrow" data-i18n="tutorial.title"
-													>Tutorial</span
-												>
-												<span class="page-tutorial-title" data-i18n="config.tutorialTitle"
-													>Cloud profiles</span
-												>
-											</div>
-											<button id="cloud-tutorial-close" class="page-tutorial-close" type="button">
-												<span data-i18n="tutorial.skip">Skip</span>
-											</button>
-										</div>
-										<div class="page-tutorial-body">
-											<div class="page-tutorial-col">
-												<p class="page-tutorial-step" data-i18n="config.step1">
-													Step 1 — Prepare your profile
-												</p>
-												<ol class="page-tutorial-list">
-													<li data-i18n="config.step1Li1">
-														Set up your presence, details, images and buttons the way you like.
-													</li>
-													<li>
-														<span data-i18n="config.step1Li2Enter">Enter a short</span>
-														<strong data-i18n="config.configName">config name</strong>
-														<span data-i18n="config.step1Li2InField">in the field.</span>
-													</li>
-													<li>
-														<span data-i18n="config.step1Li3Optionally">Optionally add your</span>
-														<strong data-i18n="config.authorId">author ID</strong>
-														<span data-i18n="config.step1Li3From"
-															>(from voidpresence.com/profile)</span
-														>.
-													</li>
-													<li>
-														<span data-i18n="config.step1Li4Click">Click</span>
-														<strong data-i18n="config.saveConfig">save config</strong>
-														<span data-i18n="config.step1Li4ToStore">to store locally.</span>
-													</li>
-												</ol>
-												<a
-													id="get-author-id"
-													class="logs-action-btn"
-													href="https://voidpresence.com/profile"
-													target="_blank"
-													rel="noopener noreferrer"
-													data-i18n="config.openProfile"
-													>Open profile &amp; get author ID</a
-												>
-											</div>
-											<div class="page-tutorial-col">
-												<p class="page-tutorial-step" data-i18n="config.step2">
-													Step 2 — Upload to cloud
-												</p>
-												<ul class="page-tutorial-list">
-													<li>
-														<span data-i18n="config.step2Li1Select">Select the profile in</span>
-														<strong data-i18n="config.savedConfigs">saved configs</strong>.
-													</li>
-													<li>
-														<span data-i18n="config.step2Li2MakeSure">Make sure</span>
-														<strong data-i18n="config.authorId">author ID</strong>
-														<span data-i18n="config.step2Li2IsSet">is set.</span>
-													</li>
-													<li>
-														<span data-i18n="config.step2Li3Click">Click</span>
-														<strong data-i18n="config.upload">upload</strong>.
-													</li>
-												</ul>
-												<button
-													id="cloud-tutorial-dont-show"
-													class="logs-action-btn"
-													type="button"
-													data-i18n="config.dontShowAgain"
-												>
-													Do not show this again
-												</button>
-											</div>
-										</div>
-									</div>
-								</div>
+								<div class="configs-page"></div>
 							</div>
 						</section>
 
 						<section data-view="configs-presence" data-active="false">
+							<div class="presence-onboarding" id="cloud-tutorial-presence-card" data-done="false">
+								<div class="presence-onboarding-inner">
+									<div class="presence-onboarding-icon" aria-hidden="true">
+										<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											stroke="currentColor"
+											stroke-width="1.5"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path
+												d="M10 5H3M12 19H3M14 3v4M16 17v4M21 12h-9M21 19h-5M21 5h-7M8 10v4M8 12H3"
+											/>
+										</svg>
+									</div>
+									<h2 class="presence-onboarding-title" data-i18n="config.tutorialTitle">
+										Cloud profiles
+									</h2>
+									<div class="presence-onboarding-steps">
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">1</span>
+											<span>
+												<span data-i18n="config.step1Li1"
+													>Set up your presence, details, images and buttons the way you like.</span
+												>
+												<span data-i18n="config.step1Li2Enter"> Enter a short</span>
+												<strong data-i18n="config.configName"> config name</strong>
+												<span data-i18n="config.step1Li2InField"> in the field, then click</span>
+												<strong data-i18n="config.saveConfig"> save config</strong>
+												<span data-i18n="config.step1Li4ToStore"> to store locally.</span>
+											</span>
+										</div>
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">2</span>
+											<span>
+												<span data-i18n="config.step2Li1Select">Select the saved profile in</span>
+												<strong data-i18n="config.savedConfigs"> saved configs</strong>,
+												<span data-i18n="config.step2Li3Click"> then click</span>
+												<strong data-i18n="config.upload"> upload</strong>
+												<span> to publish it to the cloud.</span>
+											</span>
+										</div>
+									</div>
+									<div class="presence-onboarding-actions">
+										<button
+											id="cloud-tutorial-presence-close"
+											class="presence-onboarding-continue"
+											type="button"
+										>
+											<span data-i18n="welcome.continueBtn">Continue</span>
+										</button>
+									</div>
+								</div>
+							</div>
 							<header class="view-header">
 								<div class="view-header-title"><h2>Presence configs</h2></div>
-								<div class="view-header-actions">
-									<button id="config-export-btn" class="view-action-btn">
-										<svg
-											width="14"
-											height="14"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1.6"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											aria-hidden="true"
-										>
-											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-											<polyline points="7 10 12 15 17 10" />
-											<line x1="12" y1="15" x2="12" y2="3" />
-										</svg>
-										<span data-i18n="config.export">Export</span>
-									</button>
-									<button id="config-add-btn" class="view-action-btn">
-										<svg
-											width="14"
-											height="14"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1.6"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											aria-hidden="true"
-										>
-											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-											<polyline points="17 8 12 3 7 8" />
-											<line x1="12" y1="3" x2="12" y2="15" />
-										</svg>
-										<span data-i18n="config.import">Import</span>
-									</button>
-								</div>
 							</header>
 							<div class="content-scroll">
 								<div class="configs-page">
+									<div class="page-toolbar">
+										<button id="config-export-btn" class="page-toolbar-btn" type="button">
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												aria-hidden="true"
+											>
+												<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+												<polyline points="7 10 12 15 17 10" />
+												<line x1="12" y1="15" x2="12" y2="3" />
+											</svg>
+											<span data-i18n="config.export">Export</span>
+										</button>
+										<button id="config-add-btn" class="page-toolbar-btn" type="button">
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												aria-hidden="true"
+											>
+												<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+												<polyline points="17 8 12 3 7 8" />
+												<line x1="12" y1="3" x2="12" y2="15" />
+											</svg>
+											<span data-i18n="config.import">Import</span>
+										</button>
+									</div>
 									<div class="settings-group">
 										<div class="settings-card">
 											<div class="configs-save-row">
@@ -2622,15 +2550,6 @@
 													autocomplete="off"
 												/>
 											</div>
-											<div class="configs-save-row">
-												<input
-													id="config-author-input"
-													class="dialog-field-input configs-name-input"
-													type="text"
-													placeholder="Author ID (voidpresence.com/profile)"
-													autocomplete="off"
-												/>
-											</div>
 											<div id="config-list"></div>
 										</div>
 									</div>
@@ -2639,49 +2558,105 @@
 						</section>
 
 						<section data-view="configs-status" data-active="false">
+							<div class="presence-onboarding" id="cloud-tutorial-status-card" data-done="false">
+								<div class="presence-onboarding-inner">
+									<div class="presence-onboarding-icon" aria-hidden="true">
+										<svg
+											viewBox="0 0 24 24"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											stroke="currentColor"
+											stroke-width="1.5"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<path
+												d="M10 5H3M12 19H3M14 3v4M16 17v4M21 12h-9M21 19h-5M21 5h-7M8 10v4M8 12H3"
+											/>
+										</svg>
+									</div>
+									<h2 class="presence-onboarding-title" data-i18n="config.tutorialTitle">
+										Cloud profiles
+									</h2>
+									<div class="presence-onboarding-steps">
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">1</span>
+											<span>
+												<span data-i18n="config.step1Li1"
+													>Set up your presence, details, images and buttons the way you like.</span
+												>
+												<span data-i18n="config.step1Li2Enter"> Enter a short</span>
+												<strong data-i18n="config.configName"> config name</strong>
+												<span data-i18n="config.step1Li2InField"> in the field, then click</span>
+												<strong data-i18n="config.saveConfig"> save config</strong>
+												<span data-i18n="config.step1Li4ToStore"> to store locally.</span>
+											</span>
+										</div>
+										<div class="presence-onboarding-step">
+											<span class="presence-onboarding-step-num">2</span>
+											<span>
+												<span data-i18n="config.step2Li1Select">Select the saved profile in</span>
+												<strong data-i18n="config.savedConfigs"> saved configs</strong>,
+												<span data-i18n="config.step2Li3Click"> then click</span>
+												<strong data-i18n="config.upload"> upload</strong>
+												<span> to publish it to the cloud.</span>
+											</span>
+										</div>
+									</div>
+									<div class="presence-onboarding-actions">
+										<button
+											id="cloud-tutorial-status-close"
+											class="presence-onboarding-continue"
+											type="button"
+										>
+											<span data-i18n="welcome.continueBtn">Continue</span>
+										</button>
+									</div>
+								</div>
+							</div>
 							<header class="view-header">
 								<div class="view-header-title"><h2>Status configs</h2></div>
-								<div class="view-header-actions">
-									<button id="status-export-btn" class="view-action-btn" type="button">
-										<svg
-											width="14"
-											height="14"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1.6"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											aria-hidden="true"
-										>
-											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-											<polyline points="7 10 12 15 17 10" />
-											<line x1="12" y1="15" x2="12" y2="3" />
-										</svg>
-										<span data-i18n="config.export">Export</span>
-									</button>
-									<button id="status-import-btn" class="view-action-btn" type="button">
-										<svg
-											width="14"
-											height="14"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1.6"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											aria-hidden="true"
-										>
-											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-											<polyline points="17 8 12 3 7 8" />
-											<line x1="12" y1="3" x2="12" y2="15" />
-										</svg>
-										<span data-i18n="config.import">Import</span>
-									</button>
-								</div>
 							</header>
 							<div class="content-scroll">
 								<div class="configs-page">
+									<div class="page-toolbar">
+										<button id="status-export-btn" class="page-toolbar-btn" type="button">
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												aria-hidden="true"
+											>
+												<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+												<polyline points="7 10 12 15 17 10" />
+												<line x1="12" y1="15" x2="12" y2="3" />
+											</svg>
+											<span data-i18n="config.export">Export</span>
+										</button>
+										<button id="status-import-btn" class="page-toolbar-btn" type="button">
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												aria-hidden="true"
+											>
+												<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+												<polyline points="17 8 12 3 7 8" />
+												<line x1="12" y1="3" x2="12" y2="15" />
+											</svg>
+											<span data-i18n="config.import">Import</span>
+										</button>
+									</div>
 									<div class="settings-group">
 										<div class="settings-card">
 											<div class="configs-save-row">
@@ -2990,17 +2965,12 @@
 						<div class="footer-payload" id="footer-payload">
 							<div class="footer-payload-item">
 								<span class="footer-payload-label" data-i18n="payload.details">Details</span>
-								<span class="footer-payload-value" id="info-object">—</span>
+								<span class="footer-payload-value" id="info-object">–</span>
 							</div>
 							<span class="footer-payload-sep" aria-hidden="true"></span>
 							<div class="footer-payload-item">
 								<span class="footer-payload-label" data-i18n="payload.state">State</span>
-								<span class="footer-payload-value" id="info-details">—</span>
-							</div>
-							<span class="footer-payload-sep" aria-hidden="true"></span>
-							<div class="footer-payload-item">
-								<span class="footer-payload-label" data-i18n="payload.uptime">Uptime</span>
-								<span class="footer-payload-value" id="info-uptime">—</span>
+								<span class="footer-payload-value" id="info-details">–</span>
 							</div>
 							<span class="footer-payload-sep" aria-hidden="true"></span>
 							<span class="footer-status-dot-wrap" aria-hidden="true"
@@ -3010,6 +2980,23 @@
 								>Waiting for first update…</span
 							>
 							<span id="info-buttons" style="display: none" aria-hidden="true"></span>
+						</div>
+
+						<div class="footer-payload status-footer-payload" id="status-footer-payload">
+							<div class="footer-payload-item">
+								<span class="footer-payload-label" data-i18n="status.statusText">Status</span>
+								<span class="footer-payload-value" id="status-page-info-text">–</span>
+							</div>
+							<span class="footer-payload-sep" aria-hidden="true"></span>
+							<span class="footer-status-dot-wrap" aria-hidden="true"
+								><span class="footer-status-dot status-dot-status" id="status-dot-status"></span
+							></span>
+							<span
+								class="footer-payload-status"
+								id="status-page-info-status"
+								data-i18n="status.waiting"
+								>Waiting for first update…</span
+							>
 						</div>
 					</footer>
 				</div>

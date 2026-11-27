@@ -19,7 +19,7 @@ function createStatusCard(
 	profile: StoredStatusProfile,
 	list: HTMLElement,
 	nameInput: HTMLInputElement,
-	showSavedToast: () => void
+	_showSavedToast: () => void
 ): void {
 	const items: CustomStatusItem[] = Array.isArray(profile.items) ? profile.items : []
 
@@ -131,8 +131,8 @@ function createStatusCard(
 		e.preventDefault()
 
 		openStatusUploadConfirm(profile, async () => {
-			const authorInput = document.getElementById('config-author-input') as HTMLInputElement | null
-			if (!authorInput?.value.trim()) {
+			const authorId = localStorage.getItem('authorId')?.trim() || ''
+			if (!authorId) {
 				appendLog({
 					message: t('logs.enterAuthorIdFirst'),
 					level: 'error',
@@ -147,8 +147,6 @@ function createStatusCard(
 				})
 				return
 			}
-
-			const authorId = authorInput.value.trim()
 
 			try {
 				uploadBtn.disabled = true

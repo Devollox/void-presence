@@ -1,10 +1,9 @@
 .configs-page {
-	max-width: 720px;
+	max-width: 680px;
 	margin: 0 auto;
-	padding: 24px 28px 56px;
+	padding: 0 28px 80px;
 	display: flex;
 	flex-direction: column;
-	gap: 24px;
 }
 
 .configs-save-row {
