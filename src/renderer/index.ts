@@ -11,6 +11,7 @@ import { importJsonPayload, setupImportOverlay } from './modules/modals/import'
 import { setupTutorials } from './modules/modals/tutorials'
 import './modules/modals/update'
 import { initUpdateOverlay } from './modules/modals/update'
+import { setupChangelogsPage, syncChangelogUnreadDot } from './modules/shell/changelogs-page'
 import { setupPluginsPage } from './modules/plugins/plugins-page'
 import setupTabsDnd from './modules/shell/dnd-tabs'
 import { initLanguage } from './modules/shell/language'
@@ -48,6 +49,7 @@ import setupShortcutsModal, { openShortcutsModal } from './modules/shell/shortcu
 import { setupSettingsTheme, setupSettingsLanguage } from './modules/shell/settings-controls'
 import { setupTimestampModal } from './modules/presence/timestamp-modal'
 import { setupActivityDialog } from './modules/presence/activity-dialog'
+import { setupOverflowMasks } from './modules/shell/overflow-mask'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -55,6 +57,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 document.addEventListener('DOMContentLoaded', () => {
 	initTheme()
+	setupOverflowMasks()
 	window.electronAPI?.rendererReady?.()
 	initLanguage()
 	updatePlaceholders()
@@ -101,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupStatusDetailsOverlay()
 	void setupStatusIntervalControl()
 	void setupPluginsPage()
+	void setupChangelogsPage()
+	syncChangelogUnreadDot()
 
 	updateStatusStatus('CUSTOM_STATUS_DISABLED')
 	updateStatus('RPC_DISABLED')

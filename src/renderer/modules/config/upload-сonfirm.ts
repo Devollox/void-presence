@@ -1,42 +1,48 @@
 import { StoredConfig, StoredStatusProfile } from '../../../types/types'
+import { closeOverlay, openOverlay } from '../shell/overlay-utils'
 
-export function openUploadConfirm(cfg: StoredConfig, onConfirm: () => void) {
+export function openUploadConfirm(cfg: StoredConfig, onConfirm: () => void): void {
 	const overlay = document.getElementById('upload-confirm-overlay') as HTMLElement | null
 	if (!overlay) return
 
 	const closeBtn = document.getElementById('upload-confirm-close') as HTMLButtonElement | null
 	const okBtn = document.getElementById('upload-confirm-ok') as HTMLButtonElement | null
 	const info = document.getElementById('upload-confirm-profile-info') as HTMLElement | null
+	const backdrop = document.getElementById('upload-confirm-backdrop') as HTMLElement | null
 
 	if (!closeBtn || !okBtn || !info) return
 
 	info.textContent = cfg.name || 'Unnamed profile'
-	overlay.dataset.open = 'true'
 
-	const okHandler = () => {
+	const close = (): void => {
+		closeOverlay(overlay)
+		okBtn.removeEventListener('click', okHandler)
+		closeBtn.removeEventListener('click', close)
+		backdrop?.removeEventListener('click', close)
+		document.removeEventListener('keydown', escHandler)
+	}
+
+	const okHandler = (): void => {
 		close()
 		onConfirm()
 	}
 
-	const overlayHandler = (e: MouseEvent) => {
-		if (e.target === overlay) {
-			close()
-		}
-	}
-
-	const close = () => {
-		overlay.dataset.open = 'false'
-		okBtn.removeEventListener('click', okHandler)
-		closeBtn.removeEventListener('click', close)
-		overlay.removeEventListener('click', overlayHandler)
+	const escHandler = (e: KeyboardEvent): void => {
+		if (e.key === 'Escape' && !overlay.hidden) close()
 	}
 
 	okBtn.addEventListener('click', okHandler)
 	closeBtn.addEventListener('click', close)
-	overlay.addEventListener('click', overlayHandler)
+	backdrop?.addEventListener('click', close)
+	document.addEventListener('keydown', escHandler)
+
+	openOverlay(overlay)
 }
 
-export function openStatusUploadConfirm(profile: StoredStatusProfile, onConfirm: () => void) {
+export function openStatusUploadConfirm(
+	profile: StoredStatusProfile,
+	onConfirm: () => void
+): void {
 	const overlay = document.getElementById('status-upload-confirm-overlay') as HTMLElement | null
 	if (!overlay) return
 
@@ -44,40 +50,38 @@ export function openStatusUploadConfirm(profile: StoredStatusProfile, onConfirm:
 		'status-upload-confirm-close'
 	) as HTMLButtonElement | null
 	const okBtn = document.getElementById('status-upload-confirm-ok') as HTMLButtonElement | null
-	const info = document.getElementById('status-upload-confirm-profile-info') as HTMLElement | null
+	const info = document.getElementById(
+		'status-upload-confirm-profile-info'
+	) as HTMLElement | null
+	const backdrop = document.getElementById(
+		'status-upload-confirm-backdrop'
+	) as HTMLElement | null
 
 	if (!closeBtn || !okBtn || !info) return
 
 	info.textContent = profile.name || 'Unnamed status profile'
-	overlay.dataset.open = 'true'
 
-	const close = () => {
-		overlay.dataset.open = 'false'
+	const close = (): void => {
+		closeOverlay(overlay)
 		okBtn.removeEventListener('click', okHandler)
 		closeBtn.removeEventListener('click', close)
-		overlay.removeEventListener('click', overlayHandler)
-		window.removeEventListener('keydown', escHandler)
+		backdrop?.removeEventListener('click', close)
+		document.removeEventListener('keydown', escHandler)
 	}
 
-	const okHandler = () => {
+	const okHandler = (): void => {
 		close()
 		onConfirm()
 	}
 
-	const overlayHandler = (e: MouseEvent) => {
-		if (e.target === overlay) {
-			close()
-		}
-	}
-
-	const escHandler = (e: KeyboardEvent) => {
-		if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
-			close()
-		}
+	const escHandler = (e: KeyboardEvent): void => {
+		if (e.key === 'Escape' && !overlay.hidden) close()
 	}
 
 	okBtn.addEventListener('click', okHandler)
 	closeBtn.addEventListener('click', close)
-	overlay.addEventListener('click', overlayHandler)
-	window.addEventListener('keydown', escHandler)
+	backdrop?.addEventListener('click', close)
+	document.addEventListener('keydown', escHandler)
+
+	openOverlay(overlay)
 }

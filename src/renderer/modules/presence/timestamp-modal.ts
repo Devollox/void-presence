@@ -1,22 +1,57 @@
-const CLOSING_DURATION = 250
 let initialized = false
 
 export function openTimestampModal(): void {
 	const modal = document.getElementById('timestamp-modal')
-	if (!modal || !modal.hidden || modal.hasAttribute('data-closing')) return
-	modal.hidden = false
+	const trigger = document.getElementById('timestamp-modal-trigger')
+	if (!modal) return
+
+	modal.removeAttribute('data-closing')
+	modal.removeAttribute('hidden')
+
+	requestAnimationFrame(() => {
+		modal.dataset.open = 'true'
+	})
+
+	trigger?.setAttribute('aria-expanded', 'true')
 	document.body.setAttribute('data-modal-open', 'true')
 }
 
 export function closeTimestampModal(): void {
 	const modal = document.getElementById('timestamp-modal')
-	if (!modal || modal.hidden || modal.hasAttribute('data-closing')) return
+	const trigger = document.getElementById('timestamp-modal-trigger')
+	if (!modal || modal.hasAttribute('hidden')) return
+
+	modal.dataset.open = 'false'
 	modal.setAttribute('data-closing', '')
-	setTimeout(() => {
-		modal.hidden = true
+	trigger?.setAttribute('aria-expanded', 'false')
+
+	const panel = modal.querySelector<HTMLElement>('.dialog-panel')
+
+	const finish = (): void => {
+		modal.setAttribute('hidden', '')
 		modal.removeAttribute('data-closing')
+		modal.removeAttribute('data-open')
 		document.body.removeAttribute('data-modal-open')
-	}, CLOSING_DURATION)
+	}
+
+	if (!panel) {
+		finish()
+		return
+	}
+
+	panel.addEventListener(
+		'transitionend',
+		(event: TransitionEvent) => {
+			if (
+				event.target === panel &&
+				event.propertyName === 'opacity' &&
+				modal.hasAttribute('data-closing')
+			) {
+				finish()
+			}
+		},
+		{ once: true },
+	)
 }
 
 export function updateTimestampSummary(): void {

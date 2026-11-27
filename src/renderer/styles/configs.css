@@ -1,0 +1,299 @@
+.configs-page {
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 24px 28px 56px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.configs-save-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	border-bottom: var(--editor-hairline) solid var(--border-secondary);
+}
+
+.configs-name-input {
+	flex: 1;
+	min-width: 0;
+	width: auto;
+}
+
+.configs-search-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	border-bottom: var(--editor-hairline) solid var(--border-secondary);
+}
+
+.configs-search-icon {
+	flex-shrink: 0;
+	color: var(--text-tertiary);
+}
+
+.configs-search-input {
+	flex: 1;
+	min-width: 0;
+	height: 28px;
+	border: none;
+	background: transparent;
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 13px;
+	outline: none;
+}
+
+.configs-search-input::placeholder {
+	color: var(--text-tertiary);
+	font-weight: 450;
+}
+
+.config-activity-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 60px;
+	padding: 10px 12px 10px 14px;
+	border-bottom: var(--editor-hairline) solid var(--border-secondary);
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+.config-activity-card:last-child {
+	border-bottom: none;
+}
+
+.config-activity-body {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	flex: 1;
+}
+
+.config-activity-image {
+	width: 36px;
+	height: 36px;
+	flex-shrink: 0;
+	border-radius: var(--radius-chip);
+	overflow: hidden;
+	background-color: var(--color-bg-tertiary);
+	border: var(--editor-hairline) solid var(--border-secondary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.config-activity-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.config-activity-image img[src='about:blank'],
+.config-activity-image img:not([src]),
+.config-activity-image img[src=''] {
+	display: none;
+}
+
+.config-activity-details {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	flex: 1;
+}
+
+.config-activity-title {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--content-highlight-color);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.config-activity-line {
+	font-size: 12px;
+	font-weight: 450;
+	color: var(--text-tertiary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.config-activity-footer {
+	display: none;
+}
+
+.config-activity-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-shrink: 0;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.config-activity-btn {
+	display: inline-flex;
+	align-items: center;
+	height: 26px;
+	padding: 0 10px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-control);
+	background-color: var(--color-bg-tertiary);
+	color: var(--text-secondary);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease;
+}
+
+.config-activity-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+.config-activity-btn:active:not(:disabled) {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+.config-activity-btn.danger {
+	color: var(--logs-error-indicator);
+	border-color: color-mix(in srgb, var(--logs-error-indicator) 25%, var(--border-secondary));
+	background-color: transparent;
+}
+
+.config-activity-btn.danger:active {
+	background-color: color-mix(in srgb, var(--logs-error-indicator) 10%, transparent);
+	transition-duration: 0s;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.config-activity-card:hover {
+		background-color: var(--control-tertiary-hover);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+
+	.config-activity-btn:hover:not(:disabled) {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+
+	.config-activity-btn.danger:hover:not(:disabled) {
+		background-color: color-mix(in srgb, var(--logs-error-indicator) 10%, transparent);
+		color: var(--logs-error-indicator);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.config-activity-card,
+	.config-activity-btn {
+		transition: none;
+	}
+}
+
+.configs-section {
+	display: flex;
+	flex-direction: column;
+}
+
+.configs-section-header {
+	display: flex;
+	align-items: center;
+	margin-bottom: 2px;
+}
+
+.configs-section-toggle {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	height: 28px;
+	padding: 0 4px 0 2px;
+	border: none;
+	border-radius: var(--radius-control);
+	background-color: transparent;
+	color: var(--text-secondary);
+	font: inherit;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.configs-section-toggle:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: -1px;
+}
+
+.configs-section-toggle:active {
+	background-color: var(--control-tertiary-selected);
+	transition-duration: 0s;
+}
+
+.configs-section-caret {
+	flex-shrink: 0;
+	fill: currentColor;
+	transform: rotate(90deg);
+	transform-origin: center;
+	transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.configs-section[data-open='false'] .configs-section-caret {
+	transform: rotate(0deg);
+}
+
+.configs-section-body {
+	display: grid;
+	grid-template-rows: 1fr;
+	opacity: 1;
+	overflow: hidden;
+	transition:
+		grid-template-rows var(--speed-regularTransition) var(--ease-out-cubic),
+		opacity var(--speed-regularTransition) var(--ease-out-cubic);
+}
+
+.configs-section[data-open='false'] .configs-section-body {
+	grid-template-rows: 0fr;
+	opacity: 0;
+}
+
+.configs-section-inner {
+	min-height: 0;
+	overflow: hidden;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.configs-section-toggle:hover {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.configs-section-caret,
+	.configs-section-body {
+		transition: none;
+	}
+}

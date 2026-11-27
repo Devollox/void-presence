@@ -1,13 +1,12 @@
 import { StoredStatusProfile } from '../../../types/types'
+import { closeOverlay, openOverlay } from '../shell/overlay-utils'
 
 export function openStatusDetails(profile: StoredStatusProfile): void {
 	const overlay = document.getElementById('status-details-overlay') as HTMLElement | null
 	const nameEl = document.getElementById('status-details-name') as HTMLElement | null
 	const listEl = document.getElementById('status-details-list') as HTMLElement | null
 
-	if (!overlay || !nameEl || !listEl) {
-		return
-	}
+	if (!overlay || !nameEl || !listEl) return
 
 	const items = Array.isArray(profile.items) ? profile.items : []
 
@@ -16,7 +15,7 @@ export function openStatusDetails(profile: StoredStatusProfile): void {
 
 	if (!items.length) {
 		const empty = document.createElement('div')
-		empty.className = 'config-details-empty'
+		empty.className = 'detail-overlay-empty'
 		empty.textContent = 'No statuses saved'
 		listEl.appendChild(empty)
 	} else {
@@ -42,33 +41,23 @@ export function openStatusDetails(profile: StoredStatusProfile): void {
 		})
 	}
 
-	overlay.dataset.open = 'true'
+	openOverlay(overlay)
 }
 
 export function setupStatusDetailsOverlay(): void {
 	const overlay = document.getElementById('status-details-overlay') as HTMLElement | null
 	const closeBtn = document.getElementById('status-details-close') as HTMLButtonElement | null
+	const backdrop = document.getElementById('status-details-backdrop') as HTMLElement | null
+
 	if (!overlay || !closeBtn) return
 
-	function close(): void {
-		if (!overlay) return
+	const close = (): void => closeOverlay(overlay)
 
-		overlay.dataset.open = 'false'
-	}
+	closeBtn.addEventListener('click', close)
+	backdrop?.addEventListener('click', close)
 
-	closeBtn.addEventListener('click', e => {
-		e.preventDefault()
-		close()
-	})
-
-	overlay.addEventListener('click', e => {
-		if (e.target === overlay) {
-			close()
-		}
-	})
-
-	document.addEventListener('keydown', e => {
-		if (e.key === 'Escape' && overlay.dataset.open === 'true') {
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Escape' && !overlay.hidden) {
 			e.preventDefault()
 			close()
 		}

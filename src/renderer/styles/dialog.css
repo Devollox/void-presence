@@ -20,11 +20,12 @@
 
 	background-color: rgba(0, 0, 0, 0.45);
 
-	animation: dialog-backdrop-in var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+	opacity: 0;
+	transition: opacity var(--speed-regularTransition) var(--ease-out-cubic);
 }
 
-.dialog[data-closing] .dialog-backdrop {
-	animation: dialog-backdrop-out var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+.dialog[data-open='true'] .dialog-backdrop {
+	opacity: 1;
 }
 
 .dialog-panel {
@@ -46,11 +47,26 @@
 
 	overflow: hidden;
 
-	animation: dialog-panel-in var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+	opacity: 0;
+	transform: translateY(8px) scale(0.97);
+
+	transition:
+		opacity var(--speed-regularTransition) var(--ease-out-cubic),
+		transform var(--speed-regularTransition) var(--ease-out-cubic);
+}
+
+.dialog[data-open='true'] .dialog-panel {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+}
+
+.dialog[data-closing] .dialog-backdrop {
+	opacity: 0;
 }
 
 .dialog[data-closing] .dialog-panel {
-	animation: dialog-panel-out var(--speed-regularTransition) var(--ease-out-cubic) forwards;
+	opacity: 0;
+	transform: translateY(4px) scale(0.98);
 }
 
 .dialog-header {
@@ -328,7 +344,7 @@
 }
 
 .dialog-input {
-	height: 28px;
+	height: 26px;
 
 	padding: 0 8px;
 
@@ -362,7 +378,7 @@
 	display: inline-flex;
 	align-items: center;
 
-	height: 28px;
+	height: 26px;
 
 	padding: 0 12px;
 
@@ -436,7 +452,7 @@
 
 .dialog-field-input {
 	width: 96px;
-	height: 28px;
+	height: 26px;
 	flex-shrink: 0;
 	padding: 0 8px;
 	border: var(--editor-hairline) solid var(--border-secondary);
@@ -461,7 +477,7 @@
 
 .dialog-field-btn {
 	flex-shrink: 0;
-	height: 28px;
+	height: 26px;
 	padding: 0 12px;
 	border: var(--editor-hairline) solid var(--border-secondary);
 	border-radius: var(--radius-control);
@@ -529,6 +545,19 @@
 
 .presence-trigger-btn svg {
 	opacity: 0.4;
+	display: block;
+
+	transform: rotate(0deg);
+	transform-origin: center;
+	will-change: transform;
+
+	transition:
+		transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+		opacity 120ms ease;
+}
+
+.presence-trigger-btn[aria-expanded='true'] svg {
+	transform: rotate(180deg);
 }
 
 .presence-trigger-btn:focus-visible {
@@ -548,54 +577,6 @@
 	}
 }
 
-#time-list[data-visible='false'] {
-	display: none;
-}
-
-@keyframes dialog-backdrop-in {
-	from {
-		opacity: 0;
-	}
-
-	to {
-		opacity: 1;
-	}
-}
-
-@keyframes dialog-backdrop-out {
-	from {
-		opacity: 1;
-	}
-
-	to {
-		opacity: 0;
-	}
-}
-
-@keyframes dialog-panel-in {
-	from {
-		opacity: 0;
-		transform: translateY(8px) scale(0.97);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0) scale(1);
-	}
-}
-
-@keyframes dialog-panel-out {
-	from {
-		opacity: 1;
-		transform: translateY(0) scale(1);
-	}
-
-	to {
-		opacity: 0;
-		transform: translateY(4px) scale(0.98);
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.dialog-backdrop,
 	.dialog-panel,
@@ -605,7 +586,6 @@
 	.dialog-btn,
 	.dialog-field-input,
 	.dialog-field-btn {
-		animation: none;
 		transition: none;
 	}
 }

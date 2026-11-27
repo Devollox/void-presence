@@ -1,22 +1,57 @@
-const CLOSING_DURATION = 250
 let initialized = false
 
 export function openActivityDialog(): void {
 	const dialog = document.getElementById('activity-type-dialog')
-	if (!dialog || !dialog.hidden || dialog.hasAttribute('data-closing')) return
-	dialog.hidden = false
+	const trigger = document.getElementById('activity-type-trigger')
+	if (!dialog) return
+
+	dialog.removeAttribute('data-closing')
+	dialog.removeAttribute('hidden')
+
+	requestAnimationFrame(() => {
+		dialog.dataset.open = 'true'
+	})
+
+	trigger?.setAttribute('aria-expanded', 'true')
 	document.body.setAttribute('data-modal-open', 'true')
 }
 
 export function closeActivityDialog(): void {
 	const dialog = document.getElementById('activity-type-dialog')
-	if (!dialog || dialog.hidden || dialog.hasAttribute('data-closing')) return
+	const trigger = document.getElementById('activity-type-trigger')
+	if (!dialog || dialog.hasAttribute('hidden')) return
+
+	dialog.dataset.open = 'false'
 	dialog.setAttribute('data-closing', '')
-	setTimeout(() => {
-		dialog.hidden = true
+	trigger?.setAttribute('aria-expanded', 'false')
+
+	const panel = dialog.querySelector<HTMLElement>('.dialog-panel')
+
+	const finish = (): void => {
+		dialog.setAttribute('hidden', '')
 		dialog.removeAttribute('data-closing')
+		dialog.removeAttribute('data-open')
 		document.body.removeAttribute('data-modal-open')
-	}, CLOSING_DURATION)
+	}
+
+	if (!panel) {
+		finish()
+		return
+	}
+
+	panel.addEventListener(
+		'transitionend',
+		(event: TransitionEvent) => {
+			if (
+				event.target === panel &&
+				event.propertyName === 'opacity' &&
+				dialog.hasAttribute('data-closing')
+			) {
+				finish()
+			}
+		},
+		{ once: true },
+	)
 }
 
 export function updateActivityTypeSummary(): void {

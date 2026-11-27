@@ -101,6 +101,9 @@
 	letter-spacing: -0.006em;
 	text-overflow: clip;
 	white-space: nowrap;
+}
+
+.workspace-title.is-overflowing {
 	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
 	mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
 }
@@ -300,8 +303,13 @@
 		color 120ms ease;
 }
 
-.sidebar-section[data-open='true'] .sidebar-section-caret,
-.sidebar-account-group[data-open='true'] .sidebar-account-chevron svg {
+.sidebar-section[data-open='true'] > .sidebar-section-header .sidebar-section-caret,
+.sidebar-account-group[data-open='true'] > .sidebar-account-heading .sidebar-account-chevron svg,
+.sidebar-section[data-open='true']
+	> .sidebar-section-body
+	> *
+	> .sidebar-section-header
+	.sidebar-section-caret {
 	transform: rotate(90deg);
 }
 
@@ -312,15 +320,24 @@
 	opacity: 0;
 	min-height: 0;
 	overflow: hidden;
+	visibility: hidden;
+	pointer-events: none;
 	transition:
 		grid-template-rows var(--speed-regularTransition) var(--ease-out-cubic),
-		opacity var(--speed-regularTransition) var(--ease-out-cubic);
+		opacity var(--speed-regularTransition) var(--ease-out-cubic),
+		visibility 0s linear var(--speed-regularTransition);
 }
 
-.sidebar-section[data-open='true'] .sidebar-section-body,
-.sidebar-account-group[data-open='true'] .sidebar-account-body {
+.sidebar-section[data-open='true'] > .sidebar-section-body,
+.sidebar-account-group[data-open='true'] > .sidebar-account-body {
 	grid-template-rows: 1fr;
 	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+	transition:
+		grid-template-rows var(--speed-regularTransition) var(--ease-out-cubic),
+		opacity var(--speed-regularTransition) var(--ease-out-cubic),
+		visibility 0s linear 0s;
 }
 
 .sidebar-section-list,
@@ -488,18 +505,24 @@
 	overflow: hidden;
 	text-overflow: clip;
 	white-space: nowrap;
-	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
-	mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+}
+
+.sidebar-account-name.is-overflowing {
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
 }
 
 .sidebar-account-chevron {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex: 0 0 12px;
 	width: 12px;
 	height: 12px;
-	color: var(--text-tertiary);
+	flex-shrink: 0;
+	fill: currentColor;
+	transform: rotate(0deg);
+	transform-origin: center;
+	will-change: transform;
+	transition:
+		transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+		color 120ms ease;
 }
 
 .sidebar-account-chevron svg {
@@ -973,5 +996,64 @@
 		-webkit-mask-image: none;
 		mask-image: none;
 		text-overflow: ellipsis;
+	}
+}
+
+.sidebar-group-divider {
+	height: var(--editor-hairline);
+	background-color: var(--border-secondary);
+	margin: 6px 10px;
+	opacity: 0.6;
+}
+
+.sidebar-section--nested {
+	margin: 0;
+}
+
+.sidebar-section--nested .sidebar-section-header {
+	margin-bottom: 0;
+}
+
+.sidebar-section--nested > .sidebar-section-header > .sidebar-section-toggle {
+	height: 28px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 8px;
+	border: none;
+	border-radius: var(--radius-control);
+	background-color: transparent;
+	color: var(--text-secondary);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 450;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.sidebar-section--nested > .sidebar-section-header > .sidebar-section-toggle:active {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+.sidebar-configs-toggle > .sidebar-item-label {
+	flex: 0 0 auto;
+	width: auto;
+	min-width: 0;
+	overflow: visible;
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.sidebar-section--nested > .sidebar-section-header > .sidebar-section-toggle:hover {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
 	}
 }

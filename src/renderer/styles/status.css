@@ -1,0 +1,58 @@
+.status-page {
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 24px 28px 56px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+html[data-status-tutorial-done] #status-tutorial-card {
+	display: none;
+}
+
+.status-cycles-group-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.status-cycles-group-header .settings-group-title {
+	margin: 0;
+}
+
+.status-cycles-hint-text {
+	display: block;
+	padding: 10px 16px 12px;
+	font-size: 12px;
+	font-weight: 450;
+	line-height: 1.5;
+	color: var(--text-tertiary);
+	border-top: var(--editor-hairline) solid var(--border-secondary);
+}
+
+#status-list:empty + .status-cycles-hint-text {
+	border-top: none;
+	padding-top: 14px;
+}
+
+#status-list {
+	display: flex;
+	flex-direction: column;
+}
+
+#status-list[data-visible='false'] {
+	display: none;
+}
+
+#discord-token-input {
+	width: 200px;
+	flex-shrink: 0;
+}
+
+#status-update-interval-input {
+	width: 80px;
+	flex-shrink: 0;
+}

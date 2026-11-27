@@ -5,6 +5,7 @@ import {
 	PartyCycleEntry,
 	StoredConfig,
 } from '../../../types/types'
+import { closeOverlay, openOverlay } from '../shell/overlay-utils'
 
 type RenderItem = CycleEntry | ImageCycleEntry | ButtonPair | PartyCycleEntry
 
@@ -14,9 +15,10 @@ function renderList(
 	type: 'cycles' | 'images' | 'buttons' | 'party'
 ): void {
 	listEl.innerHTML = ''
+
 	if (!items || !items.length) {
 		const empty = document.createElement('div')
-		empty.className = 'config-details-empty'
+		empty.className = 'detail-overlay-empty'
 		empty.textContent =
 			type === 'cycles'
 				? 'No cycles saved'
@@ -29,7 +31,7 @@ function renderList(
 		return
 	}
 
-	items.forEach((item, idx) => {
+	items.forEach(item => {
 		const row = document.createElement('div')
 		row.className = 'config-details-item'
 
@@ -53,35 +55,37 @@ function renderList(
 			main.appendChild(sub)
 		} else if (type === 'images') {
 			const it = item as ImageCycleEntry
+
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
-			label.textContent = it.largeText || 'No Large Text'
+			label.textContent = it.largeText || 'No large text'
 
-			const largeUrlPill = document.createElement('div')
-			largeUrlPill.className = 'config-details-pill'
+			const largePill = document.createElement('div')
+			largePill.className = 'config-details-pill'
 			const largeLink = document.createElement('a')
 			largeLink.href = it.largeImage || '#'
-			largeLink.textContent = it.largeImage || 'No Large Url'
+			largeLink.textContent = it.largeImage || 'No large URL'
 			largeLink.target = '_blank'
-			largeUrlPill.appendChild(largeLink)
+			largePill.appendChild(largeLink)
 
 			main.appendChild(label)
-			main.appendChild(largeUrlPill)
+			main.appendChild(largePill)
 
-			const sub = document.createElement('div')
-			sub.className = 'config-details-item-sub'
-			sub.textContent = it.smallText || 'No Small Text'
+			if (it.smallImage) {
+				const sub = document.createElement('div')
+				sub.className = 'config-details-item-sub'
+				sub.textContent = it.smallText || 'No small text'
 
-			const smallUrlPill = document.createElement('div')
-			smallUrlPill.className = 'config-details-pill'
-			const smallLink = document.createElement('a')
-			smallLink.href = it.smallImage || '#'
-			smallLink.textContent = it.smallImage || 'No Small Url'
-			if (smallLink.textContent !== 'No Small Url') {
+				const smallPill = document.createElement('div')
+				smallPill.className = 'config-details-pill'
+				const smallLink = document.createElement('a')
+				smallLink.href = it.smallImage
+				smallLink.textContent = it.smallImage
 				smallLink.target = '_blank'
-				smallUrlPill.appendChild(smallLink)
+				smallPill.appendChild(smallLink)
+
 				meta.appendChild(sub)
-				meta.appendChild(smallUrlPill)
+				meta.appendChild(smallPill)
 			}
 		} else if (type === 'buttons') {
 			const it = item as ButtonPair
@@ -90,41 +94,42 @@ function renderList(
 			const col1Label = document.createElement('div')
 			col1Label.className = 'config-details-item-label'
 			col1Label.textContent = it.label1 || ''
-			const col1Url = document.createElement('div')
-			col1Url.className = 'config-details-pill'
+			const col1Pill = document.createElement('div')
+			col1Pill.className = 'config-details-pill'
 			const col1Link = document.createElement('a')
-			col1Link.href = it.url1 || ''
+			col1Link.href = it.url1 || '#'
 			col1Link.textContent = it.url1 || ''
 			if (it.url1) col1Link.target = '_blank'
-			col1Url.appendChild(col1Link)
+			col1Pill.appendChild(col1Link)
 			col1.appendChild(col1Label)
-			col1.appendChild(col1Url)
+			col1.appendChild(col1Pill)
 
 			const col2 = document.createElement('div')
 			const col2Label = document.createElement('div')
 			col2Label.className = 'config-details-item-label'
 			col2Label.textContent = it.label2 || ''
-			const col2Url = document.createElement('div')
-			col2Url.className = 'config-details-pill'
+			const col2Pill = document.createElement('div')
+			col2Pill.className = 'config-details-pill'
 			const col2Link = document.createElement('a')
-			col2Link.href = it.url2 || ''
+			col2Link.href = it.url2 || '#'
 			col2Link.textContent = it.url2 || ''
 			if (it.url2) col2Link.target = '_blank'
-			col2Url.appendChild(col2Link)
+			col2Pill.appendChild(col2Link)
 			col2.appendChild(col2Label)
-			col2.appendChild(col2Url)
+			col2.appendChild(col2Pill)
 
 			main.appendChild(col1)
 			main.appendChild(col2)
 		} else if (type === 'party') {
 			const it = item as PartyCycleEntry
+
 			const label = document.createElement('div')
 			label.className = 'config-details-item-label'
 			label.textContent = 'Party size'
 
 			const sub = document.createElement('div')
 			sub.className = 'config-details-item-sub'
-			sub.textContent = `Current: ${it.sizeCurrent ?? '–'} | Max: ${it.sizeMax ?? '–'}`
+			sub.textContent = `Current: ${it.sizeCurrent ?? '–'} · Max: ${it.sizeMax ?? '–'}`
 
 			main.appendChild(label)
 			main.appendChild(sub)
@@ -144,9 +149,7 @@ export function openConfigDetails(cfg: StoredConfig): void {
 	const buttonsEl = document.getElementById('config-details-buttons') as HTMLElement | null
 	const partyEl = document.getElementById('config-details-party') as HTMLElement | null
 
-	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl || !partyEl) {
-		return
-	}
+	if (!overlay || !nameEl || !cyclesEl || !imagesEl || !buttonsEl || !partyEl) return
 
 	const state = cfg.state || {}
 
@@ -156,27 +159,24 @@ export function openConfigDetails(cfg: StoredConfig): void {
 	renderList(buttonsEl, state.buttonPairs || [], 'buttons')
 	renderList(partyEl, Array.isArray(state.party) ? state.party : [], 'party')
 
-	overlay.dataset.open = 'true'
+	openOverlay(overlay)
 }
 
 export function setupConfigDetailsOverlay(): void {
 	const overlay = document.getElementById('config-details-overlay') as HTMLElement | null
 	const closeBtn = document.getElementById('config-details-close') as HTMLButtonElement | null
+	const backdrop = document.getElementById('config-details-backdrop') as HTMLElement | null
+
 	if (!overlay || !closeBtn) return
 
-	function close(): void {
-		if (!overlay) return
+	const close = (): void => closeOverlay(overlay)
 
-		overlay.dataset.open = 'false'
-	}
+	closeBtn.addEventListener('click', close)
+	backdrop?.addEventListener('click', close)
 
-	closeBtn.addEventListener('click', e => {
-		e.preventDefault()
-		close()
-	})
-
-	overlay.addEventListener('click', e => {
-		if (e.target === overlay) {
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Escape' && !overlay.hidden) {
+			e.preventDefault()
 			close()
 		}
 	})

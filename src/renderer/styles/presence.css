@@ -301,7 +301,7 @@ html[data-cloud-tutorial-done] #cloud-tutorial-card {
 	flex-shrink: 1;
 	height: 22px;
 	padding: 0 6px;
-	border-radius: 5px;
+	border-radius: var(--radius-chip);
 	transition: background-color var(--speed-highlightFadeOut, 150ms) ease;
 }
 
@@ -377,7 +377,7 @@ html[data-cloud-tutorial-done] #cloud-tutorial-card {
 	color: var(--text-tertiary);
 	white-space: nowrap;
 	font-style: normal;
-	transition: color 200ms ease;
+	transition: color var(--speed-highlightFadeOut) ease;
 }
 
 .footer-payload-status[data-state='active']::before {
@@ -821,64 +821,6 @@ html[data-cloud-tutorial-done] #cloud-tutorial-card {
 	padding: 8px 8px 4px;
 }
 
-.presence-trigger-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	height: 28px;
-	padding: 0 10px;
-	border: var(--editor-hairline) solid var(--border-secondary);
-	border-radius: var(--radius-control);
-	background-color: var(--color-bg-tertiary);
-	color: var(--content-highlight-color);
-	font: inherit;
-	font-size: 12px;
-	font-weight: 500;
-	cursor: pointer;
-	white-space: nowrap;
-	flex-shrink: 0;
-	transition:
-		background-color var(--speed-highlightFadeOut) ease,
-		border-color var(--speed-highlightFadeOut) ease;
-}
-
-.presence-trigger-btn:focus-visible {
-	outline: var(--focus-ring-outline);
-	outline-offset: 2px;
-}
-
-.presence-trigger-btn:active {
-	background-color: var(--control-tertiary-selected);
-	transition-duration: 0s;
-}
-
-@media (any-hover: hover) and (any-pointer: fine) {
-	.presence-trigger-btn:hover {
-		background-color: var(--control-tertiary-hover);
-		color: var(--content-highlight-color);
-		transition-duration: var(--speed-highlightFadeIn);
-	}
-
-	.presence-trigger-btn:hover svg {
-		color: var(--content-highlight-color);
-		transition-duration: var(--speed-highlightFadeIn);
-	}
-}
-
-.dialog-section[data-visible='false'] {
-	display: none;
-}
-
-.dialog-section-header-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 8px;
-}
-
-.dialog-section-header-row .dialog-section-label {
-	margin: 0;
-}
 
 #time-list[data-visible='false'] {
 	display: none;

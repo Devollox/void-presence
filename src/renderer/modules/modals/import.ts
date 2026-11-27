@@ -117,39 +117,36 @@ export function importConfigFromFile(file: File): void {
 	reader.readAsText(file)
 }
 
+import { closeOverlay, isOverlayOpen, openOverlay } from '../shell/overlay-utils'
+
 export function setupImportOverlay(): void {
-	const importOverlay = document.getElementById('import-overlay') as HTMLInputElement | null
-	const importCloseBtn = document.getElementById('import-close-btn') as HTMLInputElement | null
-	const importFileInput = document.getElementById('import-file-input') as HTMLInputElement | null
+	const overlay = document.getElementById('import-overlay') as HTMLElement | null
+	const closeBtn = document.getElementById('import-close-btn') as HTMLButtonElement | null
+	const fileInput = document.getElementById('import-file-input') as HTMLInputElement | null
+	const backdrop = document.getElementById('import-backdrop') as HTMLElement | null
 
-	if (
-		!(importOverlay instanceof HTMLElement) ||
-		!(importCloseBtn instanceof HTMLButtonElement) ||
-		!(importFileInput instanceof HTMLInputElement)
-	) {
-		return
+	if (!overlay || !closeBtn || !fileInput) return
+
+	const close = (): void => {
+		closeOverlay(overlay, () => {
+			fileInput.value = ''
+		})
 	}
 
-	function closeImport(): void {
-		if (!importOverlay || !importFileInput) return
+	closeBtn.addEventListener('click', close)
+	backdrop?.addEventListener('click', close)
 
-		importOverlay.dataset.open = 'false'
-		importFileInput.value = ''
-	}
-
-	importCloseBtn.addEventListener('click', e => {
-		e.preventDefault()
-		closeImport()
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Escape' && isOverlayOpen(overlay)) {
+			e.preventDefault()
+			close()
+		}
 	})
 
-	importOverlay.addEventListener('click', e => {
-		if (e.target === importOverlay) closeImport()
-	})
-
-	importFileInput.addEventListener('change', () => {
-		const file = importFileInput.files && importFileInput.files[0]
+	fileInput.addEventListener('change', () => {
+		const file = fileInput.files?.[0]
 		if (!file) return
 		importConfigFromFile(file)
-		closeImport()
+		close()
 	})
 }

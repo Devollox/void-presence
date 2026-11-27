@@ -27,6 +27,7 @@
 		<link rel="stylesheet" href="./styles/welcome.css" />
 		<link rel="stylesheet" href="./styles/shortcuts.css" />
 		<link rel="stylesheet" href="./styles/settings.css" />
+		<link rel="stylesheet" href="./styles/changelogs.css" />
 		<link rel="stylesheet" href="./styles/dialog.css" />
 		<link rel="stylesheet" href="./styles/logs.css" />
 		<script>
@@ -588,6 +589,19 @@
 										<use href="#icon-configs" /></svg
 								></span>
 								<span class="desktop-tab-title" data-i18n="tabs.configs">Configs</span>
+								<span class="desktop-tab-arrow" aria-hidden="true"
+									><svg
+										width="12"
+										height="12"
+										viewBox="0 0 16 16"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.6"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="M6 3.5 10.5 8 6 12.5" /></svg
+								></span>
 							</span>
 						</button>
 
@@ -697,6 +711,7 @@
 								data-page="changelogs"
 								data-tooltip="Changelogs"
 								data-i18n-tooltip="tabs.changelogs"
+								data-shortcut="G+Then+H"
 								data-unread="true"
 							>
 								<span class="sidebar-item-icon" aria-hidden="true">
@@ -733,6 +748,7 @@
 									aria-controls="sidebar-workspace-list"
 									data-tooltip="Toggle workspace"
 									data-i18n-tooltip="sidebar.toggleWorkspace"
+									data-shortcut="G+Then+W"
 								>
 									<span data-i18n="sidebar.workspace">Workspace</span>
 
@@ -835,6 +851,113 @@
 										<span class="sidebar-item-label" data-i18n="tabs.logs"> Logs </span>
 									</button>
 
+									<div
+										class="sidebar-section sidebar-section--nested"
+										data-open="true"
+										id="sidebar-configs-group"
+									>
+										<div class="sidebar-section-header">
+											<button
+												type="button"
+												class="sidebar-section-toggle sidebar-configs-toggle"
+												aria-expanded="true"
+												aria-controls="sidebar-configs-list"
+												data-tooltip="Configs"
+												data-i18n-tooltip="tabs.configs"
+												data-shortcut="G+Then+F"
+											>
+												<span class="sidebar-item-icon" aria-hidden="true"
+													><svg
+														width="14"
+														height="14"
+														viewBox="0 0 24 24"
+														fill="none"
+														stroke="currentColor"
+														stroke-width="1.6"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+													>
+														<use href="#icon-configs" /></svg
+												></span>
+												<span class="sidebar-item-label" data-i18n="tabs.configs">Configs</span>
+												<svg
+													class="sidebar-section-caret"
+													width="10"
+													height="10"
+													viewBox="0 0 16 16"
+													aria-hidden="true"
+												>
+													<path
+														d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+													/>
+												</svg>
+											</button>
+										</div>
+										<div class="sidebar-section-body">
+											<nav id="sidebar-configs-list" class="sidebar-section-list">
+												<button
+													type="button"
+													class="sidebar-item sidebar-item-margin"
+													data-page="configs-presence"
+													data-active="false"
+													data-tooltip="Presence configs"
+													data-tab-title="Configs › Presence"
+													data-shortcut="G+Then+C"
+												>
+													<span class="sidebar-item-icon" aria-hidden="true"
+														><svg
+															xmlns="http://www.w3.org/2000/svg"
+															width="16"
+															height="16"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="1"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															class="lucide lucide-contact-round preview-icon"
+														>
+															<path d="M16 2v2" />
+															<path d="M17.915 21a6 6 0 10-12 0" />
+															<path d="M8 2v2" />
+															<circle cx="12" cy="11" r="4" />
+															<rect x="3" y="3" width="18" height="18" rx="2" /></svg
+													></span>
+													<span class="sidebar-item-label">Presence</span>
+												</button>
+												<button
+													type="button"
+													class="sidebar-item sidebar-item-margin"
+													data-page="configs-status"
+													data-active="false"
+													data-tooltip="Status configs"
+													data-tab-title="Configs › Status"
+													data-shortcut="G+Then+V"
+												>
+													<span class="sidebar-item-icon" aria-hidden="true"
+														><svg
+															xmlns="http://www.w3.org/2000/svg"
+															width="16"
+															height="16"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="1"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															class="lucide lucide-pencil preview-icon"
+														>
+															<path
+																d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+															/>
+															<path d="m15 5 4 4" /></svg
+													></span>
+													<span class="sidebar-item-label">Status</span>
+												</button>
+											</nav>
+										</div>
+									</div>
+
 									<button
 										type="button"
 										class="sidebar-item"
@@ -860,32 +983,6 @@
 
 										<span class="sidebar-item-label" data-i18n="tabs.plugins"> Plugins </span>
 									</button>
-
-									<button
-										type="button"
-										class="sidebar-item"
-										data-page="configs"
-										data-active="false"
-										data-tooltip="Configs"
-										data-i18n-tooltip="tabs.configs"
-										data-shortcut="G+Then+C"
-									>
-										<span class="sidebar-item-icon" aria-hidden="true"
-											><svg
-												width="14"
-												height="14"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.6"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<use href="#icon-configs" /></svg
-										></span>
-
-										<span class="sidebar-item-label" data-i18n="tabs.configs"> Configs </span>
-									</button>
 								</nav>
 							</div>
 						</div>
@@ -903,6 +1000,8 @@
 									class="sidebar-account-heading"
 									aria-expanded="false"
 									aria-controls="sidebar-account-links"
+									data-tooltip="Toggle account"
+									data-shortcut="G+Then+A"
 								>
 									<span class="sidebar-account-heading-icon" aria-hidden="true">
 										<svg
@@ -929,17 +1028,10 @@
 									</span>
 
 									<span class="sidebar-account-chevron" aria-hidden="true">
-										<svg
-											width="12"
-											height="12"
-											viewBox="0 0 16 16"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="1.5"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-										>
-											<path d="m6 4 4 4-4 4" />
+										<svg width="10" height="10" viewBox="0 0 16 16" aria-hidden="true">
+											<path
+												d="M6.22 4.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 0 1-1.06-1.06L8.94 8 6.22 5.28a.75.75 0 0 1 0-1.06Z"
+											/>
 										</svg>
 									</span>
 								</button>
@@ -957,6 +1049,7 @@
 											href="https://voidpresence.com/profile"
 											target="_blank"
 											rel="noopener noreferrer"
+											data-tooltip="Open profile"
 										>
 											<span class="sidebar-item-icon" aria-hidden="true">
 												<svg
@@ -987,6 +1080,7 @@
 											href="https://voidpresence.com/docs"
 											target="_blank"
 											rel="noopener noreferrer"
+											data-tooltip="Open docs"
 										>
 											<span class="sidebar-item-icon" aria-hidden="true">
 												<svg
@@ -1012,6 +1106,7 @@
 											href="https://discord.gg/9FEkxGPPmu"
 											target="_blank"
 											rel="noopener noreferrer"
+											data-tooltip="Get help on Discord"
 										>
 											<span class="sidebar-item-icon" aria-hidden="true">
 												<svg
@@ -1292,17 +1387,26 @@
 													>Activity type</span
 												>
 											</div>
-											<button type="button" id="activity-type-trigger" class="presence-trigger-btn">
+											<button
+												type="button"
+												id="activity-type-trigger"
+												class="presence-trigger-btn"
+												aria-expanded="false"
+												aria-haspopup="dialog"
+												aria-controls="activity-type-dialog"
+											>
 												<span id="activity-type-summary">Playing</span>
 												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 16 16"
-													fill="currentColor"
+													width="9"
+													height="5"
+													viewBox="0 0 9 5"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
 													aria-hidden="true"
 												>
 													<path
-														d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 0 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+														d="M1.915.557a.667.667 0 0 0-.943.943l2.862 2.862a.942.942 0 0 0 1.333 0L8.028 1.5a.667.667 0 0 0-.943-.943L4.5 3.14 1.915.557Z"
+														fill="currentColor"
 													/>
 												</svg>
 											</button>
@@ -1318,17 +1422,22 @@
 												type="button"
 												id="timestamp-modal-trigger"
 												class="presence-trigger-btn"
+												aria-expanded="false"
+												aria-haspopup="dialog"
+												aria-controls="timestamp-modal"
 											>
 												<span id="timestamp-summary">Now · Plain</span>
 												<svg
-													width="12"
-													height="12"
-													viewBox="0 0 16 16"
-													fill="currentColor"
+													width="9"
+													height="5"
+													viewBox="0 0 9 5"
+													fill="none"
+													xmlns="http://www.w3.org/2000/svg"
 													aria-hidden="true"
 												>
 													<path
-														d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 0 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+														d="M1.915.557a.667.667 0 0 0-.943.943l2.862 2.862a.942.942 0 0 0 1.333 0L8.028 1.5a.667.667 0 0 0-.943-.943L4.5 3.14 1.915.557Z"
+														fill="currentColor"
 													/>
 												</svg>
 											</button>
@@ -1824,31 +1933,88 @@
 						<section data-view="status" data-active="false">
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.status">Status</h2></div>
+								<div class="view-header-actions">
+									<button id="custom-status-restart" class="view-action-btn" type="button">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="13"
+											height="13"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+											<path d="M3 3v5h5" />
+										</svg>
+										<span data-i18n="status.restartStatus">Restart</span>
+									</button>
+									<button id="custom-status-stop" class="view-action-btn" type="button">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="13"
+											height="13"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<rect width="18" height="18" x="3" y="3" rx="2" />
+										</svg>
+										<span data-i18n="status.stopStatus">Stop</span>
+									</button>
+									<button id="get-video-id" class="view-action-btn" type="button">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<polygon points="23 7 16 12 23 17 23 7" />
+											<rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+										</svg>
+										<span data-i18n="status.openVideoGuide">Video guide</span>
+									</button>
+								</div>
 							</header>
-							<div class="presence-body content-scroll">
-								<div class="card tutorial-inline" id="status-tutorial-card" data-visible="true">
-									<div class="card-header tutorial-inline-header">
-										<div>
-											<div class="card-label" data-i18n="tutorial.title">tutorial</div>
-											<div class="card-title" data-i18n="status.tutorialTitle">Custom status</div>
+
+							<div class="status-page content-scroll">
+								<div id="status-tutorial-card" class="page-tutorial" data-visible="true">
+									<div class="page-tutorial-header">
+										<div class="page-tutorial-titles">
+											<span class="page-tutorial-eyebrow" data-i18n="tutorial.title">Tutorial</span>
+											<span class="page-tutorial-title" data-i18n="status.tutorialTitle"
+												>Custom status</span
+											>
 										</div>
-										<button id="status-tutorial-close" class="tutorial-inline-close" type="button">
-											<span data-i18n="tutorial.skip">skip</span>
+										<button id="status-tutorial-close" class="page-tutorial-close" type="button">
+											<span data-i18n="tutorial.skip">Skip</span>
 										</button>
 									</div>
-									<div class="tutorial-inline-header" style="padding: 0 18px 10px">
-										<p class="hint-text" data-i18n="status.tutorialWarning1">
+									<div class="page-tutorial-warning">
+										<p class="page-tutorial-warn-text" data-i18n="status.tutorialWarning1">
 											Use this feature with caution. It relies on a user token and behaves like a
 											third-party client, which is against Discord's Terms of Service, so you use it
 											at your own risk.
 										</p>
-										<p class="hint-text" data-i18n="status.tutorialWarning2">
+										<p class="page-tutorial-warn-text" data-i18n="status.tutorialWarning2">
 											We do not accept any responsibility for possible consequences, including
 											warnings or account restrictions, although we have not observed bans for this
 											specific use case so far.
 										</p>
-										<p class="hint-text hint-warning">
-											<span class="gradient-text" data-i18n="status.tutorialWarning3"
+										<p class="page-tutorial-warn-danger">
+											<span data-i18n="status.tutorialWarning3"
 												>Never share your Discord token with anyone!</span
 											>
 											<span data-i18n="status.tutorialWarning4"
@@ -1858,299 +2024,257 @@
 											>
 										</p>
 									</div>
-									<div class="divider"></div>
-									<div class="tutorial-inline-body">
-										<div class="tutorial-inline-col">
-											<div class="tutorial-inline-step-label" data-i18n="status.tutorialStep1">
-												Step 1 - Enable status and set up cycles
-											</div>
-											<ol class="tutorial-inline-list">
+									<div class="page-tutorial-body">
+										<div class="page-tutorial-col">
+											<p class="page-tutorial-step" data-i18n="status.tutorialStep1">
+												Step 1 — Enable status and set up cycles
+											</p>
+											<ol class="page-tutorial-list">
 												<li>
 													<span data-i18n="status.toggle">Toggle</span>
-													<span class="tutorial-strong" data-i18n="status.customStatus"
-														>Custom status</span
-													>
+													<strong data-i18n="status.customStatus">Custom status</strong>
 													<span data-i18n="status.toTurnWorkerOn">to turn the worker on.</span>
 												</li>
 												<li>
 													<span data-i18n="status.set">Set</span>
-													<span class="tutorial-strong" data-i18n="status.discordToken"
-														>Discord token</span
-													>
+													<strong data-i18n="status.discordToken">Discord token</strong>
 													<span data-i18n="status.inFieldBelow">in the field below.</span>
 												</li>
 												<li>
 													<span data-i18n="status.set">Set</span>
-													<span class="tutorial-strong" data-i18n="activity.updateSec"
-														>update(sec)</span
-													>
+													<strong data-i18n="activity.updateSec">update(sec)</strong>
 													<span data-i18n="status.howOftenStatusChange"
-														>- how often the status should change (minimum 5 seconds).</span
+														>— how often the status should change (minimum 5 seconds).</span
 													>
 												</li>
 												<li>
 													<span data-i18n="status.addOneOrMore">Add one or more</span>
-													<span class="tutorial-strong" data-i18n="status.statusCycles"
-														>status cycles</span
-													>
+													<strong data-i18n="status.statusCycles">status cycles</strong>
 													<span data-i18n="status.withTextAndEmoji"
 														>with text and optional emoji.</span
 													>
 												</li>
 											</ol>
 										</div>
-										<div class="tutorial-inline-wrapper">
-											<div class="tutorial-inline-col">
-												<div class="tutorial-inline-step-label" data-i18n="status.tutorialStep2">
-													Step 2 - Get Discord token
-												</div>
-												<ul class="tutorial-inline-list">
-													<li data-i18n="status.step2Li1">
-														Open Discord in a desktop browser and log in to your account.
-													</li>
-													<li>
-														<span data-i18n="status.step2Li2Open">Open DevTools with</span>
-														<span class="tutorial-strong">F12</span>
-														<span data-i18n="status.step2Li2Or">or</span>
-														<span class="tutorial-strong">Ctrl+Shift+I</span>.
-													</li>
-													<li>
-														<span data-i18n="status.step2Li3Switch">Switch to the</span>
-														<span class="tutorial-strong" data-i18n="status.network">Network</span>
-														<span data-i18n="status.step2Li3Tab"
-															>tab and in the lower panel select the</span
-														>
-														<span class="tutorial-strong" data-i18n="status.science">science</span>
-														<span data-i18n="status.step2Li3Request">request.</span>
-													</li>
-													<li>
-														<span data-i18n="status.step2Li4Inside">Inside the</span>
-														<span class="tutorial-strong" data-i18n="status.science">science</span>
-														<span data-i18n="status.step2Li4Request">request, find the</span>
-														<span class="tutorial-strong" data-i18n="status.authorization"
-															>authorization</span
-														>
-														<span data-i18n="status.step2Li4Header"
-															>header and copy its full value.</span
-														>
-													</li>
-													<li>
-														<span data-i18n="status.step2Li5Paste">Paste the copied</span>
-														<span class="tutorial-strong" data-i18n="status.userToken"
-															>user token</span
-														>
-														<span data-i18n="status.step2Li5Into">into the</span>
-														<span class="tutorial-strong" data-i18n="status.discordToken"
-															>DISCORD TOKEN</span
-														>
-														<span data-i18n="status.step2Li5Field">field below.</span>
-													</li>
-													<li>
-														<span data-i18n="status.step2Li6Click">Click</span>
-														<span class="tutorial-strong" data-i18n="status.restartStatus"
-															>RESTART STATUS</span
-														>
-														<span data-i18n="status.step2Li6ToRestart"
-															>to restart the worker with the new token and cycles.</span
-														>
-													</li>
-												</ul>
-											</div>
-											<div class="tutorial-inline-col">
-												<div class="tutorial-inline-step-label" data-i18n="status.tutorialStep3">
-													Step 3 - Important notes
-												</div>
-												<ul class="tutorial-inline-list">
-													<li>
-														<span data-i18n="status.step3Li1WeDoNot">We do not store your</span>
-														<span class="tutorial-strong" data-i18n="status.discordToken"
-															>Discord token</span
-														>
-														<span data-i18n="status.step3Li1OnAnyServer"
-															>on any server. It is used locally on your machine only.</span
-														>
-													</li>
-													<li>
-														<span data-i18n="status.step3Li2ForMost"
-															>For most setups we recommend an update interval between</span
-														>
-														<span class="tutorial-strong" data-i18n="status.sixtyToNinety"
-															>60 and 90 seconds</span
-														>
-														<span data-i18n="status.step3Li2ToKeep"
-															>to keep your status responsive without spamming Discord.</span
-														>
-													</li>
-													<li>
-														<span data-i18n="status.step3Li3IfYour"
-															>If your main RPC presence already updates every</span
-														>
-														<span class="tutorial-strong" data-i18n="status.fiveSeconds"
-															>5 seconds</span
-														>,
-														<span data-i18n="status.step3Li3ItIsNot"
-															>it is not recommended to set the status interval lower than</span
-														>
-														<span
-															class="tutorial-strong hint-warning"
-															data-i18n="status.sixtySeconds"
-															>60 seconds</span
-														>.
-													</li>
-												</ul>
-											</div>
+										<div class="page-tutorial-col">
+											<p class="page-tutorial-step" data-i18n="status.tutorialStep2">
+												Step 2 — Get Discord token
+											</p>
+											<ul class="page-tutorial-list">
+												<li data-i18n="status.step2Li1">
+													Open Discord in a desktop browser and log in to your account.
+												</li>
+												<li>
+													<span data-i18n="status.step2Li2Open">Open DevTools with</span>
+													<strong>F12</strong> <span data-i18n="status.step2Li2Or">or</span>
+													<strong>Ctrl+Shift+I</strong>.
+												</li>
+												<li>
+													<span data-i18n="status.step2Li3Switch">Switch to the</span>
+													<strong data-i18n="status.network">Network</strong>
+													<span data-i18n="status.step2Li3Tab"
+														>tab and in the lower panel select the</span
+													>
+													<strong data-i18n="status.science">science</strong>
+													<span data-i18n="status.step2Li3Request">request.</span>
+												</li>
+												<li>
+													<span data-i18n="status.step2Li4Inside">Inside the</span>
+													<strong data-i18n="status.science">science</strong>
+													<span data-i18n="status.step2Li4Request">request, find the</span>
+													<strong data-i18n="status.authorization">authorization</strong>
+													<span data-i18n="status.step2Li4Header"
+														>header and copy its full value.</span
+													>
+												</li>
+												<li>
+													<span data-i18n="status.step2Li5Paste">Paste the copied</span>
+													<strong data-i18n="status.userToken">user token</strong>
+													<span data-i18n="status.step2Li5Into">into the</span>
+													<strong data-i18n="status.discordToken">DISCORD TOKEN</strong>
+													<span data-i18n="status.step2Li5Field">field below.</span>
+												</li>
+											</ul>
 										</div>
-									</div>
-									<div class="tutorial-inline-wrapper btn-wrapper">
-										<button id="get-video-id" class="rpc-button tutorial-inline-btn">
-											<span data-i18n="status.openVideoGuide">Open Video Guide</span>
-										</button>
-										<button id="get-video-error-id" class="rpc-button tutorial-inline-btn">
-											<span data-i18n="status.ifItDoesntOpen">If it doesn't open the console</span>
-										</button>
-									</div>
-									<div class="tutorial-inline-wrapper btn-wrapper btn-show">
-										<button id="status-tutorial-dont-show" class="add-btn" type="button">
-											<span data-i18n="status.dontShowAgain"
-												>Do not show this status tutorial again</span
+										<div class="page-tutorial-col">
+											<p class="page-tutorial-step" data-i18n="status.tutorialStep3">
+												Step 3 — Important notes
+											</p>
+											<ul class="page-tutorial-list">
+												<li>
+													<span data-i18n="status.step3Li1WeDoNot">We do not store your</span>
+													<strong data-i18n="status.discordToken">Discord token</strong>
+													<span data-i18n="status.step3Li1OnAnyServer"
+														>on any server. It is used locally on your machine only.</span
+													>
+												</li>
+												<li>
+													<span data-i18n="status.step3Li2ForMost"
+														>For most setups we recommend an update interval between</span
+													>
+													<strong data-i18n="status.sixtyToNinety">60 and 90 seconds</strong>
+													<span data-i18n="status.step3Li2ToKeep"
+														>to keep your status responsive without spamming Discord.</span
+													>
+												</li>
+												<li>
+													<span data-i18n="status.step3Li3IfYour"
+														>If your main RPC presence already updates every</span
+													>
+													<strong data-i18n="status.fiveSeconds">5 seconds</strong>,
+													<span data-i18n="status.step3Li3ItIsNot"
+														>it is not recommended to set the status interval lower than</span
+													>
+													<strong class="page-tutorial-warn-inline" data-i18n="status.sixtySeconds"
+														>60 seconds</strong
+													>.
+												</li>
+											</ul>
+											<button
+												id="get-video-error-id"
+												class="logs-action-btn"
+												type="button"
+												data-i18n="status.ifItDoesntOpen"
 											>
-										</button>
+												If it doesn't open the console
+											</button>
+											<button
+												id="status-tutorial-dont-show"
+												class="logs-action-btn"
+												type="button"
+												data-i18n="status.dontShowAgain"
+											>
+												Do not show this again
+											</button>
+										</div>
 									</div>
 								</div>
 
-								<div class="card">
-									<div class="card-header">
-										<div class="card-label" data-i18n="status.statusEnabled">status</div>
-										<div class="card-title-block">
-											<div
-												class="card-title"
-												id="status-page-info-text-title-block"
-												data-i18n="status.customStatus"
-											>
-												Status settings
-											</div>
-											<div
-												class="card-label"
-												id="status-page-info-text-second-block"
-												data-i18n="status.customStatus"
-											>
-												custom status
-											</div>
-										</div>
-									</div>
-									<div class="divider"></div>
-									<div class="client-row">
-										<span data-i18n="status.statusEnabled">status enabled</span>
-										<div class="advanced-toggles-wrap">
-											<div class="wrapper-auto-label">
-												<div class="auto-label">
-													<span data-i18n="status.customStatus">Custom status</span>
-													<div class="hint-text" data-i18n="status.enableStatus">enable status</div>
-												</div>
-												<div id="status-custom-enabled-toggle" class="auto-toggle" data-on="false">
-													<div class="auto-toggle-knob"></div>
-												</div>
-											</div>
-											<div class="auto-label">
-												<span data-i18n="status.browserMode">Browser mode</span>
-												<div class="hint-text" data-i18n="status.browserModeHint">
-													work in browser (no Discord.exe check)
-												</div>
-											</div>
-											<div id="status-custom-browser-toggle" class="auto-toggle" data-on="false">
-												<div class="auto-toggle-knob"></div>
-											</div>
-										</div>
-									</div>
-									<div class="client-row">
-										<span data-i18n="status.discordToken">DISCORD TOKEN</span>
-										<input
-											id="discord-token-input"
-											placeholder="Paste Discord token here"
-											value=""
-											type="password"
-											autocomplete="off"
-											spellcheck="false"
-										/>
-									</div>
-									<div class="client-row">
-										<span data-i18n="activity.updateSec">update(sec)</span>
-										<input
-											id="status-update-interval-input"
-											placeholder="STATUS UPDATE (SEC) MIN 5 SEC"
-										/>
-									</div>
-									<p class="hint-text" data-i18n="status.recommendedFrequency">
-										The recommended update frequency is 60-90 seconds.
+								<div class="settings-group">
+									<p
+										class="settings-group-title"
+										id="status-page-info-text-title-block"
+										data-i18n="status.customStatus"
+									>
+										Custom status
 									</p>
-									<div class="divider"></div>
-									<div class="button-row-container">
-										<div class="button-row-buttons">
-											<button
-												id="custom-status-restart"
-												class="rpc-button rpc-button-primary"
-												type="button"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="12"
-													height="12"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													class="rpc-button-icon-svg"
+									<div class="settings-card">
+										<div class="settings-row">
+											<div class="settings-row-info">
+												<span class="settings-row-label" data-i18n="status.customStatus"
+													>Custom status</span
 												>
-													<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-													<path d="M3 3v5h5"></path>
-												</svg>
-												<span data-i18n="status.restartStatus">RESTART STATUS</span>
-											</button>
-											<button
-												id="custom-status-stop"
-												class="rpc-button rpc-button-destructive"
-												type="button"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="12"
-													height="12"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													class="rpc-button-icon-svg"
+												<span class="settings-row-hint" data-i18n="status.enableStatus"
+													>Enable the status worker</span
 												>
-													<rect width="18" height="18" x="3" y="3" rx="2"></rect>
-												</svg>
-												<span data-i18n="status.stopStatus">STOP STATUS</span>
+											</div>
+											<button
+												type="button"
+												role="switch"
+												id="status-custom-enabled-toggle"
+												class="welcome-switch settings-switch"
+												aria-checked="false"
+												data-on="false"
+											>
+												<span class="welcome-switch-knob"></span>
 											</button>
+										</div>
+
+										<div class="settings-row-divider"></div>
+
+										<div class="settings-row">
+											<div class="settings-row-info">
+												<span class="settings-row-label" data-i18n="status.browserMode"
+													>Browser mode</span
+												>
+												<span class="settings-row-hint" data-i18n="status.browserModeHint"
+													>Work in browser — no Discord.exe check</span
+												>
+											</div>
+											<button
+												type="button"
+												role="switch"
+												id="status-custom-browser-toggle"
+												class="welcome-switch settings-switch"
+												aria-checked="false"
+												data-on="false"
+											>
+												<span class="welcome-switch-knob"></span>
+											</button>
+										</div>
+
+										<div class="settings-row-divider"></div>
+
+										<div class="settings-row">
+											<div class="settings-row-info">
+												<span class="settings-row-label" data-i18n="status.discordToken"
+													>Discord token</span
+												>
+												<span class="settings-row-hint" data-i18n="status.tokenHint"
+													>Stored locally, never sent to any server</span
+												>
+											</div>
+											<input
+												id="discord-token-input"
+												class="dialog-field-input"
+												type="password"
+												placeholder="Paste token here…"
+												autocomplete="off"
+												spellcheck="false"
+											/>
+										</div>
+
+										<div class="settings-row-divider"></div>
+
+										<div class="settings-row">
+											<div class="settings-row-info">
+												<span class="settings-row-label" data-i18n="activity.updateSec"
+													>Update interval (sec)</span
+												>
+												<span class="settings-row-hint" data-i18n="status.recommendedFrequency"
+													>Recommended: 60–90 seconds</span
+												>
+											</div>
+											<input
+												id="status-update-interval-input"
+												class="dialog-field-input"
+												type="number"
+												placeholder="60"
+												min="5"
+											/>
 										</div>
 									</div>
-									<div class="divider"></div>
-									<div class="list-header status-cycles-header" data-visible="false">
-										<div class="list-header-label" data-i18n="status.statusCycles">
-											status cycles
-										</div>
-										<button
-											id="add-status"
-											class="add-btn"
-											type="button"
-											data-i18n="status.statusItem"
-										>
-											status
+								</div>
+
+								<div class="settings-group">
+									<div class="status-cycles-group-header">
+										<p class="settings-group-title" data-i18n="status.statusCycles">
+											Status cycles
+										</p>
+										<button id="add-status" class="view-action-btn" type="button">
+											<svg
+												width="12"
+												height="12"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2.5"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												aria-hidden="true"
+											>
+												<line x1="12" y1="5" x2="12" y2="19" />
+												<line x1="5" y1="12" x2="19" y2="12" />
+											</svg>
+											<span data-i18n="status.statusItem">Add cycle</span>
 										</button>
 									</div>
-									<div class="divider"></div>
-									<div id="status-list" data-visible="false"></div>
-									<div class="divider"></div>
-									<p class="hint-text" data-i18n="status.hintFilters">
-										Status filters are isolated from the main presence logic and use unique IDs
-									</p>
+									<div class="settings-card">
+										<div id="status-list"></div>
+										<p class="status-cycles-hint-text" data-i18n="status.hintFilters">
+											Status filters are isolated from the main presence logic and use unique IDs
+										</p>
+									</div>
 								</div>
 							</div>
 						</section>
@@ -2268,73 +2392,52 @@
 						<section data-view="plugins" data-active="false">
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.plugins">Plugins</h2></div>
+								<div class="view-header-actions">
+									<a
+										id="plugins-open-site"
+										class="view-action-btn"
+										href="https://voidpresence.com/plugins"
+										target="_blank"
+										rel="noopener noreferrer"
+										aria-label="Browse community plugins"
+									>
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+											<polyline points="15 3 21 3 21 9" />
+											<line x1="10" y1="14" x2="21" y2="3" />
+										</svg>
+										<span data-i18n="plugins.browseCommunity">Browse plugins</span>
+									</a>
+								</div>
 							</header>
-							<div class="wrapper">
-								<div class="main-content-block">
-									<div class="card">
-										<div class="card-header">
-											<div class="card-label" data-i18n="plugins.label">plugins</div>
-											<div class="card-title-block">
-												<div class="card-title" data-i18n="plugins.title">Plugins</div>
-												<div class="card-label" data-i18n="plugins.subtitle">
-													manage void presence plugins
-												</div>
-											</div>
+							<div class="plugins-page">
+								<div class="settings-group">
+									<p class="settings-group-title" data-i18n="plugins.label">Plugins</p>
+									<div class="settings-card" id="plugins-list-card">
+										<div class="plugins-list-header">
+											<span class="plugins-list-title" data-i18n="plugins.title">Installed</span>
+											<span id="plugins-count" class="plugins-list-count"
+												>0 <span data-i18n="plugins.available">available</span></span
+											>
 										</div>
-									</div>
-									<div class="card">
-										<div class="card-header">
-											<div class="card-title-label" data-i18n="plugins.morePlugins">
-												More Plugins
-											</div>
-										</div>
-										<div class="card-body support-actions">
-											<div>
-												<a
-													id="plugins-open-site"
-													class="logs-action-btn"
-													href="https://voidpresence.com/plugins"
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													<svg
-														width="14"
-														height="14"
-														viewBox="0 0 24 24"
-														fill="none"
-														stroke="currentColor"
-														stroke-width="1.6"
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														aria-hidden="true"
-													>
-														<circle cx="12" cy="12" r="10" />
-														<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
-														<path d="M12 17h.01" />
-													</svg>
-													<span data-i18n="plugins.browseCommunity">Browse community plugins</span>
-												</a>
-											</div>
-										</div>
-									</div>
-									<div class="card" id="plugins-list-card">
-										<div class="card-header">
-											<div class="card-title-label" data-i18n="plugins.title">Plugins</div>
-											<div id="plugins-count" class="card-label">
-												0 <span data-i18n="plugins.available">available</span>
-											</div>
-										</div>
-										<div class="divider"></div>
-										<div id="plugins-list" class="plugins-list"></div>
+										<div id="plugins-list"></div>
 										<div id="plugins-empty" class="plugins-empty" data-visible="true">
-											<div class="plugins-coming-soon">
-												<div class="plugins-coming-soon-title" data-i18n="plugins.comingSoon">
-													Plugin support is coming soon.
-												</div>
-												<div class="hint-text" data-i18n="plugins.comingSoonHint">
-													Check back later for updates.
-												</div>
-											</div>
+											<p class="plugins-empty-text" data-i18n="plugins.comingSoon">
+												Plugin support is coming soon.
+											</p>
+											<p class="plugins-empty-hint" data-i18n="plugins.comingSoonHint">
+												Check back later for updates.
+											</p>
 										</div>
 									</div>
 								</div>
@@ -2345,211 +2448,285 @@
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.configs">Configs</h2></div>
 							</header>
-							<div class="content-scroll wrapper">
-								<div class="main-content-block">
-									<div class="card tutorial-inline" id="cloud-tutorial-card" data-visible="true">
-										<div class="card-header tutorial-inline-header">
-											<div>
-												<div class="card-label" data-i18n="tutorial.title">tutorial</div>
-												<div class="card-title" data-i18n="config.tutorialTitle">
-													Cloud profiles
-												</div>
+							<div class="content-scroll">
+								<div class="configs-page">
+									<div id="cloud-tutorial-card" class="page-tutorial" data-visible="true">
+										<div class="page-tutorial-header">
+											<div class="page-tutorial-titles">
+												<span class="page-tutorial-eyebrow" data-i18n="tutorial.title"
+													>Tutorial</span
+												>
+												<span class="page-tutorial-title" data-i18n="config.tutorialTitle"
+													>Cloud profiles</span
+												>
 											</div>
-											<button id="cloud-tutorial-close" class="tutorial-inline-close" type="button">
-												<span data-i18n="tutorial.skip">skip</span>
+											<button id="cloud-tutorial-close" class="page-tutorial-close" type="button">
+												<span data-i18n="tutorial.skip">Skip</span>
 											</button>
 										</div>
-										<div class="divider"></div>
-										<div class="tutorial-inline-body">
-											<div class="tutorial-inline-col">
-												<div class="tutorial-inline-step-label" data-i18n="config.step1">
-													Step 1 - Prepare your profile
-												</div>
-												<ol class="tutorial-inline-list">
+										<div class="page-tutorial-body">
+											<div class="page-tutorial-col">
+												<p class="page-tutorial-step" data-i18n="config.step1">
+													Step 1 — Prepare your profile
+												</p>
+												<ol class="page-tutorial-list">
 													<li data-i18n="config.step1Li1">
 														Set up your presence, details, images and buttons the way you like.
 													</li>
 													<li>
 														<span data-i18n="config.step1Li2Enter">Enter a short</span>
-														<span class="tutorial-strong" data-i18n="config.configName"
-															>config name</span
-														>
-														<span data-i18n="config.step1Li2InField">in the field above.</span>
+														<strong data-i18n="config.configName">config name</strong>
+														<span data-i18n="config.step1Li2InField">in the field.</span>
 													</li>
 													<li>
 														<span data-i18n="config.step1Li3Optionally">Optionally add your</span>
-														<span class="tutorial-strong" data-i18n="config.authorId"
-															>author ID</span
-														>
+														<strong data-i18n="config.authorId">author ID</strong>
 														<span data-i18n="config.step1Li3From"
 															>(from voidpresence.com/profile)</span
-														>
-														<span data-i18n="config.step1Li3ToLink"
-															>to link the profile to your account.</span
-														>
-													</li>
-													<li>
-														<span data-i18n="config.step1Li4Click">Click</span>
-														<span class="tutorial-strong" data-i18n="config.saveConfig"
-															>save config</span
-														>
-														<span data-i18n="config.step1Li4ToStore"
-															>to store this setup locally.</span
-														>
-													</li>
-												</ol>
-												<button id="get-author-id" class="rpc-button tutorial-inline-btn">
-													<span data-i18n="config.openProfile"
-														>Open profile &amp; get author ID</span
-													>
-												</button>
-											</div>
-											<div class="tutorial-inline-col">
-												<div class="tutorial-inline-step-label" data-i18n="config.step2">
-													Step 2 - Upload to cloud
-												</div>
-												<ul class="tutorial-inline-list">
-													<li>
-														<span data-i18n="config.step2Li1Select"
-															>Select the profile you want in</span
-														>
-														<span class="tutorial-strong" data-i18n="config.savedConfigs"
-															>saved configs</span
 														>.
 													</li>
 													<li>
+														<span data-i18n="config.step1Li4Click">Click</span>
+														<strong data-i18n="config.saveConfig">save config</strong>
+														<span data-i18n="config.step1Li4ToStore">to store locally.</span>
+													</li>
+												</ol>
+												<a
+													id="get-author-id"
+													class="logs-action-btn"
+													href="https://voidpresence.com/profile"
+													target="_blank"
+													rel="noopener noreferrer"
+													data-i18n="config.openProfile"
+													>Open profile &amp; get author ID</a
+												>
+											</div>
+											<div class="page-tutorial-col">
+												<p class="page-tutorial-step" data-i18n="config.step2">
+													Step 2 — Upload to cloud
+												</p>
+												<ul class="page-tutorial-list">
+													<li>
+														<span data-i18n="config.step2Li1Select">Select the profile in</span>
+														<strong data-i18n="config.savedConfigs">saved configs</strong>.
+													</li>
+													<li>
 														<span data-i18n="config.step2Li2MakeSure">Make sure</span>
-														<span class="tutorial-strong" data-i18n="config.authorId"
-															>author ID</span
-														>
-														<span data-i18n="config.step2Li2IsSet">is set for this profile.</span>
+														<strong data-i18n="config.authorId">author ID</strong>
+														<span data-i18n="config.step2Li2IsSet">is set.</span>
 													</li>
 													<li>
 														<span data-i18n="config.step2Li3Click">Click</span>
-														<span class="tutorial-strong" data-i18n="config.upload">upload</span>.
-													</li>
-													<li>
-														<span data-i18n="config.step2Li4Confirm">Confirm in the</span>
-														<span class="tutorial-strong" data-i18n="modal.uploadConfig"
-															>Upload config?</span
-														>
-														<span data-i18n="config.step2Li4Dialog"
-															>dialog to overwrite the cloud copy.</span
-														>
+														<strong data-i18n="config.upload">upload</strong>.
 													</li>
 												</ul>
-												<button id="cloud-tutorial-dont-show" class="add-btn">
-													<span data-i18n="config.dontShowAgain"
-														>Do not show this cloud tutorial again</span
-													>
+												<button
+													id="cloud-tutorial-dont-show"
+													class="logs-action-btn"
+													type="button"
+													data-i18n="config.dontShowAgain"
+												>
+													Do not show this again
 												</button>
 											</div>
 										</div>
 									</div>
+								</div>
+							</div>
+						</section>
 
-									<div class="card">
-										<div class="card-header">
-											<div class="card-label" data-i18n="config.config">config</div>
-											<div class="card-title-block">
-												<div class="card-title" data-i18n="config.title">Profiles</div>
-												<div class="card-label" data-i18n="config.subtitle">
-													save / load presets
-												</div>
-											</div>
-										</div>
-									</div>
-
-									<div class="card">
-										<div class="card-header">
-											<div class="card-label" data-i18n="config.cloudSync">Cloud Sync</div>
-											<div class="card-title-block">
-												<div class="card-title" data-i18n="config.titleUser">Profiles User</div>
-												<div class="card-label" id="config-author-label">-</div>
-											</div>
-										</div>
-										<div class="client-row">
-											<span data-i18n="config.authorId">author ID</span>
-											<input
-												id="config-author-input"
-												data-i18n-placeholder="config.authorIdPlaceholder"
-											/>
-										</div>
-										<p class="hint-text" data-i18n="config.uploadHint">
-											Upload will overwrite the remote copy of this profile in the cloud.
-										</p>
-									</div>
-
-									<div class="card">
-										<div class="card-header">
-											<div class="card-title-label" data-i18n="config.recentApps">Recent Apps</div>
-										</div>
-										<div id="recent-list"></div>
-									</div>
-
-									<div class="card">
-										<div class="card-header">
-											<div class="card-title-label" data-i18n="config.savedConfigs">
-												Saved configs
-											</div>
-										</div>
-										<div class="client-row">
-											<span data-i18n="config.searchPlaceholder">search</span>
-											<input
-												id="config-search-input"
-												type="text"
-												placeholder="search configs"
-												class="config-search-input"
-											/>
-											<div class="config-save-btn">
-												<button id="config-export-btn" data-i18n="config.export">export</button>
-											</div>
-											<div class="config-save-btn">
-												<button id="config-add-btn" data-i18n="config.import">import</button>
-											</div>
-										</div>
-										<div class="client-row">
-											<span data-i18n="config.name">name</span>
-											<input id="config-name-input" placeholder="config name" />
-											<div class="config-save-btn">
-												<button type="button" id="config-save-btn">
-													<span data-i18n="config.saveConfigBtn">save config</span>
+						<section data-view="configs-presence" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title"><h2>Presence configs</h2></div>
+								<div class="view-header-actions">
+									<button id="config-export-btn" class="view-action-btn">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="7 10 12 15 17 10" />
+											<line x1="12" y1="15" x2="12" y2="3" />
+										</svg>
+										<span data-i18n="config.export">Export</span>
+									</button>
+									<button id="config-add-btn" class="view-action-btn">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+										<span data-i18n="config.import">Import</span>
+									</button>
+								</div>
+							</header>
+							<div class="content-scroll">
+								<div class="configs-page">
+									<div class="settings-group">
+										<div class="settings-card">
+											<div class="configs-save-row">
+												<input
+													id="config-name-input"
+													class="dialog-field-input configs-name-input"
+													type="text"
+													placeholder="Config name…"
+													autocomplete="off"
+												/>
+												<button
+													id="config-save-btn"
+													type="button"
+													class="dialog-field-btn"
+													data-i18n="config.saveConfigBtn"
+												>
+													Save config
 												</button>
 											</div>
+											<div class="configs-search-row">
+												<svg
+													class="configs-search-icon"
+													width="13"
+													height="13"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													aria-hidden="true"
+												>
+													<circle cx="11" cy="11" r="8" />
+													<line x1="21" y1="21" x2="16.65" y2="16.65" />
+												</svg>
+												<input
+													id="config-search-input"
+													type="text"
+													class="configs-search-input"
+													placeholder="Search configs…"
+													autocomplete="off"
+												/>
+											</div>
+											<div class="configs-save-row">
+												<input
+													id="config-author-input"
+													class="dialog-field-input configs-name-input"
+													type="text"
+													placeholder="Author ID (voidpresence.com/profile)"
+													autocomplete="off"
+												/>
+											</div>
+											<div id="config-list"></div>
 										</div>
-										<div id="config-list"></div>
 									</div>
+								</div>
+							</div>
+						</section>
 
-									<div class="card">
-										<div class="card-header">
-											<div class="card-title-label" data-i18n="config.savedStatuses">
-												Saved statuses
-											</div>
-										</div>
-										<div class="client-row">
-											<span data-i18n="config.searchStatusPlaceholder">search</span>
-											<input
-												id="status-search-input"
-												type="text"
-												placeholder="search statuses"
-												class="config-search-input"
-											/>
-											<div class="config-save-btn">
-												<button id="status-export-btn" data-i18n="config.export">export</button>
-											</div>
-											<div class="config-save-btn">
-												<button id="status-import-btn" data-i18n="config.import">import</button>
-											</div>
-										</div>
-										<div class="client-row">
-											<span data-i18n="config.name">name</span>
-											<input id="status-name-input" placeholder="status profile name" />
-											<div class="config-save-btn">
-												<button type="button" id="status-save-btn">
-													<span data-i18n="config.saveStatus">save status</span>
+						<section data-view="configs-status" data-active="false">
+							<header class="view-header">
+								<div class="view-header-title"><h2>Status configs</h2></div>
+								<div class="view-header-actions">
+									<button id="status-export-btn" class="view-action-btn" type="button">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="7 10 12 15 17 10" />
+											<line x1="12" y1="15" x2="12" y2="3" />
+										</svg>
+										<span data-i18n="config.export">Export</span>
+									</button>
+									<button id="status-import-btn" class="view-action-btn" type="button">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="17 8 12 3 7 8" />
+											<line x1="12" y1="3" x2="12" y2="15" />
+										</svg>
+										<span data-i18n="config.import">Import</span>
+									</button>
+								</div>
+							</header>
+							<div class="content-scroll">
+								<div class="configs-page">
+									<div class="settings-group">
+										<div class="settings-card">
+											<div class="configs-save-row">
+												<input
+													id="status-name-input"
+													class="dialog-field-input configs-name-input"
+													type="text"
+													placeholder="Status profile name…"
+													autocomplete="off"
+												/>
+												<button
+													id="status-save-btn"
+													type="button"
+													class="dialog-field-btn"
+													data-i18n="config.saveStatus"
+												>
+													Save status
 												</button>
 											</div>
+											<div class="configs-search-row">
+												<svg
+													class="configs-search-icon"
+													width="13"
+													height="13"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													aria-hidden="true"
+												>
+													<circle cx="11" cy="11" r="8" />
+													<line x1="21" y1="21" x2="16.65" y2="16.65" />
+												</svg>
+												<input
+													id="status-search-input"
+													type="text"
+													class="configs-search-input"
+													placeholder="Search statuses…"
+													autocomplete="off"
+												/>
+											</div>
+											<div id="status-list-config"></div>
 										</div>
-										<div id="status-list-config"></div>
 									</div>
 								</div>
 							</div>
@@ -2703,8 +2880,110 @@
 						</section>
 						<section data-view="changelogs" data-active="false">
 							<header class="view-header">
-								<div class="view-header-title"><h2>Change Logs</h2></div>
+								<div class="view-header-title"><h2 data-i18n="tabs.changelogs">Changelogs</h2></div>
 							</header>
+
+							<div class="changelogs-page">
+								<div class="changelogs-toolbar">
+									<button
+										type="button"
+										class="changelogs-toolbar-btn changelogs-refresh-btn"
+										aria-label="Refresh"
+									>
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+											<path d="M21 3v5h-5" />
+											<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+											<path d="M8 16H3v5" />
+										</svg>
+										Refresh
+									</button>
+									<a
+										class="changelogs-toolbar-btn"
+										href="https://github.com/Devollox/void-presence/releases"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M15 3h6v6" />
+											<path d="M10 14 21 3" />
+											<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+										</svg>
+										GitHub
+									</a>
+								</div>
+
+								<div class="changelogs-skeleton" hidden>
+									<div class="changelogs-skeleton-entry">
+										<div class="changelogs-skeleton-date"></div>
+										<div class="changelogs-skeleton-body">
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--title"></div>
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--wide"></div>
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--mid"></div>
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--short"></div>
+										</div>
+									</div>
+									<div class="changelogs-skeleton-entry">
+										<div class="changelogs-skeleton-date"></div>
+										<div class="changelogs-skeleton-body">
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--title"></div>
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--wide"></div>
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--mid"></div>
+										</div>
+									</div>
+									<div class="changelogs-skeleton-entry">
+										<div class="changelogs-skeleton-date"></div>
+										<div class="changelogs-skeleton-body">
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--title"></div>
+											<div class="changelogs-skeleton-line changelogs-skeleton-line--mid"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="changelogs-state" hidden>
+									<div class="changelogs-state-icon" aria-hidden="true">
+										<svg
+											width="22"
+											height="22"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.5"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+										>
+											<circle cx="12" cy="12" r="10" />
+											<path d="M12 8v4M12 16h.01" />
+										</svg>
+									</div>
+									<span class="changelogs-state-title"></span>
+									<span class="changelogs-state-hint"></span>
+								</div>
+
+								<div class="changelogs-feed" hidden>
+									<div class="changelogs-sentinel"></div>
+								</div>
+							</div>
 						</section>
 					</main>
 					<footer class="view-content-footer">
@@ -2737,420 +3016,599 @@
 			</div>
 		</div>
 
-		<div id="config-details-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button id="config-details-close" class="config-details-back-btn" type="button">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="modal.backToProfiles">Back to profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.profileConfiguration">
-											Profile configuration
-										</div>
-										<div class="card-title config-details-title" id="config-details-name"></div>
-									</div>
-								</div>
-								<div class="divider"></div>
-								<div class="config-details-body">
-									<div>
-										<div class="config-details-section-label" data-i18n="modal.detailsState">
-											Details &amp; State
-										</div>
-										<div class="config-details-section-block" id="config-details-cycles-wrapper">
-											<div class="config-details-list" id="config-details-cycles"></div>
-										</div>
-									</div>
-									<div>
-										<div class="config-details-section-label" data-i18n="modal.images">Images</div>
-										<div class="config-details-section-block">
-											<div class="config-details-list" id="config-details-images"></div>
-										</div>
-									</div>
-									<div>
-										<div class="config-details-section-label" data-i18n="modal.buttons">
-											Buttons
-										</div>
-										<div class="config-details-section-block">
-											<div class="config-details-list" id="config-details-buttons"></div>
-										</div>
-									</div>
-									<div>
-										<div class="config-details-section-label" data-i18n="modal.party">Party</div>
-										<div class="config-details-section-block">
-											<div class="config-details-list" id="config-details-party"></div>
-										</div>
-									</div>
-								</div>
-							</div>
+		<div
+			id="config-details-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="config-details-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="config-details-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.profileConfiguration"
+							>Profile configuration</span
+						>
+						<h2 class="detail-overlay-title" id="config-details-name"></h2>
+					</div>
+					<button
+						id="config-details-close"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.detailsState">
+							Details &amp; State
+						</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="config-details-cycles"></div>
 						</div>
 					</div>
-				</main>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.images">Images</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="config-details-images"></div>
+						</div>
+					</div>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.buttons">Buttons</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="config-details-buttons"></div>
+						</div>
+					</div>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.party">Party</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="config-details-party"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div id="upload-confirm-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button id="upload-confirm-close" class="config-details-back-btn" type="button">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="modal.backToProfiles">Back to profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.cloudSync">Cloud sync</div>
-										<div class="card-title config-details-title">
-											<span data-i18n="modal.uploadConfig">Upload config?</span>
-										</div>
-									</div>
-								</div>
-								<div class="divider"></div>
-								<div class="config-details-body">
-									<div class="config-details-section">
-										<div class="config-details-section-label" data-i18n="modal.actions">
-											Profile
-										</div>
-										<div class="config-details-list" id="upload-confirm-profile-info"></div>
-									</div>
-									<div class="config-details-section">
-										<div class="config-details-section-label" data-i18n="modal.actions">
-											Actions
-										</div>
-										<button id="upload-confirm-ok" class="rpc-button">
-											<span data-i18n="modal.confirmUpload">confirm upload</span>
-										</button>
-									</div>
-								</div>
-							</div>
+		<div
+			id="upload-confirm-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="upload-confirm-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="upload-confirm-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.cloudSync">Cloud sync</span>
+						<h2
+							class="detail-overlay-title"
+							id="upload-confirm-title"
+							data-i18n="modal.uploadConfig"
+						>
+							Upload config?
+						</h2>
+					</div>
+					<button
+						id="upload-confirm-close"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.profile">Profile</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="upload-confirm-profile-info"></div>
 						</div>
 					</div>
-				</main>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.actions">Actions</p>
+						<div class="detail-overlay-actions">
+							<button id="upload-confirm-ok" class="rpc-button" type="button">
+								<span data-i18n="modal.confirmUpload">Confirm upload</span>
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div id="status-upload-confirm-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button
-								id="status-upload-confirm-close"
-								class="config-details-back-btn"
-								type="button"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="modal.backToProfiles">Back to profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.cloudSync">Cloud sync</div>
-										<div class="card-title config-details-title">
-											<span data-i18n="modal.uploadStatusConfig">Upload status profile?</span>
-										</div>
-									</div>
-								</div>
-								<div class="divider"></div>
-								<div class="config-details-body">
-									<div class="config-details-section">
-										<div class="config-details-section-label" data-i18n="modal.profile">
-											Profile
-										</div>
-										<div class="config-details-list" id="status-upload-confirm-profile-info"></div>
-									</div>
-									<div class="config-details-section">
-										<div class="config-details-section-label" data-i18n="modal.actions">
-											Actions
-										</div>
-										<button id="status-upload-confirm-ok" class="rpc-button">
-											<span data-i18n="modal.confirmUpload">confirm upload</span>
-										</button>
-									</div>
-								</div>
-							</div>
+		<div
+			id="status-upload-confirm-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="status-upload-confirm-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="status-upload-confirm-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.cloudSync">Cloud sync</span>
+						<h2
+							class="detail-overlay-title"
+							id="status-upload-confirm-title"
+							data-i18n="modal.uploadStatusConfig"
+						>
+							Upload status profile?
+						</h2>
+					</div>
+					<button
+						id="status-upload-confirm-close"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.profile">Profile</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="status-upload-confirm-profile-info"></div>
 						</div>
 					</div>
-				</main>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.actions">Actions</p>
+						<div class="detail-overlay-actions">
+							<button id="status-upload-confirm-ok" class="rpc-button" type="button">
+								<span data-i18n="modal.confirmUpload">Confirm upload</span>
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div id="update-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button id="update-close-btn" class="config-details-back-btn" type="button">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="updateOverlay.close">Back to profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.updateAvailable">Update available</div>
-										<div class="card-title config-details-title" id="update-title">
-											<span data-i18n="modal.updateAvailable">New version available</span>
-										</div>
-									</div>
+		<div
+			id="update-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="update-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="update-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.updateAvailable"
+							>Update available</span
+						>
+						<h2 class="detail-overlay-title" id="update-title" data-i18n="modal.updateAvailable">
+							New version available
+						</h2>
+					</div>
+					<button
+						id="update-close-btn"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.version">Version</p>
+						<div class="detail-overlay-card">
+							<div class="config-details-item">
+								<div class="config-details-item-main">
+									<div class="config-details-item-label" data-i18n="modal.current">Current</div>
+									<div class="config-details-item-sub" id="update-current-version">—</div>
 								</div>
-								<div class="divider"></div>
-								<div class="config-details-body">
-									<div class="config-details-section">
-										<div class="config-details-section-label" data-i18n="modal.version">
-											Version
-										</div>
-										<div class="config-details-list">
-											<div class="config-details-item">
-												<div class="config-details-item-main">
-													<div>
-														<div class="config-details-item-label" data-i18n="modal.current">
-															Current
-														</div>
-														<div class="config-details-item-sub" id="update-current-version">-</div>
-													</div>
-													<div>
-														<div class="config-details-item-label" data-i18n="modal.latest">
-															Latest
-														</div>
-														<div class="config-details-item-sub" id="update-latest-version">-</div>
-													</div>
-												</div>
-												<div class="config-details-item-meta">
-													<span
-														class="config-details-pill"
-														data-i18n="modal.updatesInstallViaWindows"
-														>Updates are installed via a Windows setup file.</span
-													>
-												</div>
-											</div>
-										</div>
+							</div>
+							<div class="config-details-item">
+								<div class="config-details-item-main">
+									<div class="config-details-item-label" data-i18n="modal.latest">Latest</div>
+									<div class="config-details-item-sub" id="update-latest-version">—</div>
+								</div>
+								<div class="config-details-item-meta">
+									<span class="config-details-item-sub" data-i18n="modal.updatesInstallViaWindows"
+										>Updates are installed via a Windows setup file.</span
+									>
+								</div>
+							</div>
+							<div class="config-details-item" id="update-changelog-block" data-visible="false">
+								<div class="config-details-item-main">
+									<div class="config-details-item-label" data-i18n="modal.whatIsNew">
+										What's new
 									</div>
-									<div class="config-details-section">
-										<div class="config-details-section-label" data-i18n="modal.actions">
-											Actions
-										</div>
-										<button id="update-install-btn" class="rpc-button">
-											<span data-i18n="modal.installUpdateAndRestart"
-												>Install update and restart</span
-											>
-										</button>
-									</div>
-									<div class="config-details-item" id="update-changelog-block" data-visible="false">
-										<div>
-											<div class="config-details-item-label" data-i18n="modal.whatIsNew">
-												What's new
-											</div>
-											<div class="config-details-item-sub" id="update-changelog">-</div>
-										</div>
-									</div>
+									<div class="config-details-item-sub" id="update-changelog">—</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</main>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.actions">Actions</p>
+						<div class="detail-overlay-actions">
+							<button id="update-install-btn" class="rpc-button" type="button">
+								<span data-i18n="modal.installUpdateAndRestart">Install update and restart</span>
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div id="import-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button id="import-close-btn" class="config-details-back-btn" type="button">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="modal.backToProfiles">Back to profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.importProfile">Import profile</div>
-										<div class="card-title config-details-title">
-											<span data-i18n="modal.dropJsonFile"
-												>Drop a JSON file anywhere or choose it here</span
-											>
-										</div>
-									</div>
-								</div>
-								<div class="divider"></div>
-								<div class="config-details-body import-body">
-									<div data-i18n="modal.importHint">
-										Only button, cycles and image will be imported.
-									</div>
-									<div class="import-input-row">
-										<input type="file" id="import-file-input" accept="application/json,.json" />
-									</div>
-									<div class="import-hint" data-i18n="modal.dragAndDropHint">
-										You can also drag and drop a .json file onto the window; dashed border will
-										appear when ready to drop.
-									</div>
-								</div>
-							</div>
-						</div>
+		<div
+			id="import-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="import-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="import-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.importProfile"
+							>Import profile</span
+						>
+						<h2 class="detail-overlay-title" id="import-title" data-i18n="modal.dropJsonFile">
+							Drop or choose a JSON file
+						</h2>
 					</div>
-				</main>
+					<button
+						id="import-close-btn"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="import-body">
+						<p data-i18n="modal.importHint">Only button, cycles and image will be imported.</p>
+						<div class="import-input-row">
+							<input type="file" id="import-file-input" accept="application/json,.json" />
+						</div>
+						<p class="import-hint" data-i18n="modal.dragAndDropHint">
+							You can also drag and drop a .json file onto the window; dashed border will appear
+							when ready to drop.
+						</p>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div id="status-import-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button id="status-import-close-btn" class="config-details-back-btn" type="button">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="modal.backToStatusProfiles">Back to status profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.importStatusProfile">
-											Import status profile
-										</div>
-										<div class="card-title config-details-title">
-											<span data-i18n="modal.dropJsonFile"
-												>Drop a JSON file anywhere or choose it here</span
-											>
-										</div>
-									</div>
+		<div
+			id="update-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="update-overlay-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="update-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.updateAvailable"
+							>Update available</span
+						>
+						<h2
+							class="detail-overlay-title"
+							id="update-overlay-title"
+							data-i18n="modal.updateAvailable"
+						>
+							New version available
+						</h2>
+					</div>
+					<button
+						id="update-close-btn"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.version">Version</p>
+						<div class="detail-overlay-card">
+							<div class="config-details-item">
+								<div class="config-details-item-main">
+									<div class="config-details-item-label" data-i18n="modal.current">Current</div>
+									<div class="config-details-item-sub" id="update-current-version">—</div>
 								</div>
-								<div class="divider"></div>
-								<div class="config-details-body import-body">
-									<div data-i18n="modal.importStatusHint">
-										Only status items (text/emoji) will be imported.
+							</div>
+							<div class="config-details-item">
+								<div class="config-details-item-main">
+									<div class="config-details-item-label" data-i18n="modal.latest">Latest</div>
+									<div class="config-details-item-sub" id="update-latest-version">—</div>
+								</div>
+								<div class="config-details-item-meta">
+									<span class="config-details-item-sub" data-i18n="modal.updatesInstallViaWindows"
+										>Updates are installed via a Windows setup file.</span
+									>
+								</div>
+							</div>
+							<div class="config-details-item" id="update-changelog-block" data-visible="false">
+								<div class="config-details-item-main">
+									<div class="config-details-item-label" data-i18n="modal.whatIsNew">
+										What's new
 									</div>
-									<div class="import-input-row">
-										<input
-											type="file"
-											id="status-import-file-input"
-											accept="application/json,.json"
-										/>
-									</div>
-									<div class="import-hint" data-i18n="modal.dragAndDropHint">
-										You can also drag and drop a .json file onto the window; dashed border will
-										appear when ready to drop.
-									</div>
+									<div class="config-details-item-sub" id="update-changelog">—</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</main>
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="modal.actions">Actions</p>
+						<div class="detail-overlay-actions">
+							<button id="update-install-btn" class="rpc-button" type="button">
+								<span data-i18n="modal.installUpdateAndRestart">Install update and restart</span>
+							</button>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
-		<div id="status-details-overlay" data-open="false">
-			<div class="config-details-modal">
-				<main class="config-details-main">
-					<div class="config-details-inner-scroll">
-						<div class="config-details-animate">
-							<button id="status-details-close" class="config-details-back-btn" type="button">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<path d="m15 18-6-6 6-6"></path>
-								</svg>
-								<span data-i18n="modal.backToStatusProfiles">Back to status profiles</span>
-							</button>
-							<div class="card config-details-card">
-								<div class="card-header config-details-card-header">
-									<div>
-										<div class="card-label" data-i18n="modal.statusProfileDetails">
-											Status profile details
-										</div>
-										<div id="status-details-name" class="card-title config-details-title"></div>
-									</div>
-								</div>
-								<div class="divider"></div>
-								<div id="status-details-list" class="config-details-body"></div>
-							</div>
+		<div
+			id="import-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="import-overlay-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="import-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.importProfile"
+							>Import profile</span
+						>
+						<h2
+							class="detail-overlay-title"
+							id="import-overlay-title"
+							data-i18n="modal.dropJsonFile"
+						>
+							Drop or choose a JSON file
+						</h2>
+					</div>
+					<button
+						id="import-close-btn"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="import-body">
+						<p data-i18n="modal.importHint">Only button, cycles and image will be imported.</p>
+						<div class="import-input-row">
+							<input type="file" id="import-file-input" accept="application/json,.json" />
+						</div>
+						<p class="import-hint" data-i18n="modal.dragAndDropHint">
+							You can also drag and drop a .json file onto the window; dashed border will appear
+							when ready to drop.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="status-import-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="status-import-overlay-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="status-import-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.importStatusProfile"
+							>Import status profile</span
+						>
+						<h2
+							class="detail-overlay-title"
+							id="status-import-overlay-title"
+							data-i18n="modal.dropJsonFile"
+						>
+							Drop or choose a JSON file
+						</h2>
+					</div>
+					<button
+						id="status-import-close-btn"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="import-body">
+						<p data-i18n="modal.importStatusHint">
+							Only status items (text/emoji) will be imported.
+						</p>
+						<div class="import-input-row">
+							<input type="file" id="status-import-file-input" accept="application/json,.json" />
+						</div>
+						<p class="import-hint" data-i18n="modal.dragAndDropHint">
+							You can also drag and drop a .json file onto the window; dashed border will appear
+							when ready to drop.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			id="status-details-overlay"
+			class="detail-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="status-details-title"
+			hidden
+		>
+			<div class="detail-overlay-backdrop" id="status-details-backdrop"></div>
+			<div class="detail-overlay-panel">
+				<header class="detail-overlay-header">
+					<div class="detail-overlay-titles">
+						<span class="detail-overlay-eyebrow" data-i18n="modal.statusProfileDetails"
+							>Status profile details</span
+						>
+						<h2 class="detail-overlay-title" id="status-details-name"></h2>
+					</div>
+					<button
+						id="status-details-close"
+						class="detail-overlay-close"
+						type="button"
+						aria-label="Close"
+					>
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<line x1="18" y1="6" x2="6" y2="18" />
+							<line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</header>
+				<div class="detail-overlay-body">
+					<div class="detail-overlay-section">
+						<p class="detail-overlay-section-title" data-i18n="status.statusCycles">
+							Status cycles
+						</p>
+						<div class="detail-overlay-card">
+							<div class="detail-overlay-list" id="status-details-list"></div>
 						</div>
 					</div>
-				</main>
+				</div>
 			</div>
 		</div>
 
@@ -3574,7 +4032,47 @@
 								<dd class="shortcuts-keys">
 									<kbd class="shortcuts-kbd">G</kbd
 									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">F</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label">Configs › Presence</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
 									><kbd class="shortcuts-kbd">C</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label">Configs › Status</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">V</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="tabs.changelogs">Changelogs</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">H</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="sidebar.workspace">Workspace</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">W</kbd>
+								</dd>
+							</div>
+							<div class="shortcuts-row" data-shortcut-row>
+								<dt class="shortcuts-label" data-i18n="account.menu">Account</dt>
+								<dd class="shortcuts-keys">
+									<kbd class="shortcuts-kbd">G</kbd
+									><span class="shortcuts-then" data-i18n="shortcuts.then">then</span
+									><kbd class="shortcuts-kbd">A</kbd>
 								</dd>
 							</div>
 						</dl>

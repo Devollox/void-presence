@@ -384,7 +384,9 @@ export default function setupViewsNavigation(): void {
 				const title = document.createElement('span')
 				title.className = 'desktop-tab-title'
 				title.textContent =
-					sidebarButton.querySelector('.sidebar-item-label')?.textContent?.trim() || page
+					sidebarButton.dataset.tabTitle ||
+					sidebarButton.querySelector('.sidebar-item-label')?.textContent?.trim() ||
+					page
 
 				content.append(title)
 				button.append(content)

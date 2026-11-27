@@ -43,4 +43,14 @@ export function setupConfigPage(): void {
 
 	attachSearchToList('config-search-input', 'config-list')
 	renderConfigs()
+
+	document.querySelectorAll<HTMLElement>('.configs-section').forEach(section => {
+		const btn = section.querySelector<HTMLButtonElement>('.configs-section-toggle')
+		if (!btn) return
+		btn.addEventListener('click', () => {
+			const isOpen = section.dataset.open !== 'false'
+			section.dataset.open = isOpen ? 'false' : 'true'
+			btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
+		})
+	})
 }

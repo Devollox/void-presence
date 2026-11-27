@@ -119,7 +119,26 @@ export default function setupSidebarDnd(): void {
 			registerSource(item, item, `page:${item.dataset.page}`)
 		}
 
+		const configsGroup = workspaceList.querySelector<HTMLElement>('#sidebar-configs-group')
+		if (configsGroup) {
+			const configsHandle = configsGroup.querySelector<HTMLElement>('.sidebar-section-toggle')
+			if (configsHandle) {
+				registerSource(configsGroup, configsHandle, 'page:configs')
+			}
+		}
+
 		registerContainer('workspace', workspaceList)
+
+		const configsList = workspaceList.querySelector<HTMLElement>('#sidebar-configs-list')
+		if (configsList) {
+			for (const item of configsList.querySelectorAll<HTMLElement>(
+				':scope > .sidebar-item[data-page]'
+			)) {
+				registerSource(item, item, `config:${item.dataset.page}`)
+			}
+
+			registerContainer('configs', configsList)
+		}
 	}
 
 	const account = viewport.querySelector<HTMLElement>('#sidebar-account-section')
