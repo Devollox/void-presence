@@ -299,7 +299,7 @@
 	flex-shrink: 0;
 }
 
-#connection-status > .status-dot {
+#connection-status .status-dot {
 	width: 6px;
 	height: 6px;
 	border-radius: var(--radius-rounded);
@@ -325,7 +325,7 @@
 	--connection-dot-color: var(--logs-error-indicator);
 }
 
-#connection-status[data-status='online'] > .status-dot {
+#connection-status[data-status='online'] .status-dot {
 	animation: connection-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -586,7 +586,7 @@
 	.sidebar-toggle-btn .sidebar-icon-panel,
 	.linear-tooltip,
 	.linear-kbd,
-	#connection-status > .status-dot,
+	#connection-status .status-dot,
 	.desktop-tab[data-page='logs'] > .sidebar-item-dot-wrap,
 	.desktop-tab[data-page='logs'] > .sidebar-item-dot-wrap > .sidebar-item-dot,
 	.desktop-tab-icon,
@@ -596,7 +596,7 @@
 		transition: none;
 	}
 
-	#connection-status[data-status='online'] > .status-dot {
+	#connection-status[data-status='online'] .status-dot {
 		animation: none;
 	}
 }

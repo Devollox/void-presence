@@ -566,6 +566,12 @@
 	"connection": {
 		"online": "Онлайн"
 	},
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "Статус",
+		"statusUnknown": "—",
+		"ariaLabel": "Статус сервисов"
+	},
 	"sidebar": {
 		"workspace": "Рабочее пространство",
 		"toggleWorkspace": "Переключить рабочее пространство",

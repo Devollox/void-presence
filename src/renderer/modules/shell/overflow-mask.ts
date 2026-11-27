@@ -1,12 +1,3 @@
-/**
- * Навешивает класс `is-overflowing` на элемент, когда его текст
- * не помещается по ширине. CSS-маска применяется только тогда.
- *
- * Следит за изменениями через ResizeObserver:
- * — за самим элементом (контейнер сужается/расширяется)
- * — за текстовым содержимым через MutationObserver (текст меняется)
- */
-
 const OVERFLOW_CLASS = 'is-overflowing'
 
 function checkOverflow(el: HTMLElement): void {

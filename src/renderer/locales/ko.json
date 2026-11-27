@@ -544,6 +544,12 @@
 		"goForward": "앞으로 가기"
 	},
 	"connection": { "online": "온라인" },
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "상태",
+		"statusUnknown": "—",
+		"ariaLabel": "서비스 상태"
+	},
 	"sidebar": {
 		"workspace": "작업 공간",
 		"toggleWorkspace": "작업 공간 전환",

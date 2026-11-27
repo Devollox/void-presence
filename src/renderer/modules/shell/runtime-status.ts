@@ -4,6 +4,209 @@ import { LogEntry, RichPresencePayload } from '../../../types/types'
 const logsViewList = document.getElementById('logs-view-list') as HTMLElement | null
 const logsCounter = document.getElementById('logs-counter') as HTMLElement | null
 
+let currentPresenceRpcStatus = 'RPC_DISABLED'
+let currentCustomStatus = 'CUSTOM_STATUS_DISABLED'
+
+function mapRpcStatusToTooltipState(status: string): 'active' | 'warn' | 'error' | 'idle' {
+	switch (status) {
+		case 'RPC_ACTIVE':
+			return 'active'
+		case 'RPC_CONNECTING':
+		case 'RPC_SEARCHING_DISCORD':
+		case 'RPC_RESTARTING':
+			return 'warn'
+		case 'RPC_DISCONNECTED':
+		case 'RPC_NO_CLIENT_ID':
+			return 'error'
+		default:
+			return 'idle'
+	}
+}
+
+function mapCustomStatusToTooltipState(status: string): 'active' | 'warn' | 'error' | 'idle' {
+	switch (status) {
+		case 'CUSTOM_STATUS_READY':
+			return 'active'
+		case 'CUSTOM_STATUS_RESTART':
+		case 'CUSTOM_STATUS_CONNECTING':
+		case 'CUSTOM_STATUS_SEARCHING_DISCORD':
+			return 'warn'
+		default:
+			return 'idle'
+	}
+}
+
+function getPresenceTooltipText(status: string): string {
+	switch (status) {
+		case 'RPC_ACTIVE':
+			return t('presenceIsBroadcasting')
+		case 'RPC_CONNECTING':
+			return t('attachingRichPresence')
+		case 'RPC_SEARCHING_DISCORD':
+			return t('lookingForDiscordProcess')
+		case 'RPC_RESTARTING':
+			return t('customStatusRestarting')
+		case 'RPC_DISCONNECTED':
+			return t('lostConnectionToDiscord')
+		case 'RPC_NO_CLIENT_ID':
+			return t('noClientId')
+		case 'RPC_DISABLED':
+			return t('waitingToStart')
+		default:
+			return t('statusDotTooltip.statusUnknown')
+	}
+}
+
+function getCustomStatusTooltipText(status: string): string {
+	switch (status) {
+		case 'CUSTOM_STATUS_READY':
+			return t('customStatus.ready')
+		case 'CUSTOM_STATUS_CONNECTING':
+			return t('updatingDiscordStatus')
+		case 'CUSTOM_STATUS_RESTART':
+			return t('customStatusRestarting')
+		case 'CUSTOM_STATUS_SEARCHING_DISCORD':
+			return t('lookingForDiscordProcess')
+		case 'CUSTOM_STATUS_DISABLED':
+			return t('waitingToStart')
+		default:
+			return t('statusDotTooltip.statusUnknown')
+	}
+}
+
+function updateStatusDotTooltipRows(): void {
+	const presenceDot = document.getElementById('sdt-presence-dot')
+	const presenceText = document.getElementById('sdt-presence-text')
+	const customDot = document.getElementById('sdt-custom-dot')
+	const customText = document.getElementById('sdt-custom-text')
+
+	if (presenceDot) presenceDot.dataset.state = mapRpcStatusToTooltipState(currentPresenceRpcStatus)
+	if (presenceText) presenceText.textContent = getPresenceTooltipText(currentPresenceRpcStatus)
+
+	if (customDot) customDot.dataset.state = mapCustomStatusToTooltipState(currentCustomStatus)
+	if (customText) customText.textContent = getCustomStatusTooltipText(currentCustomStatus)
+
+	const btn = document.querySelector<HTMLElement>('.nav-status-indicator-btn')
+	if (btn) {
+		const presLabel = t('statusDotTooltip.presenceLabel')
+		const custLabel = t('statusDotTooltip.customLabel')
+		const pText = getPresenceTooltipText(currentPresenceRpcStatus)
+		const cText = getCustomStatusTooltipText(currentCustomStatus)
+		btn.setAttribute('aria-label', `${presLabel}: ${pText}. ${custLabel}: ${cText}`)
+	}
+}
+
+export function setupStatusDotTooltip(): void {
+	const tooltipEl = document.getElementById('status-dot-tooltip') as HTMLElement | null
+	const btn = document.querySelector<HTMLElement>('.nav-status-indicator-btn')
+
+	if (!tooltipEl || !btn) return
+
+	let hideTimer: number | null = null
+	let hoverVisible = false
+	let focusVisible = false
+
+	const isMouseDevice = (): boolean =>
+		window.matchMedia('(any-hover: hover) and (any-pointer: fine)').matches
+
+	const positionTooltip = (): void => {
+		const btnRect = btn.getBoundingClientRect()
+		const tipRect = tooltipEl.getBoundingClientRect()
+		const gap = 8
+		const padding = 8
+
+		let top = btnRect.bottom + gap
+		let left = btnRect.left + (btnRect.width - tipRect.width) / 2
+
+		if (top + tipRect.height > window.innerHeight - padding) {
+			top = btnRect.top - tipRect.height - gap
+		}
+
+		left = Math.max(padding, Math.min(left, window.innerWidth - tipRect.width - padding))
+
+		tooltipEl.style.top = `${Math.round(top)}px`
+		tooltipEl.style.left = `${Math.round(left)}px`
+	}
+
+	const showTooltip = (): void => {
+		if (hideTimer !== null) {
+			window.clearTimeout(hideTimer)
+			hideTimer = null
+		}
+		updateStatusDotTooltipRows()
+		tooltipEl.setAttribute('data-visible', 'true')
+		tooltipEl.removeAttribute('aria-hidden')
+		requestAnimationFrame(positionTooltip)
+	}
+
+	const hideTooltip = (): void => {
+		hoverVisible = false
+		focusVisible = false
+		if (hideTimer !== null) window.clearTimeout(hideTimer)
+		hideTimer = window.setTimeout(() => {
+			tooltipEl.removeAttribute('data-visible')
+			tooltipEl.setAttribute('aria-hidden', 'true')
+		}, 120)
+	}
+
+	const refreshVisibility = (): void => {
+		if (hoverVisible || focusVisible) {
+			showTooltip()
+		} else {
+			hideTooltip()
+		}
+	}
+
+	btn.addEventListener('mouseenter', () => {
+		if (!isMouseDevice()) return
+		hoverVisible = true
+		refreshVisibility()
+	})
+
+	btn.addEventListener('mouseleave', () => {
+		hoverVisible = false
+		refreshVisibility()
+	})
+
+	tooltipEl.addEventListener('mouseenter', () => {
+		if (!isMouseDevice()) return
+		if (hideTimer !== null) {
+			window.clearTimeout(hideTimer)
+			hideTimer = null
+		}
+	})
+
+	tooltipEl.addEventListener('mouseleave', () => {
+		if (!isMouseDevice()) return
+		hoverVisible = false
+		refreshVisibility()
+	})
+
+	btn.addEventListener('focus', () => {
+		focusVisible = true
+		refreshVisibility()
+	})
+
+	btn.addEventListener('blur', () => {
+		focusVisible = false
+		refreshVisibility()
+	})
+
+	document.addEventListener('keydown', (e: KeyboardEvent) => {
+		if (e.key === 'Escape' && (hoverVisible || focusVisible)) {
+			hoverVisible = false
+			focusVisible = false
+			refreshVisibility()
+		}
+	})
+
+	updateStatusDotTooltipRows()
+
+	document.addEventListener('language-changed', () => {
+		updateStatusDotTooltipRows()
+	})
+}
+
 const maxLogs = 120
 
 type LogBadgeType = 'error' | 'success' | 'warn' | null
@@ -457,47 +660,13 @@ export function updateTopStatusIndicator(status: string): void {
 
 	if (indicator) {
 		indicator.dataset.status = currentConnectionState
-		indicator.dataset.tooltip = tooltipText
 		indicator.setAttribute('aria-label', tooltipText)
 	}
 
+	currentPresenceRpcStatus = status
+	updateStatusDotTooltipRows()
+
 	initializeLogsBadges()
-}
-
-function formatDuration(ms: number): string {
-	const totalSeconds = Math.floor(ms / 1000)
-	const hours = Math.floor(totalSeconds / 3600)
-	const minutes = Math.floor((totalSeconds % 3600) / 60)
-	const seconds = totalSeconds % 60
-
-	const h = hours.toString().padStart(2, '0')
-	const m = minutes.toString().padStart(2, '0')
-	const s = seconds.toString().padStart(2, '0')
-
-	return `${h}:${m}:${s}`
-}
-
-function startUptimeTimer(): void {
-	const infoUptime = document.getElementById('info-uptime') as HTMLElement | null
-
-	if (!infoUptime) return
-
-	if (uptimeTimer !== null) {
-		window.clearInterval(uptimeTimer)
-		uptimeTimer = null
-	}
-
-	const updateUptime = (): void => {
-		if (activityStartMs === null) {
-			infoUptime.textContent = '–'
-			return
-		}
-
-		infoUptime.textContent = formatDuration(Date.now() - activityStartMs)
-	}
-
-	updateUptime()
-	uptimeTimer = window.setInterval(updateUptime, 1000)
 }
 
 function stopUptimeTimer(): void {
@@ -608,6 +777,9 @@ export function updateStatusStatus(status: string): void {
 	if (status === 'CUSTOM_STATUS_DISABLED' && infoText) {
 		infoText.textContent = '–'
 	}
+
+	currentCustomStatus = status
+	updateStatusDotTooltipRows()
 }
 
 export function updateStatusText(text: string | null): void {

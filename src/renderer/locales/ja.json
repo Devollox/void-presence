@@ -565,6 +565,12 @@
 	"connection": {
 		"online": "オンライン"
 	},
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "ステータス",
+		"statusUnknown": "—",
+		"ariaLabel": "サービスの状態"
+	},
 	"sidebar": {
 		"workspace": "ワークスペース",
 		"toggleWorkspace": "ワークスペースを切り替える",

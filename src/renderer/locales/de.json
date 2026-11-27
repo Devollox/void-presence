@@ -565,6 +565,12 @@
 		"goForward": "Vorwärts"
 	},
 	"connection": { "online": "Online" },
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "Status",
+		"statusUnknown": "—",
+		"ariaLabel": "Dienststatus"
+	},
 	"sidebar": {
 		"workspace": "Arbeitsbereich",
 		"toggleWorkspace": "Arbeitsbereich umschalten",

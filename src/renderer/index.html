@@ -29,6 +29,7 @@
 		<link rel="stylesheet" href="./styles/settings.css" />
 		<link rel="stylesheet" href="./styles/changelogs.css" />
 		<link rel="stylesheet" href="./styles/dialog.css" />
+		<link rel="stylesheet" href="./styles/status-dot-tooltip.css" />
 		<link rel="stylesheet" href="./styles/logs.css" />
 		<script>
 			try {
@@ -405,12 +406,36 @@
 						id="connection-status"
 						class="nav-status-indicator"
 						data-status="online"
-						data-tooltip="Online"
 						aria-label="Online"
 						data-i18n-aria-label="connection.online"
-						data-i18n-tooltip="connection.online"
 					>
-						<div class="status-dot"></div>
+						<button
+							type="button"
+							class="nav-status-indicator-btn"
+							tabindex="0"
+							aria-describedby="status-dot-tooltip"
+							data-i18n-aria-label="statusDotTooltip.ariaLabel"
+						>
+							<div class="status-dot" aria-hidden="true"></div>
+						</button>
+
+						<div
+							id="status-dot-tooltip"
+							class="status-dot-tooltip"
+							role="tooltip"
+							aria-hidden="true"
+						>
+							<div class="sdt-row">
+								<span class="sdt-dot" id="sdt-presence-dot" data-state="idle" aria-hidden="true"></span>
+								<span class="sdt-service" data-i18n="statusDotTooltip.presenceLabel"></span>
+								<span class="sdt-status-text" id="sdt-presence-text"></span>
+							</div>
+							<div class="sdt-row">
+								<span class="sdt-dot" id="sdt-custom-dot" data-state="idle" aria-hidden="true"></span>
+								<span class="sdt-service" data-i18n="statusDotTooltip.customLabel"></span>
+								<span class="sdt-status-text" id="sdt-custom-text"></span>
+							</div>
+						</div>
 					</div>
 
 					<button

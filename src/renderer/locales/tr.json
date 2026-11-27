@@ -1,4 +1,4 @@
-{
+﻿{
 	"welcome": {
 		"title": "Void Presence'e Hoş Geldiniz",
 		"subtitle": "Başlamadan önce tercih ettiğiniz görünümü ve dili seçin",
@@ -564,6 +564,12 @@
 	},
 	"connection": {
 		"online": "ÇEvrimiçi"
+	},
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "Durum",
+		"statusUnknown": "—",
+		"ariaLabel": "Servis durumu"
 	},
 	"sidebar": {
 		"workspace": "ÇAlışma alanı",

@@ -544,6 +544,12 @@
 		"goForward": "Avancer"
 	},
 	"connection": { "online": "En ligne" },
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "Statut",
+		"statusUnknown": "—",
+		"ariaLabel": "État du service"
+	},
 	"sidebar": {
 		"workspace": "Espace de travail",
 		"toggleWorkspace": "Afficher/masquer l'espace de travail",

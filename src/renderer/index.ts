@@ -29,7 +29,7 @@ import {
 } from './modules/shell/toggles'
 import setupTooltips from './modules/shell/tooltip'
 import setupSidebarToggle, { syncSidebarCollapsibleStates } from './modules/shell/view-sidebar'
-import { updateInfo, updateStatus } from './modules/shell/views'
+import { updateInfo, updateStatus, setupStatusDotTooltip } from './modules/shell/views'
 import setupViewsNavigation, { setActiveView } from './modules/shell/views-nav'
 import { setupWindowControls } from './modules/shell/window-controls'
 import { setupStatusDetailsOverlay } from './modules/status-page/status-details'
@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupPresenceControls()
 	void setupIntervalControl()
 	void setupTooltips()
+	void setupStatusDotTooltip()
 	void setupTabsDnd()
 	void setupHelpMenu()
 	void setupShortcutsModal()

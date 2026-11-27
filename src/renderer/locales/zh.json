@@ -566,6 +566,12 @@
 	"connection": {
 		"online": "在线"
 	},
+	"statusDotTooltip": {
+		"presenceLabel": "Presence",
+		"customLabel": "状态",
+		"statusUnknown": "—",
+		"ariaLabel": "服务状态"
+	},
 	"sidebar": {
 		"workspace": "工作区",
 		"toggleWorkspace": "切换工作区",

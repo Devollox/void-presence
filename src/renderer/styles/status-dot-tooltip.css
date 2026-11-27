@@ -1,0 +1,122 @@
+.nav-status-indicator {
+	position: relative;
+}
+
+.nav-status-indicator-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	padding: 4px;
+	border: none;
+	border-radius: var(--radius-rounded);
+	background: transparent;
+	cursor: default;
+	color: inherit;
+}
+
+.nav-status-indicator-btn:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: 2px;
+	border-radius: var(--radius-rounded);
+}
+
+.status-dot-tooltip {
+	position: fixed;
+	z-index: 9999;
+	width: max-content;
+	max-width: min(260px, calc(100vw - 24px));
+	padding: 8px 12px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-control);
+	background-color: var(--color-bg-secondary);
+	box-shadow: var(--loading-error-secondary-shadow);
+	pointer-events: none;
+
+	opacity: 0;
+	transform: translateY(4px);
+	visibility: hidden;
+	transition:
+		opacity 130ms ease,
+		transform 130ms var(--ease-out-cubic),
+		visibility 0s linear 130ms;
+}
+
+.status-dot-tooltip[data-visible='true'] {
+	opacity: 1;
+	transform: translateY(0);
+	visibility: visible;
+	pointer-events: none;
+	transition:
+		opacity 130ms ease,
+		transform 130ms var(--ease-out-cubic),
+		visibility 0s linear 0s;
+}
+
+.sdt-row {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	line-height: 1.6;
+}
+
+.sdt-row + .sdt-row {
+	margin-top: 4px;
+}
+
+.sdt-dot {
+	flex-shrink: 0;
+	width: 7px;
+	height: 7px;
+	border-radius: var(--radius-rounded);
+	background-color: var(--text-tertiary);
+	position: relative;
+	top: 1px;
+	transition: background-color 150ms ease;
+}
+
+.sdt-dot[data-state='active'] {
+	background-color: var(--logs-success-indicator);
+}
+
+.sdt-dot[data-state='warn'] {
+	background-color: var(--logs-warn-indicator);
+}
+
+.sdt-dot[data-state='error'] {
+	background-color: var(--logs-error-indicator);
+}
+
+.sdt-dot[data-state='idle'] {
+	background-color: var(--text-tertiary);
+}
+
+.sdt-service {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--content-highlight-color);
+	flex-shrink: 0;
+}
+
+.sdt-status-text {
+	font-size: 12px;
+	font-weight: 450;
+	color: var(--text-secondary);
+	min-width: 0;
+}
+
+@media not all and ((any-hover: hover) and (any-pointer: fine)) {
+	.status-dot-tooltip[data-hover-visible='true']:not([data-focus-visible='true']) {
+		opacity: 0;
+		transform: translateY(4px);
+		visibility: hidden;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.status-dot-tooltip,
+	.status-dot-tooltip[data-visible='true'] {
+		transition: none;
+	}
+}
