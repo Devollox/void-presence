@@ -85,20 +85,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 		ipcRenderer.invoke('set-timestamp-config', cfg),
 	resetPersistTimestamp: () => ipcRenderer.invoke('reset-persist-timestamp'),
 	setActivityType: (type: string) => ipcRenderer.invoke('set-activity-type', type),
-	openDiscordDeveloperAuthorId: () => {
-		ipcRenderer.invoke('open-discord-author-id')
-	},
-	openDiscordDeveloperPortal: () => {
-		ipcRenderer.invoke('open-discord-client-id')
-	},
-	openDiscordGetTokenVideo: () => {
-		ipcRenderer.invoke('open-discord-token-id')
-	},
-	openDiscordGetTokenVideoError: () => {
-		ipcRenderer.invoke('open-discord-token-error-id')
-	},
-	openSupportSite: () => ipcRenderer.invoke('support:open-site'),
-	openSupportDiscord: () => ipcRenderer.invoke('support:open-discord'),
 	openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
 	clearLogs: () => ipcRenderer.invoke('logs:clear'),
 	downloadLogs: () => ipcRenderer.invoke('logs:download'),

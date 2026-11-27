@@ -629,60 +629,6 @@ export async function initIpc() {
 		return true
 	})
 
-	ipcMain.handle('open-discord-author-id', async () => {
-		try {
-			await shell.openExternal('https://voidpresence.com/profile')
-		} catch (error) {
-			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
-		}
-	})
-
-	ipcMain.handle('open-discord-client-id', async () => {
-		try {
-			await shell.openExternal('https://discord.com/developers/applications')
-		} catch (error) {
-			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
-		}
-	})
-
-	ipcMain.handle('open-discord-token-id', async () => {
-		try {
-			await shell.openExternal('https://www.youtube.com/watch?v=GUqSNoJ28aU')
-		} catch (error) {
-			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
-		}
-	})
-
-	ipcMain.handle('open-discord-token-error-id', async () => {
-		try {
-			await shell.openExternal(
-				'https://www.reddit.com/r/discordapp/comments/sc61n3/comment/hu4fw5x/'
-			)
-		} catch (error) {
-			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
-		}
-	})
-
-	ipcMain.handle('support:open-site', async () => {
-		try {
-			await shell.openExternal('https://voidpresence.com/docs')
-			return true
-		} catch (error) {
-			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
-			return false
-		}
-	})
-
-	ipcMain.handle('support:open-discord', async () => {
-		try {
-			await shell.openExternal('https://discord.gg/9FEkxGPPmu')
-			return true
-		} catch (error) {
-			sendLog(t('failedToOpenBrowser', { error: String(error) }), 'error')
-			return false
-		}
-	})
-
 	ipcMain.handle('shell:open-external', async (_event, url: string) => {
 		try {
 			const parsed = new URL(url)

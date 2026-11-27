@@ -28,6 +28,28 @@
 		<link rel="stylesheet" href="./styles/shortcuts.css" />
 		<link rel="stylesheet" href="./styles/settings.css" />
 		<link rel="stylesheet" href="./styles/dialog.css" />
+		<link rel="stylesheet" href="./styles/logs.css" />
+		<script>
+			try {
+				if (localStorage.getItem('vp_hide_tutorial') === '1') {
+					document.documentElement.setAttribute('data-tutorial-done', 'true')
+				}
+				if (localStorage.getItem('vp_hide_cloud_tutorial') === '1') {
+					document.documentElement.setAttribute('data-cloud-tutorial-done', 'true')
+				}
+				if (localStorage.getItem('vp_hide_status_tutorial') === '1') {
+					document.documentElement.setAttribute('data-status-tutorial-done', 'true')
+				}
+				if (window.innerWidth < 600) {
+					document.documentElement.setAttribute('data-narrow', 'true')
+				}
+				var _t = localStorage.getItem('vp_theme')
+				if (_t === 'dark' || _t === 'light') {
+					document.documentElement.classList.add(_t)
+					document.documentElement.dataset.theme = _t
+				}
+			} catch (e) {}
+		</script>
 	</head>
 	<body>
 		<div class="welcome" id="welcome">
@@ -1125,7 +1147,13 @@
 											</svg>
 											<span data-i18n="tutorial.useReadyClientId">Use Ready Client ID</span>
 										</button>
-										<button id="tutorial-inline-open-dev" class="presence-onboarding-extra-btn">
+										<a
+											id="tutorial-inline-open-dev"
+											class="presence-onboarding-extra-btn"
+											href="https://discord.com/developers/applications"
+											target="_blank"
+											rel="noopener noreferrer"
+										>
 											<svg
 												width="14"
 												height="14"
@@ -1142,7 +1170,7 @@
 											<span data-i18n="tutorial.openDiscordPortal"
 												>Open Discord Developer Portal</span
 											>
-										</button>
+										</a>
 									</div>
 									<div class="presence-onboarding-actions">
 										<button
@@ -1250,7 +1278,6 @@
 												id="update-interval-input"
 												class="settings-row-input"
 												placeholder="30"
-												style="width: 80px"
 											/>
 										</div>
 									</div>
@@ -1659,38 +1686,48 @@
 									</div>
 
 									<div class="dialog-section timestamp-range-section" data-visible="false">
-										<h3 class="dialog-section-title">Range options</h3>
-										<div class="dialog-row timestamp-range-row" data-visible="false">
-											<span class="dialog-row-label" data-i18n="activity.rangeMin">Min (sec)</span>
-											<input
-												id="timestamp-range-min"
-												class="dialog-input"
-												placeholder="e.g. 300"
-												style="width: 100px"
-												autocomplete="off"
-											/>
-										</div>
-										<div class="dialog-row timestamp-range-row" data-visible="false">
-											<span class="dialog-row-label" data-i18n="activity.rangeMax">Max (sec)</span>
-											<input
-												id="timestamp-range-max"
-												class="dialog-input"
-												placeholder="e.g. 3600"
-												style="width: 100px"
-												autocomplete="off"
-											/>
+										<h3 class="dialog-section-title" data-i18n="activity.rangeOptions">
+											Range options
+										</h3>
+										<div class="dialog-option-list">
+											<div class="dialog-field-row timestamp-range-row" data-visible="false">
+												<span class="dialog-field-label" data-i18n="activity.rangeMin"
+													>Range (min)</span
+												>
+												<input
+													id="timestamp-range-min"
+													class="dialog-field-input"
+													placeholder="e.g. 300"
+													autocomplete="off"
+												/>
+											</div>
+											<div class="dialog-field-row timestamp-range-row" data-visible="false">
+												<span class="dialog-field-label" data-i18n="activity.rangeMax"
+													>Range (max)</span
+												>
+												<input
+													id="timestamp-range-max"
+													class="dialog-field-input"
+													placeholder="e.g. 3600"
+													autocomplete="off"
+												/>
+											</div>
 										</div>
 									</div>
 
 									<div class="dialog-section timestamp-persist-section" data-visible="false">
-										<h3 class="dialog-section-title">Persist options</h3>
-										<div class="dialog-row timestamp-persist-row" data-visible="false">
-											<span class="dialog-row-label" data-i18n="activity.persist"
-												>Persist timestamp</span
-											>
-											<button type="button" id="timestamp-persist-reset" class="dialog-btn">
-												Reset
-											</button>
+										<h3 class="dialog-section-title" data-i18n="activity.persistOptions">
+											Persist options
+										</h3>
+										<div class="dialog-option-list">
+											<div class="dialog-field-row timestamp-persist-row" data-visible="false">
+												<span class="dialog-field-label" data-i18n="activity.persist"
+													>Persist timestamp</span
+												>
+												<button type="button" id="timestamp-persist-reset" class="dialog-field-btn">
+													Reset
+												</button>
+											</div>
 										</div>
 									</div>
 
@@ -2121,51 +2158,110 @@
 						<section data-view="logs" data-active="false">
 							<header class="view-header">
 								<div class="view-header-title"><h2 data-i18n="tabs.logs">Logs</h2></div>
-							</header>
-							<div class="card">
-								<div class="card-header">
-									<div class="card-title-label" data-i18n="support.title">Support</div>
-								</div>
-								<div class="card-body support-actions">
-									<div>
-										<button
-											id="support-open-site"
-											class="support-btn"
-											data-i18n="support.openSupportPage"
+								<div class="view-header-actions">
+									<button
+										id="logs-download-btn"
+										class="view-action-btn"
+										data-i18n="logs.downloadTxt"
+									>
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
 										>
-											Open support page
-										</button>
-										<button
-											id="support-open-discord"
-											class="support-btn"
-											data-i18n="support.openDiscord"
+											<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+											<polyline points="7 10 12 15 17 10" />
+											<line x1="12" y1="15" x2="12" y2="3" />
+										</svg>
+										Download
+									</button>
+									<button id="logs-clear-btn" class="view-action-btn" data-i18n="logs.clearConsole">
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
 										>
-											Discord
-										</button>
-										<button id="logs-download-btn" class="support-btn" data-i18n="logs.downloadTxt">
-											Download logs (.txt)
-										</button>
-									</div>
-									<button id="logs-clear-btn" class="support-btn" data-i18n="logs.clearConsole">
-										Clear console
+											<path
+												d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+											/>
+										</svg>
+										Clear
 									</button>
 								</div>
-							</div>
-							<div class="logs-view-wrapper">
-								<div class="logs-view-header">
-									<div class="card-header-config">
-										<div class="card-label" data-i18n="logs.title">Logs</div>
-										<div class="card-title-block">
-											<div class="card-title" data-i18n="logs.subtitle">Session events</div>
-											<div class="card-label" data-i18n="logs.subtitle2">Events history</div>
-										</div>
+							</header>
+
+							<div class="logs-page">
+								<div class="logs-actions-group">
+									<a
+										id="support-open-site"
+										class="logs-action-btn"
+										href="https://voidpresence.com/docs"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<circle cx="12" cy="12" r="10" />
+											<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+											<path d="M12 17h.01" />
+										</svg>
+										<span data-i18n="support.openSupportPage">Support page</span>
+									</a>
+									<a
+										id="support-open-discord"
+										class="logs-action-btn"
+										href="https://discord.gg/9FEkxGPPmu"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.6"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+										</svg>
+										<span data-i18n="support.openDiscord">Discord</span>
+									</a>
+								</div>
+
+								<div class="logs-list-wrap">
+									<div class="logs-list-header">
+										<span class="logs-list-title" data-i18n="logs.title">Session events</span>
+										<span class="logs-list-counter" id="logs-counter">0 entries</span>
 									</div>
-									<div class="logs-view-counter" id="logs-counter">
-										<span data-i18n="logs.entries">0 entries</span>
+									<div id="logs-view-list" class="logs-view-list"></div>
+									<div class="logs-empty" id="logs-empty">
+										<span data-i18n="logs.empty">No events yet</span>
 									</div>
 								</div>
-								<div class="divider"></div>
-								<div id="logs-view-list" class="logs-view-list"></div>
 							</div>
 						</section>
 
@@ -2194,20 +2290,30 @@
 										</div>
 										<div class="card-body support-actions">
 											<div>
-												<button
+												<a
 													id="plugins-open-site"
-													class="support-btn"
-													data-i18n="plugins.browseCommunity"
+													class="logs-action-btn"
+													href="https://voidpresence.com/plugins"
+													target="_blank"
+													rel="noopener noreferrer"
 												>
-													Browse community plugins
-												</button>
-												<button
-													id="plugins-add-yours"
-													class="support-btn"
-													data-i18n="plugins.addYours"
-												>
-													Add your plugin
-												</button>
+													<svg
+														width="14"
+														height="14"
+														viewBox="0 0 24 24"
+														fill="none"
+														stroke="currentColor"
+														stroke-width="1.6"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														aria-hidden="true"
+													>
+														<circle cx="12" cy="12" r="10" />
+														<path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+														<path d="M12 17h.01" />
+													</svg>
+													<span data-i18n="plugins.browseCommunity">Browse community plugins</span>
+												</a>
 											</div>
 										</div>
 									</div>
@@ -2457,8 +2563,6 @@
 									</div>
 								</header>
 								<div class="settings-page">
-									<!-- <h1 class="settings-page-title" data-i18n="settingsPage.title">Settings</h1> -->
-
 									<div class="settings-group">
 										<h2 class="settings-group-title" data-i18n="settingsPage.generalSection">
 											General

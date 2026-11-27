@@ -1,3 +1,18 @@
+html[data-tutorial-done] #tutorial-card {
+	opacity: 0 !important;
+	visibility: hidden !important;
+	pointer-events: none !important;
+	transition: none !important;
+}
+
+html[data-status-tutorial-done] #status-tutorial-card {
+	display: none !important;
+}
+
+html[data-cloud-tutorial-done] #cloud-tutorial-card {
+	display: none !important;
+}
+
 .presence-onboarding {
 	position: absolute;
 	inset: 0;
@@ -307,6 +322,10 @@
 }
 
 .footer-payload-value {
+	flex: 0 1 auto;
+	min-width: 0;
+	max-width: 145px;
+
 	font-size: var(--font-size-mini, 11px);
 	font-weight: var(--font-weight-normal, 450);
 	font-family: var(--font-monospace);
@@ -316,16 +335,27 @@
 		'cv08' 1,
 		'zero' 1;
 	color: var(--content-highlight-color);
+
 	white-space: nowrap;
 	overflow: hidden;
-	max-width: 140px;
+	text-overflow: clip;
 
-	animation: footer-value-swap 240ms var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)) both;
+	animation:
+		footer-value-swap 240ms var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)) both,
+		footer-value-fade linear both;
+	animation-timeline: auto, scroll(self inline);
 }
 
-.footer-payload-value.is-short {
-	-webkit-mask-image: none;
-	mask-image: none;
+@keyframes footer-value-fade {
+	from {
+		-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+		mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+	}
+
+	to {
+		-webkit-mask-image: none;
+		mask-image: none;
+	}
 }
 
 .footer-payload-sep {
@@ -402,6 +432,8 @@
 
 .settings-row-input {
 	height: 28px;
+	width: 120px;
+	flex-shrink: 0;
 	padding: 0 10px;
 	border: var(--editor-hairline) solid var(--border-secondary);
 	border-radius: var(--radius-control);
@@ -411,8 +443,6 @@
 	font-size: 13px;
 	font-weight: 500;
 	outline: none;
-	flex-shrink: 0;
-	min-width: 180px;
 	transition: border-color var(--speed-highlightFadeOut) ease;
 }
 
@@ -477,6 +507,10 @@
 }
 
 .presence-list:empty {
+	display: none;
+}
+
+.settings-card:has(> .presence-list:empty) {
 	display: none;
 }
 
@@ -682,9 +716,11 @@
 	color: var(--content-highlight-color);
 	min-width: 0;
 	overflow: hidden;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
 	align-self: center;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
 }
 
 .presence-payload-status {

@@ -246,13 +246,6 @@
 	mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
 }
 
-.desktop-tab[data-active='true'] .desktop-tab-title,
-.desktop-tab:hover .desktop-tab-title {
-	-webkit-mask-image: none;
-	mask-image: none;
-	text-overflow: ellipsis;
-}
-
 .desktop-tab-close {
 	position: absolute;
 	top: 50%;

@@ -1,4 +1,5 @@
 import { SidebarAccount } from 'src/types/types'
+import { syncSidebarCollapsibleStates } from './view-sidebar'
 
 let wasConnected: boolean | null = null
 
@@ -18,13 +19,29 @@ export function syncSidebarAccount(
 	section.dataset.open = connected ? 'true' : 'false'
 
 	if (wasConnected !== connected) {
-		group.dataset.open = connected ? 'true' : 'false'
+		if (!connected) {
+			group.dataset.open = 'false'
+		} else if (wasConnected === null) {
+			const ACCOUNT_SECTION_KEY = 'app.sidebar.section.sidebar-account-links'
+			let savedOpen: boolean
+			try {
+				const saved = localStorage.getItem(ACCOUNT_SECTION_KEY)
+				savedOpen = saved !== null ? saved === 'true' : true
+			} catch {
+				savedOpen = true
+			}
+			group.dataset.open = String(savedOpen)
+		} else {
+			group.dataset.open = 'true'
+		}
 
 		const heading = group.querySelector<HTMLButtonElement>('.sidebar-account-heading')
 
 		if (heading) {
-			heading.setAttribute('aria-expanded', connected ? 'true' : 'false')
+			heading.setAttribute('aria-expanded', group.dataset.open)
 		}
+
+		syncSidebarCollapsibleStates()
 
 		wasConnected = connected
 	}

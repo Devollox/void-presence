@@ -4,6 +4,17 @@ const SIDEBAR_WIDTH_KEY = 'app.sidebar.width'
 const MIN_SIDEBAR_WIDTH = 180
 const MAX_SIDEBAR_WIDTH = 360
 const COLLAPSE_THRESHOLD = 110
+const NARROW_BREAKPOINT = 600
+
+let _sidebarOpen = true
+
+export function isSidebarOpen(): boolean {
+	return _sidebarOpen
+}
+
+function isNarrowWindow(): boolean {
+	return window.innerWidth < NARROW_BREAKPOINT
+}
 
 export default function setupSidebarToggle(): void {
 	const sidebarBtn = document.querySelector<HTMLButtonElement>('.sidebar-toggle-btn')
@@ -71,7 +82,8 @@ export default function setupSidebarToggle(): void {
 	}
 
 	const setPeek = (isPeeking: boolean): void => {
-		const canPeek = isPeeking && sidebar.dataset.open === 'false' && !isResizing
+		const effectivelyClosed = !_sidebarOpen || isNarrowWindow()
+		const canPeek = isPeeking && effectivelyClosed && !isResizing
 
 		if (canPeek) {
 			sidebar.inert = false
@@ -80,7 +92,7 @@ export default function setupSidebarToggle(): void {
 		}
 
 		delete sidebar.dataset.peek
-		sidebar.inert = sidebar.dataset.open === 'false'
+		sidebar.inert = !_sidebarOpen
 	}
 
 	const scheduleClosePeek = (): void => {
@@ -98,6 +110,8 @@ export default function setupSidebarToggle(): void {
 	const applyState = (isOpen: boolean, instant = false): void => {
 		clearPeekTimers()
 
+		_sidebarOpen = isOpen
+
 		sidebarHovered = false
 		delete sidebar.dataset.peek
 
@@ -107,7 +121,7 @@ export default function setupSidebarToggle(): void {
 
 		sidebarBtn.setAttribute('aria-expanded', String(isOpen))
 		sidebar.dataset.open = String(isOpen)
-		sidebar.inert = !isOpen
+		sidebar.inert = isNarrowWindow() ? false : !isOpen
 
 		if (instant) {
 			void sidebar.offsetWidth
@@ -117,12 +131,39 @@ export default function setupSidebarToggle(): void {
 
 	applyState(initialState, true)
 
+	window.addEventListener(
+		'resize',
+		() => {
+			const narrow = isNarrowWindow()
+			const wasNarrow = document.documentElement.hasAttribute('data-narrow')
+
+			if (narrow === wasNarrow) return
+
+			if (narrow) {
+				clearPeekTimers()
+				delete sidebar.dataset.peek
+				sidebar.inert = false
+				document.documentElement.setAttribute('data-narrow', 'true')
+			} else {
+				document.documentElement.removeAttribute('data-narrow')
+				clearPeekTimers()
+				delete sidebar.dataset.peek
+				sidebar.inert = !_sidebarOpen
+			}
+		},
+		{ passive: true }
+	)
+
+	if (isNarrowWindow()) {
+		document.documentElement.setAttribute('data-narrow', 'true')
+	}
+
 	sidebarBtn.addEventListener('pointerenter', (event: PointerEvent) => {
 		if (event.pointerType !== 'mouse') return
 
 		buttonHovered = true
 
-		if (sidebar.dataset.open !== 'false' || isResizing) return
+		if ((!isNarrowWindow() && _sidebarOpen) || isResizing) return
 
 		clearPeekTimers()
 
@@ -140,7 +181,7 @@ export default function setupSidebarToggle(): void {
 
 		buttonHovered = false
 
-		if (sidebar.dataset.open === 'false') {
+		if (!_sidebarOpen || isNarrowWindow()) {
 			scheduleClosePeek()
 		}
 	})
@@ -168,8 +209,16 @@ export default function setupSidebarToggle(): void {
 	sidebarBtn.addEventListener('click', () => {
 		if (isResizing) return
 
-		const nextState = sidebar.dataset.open !== 'true'
+		if (isNarrowWindow()) {
+			if (sidebar.dataset.peek === 'true') {
+				setPeek(false)
+			} else {
+				setPeek(true)
+			}
+			return
+		}
 
+		const nextState = !_sidebarOpen
 		applyState(nextState)
 		saveOpenState(nextState)
 	})
@@ -199,6 +248,12 @@ export default function setupSidebarToggle(): void {
 
 		if (!button || !body) return
 
+		const storageKey = section.id
+			? `app.sidebar.section.${section.id}`
+			: button.getAttribute('aria-controls')
+				? `app.sidebar.section.${button.getAttribute('aria-controls')}`
+				: null
+
 		const applySectionState = (isOpen: boolean): void => {
 			if (!isOpen && body.contains(document.activeElement)) {
 				button.focus()
@@ -209,10 +264,26 @@ export default function setupSidebarToggle(): void {
 			body.toggleAttribute('inert', !isOpen)
 		}
 
-		applySectionState(section.dataset.open !== 'false')
+		let defaultOpen = section.dataset.open !== 'false'
+
+		if (storageKey) {
+			try {
+				const saved = localStorage.getItem(storageKey)
+				if (saved !== null) defaultOpen = saved === 'true'
+			} catch {}
+		}
+
+		applySectionState(defaultOpen)
 
 		button.addEventListener('click', () => {
-			applySectionState(section.dataset.open !== 'true')
+			const nextOpen = section.dataset.open !== 'true'
+			applySectionState(nextOpen)
+
+			if (storageKey) {
+				try {
+					localStorage.setItem(storageKey, String(nextOpen))
+				} catch {}
+			}
 		})
 	})
 
@@ -236,7 +307,7 @@ export default function setupSidebarToggle(): void {
 
 	resizer.addEventListener('pointerdown', (event: PointerEvent) => {
 		if (event.button !== 0) return
-		if (isResizing || sidebar.dataset.open !== 'true') return
+		if (isResizing || !_sidebarOpen) return
 
 		event.preventDefault()
 
@@ -312,7 +383,6 @@ export default function setupSidebarToggle(): void {
 
 			finishResize()
 			saveWidth()
-			saveOpenState(sidebar.dataset.open === 'true')
 		}
 
 		const cancelResize = (): void => {
@@ -334,5 +404,35 @@ export default function setupSidebarToggle(): void {
 		window.addEventListener('pointerup', onUp)
 		window.addEventListener('pointercancel', onCancel)
 		window.addEventListener('blur', onBlur)
+	})
+}
+
+export function syncSidebarCollapsibleStates(): void {
+	const sidebar = document.querySelector<HTMLElement>('.app-sidebar')
+
+	if (!sidebar) return
+
+	const collapsibleSections = sidebar.querySelectorAll<HTMLElement>(
+		'.sidebar-section, .sidebar-account-group'
+	)
+
+	collapsibleSections.forEach(section => {
+		const isAccount = section.classList.contains('sidebar-account-group')
+
+		const button = isAccount
+			? section.querySelector<HTMLButtonElement>('.sidebar-account-heading')
+			: section.querySelector<HTMLButtonElement>('.sidebar-section-toggle')
+
+		const body = isAccount
+			? section.querySelector<HTMLElement>('.sidebar-account-body')
+			: section.querySelector<HTMLElement>('.sidebar-section-body')
+
+		if (!button || !body) return
+
+		const isOpen = section.dataset.open !== 'false'
+
+		section.dataset.open = String(isOpen)
+		button.setAttribute('aria-expanded', String(isOpen))
+		body.toggleAttribute('inert', !isOpen)
 	})
 }

@@ -99,8 +99,10 @@
 	font-size: 13px;
 	font-weight: 500;
 	letter-spacing: -0.006em;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
 }
 
 .workspace-caret {
@@ -413,8 +415,10 @@
 	flex: 1;
 	min-width: 0;
 	overflow: hidden;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
 }
 
 .sidebar-item-badge {
@@ -482,8 +486,10 @@
 .sidebar-account-name {
 	min-width: 0;
 	overflow: hidden;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
 }
 
 .sidebar-account-chevron {
@@ -537,8 +543,10 @@
 .sidebar-account-link .sidebar-item-label {
 	min-width: 0;
 	overflow: hidden;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent 100%);
 }
 
 .sidebar-account-link:focus-visible {
@@ -956,5 +964,14 @@
 	.help-menu-item {
 		transition: none;
 		animation: none;
+	}
+
+	.sidebar-item-label,
+	.sidebar-account-name,
+	.sidebar-account-link .sidebar-item-label,
+	.workspace-title {
+		-webkit-mask-image: none;
+		mask-image: none;
+		text-overflow: ellipsis;
 	}
 }

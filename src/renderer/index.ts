@@ -20,7 +20,6 @@ import {
 	setupAutoHideToggle,
 	setupAutoLaunchToggle,
 	setupCustomStatusControls,
-	setupPluginsExternalButtons,
 	setupPresenceControls,
 	setupRpcEnabledToggle,
 	setupStatusEnabledBrowserToggle,
@@ -28,7 +27,7 @@ import {
 	setupSupportAndLogsButtons,
 } from './modules/shell/toggles'
 import setupTooltips from './modules/shell/tooltip'
-import setupSidebarToggle from './modules/shell/view-sidebar'
+import setupSidebarToggle, { syncSidebarCollapsibleStates } from './modules/shell/view-sidebar'
 import { updateInfo, updateStatus } from './modules/shell/views'
 import setupViewsNavigation, { setActiveView } from './modules/shell/views-nav'
 import { setupWindowControls } from './modules/shell/window-controls'
@@ -87,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupViewsNavigation()
 	void setupSidebarToggle()
 	void setupAccountModal()
+	void syncSidebarCollapsibleStates()
 	void setupSidebarDnd()
 	void initSidebarPeek()
 	void initUpdateOverlay()
@@ -101,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	void setupStatusDetailsOverlay()
 	void setupStatusIntervalControl()
 	void setupPluginsPage()
-	void setupPluginsExternalButtons()
 
 	updateStatusStatus('CUSTOM_STATUS_DISABLED')
 	updateStatus('RPC_DISABLED')

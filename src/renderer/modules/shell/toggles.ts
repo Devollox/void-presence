@@ -177,22 +177,8 @@ export function setupCustomStatusControls() {
 export function setupSupportAndLogsButtons() {
 	const api = window.electronAPI
 
-	const btnSupportSite = document.getElementById('support-open-site')
-	const btnSupportDiscord = document.getElementById('support-open-discord')
 	const btnClearLogs = document.getElementById('logs-clear-btn')
 	const btnDownloadLogs = document.getElementById('logs-download-btn')
-
-	if (btnSupportSite && api?.openSupportSite) {
-		btnSupportSite.addEventListener('click', () => {
-			api.openSupportSite?.()
-		})
-	}
-
-	if (btnSupportDiscord && api?.openSupportDiscord) {
-		btnSupportDiscord.addEventListener('click', () => {
-			api.openSupportDiscord?.()
-		})
-	}
 
 	if (btnClearLogs && api?.clearLogs) {
 		btnClearLogs.addEventListener('click', () => {
@@ -203,25 +189,6 @@ export function setupSupportAndLogsButtons() {
 	if (btnDownloadLogs && api?.downloadLogs) {
 		btnDownloadLogs.addEventListener('click', () => {
 			api.downloadLogs?.()
-		})
-	}
-}
-
-export function setupPluginsExternalButtons() {
-	const api = window.electronAPI
-
-	const btnBrowse = document.getElementById('plugins-open-site')
-	const btnAdd = document.getElementById('plugins-add-yours')
-
-	if (btnBrowse) {
-		btnBrowse.addEventListener('click', () => {
-			api?.openExternal?.('https://voidpresence.com/plugins')
-		})
-	}
-
-	if (btnAdd) {
-		btnAdd.addEventListener('click', () => {
-			api?.openExternal?.('https://github.com/Devollox/void-web/tree/main/plugins')
 		})
 	}
 }

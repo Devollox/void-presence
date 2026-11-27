@@ -212,14 +212,17 @@ html.dark .app-workspace {
 }
 
 .view-header-title h2 {
+	width: 100%;
 	margin: 0;
 	font-size: 13px;
 	font-weight: 500;
 	line-height: 1.25;
 	color: var(--content-highlight-color);
 	overflow: hidden;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent 100%);
 }
 
 .view-header-actions {
@@ -317,4 +320,70 @@ html.dark .app-workspace {
 		transition: none;
 		animation: none;
 	}
+
+	.view-header-title h2 {
+		-webkit-mask-image: none;
+		mask-image: none;
+		text-overflow: ellipsis;
+	}
+}
+
+@media (max-width: 600px) {
+	.app-workspace > .app-sidebar[data-open='true'] {
+		transform: translateX(-100%);
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	.app-workspace > .app-content-column {
+		margin-left: 8px !important;
+	}
+
+	.app-workspace > .app-sidebar[data-open='true'][data-peek='true'],
+	.app-workspace > .app-sidebar[data-open='false'][data-peek='true'] {
+		transform: translateX(0);
+		visibility: visible;
+		pointer-events: auto;
+	}
+}
+
+html[data-narrow] .app-workspace > .app-sidebar[data-open='true'] {
+	transform: translateX(-100%);
+	visibility: hidden;
+	pointer-events: none;
+	transition:
+		transform var(--sidebar-motion-duration) var(--sidebar-motion-easing),
+		visibility 0s linear var(--sidebar-motion-duration);
+}
+
+html[data-narrow] .app-workspace > .app-content-column {
+	margin-left: 8px !important;
+	transition: margin-left var(--sidebar-motion-duration) var(--sidebar-motion-easing);
+}
+
+html[data-narrow] .app-workspace > .app-sidebar[data-peek='true'] {
+	transform: translateX(0);
+	visibility: visible;
+	pointer-events: auto;
+	z-index: 60;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-left: none;
+	border-top-right-radius: var(--radius-card);
+	border-bottom-right-radius: var(--radius-card);
+	background-color: var(--bg-base-color);
+	box-shadow:
+		0 16px 40px rgb(0 0 0 / 30%),
+		var(--loading-error-secondary-shadow);
+	transition:
+		transform var(--sidebar-motion-duration) var(--sidebar-motion-easing),
+		visibility 0s;
+}
+
+html[data-narrow] .app-workspace:has(> .app-sidebar[data-peek='true']) > .sidebar-peek-backdrop {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+	transition:
+		opacity var(--sidebar-motion-duration) ease,
+		visibility 0s;
 }

@@ -1,0 +1,217 @@
+.logs-page {
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 24px 28px 56px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.logs-actions-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.logs-action-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 28px;
+	padding: 0 12px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-control);
+	background-color: var(--color-bg-secondary);
+	box-shadow: var(--loading-error-secondary-shadow);
+	color: var(--text-secondary);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease,
+		border-color var(--speed-highlightFadeOut) ease;
+}
+
+.logs-action-btn svg {
+	flex-shrink: 0;
+	color: var(--text-tertiary);
+	transition: color var(--speed-highlightFadeOut) ease;
+}
+
+.logs-action-btn:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: 2px;
+}
+
+.logs-action-btn:active {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.logs-action-btn:hover {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+
+	.logs-action-btn:hover svg {
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+.logs-list-wrap {
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-card);
+	background-color: var(--color-bg-secondary);
+	box-shadow: var(--loading-error-secondary-shadow);
+	overflow: hidden;
+}
+
+.logs-list-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	height: 40px;
+	padding: 0 16px;
+	border-bottom: var(--editor-hairline) solid var(--border-secondary);
+}
+
+.logs-list-title {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	color: var(--text-tertiary);
+}
+
+.logs-list-counter {
+	font-size: 11px;
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+	color: var(--text-tertiary);
+}
+
+.logs-empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 32px 16px;
+	font-size: 13px;
+	font-weight: 450;
+	color: var(--text-tertiary);
+}
+
+.logs-view-list:not(:empty) + .logs-empty {
+	display: none;
+}
+
+.logs-view-list {
+	display: flex;
+	flex-direction: column;
+	max-height: 480px;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: transparent transparent;
+}
+
+.logs-view-list:hover {
+	scrollbar-color: var(--border-secondary) transparent;
+}
+
+.log-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 16px;
+	border-bottom: var(--editor-hairline) solid var(--border-secondary);
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+.log-item:last-child {
+	border-bottom: none;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.log-item:hover {
+		background-color: var(--control-tertiary-hover);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
+.log-level-dot {
+	flex-shrink: 0;
+	width: 6px;
+	height: 6px;
+	border-radius: var(--radius-rounded);
+	background-color: var(--text-tertiary);
+	margin-top: 5px;
+	transition: background-color var(--speed-highlightFadeOut) ease;
+}
+
+.log-error .log-level-dot,
+.dot-error {
+	background-color: var(--logs-error-indicator);
+}
+
+.log-success .log-level-dot,
+.dot-success {
+	background-color: var(--logs-success-indicator);
+}
+
+.log-warn .log-level-dot,
+.dot-warn {
+	background-color: var(--logs-warn-indicator);
+}
+
+.log-item > div {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	flex: 1;
+}
+
+.log-item-message {
+	font-size: 12px;
+	font-weight: 450;
+	font-family: var(--font-monospace);
+	color: var(--content-highlight-color);
+	line-height: 1.5;
+	word-break: break-word;
+}
+
+.log-error .log-item-message {
+	color: var(--logs-error-indicator);
+}
+
+.log-success .log-item-message {
+	color: var(--logs-success-indicator);
+}
+
+.log-warn .log-item-message {
+	color: var(--logs-warn-indicator);
+}
+
+.log-item-meta {
+	font-size: 11px;
+	font-weight: 450;
+	font-variant-numeric: tabular-nums;
+	color: var(--text-tertiary);
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.logs-action-btn,
+	.log-item,
+	.log-level-dot {
+		transition: none;
+	}
+}

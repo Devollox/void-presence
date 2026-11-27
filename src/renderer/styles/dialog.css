@@ -266,12 +266,12 @@
 .dialog-option-hint {
 	font-size: 12px;
 	font-weight: 450;
-
 	color: var(--text-tertiary);
-
 	overflow: hidden;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
+	-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
+	mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent 100%);
 }
 
 .dialog-option-check {
@@ -395,6 +395,107 @@
 	transition-duration: 0s;
 }
 
+.dialog-btn--ghost {
+	background-color: transparent;
+	color: var(--text-secondary);
+}
+
+.dialog-btn--ghost:active {
+	background-color: var(--control-tertiary-selected);
+	transition-duration: 0s;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.dialog-btn--ghost:hover {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+	}
+}
+
+.dialog-field-row[data-visible='false'] {
+	display: none;
+}
+
+.dialog-field-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 34px;
+	padding: 5px 8px;
+	border-radius: var(--radius-control);
+}
+
+.dialog-field-label {
+	flex: 1;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--content-highlight-color);
+	white-space: nowrap;
+}
+
+.dialog-field-input {
+	width: 96px;
+	height: 28px;
+	flex-shrink: 0;
+	padding: 0 8px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-control);
+	background-color: var(--color-bg-tertiary);
+	color: var(--content-highlight-color);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 450;
+	outline: none;
+	transition: border-color var(--speed-highlightFadeOut) ease;
+}
+
+.dialog-field-input:focus {
+	border-color: var(--focus-ring-color);
+}
+
+.dialog-field-input::placeholder {
+	color: var(--text-tertiary);
+	font-weight: 450;
+}
+
+.dialog-field-btn {
+	flex-shrink: 0;
+	height: 28px;
+	padding: 0 12px;
+	border: var(--editor-hairline) solid var(--border-secondary);
+	border-radius: var(--radius-control);
+	background-color: transparent;
+	color: var(--text-secondary);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		background-color var(--speed-highlightFadeOut) ease,
+		color var(--speed-highlightFadeOut) ease;
+}
+
+.dialog-field-btn:focus-visible {
+	outline: var(--focus-ring-outline);
+	outline-offset: 2px;
+}
+
+.dialog-field-btn:active {
+	background-color: var(--control-tertiary-selected);
+	color: var(--content-highlight-color);
+	transition-duration: 0s;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+	.dialog-field-btn:hover {
+		background-color: var(--control-tertiary-hover);
+		color: var(--content-highlight-color);
+		transition-duration: var(--speed-highlightFadeIn);
+	}
+}
+
 .presence-trigger-btn {
 	display: inline-flex;
 	align-items: center;
@@ -497,7 +598,14 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.dialog-backdrop,
-	.dialog-panel {
+	.dialog-panel,
+	.dialog-close,
+	.dialog-option,
+	.dialog-option-check,
+	.dialog-btn,
+	.dialog-field-input,
+	.dialog-field-btn {
 		animation: none;
+		transition: none;
 	}
 }

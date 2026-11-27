@@ -511,8 +511,6 @@ export interface ElectronAPI {
 	onPluginsListUpdated?: (handler: (plugins: PluginInfo[]) => void) => void
 	onPluginToast?: (handler: (payload: { message: string }) => void) => void
 	onProtocolError?: (handler: (payload: { code: string; message: string }) => void) => void
-	openSupportSite?: () => Promise<boolean> | boolean
-	openSupportDiscord?: () => Promise<boolean> | boolean
 	clearLogs?: () => Promise<boolean> | boolean
 	downloadLogs?: () => Promise<boolean> | boolean
 	onLogsClear?: (handler: () => void) => void
@@ -547,7 +545,6 @@ export interface ElectronAPI {
 	onStatusPayload?: (handler: (text: string | null) => void) => void
 	setStatusEnabledBrowser?: (on: boolean) => Promise<void> | void
 	setRpcEnabled?: () => Promise<void>
-	openDiscordGetTokenVideoError?: () => Promise<void>
 	setupStatusTutorialButtons?: () => Promise<void>
 	customStatusRestart?: () => Promise<void>
 	customStatusStop?: () => Promise<void>
@@ -563,9 +560,6 @@ export interface ElectronAPI {
 	setAutomaticActivity?: (on: boolean) => Promise<void> | void
 	setMusicFilter?: (on: boolean) => Promise<void> | void
 	setVideoFilter?: (on: boolean) => Promise<void> | void
-	openDiscordDeveloperPortal?: () => Promise<void>
-	openDiscordDeveloperAuthorId?: () => Promise<void>
-	openDiscordGetTokenVideo?: () => Promise<void>
 	liveSetClientId?: (clientId: string) => Promise<unknown> | unknown
 	liveSetButtons?: (pairs: ButtonPair[]) => Promise<unknown> | unknown
 	liveSetCycles?: (cycles: CycleEntry[]) => Promise<unknown> | unknown
