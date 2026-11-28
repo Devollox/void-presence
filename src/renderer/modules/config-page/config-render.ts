@@ -26,15 +26,17 @@ import {
 	StoredRecentApp,
 } from './config-storage'
 
-export function addConfigFromState(name: string, state: FullState): void {
+export function addConfigFromState(name: string, state: FullState, createdAt?: string): string {
 	const configs = getConfigs()
+	const ts = createdAt ?? new Date().toISOString()
 	configs.push({
 		name,
 		state: deepCloneState(state),
-		createdAt: new Date().toISOString(),
+		createdAt: ts,
 	})
 	setConfigs(configs)
 	renderConfigs()
+	return ts
 }
 
 export function attachAddConfigGlobal() {
@@ -295,12 +297,20 @@ function createConfigCard(
 		const configs = getConfigs()
 		const index = configs.findIndex(c => c.createdAt === cfg.createdAt)
 		if (index === -1) return
+		const deleted = configs[index]!
 		configs.splice(index, 1)
 		setConfigs(configs)
 		renderConfigs()
 
 		const { showConfigDeleteToast } = setupToasts()
-		showConfigDeleteToast()
+		showConfigDeleteToast({
+			onUndo: () => {
+				const current = getConfigs()
+				current.splice(index, 0, deleted)
+				setConfigs(current)
+				renderConfigs()
+			},
+		})
 	})
 
 	actions.appendChild(loadBtn)

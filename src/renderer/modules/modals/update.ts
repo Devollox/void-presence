@@ -59,13 +59,13 @@ async function openUpdateOverlay(info: UpdateInfo) {
 		setText('update-changelog', t('updateOverlay.noChangelog'))
 	}
 
-	overlay.dataset.open = 'true'
+	overlay.hidden = false
 }
 
 function hideUpdateOverlay() {
 	const overlay = document.getElementById('update-overlay') as HTMLElement | null
 	if (!overlay) return
-	overlay.dataset.open = 'false'
+	overlay.hidden = true
 }
 
 function bindUpdateOverlayControls() {

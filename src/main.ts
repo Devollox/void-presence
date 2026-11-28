@@ -213,7 +213,7 @@ async function handleUrl(rawUrl: string): Promise<void> {
 		if (payload.kind === 'import-config') {
 			win.webContents.send('ACTION_IMPORT_CONFIG', payload)
 			win.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', {
-				view: 'config',
+				view: 'configs-presence',
 			})
 
 			console.info('[protocol] import-config delivered to renderer')
@@ -224,7 +224,7 @@ async function handleUrl(rawUrl: string): Promise<void> {
 		if (payload.kind === 'import-status') {
 			win.webContents.send('ACTION_IMPORT_STATUS', payload)
 			win.webContents.send('ACTIVATE_VIEW_FROM_PROTOCOL', {
-				view: 'config',
+				view: 'configs-status',
 			})
 
 			console.info('[protocol] import-status delivered to renderer')

@@ -129,11 +129,8 @@
 }
 
 .detail-overlay-card {
-	border: var(--editor-hairline) solid var(--border-secondary);
-	border-radius: var(--radius-card);
-	background-color: var(--color-bg-secondary);
-	box-shadow: var(--loading-error-secondary-shadow);
 	overflow: hidden;
+	margin-left: 8px;
 }
 
 .detail-overlay-list {

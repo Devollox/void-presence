@@ -627,7 +627,7 @@ declare global {
 		electronAPI?: ElectronAPI
 		__voidPresenceCtx?: VoidPresenceCtx
 		voidPresenceCtx?: VoidPresenceCtx
-		addConfigFromState?: (name: string, state: FullState) => void
+		addConfigFromState?: (name: string, state: FullState, createdAt?: string) => string
 	}
 }
 

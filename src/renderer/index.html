@@ -31,6 +31,7 @@
 		<link rel="stylesheet" href="./styles/dialog.css" />
 		<link rel="stylesheet" href="./styles/status-dot-tooltip.css" />
 		<link rel="stylesheet" href="./styles/logs.css" />
+		<link rel="stylesheet" href="./styles/toasts.css" />
 		<script>
 			try {
 				if (localStorage.getItem('vp_hide_tutorial') === '1') {
@@ -3371,155 +3372,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div
-			id="update-overlay"
-			class="detail-overlay"
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="update-overlay-title"
-			hidden
-		>
-			<div class="detail-overlay-backdrop" id="update-backdrop"></div>
-			<div class="detail-overlay-panel">
-				<header class="detail-overlay-header">
-					<div class="detail-overlay-titles">
-						<span class="detail-overlay-eyebrow" data-i18n="modal.updateAvailable"
-							>Update available</span
-						>
-						<h2
-							class="detail-overlay-title"
-							id="update-overlay-title"
-							data-i18n="modal.updateAvailable"
-						>
-							New version available
-						</h2>
-					</div>
-					<button
-						id="update-close-btn"
-						class="detail-overlay-close"
-						type="button"
-						aria-label="Close"
-					>
-						<svg
-							width="14"
-							height="14"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							aria-hidden="true"
-						>
-							<line x1="18" y1="6" x2="6" y2="18" />
-							<line x1="6" y1="6" x2="18" y2="18" />
-						</svg>
-					</button>
-				</header>
-				<div class="detail-overlay-body">
-					<div class="detail-overlay-section">
-						<p class="detail-overlay-section-title" data-i18n="modal.version">Version</p>
-						<div class="detail-overlay-card">
-							<div class="config-details-item">
-								<div class="config-details-item-main">
-									<div class="config-details-item-label" data-i18n="modal.current">Current</div>
-									<div class="config-details-item-sub" id="update-current-version">—</div>
-								</div>
-							</div>
-							<div class="config-details-item">
-								<div class="config-details-item-main">
-									<div class="config-details-item-label" data-i18n="modal.latest">Latest</div>
-									<div class="config-details-item-sub" id="update-latest-version">—</div>
-								</div>
-								<div class="config-details-item-meta">
-									<span class="config-details-item-sub" data-i18n="modal.updatesInstallViaWindows"
-										>Updates are installed via a Windows setup file.</span
-									>
-								</div>
-							</div>
-							<div class="config-details-item" id="update-changelog-block" data-visible="false">
-								<div class="config-details-item-main">
-									<div class="config-details-item-label" data-i18n="modal.whatIsNew">
-										What's new
-									</div>
-									<div class="config-details-item-sub" id="update-changelog">—</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="detail-overlay-section">
-						<p class="detail-overlay-section-title" data-i18n="modal.actions">Actions</p>
-						<div class="detail-overlay-actions">
-							<button id="update-install-btn" class="rpc-button" type="button">
-								<span data-i18n="modal.installUpdateAndRestart">Install update and restart</span>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div
-			id="import-overlay"
-			class="detail-overlay"
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="import-overlay-title"
-			hidden
-		>
-			<div class="detail-overlay-backdrop" id="import-backdrop"></div>
-			<div class="detail-overlay-panel">
-				<header class="detail-overlay-header">
-					<div class="detail-overlay-titles">
-						<span class="detail-overlay-eyebrow" data-i18n="modal.importProfile"
-							>Import profile</span
-						>
-						<h2
-							class="detail-overlay-title"
-							id="import-overlay-title"
-							data-i18n="modal.dropJsonFile"
-						>
-							Drop or choose a JSON file
-						</h2>
-					</div>
-					<button
-						id="import-close-btn"
-						class="detail-overlay-close"
-						type="button"
-						aria-label="Close"
-					>
-						<svg
-							width="14"
-							height="14"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							aria-hidden="true"
-						>
-							<line x1="18" y1="6" x2="6" y2="18" />
-							<line x1="6" y1="6" x2="18" y2="18" />
-						</svg>
-					</button>
-				</header>
-				<div class="detail-overlay-body">
-					<div class="import-body">
-						<p data-i18n="modal.importHint">Only button, cycles and image will be imported.</p>
-						<div class="import-input-row">
-							<input type="file" id="import-file-input" accept="application/json,.json" />
-						</div>
-						<p class="import-hint" data-i18n="modal.dragAndDropHint">
-							You can also drag and drop a .json file onto the window; dashed border will appear
-							when ready to drop.
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-
 		<div
 			id="status-import-overlay"
 			class="detail-overlay"
@@ -3814,6 +3666,7 @@
 		</div>
 
 		<div id="copy-toast" class="copy-toast" data-visible="false"></div>
+		<div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="false"></div>
 		<div id="global-drop-overlay" data-active="false"></div>
 
 		<div id="account-popover" class="account-popover" hidden>

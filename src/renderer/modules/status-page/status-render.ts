@@ -210,12 +210,20 @@ function createStatusCard(
 		const profiles = getStatusProfiles()
 		const index = profiles.findIndex(p => p.createdAt === profile.createdAt)
 		if (index === -1) return
+		const deleted = profiles[index]!
 		profiles.splice(index, 1)
 		setStatusProfiles(profiles)
 		renderStatusProfiles()
 
 		const { showConfigDeleteToast } = setupToasts()
-		showConfigDeleteToast()
+		showConfigDeleteToast({
+			onUndo: () => {
+				const current = getStatusProfiles()
+				current.splice(index, 0, deleted)
+				setStatusProfiles(current)
+				renderStatusProfiles()
+			},
+		})
 	})
 
 	actions.appendChild(loadBtn)

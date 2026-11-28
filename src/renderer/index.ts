@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				return
 			}
 
-			const view = payload.view === 'config' ? 'configs' : payload.view
+			const view = payload.view === 'config' ? 'configs-presence' : payload.view
 
 			const allowedViews = new Set([
 				'presence',
@@ -223,6 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				'logs',
 				'plugins',
 				'configs',
+				'configs-presence',
+				'configs-status',
 				'settings',
 				'changelogs',
 			])

@@ -1,8 +1,12 @@
 import { CustomStatusItem, FullState } from '../../../types/types'
 import { renderConfigs } from '../config-page/config-render'
+import { getConfigs, setConfigs } from '../config-page/config-storage'
 import { setupToasts } from '../config/toasts'
 import { renderStatusProfiles } from '../status-page/status-render'
 import { addStatusProfileFromItems } from '../status-page/status-storage'
+import { getStatusProfiles, setStatusProfiles } from '../status-page/status-storage'
+import { closeOverlay, isOverlayOpen } from '../shell/overlay-utils'
+import { setActiveView } from '../shell/views-nav'
 
 function isStatusArray(data: unknown): data is CustomStatusItem[] {
 	return (
@@ -44,9 +48,20 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 
 	if (isStatusArray(parsed)) {
 		const name = baseName || 'Imported status'
-		addStatusProfileFromItems(name, parsed)
+		const createdAt = addStatusProfileFromItems(name, parsed)
 		renderStatusProfiles()
-		showConfigImportedToast()
+
+		showConfigImportedToast({
+			onUndo: () => {
+				const profiles = getStatusProfiles()
+				const target = profiles.findIndex(p => p.createdAt === createdAt)
+				if (target !== -1) {
+					profiles.splice(target, 1)
+					setStatusProfiles(profiles)
+					renderStatusProfiles()
+				}
+			},
+		})
 		setActiveView('status')
 		return
 	}
@@ -54,10 +69,20 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 	if (isStatusObject(parsed)) {
 		const name = baseName || 'Imported status'
 		const obj = parsed as { statusCycles: CustomStatusItem[] }
-		const items = obj.statusCycles
-		addStatusProfileFromItems(name, items)
+		const createdAt = addStatusProfileFromItems(name, obj.statusCycles)
 		renderStatusProfiles()
-		showConfigImportedToast()
+
+		showConfigImportedToast({
+			onUndo: () => {
+				const profiles = getStatusProfiles()
+				const target = profiles.findIndex(p => p.createdAt === createdAt)
+				if (target !== -1) {
+					profiles.splice(target, 1)
+					setStatusProfiles(profiles)
+					renderStatusProfiles()
+				}
+			},
+		})
 		setActiveView('status')
 		return
 	}
@@ -78,7 +103,7 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 			activityType: p.activityType,
 			nowMode: p.nowMode,
 			updateIntervalSec: p.updateIntervalSec,
-			statusCycles: Array.isArray((p as any).statusCycles) ? (p as any).statusCycles : [],
+			statusCycles: [],
 		}
 
 		const nameInput = document.getElementById('config-name-input')
@@ -88,12 +113,25 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 				? nameInput.value.trim()
 				: 'Imported profile')
 
+		const createdAt = new Date().toISOString()
+
 		if (window.addConfigFromState) {
-			window.addConfigFromState(name, state)
+			window.addConfigFromState(name, state, createdAt)
 		}
 
 		renderConfigs()
-		showConfigImportedToast()
+
+		showConfigImportedToast({
+			onUndo: () => {
+				const configs = getConfigs()
+				const target = configs.findIndex(c => c.createdAt === createdAt)
+				if (target !== -1) {
+					configs.splice(target, 1)
+					setConfigs(configs)
+					renderConfigs()
+				}
+			},
+		})
 		setActiveView('configs-presence')
 		return
 	}
@@ -104,7 +142,7 @@ export function importConfigFromFile(file: File): void {
 	reader.onload = ev => {
 		try {
 			const text = String(ev.target?.result || '')
-			const parsed = JSON.parse(text)
+			const parsed = JSON.parse(text) as unknown
 
 			const nameInput = document.getElementById('config-name-input')
 			const baseName =
@@ -119,9 +157,6 @@ export function importConfigFromFile(file: File): void {
 	}
 	reader.readAsText(file)
 }
-
-import { closeOverlay, isOverlayOpen, openOverlay } from '../shell/overlay-utils'
-import { setActiveView } from '../shell/views-nav'
 
 export function setupImportOverlay(): void {
 	const overlay = document.getElementById('import-overlay') as HTMLElement | null
