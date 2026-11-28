@@ -4,12 +4,14 @@ export function setupGlobalDrop(): void {
 	const overlay = document.getElementById('global-drop-overlay')
 	if (!(overlay instanceof HTMLElement)) return
 
-	const showOverlay = () => {
+	const showOverlay = (): void => {
 		overlay.dataset.active = 'true'
+		document.body.dataset.dndActive = 'true'
 	}
 
-	const hideOverlay = () => {
+	const hideOverlay = (): void => {
 		overlay.dataset.active = 'false'
+		document.body.dataset.dndActive = 'false'
 	}
 
 	const hasFileItem = (items: DataTransferItemList): boolean =>

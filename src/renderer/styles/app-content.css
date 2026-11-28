@@ -170,6 +170,19 @@ html.dark .app-workspace {
 	box-shadow: var(--loading-error-secondary-shadow);
 	overflow: hidden;
 	position: relative;
+	transition:
+		box-shadow 180ms ease,
+		border-color 180ms ease;
+}
+
+body[data-dnd-active='true'] .app-content {
+	border-color: color-mix(in srgb, var(--focus-ring-color) 25%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.app-content {
+		transition: none;
+	}
 }
 
 .app-content > [data-view] {

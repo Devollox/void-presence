@@ -47,6 +47,7 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 		addStatusProfileFromItems(name, parsed)
 		renderStatusProfiles()
 		showConfigImportedToast()
+		setActiveView('status')
 		return
 	}
 
@@ -57,6 +58,7 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 		addStatusProfileFromItems(name, items)
 		renderStatusProfiles()
 		showConfigImportedToast()
+		setActiveView('status')
 		return
 	}
 
@@ -92,6 +94,7 @@ export function importJsonPayload(parsed: unknown, baseName?: string): void {
 
 		renderConfigs()
 		showConfigImportedToast()
+		setActiveView('configs-presence')
 		return
 	}
 }
@@ -118,6 +121,7 @@ export function importConfigFromFile(file: File): void {
 }
 
 import { closeOverlay, isOverlayOpen, openOverlay } from '../shell/overlay-utils'
+import { setActiveView } from '../shell/views-nav'
 
 export function setupImportOverlay(): void {
 	const overlay = document.getElementById('import-overlay') as HTMLElement | null
